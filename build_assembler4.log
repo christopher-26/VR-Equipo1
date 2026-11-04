@@ -1,0 +1,834 @@
+[Licensing::Module] Trying to connect to existing licensing client channel...
+Built from '6000.3/staging' branch; Version is '6000.3.24f1 (4e7b9b5b6244) revision 5143451'; Using compiler version '194234433'; Build Type 'Release'
+OS: 'Windows 11  (10.0.26300) CoreSingleLanguage' Language: 'es' Physical Memory: 6057 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-15-CW1008LA" at "2026-11-04T09:43:51.1793387Z"
+System  architecture: x64
+Process architecture: x64
+Date: 2026-11-04T09:43:51Z
+
+COMMAND LINE ARGUMENTS:
+C:\Program Files\Unity\Hub\Editor\6000.3.24f1\Editor\Unity.exe
+-batchmode
+-quit
+-projectPath
+C:\VR\VR-Equipo1
+-executeMethod
+AndesSim.Editor.OficinaPagosSceneAssembler.AssembleCompleteScene
+-logFile
+C:\VR\VR-Equipo1\build_assembler4.log
+Successfully changed project path to: C:\VR\VR-Equipo1
+C:/VR/VR-Equipo1
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-gfx=262144"
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-remapper-allocator-initial-capacity=32768"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+Player connection [8496]  Target information:
+
+Player connection [8496]  * "[IP] 192.168.56.1 [Port] 55504 [Flags] 2 [Guid] 3540911922 [EditorId] 3540911922 [Version] 1048832 [Id] WindowsEditor(7,LAPTOP-5O7FLIR2) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [8496]  * "[IP] 192.168.0.105 [Port] 55504 [Flags] 2 [Guid] 3540911922 [EditorId] 3540911922 [Version] 1048832 [Id] WindowsEditor(7,LAPTOP-5O7FLIR2) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [8496] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [8496] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+[Package Manager] Connected to IPC stream "Upm-8820" after 0.7 seconds.
+[Licensing::Module] Licensing is not yet initialized.
+[Licensing::Client] Error: HandshakeResponse reported an error:
+	ResponseCode: 505
+	ResponseStatus: Unsupported protocol version '1.18.3'.
+[Licensing::Module] Error: Failed to handshake to channel: "LicenseClient-15-CW1008LA"
+[Licensing::IpcConnector] LicenseClient-15-CW1008LA channel disconnected successfully.
+[Licensing::IpcConnector] Channel LicenseClient-15-CW1008LA-6000.3.24 doesn't exist
+[Licensing::Module] Successfully launched the LicensingClient (PId: 22960)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-15-CW1008LA-6000.3.24" at "2026-11-04T09:43:55.3102644Z"
+[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 22960, path: "C:/Program Files/Unity/Hub/Editor/6000.3.24f1/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client.exe")
+[Licensing::Module] LicensingClient has failed validation; ignoring
+[Licensing::Client] Handshaking with LicensingClient:
+  Version:                 1.18.3+d7ffd15
+  Session Id:              9938402d017c4ebc8d11f9eeffc45da9
+  Correlation Id:          e8d30984da38ac8e43ed6a0f1c7bdda0
+  External correlation Id: 7391906164237046694
+  Machine Id:              SIEys4E/h/RIzXMWvE2YiDsuzgY=
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-15-CW1008LA-6000.3.24" (connect: 0.86s, validation: 0.49s, handshake: 0.02s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-15-CW1008LA-6000.3.24-notifications" at "2026-11-04T09:43:55.8143209Z"
+[Licensing::Module] Connected to LicensingClient (PId: 22960, launch time: 0.01, total connection time: 1.36s)
+[Licensing::Module] Error: Access token is unavailable; failed to update
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: F4-SFNS-38MJ-ZBYF-NADF-XXXX
+  Product: Unity Personal
+  Type: ULF
+  Expiration: Unlimited
+[Licensing::Module] License group:
+  Id: 4673901455047-UnityPersXXXX
+  Product: Unity Personal
+  Type: Assigned
+  Expiration: Unlimited
+[Licensing::Client] Successfully updated license, isAsync: True, time: 0.03
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: F4-SFNS-38MJ-ZBYF-NADF-XXXX
+  Product: Unity Personal
+  Type: ULF
+  Expiration: Unlimited
+[Licensing::Module] License group:
+  Id: 4673901455047-UnityPersXXXX
+  Product: Unity Personal
+  Type: Assigned
+  Expiration: Unlimited
+[Licensing::Module] Licensing Background thread has ended after 4.75s
+[Licensing::Module] Licensing is initialized (took 3.59s).
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: F4-SFNS-38MJ-ZBYF-NADF-XXXX
+  Product: Unity Personal
+  Type: ULF
+  Expiration: Unlimited
+[Licensing::Module] License group:
+  Id: 4673901455047-UnityPersXXXX
+  Product: Unity Personal
+  Type: Assigned
+  Expiration: Unlimited
+Library Redirect Path: Library/
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+Refreshing native plugins compatible for Editor in 5.27 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Initialize engine version: 6000.3.24f1 (4e7b9b5b6244)
+[Subsystems] Discovering subsystems at path C:/Program Files/Unity/Hub/Editor/6000.3.24f1/Editor/Data/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path C:/VR/VR-Equipo1/Assets
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.1]
+    Renderer: AMD Radeon(TM) RX Vega 10 Graphics (ID=0x15d8)
+    Vendor:   ATI
+    VRAM:     3028 MB
+    Driver:   30.0.13023.4001
+Initialize mono
+Mono path[0] = 'C:/Program Files/Unity/Hub/Editor/6000.3.24f1/Editor/Data/Managed'
+Mono path[1] = 'C:/Program Files/Unity/Hub/Editor/6000.3.24f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
+Mono config path = 'C:/Program Files/Unity/Hub/Editor/6000.3.24f1/Editor/Data/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56820
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+ImportWorker Server TCP listen port: 0
+AcceleratorClientConnectionCallback - disconnected - :0
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.3.24f1/Editor/Data/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.3.24f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
+Registered in 0.013713 seconds.
+- Loaded All Assemblies, in  1.552 seconds
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Package Manager log level set to [2]
+ScheduleIndexationOnStartup MainProcess:False IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  1.061 seconds
+Domain Reload Profiling: 2600ms
+	BeginReloadAssembly (570ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (0ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (16ms)
+	RebuildCommonClasses (98ms)
+	RebuildNativeTypeToScriptingClass (25ms)
+	initialDomainReloadingComplete (132ms)
+	LoadAllAssembliesAndSetupDomain (713ms)
+		LoadAssemblies (540ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (704ms)
+			TypeCache.Refresh (699ms)
+				TypeCache.ScanAssembly (660ms)
+			BuildScriptInfoCaches (1ms)
+			ResolveRequiredComponents (1ms)
+	FinalizeReload (1063ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (972ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (135ms)
+			SetLoadedEditorAssemblies (6ms)
+			BeforeProcessingInitializeOnLoad (174ms)
+			ProcessInitializeOnLoadAttributes (350ms)
+			ProcessInitializeOnLoadMethodAttributes (305ms)
+			AfterProcessingInitializeOnLoad (0ms)
+			EditorAssembliesLoaded (1ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (0ms)
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: F4-SFNS-38MJ-ZBYF-NADF-XXXX
+  Product: Unity Personal
+  Type: ULF
+  Expiration: Unlimited
+[Licensing::Module] License group:
+  Id: 4673901455047-UnityPersXXXX
+  Product: Unity Personal
+  Type: Assigned
+  Expiration: Unlimited
+Application.AssetDatabase Initial Refresh Start
+[Package Manager] Restoring resolved packages state from cache
+[Licensing::Client] Successfully resolved entitlement details
+[Package Manager] Registered 71 packages:
+  Packages from [https://packages.unity.com]:
+    com.unity.inputsystem@1.20.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.inputsystem@7a4e1a2a8194)
+    com.unity.learn.iet-framework@6.0.6 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.learn.iet-framework@20adddfea631)
+    com.unity.xr.androidxr-openxr@1.3.1 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.xr.androidxr-openxr@85a4ea3b26b6)
+    com.unity.xr.arfoundation@6.5.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.xr.arfoundation@13d2457b468b)
+    com.unity.xr.compositionlayers@2.5.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.xr.compositionlayers@2843cb312e13)
+    com.unity.xr.core-utils@2.6.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.xr.core-utils@a8b900321199)
+    com.unity.xr.hands@1.8.1 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.xr.hands@0908de89928b)
+    com.unity.xr.interaction.toolkit@3.5.1 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.xr.interaction.toolkit@63ca3b7ce776)
+    com.unity.xr.management@4.6.1 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.xr.management@df145a5bc89e)
+    com.unity.xr.meta-openxr@2.5.1 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.xr.meta-openxr@6d169a09f2c7)
+    com.unity.xr.openxr@1.17.1 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.xr.openxr@58837b2992e0)
+    com.unity.xr.legacyinputhelpers@2.1.13 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.xr.legacyinputhelpers@9535ff2c27ac)
+    com.unity.mathematics@1.3.3 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.mathematics@19a9377c4ffa)
+    com.unity.editorcoroutines@1.1.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.editorcoroutines@87a15ed012c2)
+    com.unity.settings-manager@2.1.1 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.settings-manager@0b8638c5ce86)
+    com.unity.ide.visualstudio@2.0.26 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.ide.visualstudio@a99d56dec63f)
+    com.unity.ide.rider@3.0.40 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.ide.rider@e4950c6d131b)
+    com.unity.performance.profile-analyzer@1.4.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.performance.profile-analyzer@2bb26871883c)
+    com.unity.testtools.codecoverage@1.3.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.testtools.codecoverage@19a841221620)
+    com.unity.nuget.newtonsoft-json@3.2.2 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.nuget.newtonsoft-json@4dfd81071c64)
+    com.unity.searcher@4.9.5 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.searcher@a463122f2c00)
+    com.unity.burst@1.8.30 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.burst@2f3d916873ea)
+    com.unity.collections@2.6.8 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.collections@84e8eb3fc12e)
+    com.unity.nuget.mono-cecil@1.11.6 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.nuget.mono-cecil@ecb9724e46ff)
+    com.unity.test-framework.performance@3.5.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.test-framework.performance@8b56083ec0f0)
+  Built-in packages:
+    com.unity.feature.development@1.0.2 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.feature.development@767aadbc6eb7)
+    com.unity.multiplayer.center@1.0.1 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.multiplayer.center@f01f4ba8d00a)
+    com.unity.render-pipelines.universal@17.3.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.render-pipelines.universal@a8b4b2fc3560)
+    com.unity.modules.accessibility@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.accessibility)
+    com.unity.modules.adaptiveperformance@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.adaptiveperformance)
+    com.unity.modules.ai@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.ai)
+    com.unity.modules.androidjni@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.androidjni)
+    com.unity.modules.animation@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.animation)
+    com.unity.modules.assetbundle@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.assetbundle)
+    com.unity.modules.audio@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.audio)
+    com.unity.modules.cloth@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.cloth)
+    com.unity.modules.director@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.director)
+    com.unity.modules.imageconversion@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.imageconversion)
+    com.unity.modules.imgui@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.imgui)
+    com.unity.modules.jsonserialize@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.jsonserialize)
+    com.unity.modules.particlesystem@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.particlesystem)
+    com.unity.modules.physics@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.physics)
+    com.unity.modules.physics2d@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.physics2d)
+    com.unity.modules.screencapture@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.screencapture)
+    com.unity.modules.terrain@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.terrain)
+    com.unity.modules.terrainphysics@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.terrainphysics)
+    com.unity.modules.tilemap@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.tilemap)
+    com.unity.modules.ui@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.ui)
+    com.unity.modules.uielements@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.uielements)
+    com.unity.modules.umbra@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.umbra)
+    com.unity.modules.unityanalytics@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.unityanalytics)
+    com.unity.modules.unitywebrequest@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.unitywebrequest)
+    com.unity.modules.unitywebrequestassetbundle@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.unitywebrequestassetbundle)
+    com.unity.modules.unitywebrequestaudio@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.unitywebrequestaudio)
+    com.unity.modules.unitywebrequesttexture@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.unitywebrequesttexture)
+    com.unity.modules.unitywebrequestwww@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.unitywebrequestwww)
+    com.unity.modules.vectorgraphics@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.vectorgraphics)
+    com.unity.modules.vehicles@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.vehicles)
+    com.unity.modules.video@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.video)
+    com.unity.modules.vr@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.vr)
+    com.unity.modules.wind@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.wind)
+    com.unity.modules.xr@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.xr)
+    com.unity.modules.subsystems@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.subsystems)
+    com.unity.modules.hierarchycore@1.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.modules.hierarchycore)
+    com.unity.ugui@2.0.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.ugui@b996e7548785)
+    com.unity.render-pipelines.core@17.3.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.render-pipelines.core@0bb36005e9ba)
+    com.unity.shadergraph@17.3.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.shadergraph@30c2e3926b79)
+    com.unity.render-pipelines.universal-config@17.0.3 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.render-pipelines.universal-config@8dc1aab4af1d)
+    com.unity.test-framework@1.6.0 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.test-framework@bd7f943e9647)
+    com.unity.ext.nunit@2.0.5 (location: C:\VR\VR-Equipo1\Library\PackageCache\com.unity.ext.nunit@d8c07649098d)
+  Git packages:
+    com.coplaydev.unity-mcp@https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main (location: C:\VR\VR-Equipo1\Library\PackageCache\com.coplaydev.unity-mcp@4384f8b518e8)
+[Subsystems] Looking for new subsystems at path C:\VR\VR-Equipo1\Library\PackageCache\com.unity.xr.arfoundation@13d2457b468b
+[Subsystems] Novel subsystem found at Library/PackageCache/com.unity.xr.arfoundation@13d2457b468b/Runtime/UnitySubsystemsManifest.json
+[Subsystems] Discovering subsystems at path C:/Program Files/Unity/Hub/Editor/6000.3.24f1/Editor/Data/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path C:/VR/VR-Equipo1/Assets
+[Subsystems] Discovering subsystems at path C:\VR\VR-Equipo1\Library\PackageCache\com.unity.xr.arfoundation@13d2457b468b
+[Subsystems] No descriptors matched for  examples in Library/PackageCache/com.unity.xr.arfoundation@13d2457b468b/Runtime/UnitySubsystemsManifest.json.
+[Subsystems] 1 'inputs' descriptors matched in Library/PackageCache/com.unity.xr.arfoundation@13d2457b468b/Runtime/UnitySubsystemsManifest.json
+[Subsystems] No descriptors matched for  displays in Library/PackageCache/com.unity.xr.arfoundation@13d2457b468b/Runtime/UnitySubsystemsManifest.json.
+[Subsystems] 1 'meshings' descriptors matched in Library/PackageCache/com.unity.xr.arfoundation@13d2457b468b/Runtime/UnitySubsystemsManifest.json
+[Subsystems] Discovering subsystems at path C:\VR\VR-Equipo1\Library\PackageCache\com.unity.xr.meta-openxr@6d169a09f2c7
+[Subsystems] No descriptors matched for  examples in Library/PackageCache/com.unity.xr.meta-openxr@6d169a09f2c7/Runtime/UnitySubsystemsManifest.json.
+[Subsystems] No descriptors matched for  inputs in Library/PackageCache/com.unity.xr.meta-openxr@6d169a09f2c7/Runtime/UnitySubsystemsManifest.json.
+[Subsystems] No descriptors matched for  displays in Library/PackageCache/com.unity.xr.meta-openxr@6d169a09f2c7/Runtime/UnitySubsystemsManifest.json.
+[Subsystems] 1 'meshings' descriptors matched in Library/PackageCache/com.unity.xr.meta-openxr@6d169a09f2c7/Runtime/UnitySubsystemsManifest.json
+[Subsystems] Discovering subsystems at path C:\VR\VR-Equipo1\Library\PackageCache\com.unity.xr.openxr@58837b2992e0
+[Subsystems] No descriptors matched for  examples in Library/PackageCache/com.unity.xr.openxr@58837b2992e0/Runtime/UnitySubsystemsManifest.json.
+[Subsystems] 1 'inputs' descriptors matched in Library/PackageCache/com.unity.xr.openxr@58837b2992e0/Runtime/UnitySubsystemsManifest.json
+[Subsystems] 1 'displays' descriptors matched in Library/PackageCache/com.unity.xr.openxr@58837b2992e0/Runtime/UnitySubsystemsManifest.json
+[Subsystems] No descriptors matched for  meshings in Library/PackageCache/com.unity.xr.openxr@58837b2992e0/Runtime/UnitySubsystemsManifest.json.
+[Package Manager] Done registering packages in 0.12 seconds
+[ScriptCompilation] Requested script compilation because: Assetdatabase observed changes in script compilation related files
+Starting: C:\Program Files\Unity\Hub\Editor\6000.3.24f1\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/1900b0aE.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssemblies
+WorkingDir: C:/VR/VR-Equipo1
+DisplayProgressbar: Compiling Scripts
+ExitCode: 0 Duration: 5s621ms
+[1052/1378  0s] ILPP-Configuration Library/ilpp-configuration.nevergeneratedoutput
+[1374/1378  3s] Csc Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp-Editor.dll (+2 others)
+[1375/1378  1s] ILPostProcess Library/Bee/artifacts/1900b0aE.dag/post-processed/Assembly-CSharp-Editor.dll (+pdb)
+Processing assembly Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp-Editor.dll, with 140 defines and 371 references
+
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+
+running zzzUnity.Burst.CodeGen.BurstILPostProcessor
+[1376/1378  0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.pdb
+[1377/1378  0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.dll
+*** Tundra build success (5.48 seconds), 5 items updated, 1378 evaluated
+AssetDatabase: script compilation time: 7.020113s
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  2.529 seconds
+Refreshing native plugins compatible for Editor in 36.52 ms, found 10 plugins.
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+ScheduleIndexationOnStartup MainProcess:True IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  9.402 seconds
+Domain Reload Profiling: 11899ms
+	BeginReloadAssembly (710ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (57ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (206ms)
+	RebuildCommonClasses (85ms)
+	RebuildNativeTypeToScriptingClass (25ms)
+	initialDomainReloadingComplete (93ms)
+	LoadAllAssembliesAndSetupDomain (1579ms)
+		LoadAssemblies (1334ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (580ms)
+			TypeCache.Refresh (412ms)
+				TypeCache.ScanAssembly (377ms)
+			BuildScriptInfoCaches (125ms)
+			ResolveRequiredComponents (34ms)
+	FinalizeReload (9407ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (8953ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (61ms)
+			SetLoadedEditorAssemblies (16ms)
+			BeforeProcessingInitializeOnLoad (444ms)
+			ProcessInitializeOnLoadAttributes (7467ms)
+			ProcessInitializeOnLoadMethodAttributes (930ms)
+			AfterProcessingInitializeOnLoad (33ms)
+			EditorAssembliesLoaded (2ms)
+		ExecutionOrderSort2 (1ms)
+		AwakeInstancesAfterBackupRestoration (58ms)
+Start importing Assets/XR/Settings/OpenXRPackageSettings.asset using Guid(3dd11dcd12272e54f8a19d8224e35f53) (NativeFormatImporter) -> (artifact id: '0130072082bbdc307d6b011ea1e2b414') in 0.1081215 seconds
+Refreshing native plugins compatible for Editor in 61.61 ms, found 10 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Asset Pipeline Refresh (id=0f4a964d771aaf34e8a2709938d24bea): Total: 24.004 seconds - Initiated by InitialRefreshV2(ForceSynchronousImport)
+	Summary:
+		Imports: total=1 (actual=1, local cache=0, cache server=0)
+		Asset DB Process Time: managed=15 ms, native=11842 ms
+		Asset DB Callback time: managed=2080 ms, native=254 ms
+		Scripting: domain reloads=1, domain reload time=2533 ms, compile time=7025 ms, other=251 ms
+		Project Asset Count: scripts=1780, non-scripts=2741
+		Asset File Changes: new=0, changed=2, moved=0, deleted=0
+		Scan Filter Count: 0
+	InvokeCustomDependenciesCallbacks: 0.003ms
+	InvokePackagesCallback: 137.947ms
+	ApplyChangesToAssetFolders: 2.711ms
+	Scan: 733.281ms
+	OnSourceAssetsModified: 6.536ms
+	CategorizeAssetsWithTransientArtifact: 161.820ms
+	ProcessAssetsWithTransientArtifactChanges: 244.608ms
+	CategorizeAssets: 371.462ms
+	ImportOutOfDateAssets: 9646.565ms (2492.109ms without children)
+		ImportManagerImport: 120.807ms (5.892ms without children)
+			ImportInProcess: 114.825ms
+			UpdateCategorizedAssets: 0.090ms
+		CompileScripts: 7024.573ms
+		ReloadNativeAssets: 0.055ms
+		UnloadImportedAssets: 2.438ms
+		ReloadImportedAssets: 1.000ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 2.214ms
+		InitializingProgressBar: 0.025ms
+		PostProcessAllAssetNotificationsAddChangedAssets: 0.003ms
+		OnDemandSchedulerStart: 3.339ms
+	PostProcessAllAssets: 2086.798ms
+	Hotreload: 112.812ms
+	GatherAllCurrentPrimaryArtifactRevisions: 0.301ms
+	UnloadStreamsBegin: 4.686ms
+	PersistCurrentRevisions: 0.705ms
+	UnloadStreamsEnd: 0.003ms
+	GenerateScriptTypeHashes: 22.102ms
+	Untracked: 10493.499ms
+
+Application.AssetDatabase Initial Refresh End
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.07 seconds
+Scanning for USB devices : 8.353ms
+Initializing Unity extensions:
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+[MODES] Loading mode Default (0) for mode-current-id-VR-Equipo1
+Unloading 69 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 6662 unused Assets / (16.4 MB). Loaded Objects now: 7559.
+Memory consumption went from 286.2 MB to 269.7 MB.
+Total: 84.025800 ms (FindLiveObjects: 1.406800 ms CreateObjectMapping: 1.271400 ms MarkObjects: 58.765400 ms  DeleteObjects: 22.579600 ms)
+
+[ANDES-SIM - SceneAssembler] <b>==================================================================</b>
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:62)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs Line: 62)
+
+[ANDES-SIM - SceneAssembler] <b>INICIANDO ENSAMBLADO AUTOMATIZADO 100%: Oficina_Pagos.unity (VR)</b>
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:63)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs Line: 63)
+
+[ANDES-SIM - SceneAssembler] <b>==================================================================</b>
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:64)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs Line: 64)
+
+[ANDES-SIM - SceneAssembler] [1/8] Verificando capas, tags y ScriptableObjects de datos...
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:69)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs Line: 69)
+
+[ANDES-SIM] <b>Iniciando verificación y configuración de Capas y Tags...</b>
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.EditorTools.LayerAndTagConfigurator:ExecuteConfigureLayersAndTags () (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:49)
+AndesSim.EditorTools.LayerAndTagConfigurator:ConfigureLayersAndTags () (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:35)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:70)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs Line: 49)
+
+[ANDES-SIM] Capa 8 ya configurada correctamente como: <b>Interactive</b>
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.EditorTools.LayerAndTagConfigurator:ConfigureLayer (UnityEditor.SerializedProperty,int,string) (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:122)
+AndesSim.EditorTools.LayerAndTagConfigurator:ExecuteConfigureLayersAndTags () (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:74)
+AndesSim.EditorTools.LayerAndTagConfigurator:ConfigureLayersAndTags () (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:35)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:70)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs Line: 122)
+
+[ANDES-SIM] Capa 9 ya configurada correctamente como: <b>Teleport</b>
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.EditorTools.LayerAndTagConfigurator:ConfigureLayer (UnityEditor.SerializedProperty,int,string) (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:122)
+AndesSim.EditorTools.LayerAndTagConfigurator:ExecuteConfigureLayersAndTags () (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:75)
+AndesSim.EditorTools.LayerAndTagConfigurator:ConfigureLayersAndTags () (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:35)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:70)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs Line: 122)
+
+[ANDES-SIM] Tag ya existente: <b>Evidence</b>
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.EditorTools.LayerAndTagConfigurator:ConfigureTag (UnityEditor.SerializedProperty,string) (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:147)
+AndesSim.EditorTools.LayerAndTagConfigurator:ExecuteConfigureLayersAndTags () (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:80)
+AndesSim.EditorTools.LayerAndTagConfigurator:ConfigureLayersAndTags () (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:35)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:70)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs Line: 147)
+
+[ANDES-SIM] Tag ya existente: <b>DefenseControl</b>
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.EditorTools.LayerAndTagConfigurator:ConfigureTag (UnityEditor.SerializedProperty,string) (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:147)
+AndesSim.EditorTools.LayerAndTagConfigurator:ExecuteConfigureLayersAndTags () (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:80)
+AndesSim.EditorTools.LayerAndTagConfigurator:ConfigureLayersAndTags () (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:35)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:70)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs Line: 147)
+
+[ANDES-SIM] Tag ya existente: <b>Monitor</b>
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.EditorTools.LayerAndTagConfigurator:ConfigureTag (UnityEditor.SerializedProperty,string) (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:147)
+AndesSim.EditorTools.LayerAndTagConfigurator:ExecuteConfigureLayersAndTags () (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:80)
+AndesSim.EditorTools.LayerAndTagConfigurator:ConfigureLayersAndTags () (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:35)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:70)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs Line: 147)
+
+[ANDES-SIM] Tag ya existente: <b>PlayerRig</b>
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.EditorTools.LayerAndTagConfigurator:ConfigureTag (UnityEditor.SerializedProperty,string) (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:147)
+AndesSim.EditorTools.LayerAndTagConfigurator:ExecuteConfigureLayersAndTags () (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:80)
+AndesSim.EditorTools.LayerAndTagConfigurator:ConfigureLayersAndTags () (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:35)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:70)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs Line: 147)
+
+[ANDES-SIM] Tag ya existente: <b>Interactive</b>
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.EditorTools.LayerAndTagConfigurator:ConfigureTag (UnityEditor.SerializedProperty,string) (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:147)
+AndesSim.EditorTools.LayerAndTagConfigurator:ExecuteConfigureLayersAndTags () (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:80)
+AndesSim.EditorTools.LayerAndTagConfigurator:ConfigureLayersAndTags () (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:35)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:70)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs Line: 147)
+
+[ANDES-SIM] <color=#9CDCFE>Todas las capas (8: Interactive, 9: Teleport) y tags ya estaban configurados de forma idéntica.</color>
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.EditorTools.LayerAndTagConfigurator:ExecuteConfigureLayersAndTags () (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:99)
+AndesSim.EditorTools.LayerAndTagConfigurator:ConfigureLayersAndTags () (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:35)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:70)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs Line: 99)
+
+DisplayDialog: ANDES-SIM | Configuración de Capas y Tags Todas las capas (8: Interactive, 9: Teleport) y tags ya estaban configurados de forma idéntica.
+This should not be called in batch mode.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEditor.EditorDialog:DisplayAlertDialogNative (string,UnityEditor.DialogIconType,string,string)
+UnityEditor.EditorDialog:DisplayAlertDialog (string,string,string,UnityEditor.DialogIconType)
+UnityEditor.EditorUtility:DisplayDialog (string,string,string)
+AndesSim.EditorTools.LayerAndTagConfigurator:ExecuteConfigureLayersAndTags () (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:101)
+AndesSim.EditorTools.LayerAndTagConfigurator:ConfigureLayersAndTags () (at Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs:35)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:70)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+[Assets/_AndesSim/Editor/LayerAndTagConfigurator.cs line 101]
+
+[ANDES-SIM - AssetCreator] <b>Iniciando generación/actualización de assets de datos para el Escenario 1...</b>
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.EditorTools.ScenarioDataAssetCreator:ExecuteDataAssetGeneration (bool) (at Assets/_AndesSim/Editor/ScenarioDataAssetCreator.cs:44)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:71)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Editor/ScenarioDataAssetCreator.cs Line: 44)
+
+[ANDES-SIM - AssetCreator] Sincronizando asset existente: <color=#9CDCFE>Assets/_AndesSim/Resources/Data/Scenario01_Data.asset</color>
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.EditorTools.ScenarioDataAssetCreator:ExecuteDataAssetGeneration (bool) (at Assets/_AndesSim/Editor/ScenarioDataAssetCreator.cs:67)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:71)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Editor/ScenarioDataAssetCreator.cs Line: 67)
+
+[ANDES-SIM - AssetCreator] Actualizados 4 perfiles oficiales en: <color=#9CDCFE>Assets/_AndesSim/Resources/Data/Suspects_Data.asset</color>
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.EditorTools.ScenarioDataAssetCreator:ExecuteDataAssetGeneration (bool) (at Assets/_AndesSim/Editor/ScenarioDataAssetCreator.cs:85)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:71)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Editor/ScenarioDataAssetCreator.cs Line: 85)
+
+[ANDES-SIM - AssetCreator] Actualizadas las 3 estaciones oficiales en: <color=#9CDCFE>Assets/_AndesSim/Resources/Data/Workstations_Data.asset</color>
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.EditorTools.ScenarioDataAssetCreator:ExecuteDataAssetGeneration (bool) (at Assets/_AndesSim/Editor/ScenarioDataAssetCreator.cs:103)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:71)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Editor/ScenarioDataAssetCreator.cs Line: 103)
+
+Start importing Assets/_AndesSim/Resources/Data/Scenario01_Data.asset using Guid(00185d3094c3b1a4db0baf9ccab9931f) (NativeFormatImporter) -> (artifact id: '8a37d5d3ba54934c31cb7c294dc5885e') in 0.0274026 seconds
+Start importing Assets/_AndesSim/Resources/Data/Workstations_Data.asset using Guid(26c7adb68658d374cb7ebaa30a6d5053) (NativeFormatImporter) -> (artifact id: '204a30ba36ba527d22a6242d7b49b6ff') in 0.0087914 seconds
+Start importing Assets/_AndesSim/Resources/Data/Suspects_Data.asset using Guid(cd20befea7f0de94da210787aa6e4db7) (NativeFormatImporter) -> (artifact id: '7206fdb0af77595083021454906295a2') in 0.0056121 seconds
+Refreshing native plugins compatible for Editor in 21.27 ms, found 10 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Asset Pipeline Refresh (id=c7a49f8c6a62d224f9d279abf2cca9cf): Total: 0.360 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+	Summary:
+		Imports: total=3 (actual=3, local cache=0, cache server=0)
+		Asset DB Process Time: managed=0 ms, native=290 ms
+		Asset DB Callback time: managed=4 ms, native=64 ms
+		Scripting: domain reloads=0, domain reload time=0 ms, compile time=0 ms, other=0 ms
+		Project Asset Count: scripts=1780, non-scripts=2741
+		Asset File Changes: new=0, changed=0, moved=0, deleted=0
+		Scan Filter Count: 7
+	InvokeCustomDependenciesCallbacks: 0.040ms
+	InvokePackagesCallback: 0.001ms
+	ApplyChangesToAssetFolders: 0.551ms
+	Scan: 33.674ms
+	OnSourceAssetsModified: 0.001ms
+	CategorizeAssetsWithTransientArtifact: 0.033ms
+	ProcessAssetsWithTransientArtifactChanges: 2.230ms
+	CategorizeAssets: 155.066ms
+	ImportOutOfDateAssets: 50.487ms (0.667ms without children)
+		ImportManagerImport: 47.367ms (0.696ms without children)
+			ImportInProcess: 46.539ms
+			UpdateCategorizedAssets: 0.132ms
+		ReloadNativeAssets: 0.069ms
+		UnloadImportedAssets: 0.594ms
+		ReloadImportedAssets: 0.001ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 1.063ms
+		InitializingProgressBar: 0.015ms
+		PostProcessAllAssetNotificationsAddChangedAssets: 0.002ms
+		OnDemandSchedulerStart: 0.710ms
+	PostProcessAllAssets: 47.388ms
+	Hotreload: 21.678ms
+	GatherAllCurrentPrimaryArtifactRevisions: 0.438ms
+	UnloadStreamsBegin: 0.082ms
+	PersistCurrentRevisions: 0.168ms
+	UnloadStreamsEnd: 0.002ms
+	Untracked: 48.626ms
+
+Asset Pipeline Refresh (id=3f7121e5f4c2a6746a8336ecd8bbe597): Total: 0.033 seconds - Initiated by RefreshV2(NoUpdateAssetOptions)
+[ANDES-SIM - AssetCreator] <color=#4EC9B0>Assets de datos generados y sincronizados correctamente en 'Assets/_AndesSim/Resources/Data': | • Scenario01_Data.asset (Escenario 1: Oficina de pagos - 16 destinatarios / 3 señales / 3 evidencias / 3 defensas) | • Suspects_Data.asset (4 sospechosos: Samuel Torres, Hugo Benavides, Carla Mendoza, Renzo Aliaga) | • Workstations_Data.asset (3 puestos: Monitor_01 [PostIt], Monitor_02 [Descarga], Monitor_03 [Log SIEM]) |  | Nuevos creados: 0 | Existentes actualizados: 3</color>
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.EditorTools.ScenarioDataAssetCreator:ExecuteDataAssetGeneration (bool) (at Assets/_AndesSim/Editor/ScenarioDataAssetCreator.cs:121)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:71)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Editor/ScenarioDataAssetCreator.cs Line: 121)
+
+[ANDES-SIM - SceneAssembler] [2/8] Creando nueva escena limpia y configurando iluminación nocturna...
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:82)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs Line: 82)
+
+Unloading 0 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 36 unused Assets / (5.7 KB). Loaded Objects now: 7559.
+Memory consumption went from 214.6 MB to 214.6 MB.
+Total: 28.020400 ms (FindLiveObjects: 0.581000 ms CreateObjectMapping: 0.264000 ms MarkObjects: 27.071700 ms  DeleteObjects: 0.102100 ms)
+
+[ANDES-SIM - SceneAssembler] [3/8] Instanciando el objeto '_SYSTEMS' con GameManager, Clock, Flow, UIManager, AudioManager y Cardboard Lifecycle...
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:89)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs Line: 89)
+
+[ANDES-SIM - SceneAssembler] [4/8] Generando arquitectura 3D procedural (Vestíbulo, Salón 10x8, Ventanal y Letrero)...
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:95)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs Line: 95)
+
+[ANDES-SIM - OfficeBuilder] <color=#38F28A><b>Iniciando generación procedural de la Oficina Bancaria Nocturna...</b></color>
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.Environment.ProceduralOfficeEnvironmentBuilder:BuildOfficeGeometry (UnityEngine.Transform,bool,bool) (at Assets/_AndesSim/Scripts/Environment/ProceduralOfficeEnvironmentBuilder.cs:68)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:97)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Scripts/Environment/ProceduralOfficeEnvironmentBuilder.cs Line: 68)
+
+[ANDES-SIM - OfficeBuilder] <color=#38F28A><b>¡Oficina bancaria nocturna generada exitosamente!</b></color>
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.Environment.ProceduralOfficeEnvironmentBuilder:BuildOfficeGeometry (UnityEngine.Transform,bool,bool) (at Assets/_AndesSim/Scripts/Environment/ProceduralOfficeEnvironmentBuilder.cs:98)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:97)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Scripts/Environment/ProceduralOfficeEnvironmentBuilder.cs Line: 98)
+
+[ANDES-SIM - SceneAssembler] [5/8] Instanciando rig del Player VR en el vestíbulo frente al Portal_Entrada...
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:107)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs Line: 107)
+
+[ANDES-SIM - SceneAssembler] [6/8] Instanciando Portal_Entrada y los 3 TeleportPoints en capa 'Interactive'...
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:132)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs Line: 132)
+
+[ANDES-SIM - SceneAssembler] [7/8] Construyendo los 3 puestos de trabajo, monitores, correo phishing, Post-It y terminal SIEM...
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteSceneInternal (bool) (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:139)
+AndesSim.Editor.OficinaPagosSceneAssembler:AssembleCompleteScene () (at Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs:54)
+
+(Filename: Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs Line: 139)
+
+NullReferenceException: Object reference not set to an instance of an object
+  at AndesSim.Editor.OficinaPagosSceneAssembler.BuildMonitorDisplay (UnityEngine.Transform parent, System.String name, System.String label, UnityEngine.Material bezelMat) [0x002a2] in C:\VR\VR-Equipo1\Assets\_AndesSim\Editor\OficinaPagosSceneAssembler.cs:609 
+  at AndesSim.Editor.OficinaPagosSceneAssembler.BuildWorkstationsAndMonitors (UnityEngine.Transform parent, UnityEngine.GameObject portalObj) [0x00080] in C:\VR\VR-Equipo1\Assets\_AndesSim\Editor\OficinaPagosSceneAssembler.cs:459 
+  at AndesSim.Editor.OficinaPagosSceneAssembler.AssembleCompleteSceneInternal (System.Boolean showDialog) [0x001ae] in C:\VR\VR-Equipo1\Assets\_AndesSim\Editor\OficinaPagosSceneAssembler.cs:141 
+  at AndesSim.Editor.OficinaPagosSceneAssembler.AssembleCompleteScene () [0x00000] in C:\VR\VR-Equipo1\Assets\_AndesSim\Editor\OficinaPagosSceneAssembler.cs:54 
+
+(Filename: Assets/_AndesSim/Editor/OficinaPagosSceneAssembler.cs Line: 141)
+
+executeMethod method AndesSim.Editor.OficinaPagosSceneAssembler.AssembleCompleteScene threw exception.
+Exiting without the bug reporter. Application will terminate with return code 1

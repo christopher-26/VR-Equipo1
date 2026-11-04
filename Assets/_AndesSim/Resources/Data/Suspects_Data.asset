@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd74e220b1501a5468b5d63fbffcfca7, type: 3}
+  m_Name: Suspects_Data
+  m_EditorClassIdentifier: Assembly-CSharp::AndesSim.Data.SuspectDatabase
+  suspects:
+  - id: SUSPECT_SAMUEL_TORRES
+    fullName: Ing. Samuel Torres
+    roleTitle: Jefe de TI
+    isSuspect: 1
+    backgroundSummary: "Responsable de la red e infraestructura tecnol\xF3gica de
+      la oficina de pagos. Operaba bajo una red plana sin firewall perimetral dedicado
+      ni segmentaci\xF3n entre estaciones y terminales SWIFT. Hab\xEDa solicitado
+      formalmente presupuesto para seguridad que fue desestimado por la direcci\xF3n."
+    incriminatingPoints: "Acceso total e irrestricto de nivel administrador a toda
+      la infraestructura, servidores y topolog\xEDa de la red bancaria."
+    exoneratingPoints: "Constancia documental previa: dej\xF3 advertencias y memorandos
+      formales por escrito meses antes alertando sobre la precariedad de la red sin
+      firewall."
+    dossierNotes: "Coartada t\xE9cnica s\xF3lida pero vulnerable a escrutinio por
+      negligencia arquitect\xF3nica."
+    portraitPhoto: {fileID: 0}
+  - id: SUSPECT_HUGO_BENAVIDES
+    fullName: Lic. Hugo Benavides
+    roleTitle: Director adjunto de Pagos
+    isSuspect: 1
+    backgroundSummary: "Supervisor del \xE1rea operativa. El viernes previo al fin
+      de semana del incidente encontr\xF3 la impresora de confirmaciones SWIFT apagada
+      y asumi\xF3 que se trataba de una aver\xEDa com\xFAn sin dar reporte formal
+      a seguridad."
+    incriminatingPoints: "Ignor\xF3 la primera se\xF1al f\xEDsica evidente del ciberataque:
+      la desconexi\xF3n intencional de la impresora de auditor\xEDa que encubri\xF3
+      las transferencias an\xF3malas."
+    exoneratingPoints: "No pose\xEDa credenciales t\xE9cnicas ni conocimientos inform\xE1ticos
+      para operar directamente la terminal transaccional ni alterar paquetes en la
+      red."
+    dossierNotes: "Fallo grave de procedimiento operativo sin dolo t\xE9cnico demostrado."
+    portraitPhoto: {fileID: 0}
+  - id: SUSPECT_CARLA_MENDOZA
+    fullName: Carla Mendoza
+    roleTitle: Operadora SWIFT
+    isSuspect: 1
+    backgroundSummary: "Operadora titular con credenciales activas de autorizaci\xF3n
+      de pagos. Recibi\xF3 en su bandeja el correo con malware de 'Rasel Ahlam'.
+      Realiz\xF3 horas extra at\xEDpicas la semana previa y acostumbraba anotar contrase\xF1as
+      en notas f\xEDsicas para no olvidarlas."
+    incriminatingPoints: Sus credenciales personales de acceso a la terminal SWIFT
+      fueron las empleadas durante la noche del ataque para autorizar las transferencias
+      fraudulentas.
+    exoneratingPoints: "Higiene de contrase\xF1as deficiente: su contrase\xF1a estaba
+      escrita en un post-it pegado bajo su teclado, accesible para cualquier persona
+      que transitara por la oficina."
+    dossierNotes: "Principal vector involuntario (Patient Zero / v\xEDctima de ingenier\xEDa
+      social masiva)."
+    portraitPhoto: {fileID: 0}
+  - id: SUSPECT_RENZO_ALIAGA
+    fullName: Renzo Aliaga
+    roleTitle: "T\xE9cnico de proveedor externo"
+    isSuspect: 1
+    backgroundSummary: "Contratista de soporte t\xE9cnico inform\xE1tico. Estuvo
+      f\xEDsicamente en las oficinas dos semanas antes del ataque realizando una
+      actualizaci\xF3n de software en la terminal SWIFT."
+    incriminatingPoints: "Contacto f\xEDsico directo y acceso de consola a la terminal
+      sensible de pagos poco tiempo antes de la brecha."
+    exoneratingPoints: "La intervenci\xF3n t\xE9cnica estuvo estrictamente aprobada
+      por el \xE1rea de sistemas y documentada en la bit\xE1cora oficial de proveedores."
+    dossierNotes: Verificado en libros de acceso de seguridad; firmas de mantenimiento
+      en regla.
+    portraitPhoto: {fileID: 0}

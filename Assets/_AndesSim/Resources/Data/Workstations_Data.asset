@@ -1,0 +1,144 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8eaa51045de9bf44b793e6c37ddd905, type: 3}
+  m_Name: Workstations_Data
+  m_EditorClassIdentifier: Assembly-CSharp::AndesSim.Data.WorkstationData
+  workstations:
+  - workstationId: Monitor_01
+    workstationName: Puesto de Carla Mendoza (Operaciones SWIFT)
+    operatorName: Carla Mendoza
+    roleTitle: Operadora Titular SWIFT
+    hostname: PC-PAGOS-01
+    ipAddress: 192.168.10.21
+    hasInteractiveScreen: 1
+    hasPostItNote: 1
+    postItCredentials:
+      noteTag: PostIt_Credenciales
+      accountUser: cmendoza_swift
+      plainPassword: Andino2015*Swift
+      displayText: "USUARIO: cmendoza_swift\nCLAVE: Andino2015*Swift\n[Terminal SWIFT
+        #1 - Autorizaci\xF3n de Pagos]"
+      securityObservation: "Vulnerabilidad grave: credenciales en texto plano expuestas
+        f\xEDsicamente bajo el teclado del monitor."
+    attackModeScreen:
+      applicationTitle: WebMail Banco Andino - Bandeja de Entrada
+      screenStatus: CORREO ABIERTO - ENLACE EXTERNO SIN FILTRADO
+      statusColor: {r: 1, g: 0, b: 0, a: 1}
+      headerText: "De: Rasel Ahlam <rasel.ahlam@career-applicants-bd.com>\nPara:
+        Carla Mendoza <c.mendoza@bancoandino.pe> (+15 destinatarios)\nAsunto: Postulaci\xF3n
+        a vacante de Operaciones Bancarias - Adjunto CV"
+      bodyText: "Estimado equipo de Operaciones Bancarias,\n\nMi nombre es Rasel
+        Ahlam y presento mi postulaci\xF3n formal para la vacante en Operaciones
+        del Banco Andino.\n\nDebido al cierre inminente de la vacante hoy, les ruego
+        descargar y revisar urgentemente mi CV en el siguiente enlace:\n\nhttp://bit.ly-cv-storage.org/Rasel_Ahlam_CV_2015.scr.zip\n\nQuedo
+        a su disposici\xF3n para coordinar una entrevista t\xE9cnica.\n\nAtentamente,\nRasel
+        Ahlam"
+      footerNotice: "ADVERTENCIA: Archivo .scr.zip descargado en equipo local. Se
+        inici\xF3 proceso en segundo plano."
+    defenseModeScreen:
+      applicationTitle: "WebMail Banco Andino - Protecci\xF3n Perimetral Activa"
+      screenStatus: CORREO REPORTADO POR USUARIO - BLOQUEADO POR SOC
+      statusColor: {r: 0, g: 1, b: 0, a: 1}
+      headerText: "De: [REMITENTE SOSPECHOSO] Rasel Ahlam\nPara: c.mendoza@bancoandino.pe\nAsunto:
+        [PHISHING REPORTADO] Postulaci\xF3n a vacante"
+      bodyText: "AVISO DE SEGURIDAD INFORM\xC1TICA (CIRT - BANCO ANDINO):\n\nEl usuario
+        utiliz\xF3 el bot\xF3n corporativo 'Reportar Phishing'.\n\u2022 El enlace
+        externo a 'bit.ly-cv-storage.org' fue bloqueado en el firewall corporativo.\n\u2022
+        El dropper .scr.zip fue neutralizado en sandbox.\n\u2022 La sesi\xF3n requiri\xF3
+        autenticaci\xF3n multifactor (MFA), impidiendo el uso de credenciales expuestas."
+      footerNotice: "ESTADO: INCIDENTE CONTENIDO. Buzones de 16 destinatarios purgados
+        autom\xE1ticamente."
+  - workstationId: Monitor_02
+    workstationName: Puesto de Analista de Comercio Exterior
+    operatorName: Analista de Operaciones Internacionales
+    roleTitle: Destinatario #7 de la lista de 16
+    hostname: PC-PAGOS-02
+    ipAddress: 192.168.10.22
+    hasInteractiveScreen: 1
+    hasPostItNote: 0
+    postItCredentials:
+      noteTag: PostIt_Credenciales
+      accountUser: cmendoza_swift
+      plainPassword: Andino2015*Swift
+      displayText: 
+      securityObservation: 
+    attackModeScreen:
+      applicationTitle: Navegador Web Corporativo - Descargas en Curso
+      screenStatus: "DESCARGA COMPLETADA - EJECUCI\xD3N SIN AN\xC1LISIS SANDBOX"
+      statusColor: {r: 1, g: 0, b: 0, a: 1}
+      headerText: 'Origen: http://bit.ly-cv-storage.org/Rasel_Ahlam_CV_2015.scr.zip
+
+        Destino:
+        C:\Users\Analista\Downloads\'
+      bodyText: "Descarga de archivo finalizada:\n\n\u2022 Nombre: Rasel_Ahlam_CV_2015.scr.zip\n\u2022
+        Tama\xF1o: 1.42 MB\n\u2022 Tipo detectado: Archivo ejecutable Screensaver
+        de Windows (.scr)\n\u2022 Inspecci\xF3n perimetral: INEXISTENTE (Red sin
+        filtrado sandbox)\n\u2022 Acci\xF3n del usuario: Doble clic en archivo comprimido."
+      footerNotice: "ALERTA T\xC9CNICA: Vector secundario de infecci\xF3n completado
+        en PC-PAGOS-02."
+    defenseModeScreen:
+      applicationTitle: Navegador Web Corporativo - Filtro Web & Sandbox
+      screenStatus: DESCARGA INTERCEPTADA Y BLOQUEADA
+      statusColor: {r: 0, g: 1, b: 0, a: 1}
+      headerText: 'URL Solicitada: http://bit.ly-cv-storage.org/Rasel_Ahlam_CV_2015.scr.zip'
+      bodyText: "ACCESO DENEGADO POR POL\xCDTICA DE CIBERSEGURIDAD:\n\nEl motor de
+        Secure Web Gateway (SWG) y Sandbox perimetral analiz\xF3 la petici\xF3n:\n\u2022
+        Reputaci\xF3n del dominio: Desconocido / Sospechoso.\n\u2022 Extensi\xF3n
+        de riesgo: Doble extensi\xF3n oculta (.scr en contenedor .zip).\n\u2022 Resultado
+        de detonaci\xF3n en entorno aislado: Generaci\xF3n de tr\xE1fico C2 hostil."
+      footerNotice: "PROTECCI\xD3N ACTIVA: Descarga bloqueada. Equipo PC-PAGOS-02
+        aislado preventivamente."
+  - workstationId: Monitor_03
+    workstationName: Consola de Registro de Accesos Locales (SIEM)
+    operatorName: Monitoreo de Infraestructura y Servidores
+    roleTitle: "Consola de Auditor\xEDa de Red y Accesos"
+    hostname: PC-PAGOS-09 / SRV-SIEM
+    ipAddress: 192.168.10.250
+    hasInteractiveScreen: 1
+    hasPostItNote: 0
+    postItCredentials:
+      noteTag: PostIt_Credenciales
+      accountUser: cmendoza_swift
+      plainPassword: Andino2015*Swift
+      displayText: 
+      securityObservation: 
+    attackModeScreen:
+      applicationTitle: "Auditor\xEDa de Eventos del Sistema (Log 29/01/2015)"
+      screenStatus: INDICADORES DE COMPROMISO (IoC) DETECTADOS
+      statusColor: {r: 1, g: 0, b: 0, a: 1}
+      headerText: 'EVENT LOG - OFICINA DE PAGOS - FECHA: 29 ENE 2015'
+      bodyText: "[09:14:02] MAIL-SRV: Entrada SMTP masiva desde <rasel.ahlam@career-applicants-bd.com>
+        entregada a 16 buzones.\n[09:18:45] PC-PAGOS-01 (c.mendoza): HTTP GET bit.ly-cv-storage.org/Rasel_Ahlam_CV_2015.scr.zip
+        -> 200 OK (1.42MB).\n[09:22:10] PC-PAGOS-02 (analista): HTTP GET bit.ly-cv-storage.org/Rasel_Ahlam_CV_2015.scr.zip
+        -> 200 OK (1.42MB).\n[09:31:05] PC-PAGOS-09 (soporte): HTTP GET bit.ly-cv-storage.org/Rasel_Ahlam_CV_2015.scr.zip
+        -> 200 OK (1.42MB).\n[10:04:12] PC-PAGOS-01: Proceso an\xF3malo creado: C:\\Users\\c.mendoza\\AppData\\Local\\svchost_upd.exe
+        (PID 4820).\n[10:04:14] PC-PAGOS-01: Conexi\xF3n saliente establecida [PID
+        4820] -> 185.130.44.82:443 (Backdoor Lazarus C2 Activo).\n[10:15:30] RED-LOCAL:
+        Tr\xE1fico an\xF3malo entre PC-PAGOS-01 y Terminal SWIFT sin restricciones
+        de firewall."
+      footerNotice: "EVIDENCIA CR\xCDTICA: 16 destinatarios alcanzados, 3 terminales
+        infectadas y backdoor C2 establecido."
+    defenseModeScreen:
+      applicationTitle: "Auditor\xEDa de Eventos del Sistema (SIEM - Mitigaci\xF3n)"
+      screenStatus: "DEFENSA EFECTIVA - TRAZABILIDAD Y CONTENCI\xD3N"
+      statusColor: {r: 0, g: 1, b: 0, a: 1}
+      headerText: EVENT LOG - OFICINA DE PAGOS - SISTEMA PROTEGIDO
+      bodyText: "[09:14:02] MAIL-GW: Correo masivo entrante desde dominio no confiable
+        career-applicants-bd.com.\n[09:14:08] SANDBOX: Detonaci\xF3n de Rasel_Ahlam_CV_2015.scr.zip
+        detect\xF3 proceso malicioso svchost_upd.exe.\n[09:14:10] FIREWALL-EDGE:
+        IP de destino 185.130.44.82 agregada a la lista negra perimetral.\n[09:14:15]
+        SOC-ALERT: Correo purgado de los 16 buzones antes de interacci\xF3n de los
+        operadores.\n[09:15:00] MFA-POLICY: Intentos de acceso local bloqueados por
+        falta del token criptogr\xE1fico del operador.\n[10:00:00] RED-LOCAL: 0 terminales
+        infectadas. Operatividad bancaria \xEDntegra."
+      footerNotice: "SISTEMA PROTEGIDO: Contenci\xF3n exitosa de la amenaza sin brecha
+        de datos ni fondos."

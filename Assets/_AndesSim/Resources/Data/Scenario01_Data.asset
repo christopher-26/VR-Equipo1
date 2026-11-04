@@ -1,0 +1,110 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5e988457016a5546a08a38a7cbd48a7, type: 3}
+  m_Name: Scenario01_Data
+  m_EditorClassIdentifier: Assembly-CSharp::AndesSim.Data.ScenarioData
+  scenarioNumber: 1
+  scenarioTitle: Oficina de pagos
+  scenarioTechType: VR
+  scenarioDate: "29 ene 2015 \xB7 enero 2016"
+  emailRecipientsCount: 16
+  infectedAttemptComputers: 3
+  timeLimitSeconds: 180
+  senderDisplayName: Rasel Ahlam
+  senderEmail: rasel.ahlam@career-applicants-bd.com
+  emailRecipient: Carla Mendoza <c.mendoza@bancoandino.pe> (+15 destinatarios)
+  emailSubject: "Postulaci\xF3n a vacante de Operaciones Bancarias - Adjunto CV"
+  emailBody: "Estimado equipo de Operaciones Bancarias,\n\nMi nombre es Rasel Ahlam
+    y me pongo en contacto con el mayor respeto para presentar mi postulaci\xF3n
+    formal a la vacante en el \xE1rea de Operaciones del Banco Andino.\n\nCuento
+    con m\xE1s de 7 a\xF1os de experiencia en conciliaciones y sistemas transaccionales
+    SWIFT. Debido al cierre inminente de la convocatoria el d\xEDa de hoy, les ruego
+    revisar urgentemente mi curr\xEDculum vitae y certificaciones bancarias alojadas
+    en el siguiente enlace de descarga directa:\n\nhttp://bit.ly-cv-storage.org/Rasel_Ahlam_CV_2015.scr.zip\n\nAgradezco
+    de antemano su atenci\xF3n inmediata y quedo a su total disposici\xF3n para coordinar
+    una entrevista t\xE9cnica.\n\nAtentamente,\nRasel Ahlam\nEspecialista en Operaciones
+    Financieras"
+  maliciousUrl: http://bit.ly-cv-storage.org/Rasel_Ahlam_CV_2015.scr.zip
+  phishingSignals:
+  - signalId: Signal_Remitente
+    signalType: 0
+    title: Remitente sospechoso y dominio no institucional
+    technicalExplanation: "El correo proviene de 'career-applicants-bd.com', un dominio
+      p\xFAblico no verificado por los registros SPF/DKIM corporativos de Banco Andino.
+      El remitente usa un nombre falso para simular una postulaci\xF3n laboral leg\xEDtima."
+  - signalId: Signal_Enlace
+    signalType: 1
+    title: "Enlace externo con extensi\xF3n ejecutable (.scr.zip)"
+    technicalExplanation: "La URL apunta a un servidor no autorizado ('bit.ly-cv-storage.org')
+      y descarga un archivo con doble extensi\xF3n oculta (.scr.zip). Los archivos
+      .scr son screensavers de Windows ejecutables, utilizados como dropper para
+      instalar malware."
+  - signalId: Signal_Urgencia
+    signalType: 2
+    title: "Sentido artificial de urgencia y presi\xF3n temporal"
+    technicalExplanation: "El mensaje enfatiza un 'cierre inminente' y solicita una
+      descarga 'urgente e inmediata'. Esta t\xE9cnica de ingenier\xEDa social busca
+      anular el pensamiento cr\xEDtico de la v\xEDctima forz\xE1ndola a omitir los
+      controles de seguridad."
+  scenarioEvidences:
+  - evidenceId: Evidencia_Correo
+    evidenceName: Correo Malicioso en Bandeja de Entrada
+    locationDescription: Terminal de Carla Mendoza (Monitor principal)
+    technicalDescription: "Correo masivo enviado a 16 empleados de operaciones que
+      sirvi\xF3 como vector inicial de compromiso (Initial Access) de la red interna."
+  - evidenceId: Evidencia_PostIt
+    evidenceName: "Credenciales Expuestas en Post-it F\xEDsico"
+    locationDescription: Adherido bajo el teclado del puesto de operaciones
+    technicalDescription: "Contrase\xF1a de administrador local y credenciales del
+      core bancario escritas en papel, evidenciando negligencia de seguridad f\xEDsica
+      y facilitando el movimiento lateral."
+  - evidenceId: Evidencia_LogAccesos
+    evidenceName: "Registro de Conexiones An\xF3malas (SIEM)"
+    locationDescription: "Terminal de supervisi\xF3n / Pantalla de monitoreo"
+    technicalDescription: "Logs que revelan conexiones entrantes fuera de horario
+      y ejecuci\xF3n de comandos PowerShell sospechosos en 3 terminales de la oficina
+      de pagos."
+  scenarioDefenses:
+  - defenseId: Defensa_Sandbox
+    defenseName: "Filtro de correo con an\xE1lisis en Sandbox"
+    mechanismSummary: "Inspecci\xF3n automatizada en pasarela (Secure Email Gateway).
+      Los enlaces y adjuntos se ejecutan en un entorno virtual aislado antes de llegar
+      a los buzones."
+    mitigationDetail: "Detona el archivo '.scr.zip' detectando comportamiento an\xF3malo
+      y bloquea la entrega del correo malicioso a los 16 destinatarios."
+  - defenseId: Defensa_BotonReportar
+    defenseName: "Capacitaci\xF3n y bot\xF3n 'Reportar Phishing'"
+    mechanismSummary: "Cultura de ciberseguridad continua en el personal y un bot\xF3n
+      en el cliente de correo para alertar inmediatamente al Centro de Operaciones
+      de Seguridad (SOC)."
+    mitigationDetail: "Alerta al SOC tras la primera detecci\xF3n, permitiendo purgar
+      el correo de los dem\xE1s 15 buzones antes de que otro colaborador haga clic."
+  - defenseId: Defensa_MFA
+    defenseName: "Gestor de contrase\xF1as y doble factor (MFA)"
+    mechanismSummary: "Implementaci\xF3n obligatoria de autenticaci\xF3n robusta
+      mediante tokens criptogr\xE1ficos (FIDO2/TOTP) y b\xF3veda de claves encriptada."
+    mitigationDetail: "Invalida el uso de contrase\xF1as expuestas en post-its, bloqueando
+      el acceso o movimiento lateral de los atacantes sin el segundo factor f\xEDsico."
+  attackModeSummary: "ENFOQUE OFENSIVO (Modo Ataque):\nEl ataque a la oficina de
+    pagos del Banco Andino aprovech\xF3 la ingenier\xEDa social mediante un correo
+    de phishing masivo enviado a 16 colaboradores. La ausencia de filtrado avanzado
+    de adjuntos (.scr.zip) y la presi\xF3n de urgencia indujeron la infecci\xF3n
+    en 3 terminales clave. Posteriormente, las contrase\xF1as f\xEDsicas expuestas
+    en notas adhesivas permitieron a los atacantes consolidar acceso privilegiado
+    y ejecutar movimientos laterales en menos de 3 minutos."
+  defenseModeSummary: "ENFOQUE DEFENSIVO (Modo Defensa):\nLa implementaci\xF3n de
+    una estrategia de seguridad en profundidad mitig\xF3 el vector de ataque por
+    completo: 1) El Sandbox de correo intercept\xF3 el archivo ejecutable malicioso
+    antes de su entrega; 2) El reporte oportuno de los usuarios mediante el bot\xF3n
+    de phishing permiti\xF3 al SOC aislar los buzones afectados; 3) La autenticaci\xF3n
+    de doble factor (MFA) neutraliz\xF3 cualquier intento de intrusi\xF3n derivado
+    de credenciales comprometidas f\xEDsicamente."
