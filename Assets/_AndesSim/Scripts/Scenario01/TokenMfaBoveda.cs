@@ -306,10 +306,14 @@ namespace AndesSim.Scenario01
         {
             if (ledIndicatorRenderer != null)
             {
-                ledIndicatorRenderer.material.color = color;
-                if (ledIndicatorRenderer.material.HasProperty("_EmissionColor"))
+                Material mat = Application.isPlaying ? ledIndicatorRenderer.material : ledIndicatorRenderer.sharedMaterial;
+                if (mat != null)
                 {
-                    ledIndicatorRenderer.material.SetColor("_EmissionColor", color * 1.3f);
+                    mat.color = color;
+                    if (mat.HasProperty("_EmissionColor"))
+                    {
+                        mat.SetColor("_EmissionColor", color * 1.3f);
+                    }
                 }
             }
 

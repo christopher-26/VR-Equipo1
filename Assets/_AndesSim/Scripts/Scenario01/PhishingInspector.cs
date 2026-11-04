@@ -367,7 +367,7 @@ namespace AndesSim.Scenario01
                     criterionBannerDetails.text =
                         $"Las 3 señales de phishing fueron identificadas en <b>{formattedTime}</b> " +
                         $"(Límite: <b>{FormatTime(TimeLimitSeconds)}</b>).\n" +
-                        $"<color=#38F28A>[OK] Evidencia Forense Registrada:</color> <b>«{EvidenceCorreoId}»</b>\n" +
+                        $"<color=#38F28A>[OK] Evidencia Forense Registrada:</color> <b>\"{EvidenceCorreoId}\"</b>\n" +
                         "Selecciona la acción a tomar en el correo para continuar.";
                 }
 
@@ -388,7 +388,7 @@ namespace AndesSim.Scenario01
                     criterionBannerDetails.text =
                         $"Señales completadas en <b>{formattedTime}</b> " +
                         $"(Excedió el objetivo de {FormatTime(TimeLimitSeconds)}).\n" +
-                        $"<color=#38F28A>[OK] Evidencia Forense Registrada:</color> <b>«{EvidenceCorreoId}»</b>\n" +
+                        $"<color=#38F28A>[OK] Evidencia Forense Registrada:</color> <b>\"{EvidenceCorreoId}\"</b>\n" +
                         "Selecciona la acción a tomar en el correo para continuar.";
                 }
 

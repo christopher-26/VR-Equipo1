@@ -96,7 +96,7 @@ namespace AndesSim.Scenario01
 
             AutoConfigureDefaults();
 
-            if (statusIndicatorRenderer != null && materialIndex < statusIndicatorRenderer.materials.Length)
+            if (statusIndicatorRenderer != null && materialIndex < statusIndicatorRenderer.sharedMaterials.Length)
             {
                 _instancedMaterial = Application.isPlaying ? statusIndicatorRenderer.material : statusIndicatorRenderer.sharedMaterial;
             }
@@ -134,9 +134,9 @@ namespace AndesSim.Scenario01
             }
 
             // Cachear material para cambios de color
-            if (statusIndicatorRenderer != null && materialIndex < statusIndicatorRenderer.materials.Length)
+            if (statusIndicatorRenderer != null && materialIndex < statusIndicatorRenderer.sharedMaterials.Length)
             {
-                _instancedMaterial = statusIndicatorRenderer.materials[materialIndex];
+                _instancedMaterial = Application.isPlaying ? statusIndicatorRenderer.materials[materialIndex] : statusIndicatorRenderer.sharedMaterials[materialIndex];
             }
         }
 
@@ -190,7 +190,7 @@ namespace AndesSim.Scenario01
                     mitigationMechanism = "Inspección automatizada en pasarela (Secure Email Gateway). Los enlaces y adjuntos se ejecutan en un entorno virtual aislado antes de llegar a los buzones, detonando el archivo '.scr.zip'.";
                     break;
                 case "Defensa_BotonReportar":
-                    defenseTitle = "Capacitación y botón «Reportar phishing»";
+                    defenseTitle = "Capacitación y botón \"Reportar phishing\"";
                     mitigationMechanism = "Cultura continua en el personal y un botón en el cliente de correo para alertar inmediatamente al SOC, permitiendo purgar los buzones en menos de un minuto.";
                     break;
                 case "Defensa_MFA":

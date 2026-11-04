@@ -177,7 +177,7 @@ namespace AndesSim.Scenario01
             sb.AppendLine("<color=#A0A0A0>[09:21:10] HTTP GET:</color> <b>PC-PAGOS-02</b> (Comercio Ext.) intenta abrir <color=#FCE762>Rasel_Ahlam_CV_2015.scr.zip</color> (Descarga 1.42MB)");
             sb.AppendLine("<color=#A0A0A0>[09:25:03] HTTP GET:</color> <b>PC-PAGOS-09</b> (Soporte Oper.) intenta abrir <color=#FCE762>Rasel_Ahlam_CV_2015.scr.zip</color> (Descarga 1.42MB)");
             sb.AppendLine("<color=#FF4444><b>[09:25:09] ALERTA SILENCIADA:</b> Proceso backdoor (svchost_upd.exe) iniciado en red plana hacia nodo SWIFT (C2: 185.130.44.82:443)</color>");
-            sb.AppendLine("<color=#888888>────────────────────────────────────────────────────────────────────────────</color>");
+            sb.AppendLine("<color=#888888>----------------------------------------------------------------------------</color>");
             sb.AppendLine("<color=#CE9178>• Diagnóstico Forense: 16 buzones alcanzados, 3 terminales infectadas sin contención perimetral.</color>");
 
             if (logConsoleBodyText != null)
@@ -213,7 +213,7 @@ namespace AndesSim.Scenario01
             sb.AppendLine("<color=#FCE762>[09:14:07] THREAT DETECTED:</color> Dropper screensaver ejecutable (.scr) identificado. Firma maliciosa confirmada.");
             sb.AppendLine("<color=#38F28A>[09:14:08] FIREWALL BLOCK:</color> Regla perimetral aplicada en borde: IP hostil 185.130.44.82 añadida a lista negra.");
             sb.AppendLine("<color=#38F28A><b>[09:14:09] MAIL PURGE:</b> Correo purgado de los 16 buzones antes de ser entregado. 0 equipos infectados.</color>");
-            sb.AppendLine("<color=#888888>────────────────────────────────────────────────────────────────────────────</color>");
+            sb.AppendLine("<color=#888888>----------------------------------------------------------------------------</color>");
             sb.AppendLine("<color=#9CDCFE>• Contención Exitosa: El vector de phishing fue neutralizado en sandbox antes de llegar a los colaboradores.</color>");
 
             if (logConsoleBodyText != null)

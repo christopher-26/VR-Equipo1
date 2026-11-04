@@ -153,8 +153,8 @@ namespace AndesSim.UI
                 legalEthicsText.text =
                     $"<b><color={ColorAlertRed}>DECLARACIÓN ÉTICA & MARCO LEGAL (LEY 30096 Y LEY 29733):</color></b>\n" +
                     $"• <b>Finalidad Estrictamente Académica:</b> Simulador interactivo desarrollado con fines pedagógicos de concientización y defensa frente a amenazas avanzadas persistentes (APT).\n" +
-                    $"• <b>Cumplimiento de la Ley N° 30096 (Ley de Delitos Informáticos):</b> Este software no enseña técnicas ofensivas de intrusión ni promueve el acceso no autorizado a sistemas informáticos. Su enfoque exclusivo es la detección temprana de phishing y la remediación perimetral.\n" +
-                    $"• <b>Cumplimiento de la Ley N° 29733 (Protección de Datos Personales):</b> No se utilizan ni exponen datos reales. Nombres, correos, dominios y contraseñas (<i>BANCO ANDINO</i>, <i>Rasel Ahlam</i>, <i>Carla Mendoza</i>, <i>career-applicants-bd.com</i>) son <b>ficticios</b> inspirados didácticamente en el caso histórico del Banco Central de Bangladesh (Lazarus Group).";
+                    $"• <b>Cumplimiento de la Ley No. 30096 (Ley de Delitos Informáticos):</b> Este software no enseña técnicas ofensivas de intrusión ni promueve el acceso no autorizado a sistemas informáticos. Su enfoque exclusivo es la detección temprana de phishing y la remediación perimetral.\n" +
+                    $"• <b>Cumplimiento de la Ley No. 29733 (Protección de Datos Personales):</b> No se utilizan ni exponen datos reales. Nombres, correos, dominios y contraseñas (<i>BANCO ANDINO</i>, <i>Rasel Ahlam</i>, <i>Carla Mendoza</i>, <i>career-applicants-bd.com</i>) son <b>ficticios</b> inspirados didácticamente en el caso histórico del Banco Central de Bangladesh (Lazarus Group).";
             }
         }
 

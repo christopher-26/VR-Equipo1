@@ -222,6 +222,18 @@ namespace AndesSim.Environment
             // -----------------------------------------------------------------
             Canvas canvas = BuildTerminalWorldSpaceCanvas(monRoot.transform, monitorId);
 
+            // 1.3.1 Luz sutil de brillo interactivo de pantalla proyectada hacia el escritorio
+            GameObject glowObj = new GameObject("Luz_ScreenGlow");
+            glowObj.transform.SetParent(headRoot.transform, false);
+            glowObj.transform.localPosition = new Vector3(0f, 0f, -0.15f);
+            Light glowLight = glowObj.AddComponent<Light>();
+            glowLight.type = LightType.Point;
+            glowLight.range = 1.5f;
+            glowLight.intensity = 0.65f;
+            glowLight.color = (monitorId == "Monitor_01") ? new Color(0.40f, 0.85f, 1.0f) :
+                              (monitorId == "Monitor_02") ? new Color(0.35f, 0.95f, 0.65f) :
+                              new Color(0.30f, 0.70f, 1.0f);
+
             // -----------------------------------------------------------------
             // 1.4 Colisionador y Componentes VR para Cardboard
             // -----------------------------------------------------------------
@@ -256,6 +268,7 @@ namespace AndesSim.Environment
         /// <summary>
         /// Crea el Canvas en World Space perfectamente alineado frente a la pantalla física del monitor.
         /// Configura el fondo negro puro (#000000) y el marco de líneas perimetrales verde neón (#38f28a).
+        /// Alta densidad 800x480 con scale 0.0006875 para máxima legibilidad en VR Cardboard.
         /// </summary>
         private static Canvas BuildTerminalWorldSpaceCanvas(Transform parent, string monitorId)
         {
@@ -269,9 +282,9 @@ namespace AndesSim.Environment
             canvas.renderMode = RenderMode.WorldSpace;
 
             RectTransform rect = canvasObj.GetComponent<RectTransform>();
-            // Relación 250x150 escalada a 0.0022 -> 0.55m x 0.33m (Encaja exacto en marco de 24")
-            rect.sizeDelta = new Vector2(250f, 150f);
-            rect.localScale = new Vector3(0.0022f, 0.0022f, 0.0022f);
+            // Alta resolución 800x480 escalada a 0.0006875 -> 0.55m x 0.33m (Encaja exacto en marco físico de 24")
+            rect.sizeDelta = new Vector2(800f, 480f);
+            rect.localScale = new Vector3(0.0006875f, 0.0006875f, 0.0006875f);
 
             canvasObj.AddComponent<CanvasScaler>();
             canvasObj.AddComponent<GraphicRaycaster>();
@@ -297,29 +310,29 @@ namespace AndesSim.Environment
         }
 
         /// <summary>
-        /// Genera las 4 líneas de marco verde neón (#38f28a) en el perímetro del Canvas.
+        /// Genera las 4 líneas de marco verde neón (#38f28a) en el perímetro del Canvas (800x480).
         /// </summary>
         private static void BuildTerminalBorders(Transform parent)
         {
             // Borde Superior
             CreateUiLine("Borde_Neon_Top", parent,
-                new Vector2(0f, 74f), new Vector2(248f, 1.8f), TerminalBorderGreen);
+                new Vector2(0f, 238f), new Vector2(796f, 4f), TerminalBorderGreen);
 
             // Borde Inferior
             CreateUiLine("Borde_Neon_Bottom", parent,
-                new Vector2(0f, -74f), new Vector2(248f, 1.8f), TerminalBorderGreen);
+                new Vector2(0f, -238f), new Vector2(796f, 4f), TerminalBorderGreen);
 
             // Borde Izquierdo
             CreateUiLine("Borde_Neon_Left", parent,
-                new Vector2(-124f, 0f), new Vector2(1.8f, 148f), TerminalBorderGreen);
+                new Vector2(-398f, 0f), new Vector2(4f, 476f), TerminalBorderGreen);
 
             // Borde Derecho
             CreateUiLine("Borde_Neon_Right", parent,
-                new Vector2(124f, 0f), new Vector2(1.8f, 148f), TerminalBorderGreen);
+                new Vector2(398f, 0f), new Vector2(4f, 476f), TerminalBorderGreen);
 
             // Línea separadora bajo el encabezado
             CreateUiLine("Separador_Header", parent,
-                new Vector2(0f, 56f), new Vector2(244f, 1.0f), new Color(0.22f, 0.95f, 0.54f, 0.45f));
+                new Vector2(0f, 185f), new Vector2(780f, 2.5f), new Color(0.22f, 0.95f, 0.54f, 0.5f));
         }
 
         /// <summary>
@@ -330,11 +343,11 @@ namespace AndesSim.Environment
             GameObject headerObj = new GameObject("Header_Terminal_BancoAndino");
             headerObj.transform.SetParent(parent, false);
             RectTransform hRect = headerObj.AddComponent<RectTransform>();
-            hRect.anchoredPosition = new Vector2(0f, 65f);
-            hRect.sizeDelta = new Vector2(240f, 14f);
+            hRect.anchoredPosition = new Vector2(0f, 210f);
+            hRect.sizeDelta = new Vector2(760f, 40f);
 
             TextMeshProUGUI tmp = headerObj.AddComponent<TextMeshProUGUI>();
-            tmp.fontSize = 6.8f;
+            tmp.fontSize = 20f;
             tmp.alignment = TextAlignmentOptions.MidlineLeft;
             tmp.color = HighLegibilityTextColor;
 
@@ -393,12 +406,12 @@ namespace AndesSim.Environment
             GameObject counterObj = new GameObject("Txt_SeñalesContador");
             counterObj.transform.SetParent(panelCorreo.transform, false);
             RectTransform counterRect = counterObj.AddComponent<RectTransform>();
-            counterRect.anchoredPosition = new Vector2(0f, 48f);
-            counterRect.sizeDelta = new Vector2(236f, 13f);
+            counterRect.anchoredPosition = new Vector2(0f, 155f);
+            counterRect.sizeDelta = new Vector2(760f, 36f);
 
             TextMeshProUGUI counterTmp = counterObj.AddComponent<TextMeshProUGUI>();
             counterTmp.text = "Señales Detectadas: <b><color=#FFC24A>0/3</color></b> (Inspecciona con la mirada)";
-            counterTmp.fontSize = 7.5f;
+            counterTmp.fontSize = 19.5f;
             counterTmp.alignment = TextAlignmentOptions.Center;
             counterTmp.color = HighLegibilityTextColor;
 
@@ -406,7 +419,7 @@ namespace AndesSim.Environment
             // Hotspot 1: Remitente externo no institucional
             GameObject remObj = CreatePhishingHotspot(
                 "Hotspot_Remitente", panelCorreo.transform,
-                new Vector2(0f, 31f), new Vector2(234f, 17f),
+                new Vector2(0f, 95f), new Vector2(760f, 54f),
                 "<b>De:</b> Rasel Ahlam &lt;<color=#FFC24A>rasel.ahlam@career-applicants-bd.com</color>&gt;",
                 "Signal_Remitente",
                 "Dominio externo no verificado (@career-applicants-bd.com) suplantando un proceso de RRHH",
@@ -415,8 +428,8 @@ namespace AndesSim.Environment
             // Hotspot 2: Urgencia desmedida y presión psicológica
             GameObject urgObj = CreatePhishingHotspot(
                 "Hotspot_Urgencia", panelCorreo.transform,
-                new Vector2(0f, 12f), new Vector2(234f, 17f),
-                "<b>Asunto:</b> <color=#FF5A4E>URGENTE: Contratación Inmediata</color> - Curriculum",
+                new Vector2(0f, 32f), new Vector2(760f, 54f),
+                "<b>Asunto:</b> <color=#FF5A4E>URGENTE: Contratacion Inmediata</color> - Curriculum",
                 "Signal_Urgencia",
                 "Ingeniería social con sentido de urgencia desmedido para forzar la apertura del adjunto",
                 phishingInspector);
@@ -424,7 +437,7 @@ namespace AndesSim.Environment
             // Hotspot 3: Enlace malicioso con ejecutable camuflado (.scr.zip)
             GameObject linkObj = CreatePhishingHotspot(
                 "Hotspot_Enlace", panelCorreo.transform,
-                new Vector2(0f, -11f), new Vector2(234f, 21f),
+                new Vector2(0f, -36f), new Vector2(760f, 58f),
                 "<b>Adjunto:</b> <color=#FFC24A><u>http://185.130.44.82/Rasel_Ahlam_CV_2015.scr.zip</u></color>",
                 "Signal_Enlace",
                 "Descarga de ejecutable malicioso (.scr dropper) desde IP no confiable 185.130.44.82",
@@ -434,18 +447,18 @@ namespace AndesSim.Environment
             GameObject bodyObj = new GameObject("Txt_CuerpoCorreoExtracto");
             bodyObj.transform.SetParent(panelCorreo.transform, false);
             RectTransform bRect = bodyObj.AddComponent<RectTransform>();
-            bRect.anchoredPosition = new Vector2(0f, -28f);
-            bRect.sizeDelta = new Vector2(232f, 12f);
+            bRect.anchoredPosition = new Vector2(0f, -95f);
+            bRect.sizeDelta = new Vector2(750f, 36f);
             TextMeshProUGUI bodyTmp = bodyObj.AddComponent<TextMeshProUGUI>();
-            bodyTmp.text = "<color=#718096><i>\"Estimada Carla, le ruego revisar mi CV adjunto hoy mismo para la posición de pagos.\"</i></color>";
-            bodyTmp.fontSize = 5.8f;
+            bodyTmp.text = "<color=#94A3B8><i>\"Estimada Carla, le ruego revisar mi CV adjunto hoy mismo para la posición de pagos.\"</i></color>";
+            bodyTmp.fontSize = 16.5f;
             bodyTmp.alignment = TextAlignmentOptions.Center;
 
             // 3.4 Botones Interactivos de Decisión por Mirada (Modo Ataque vs Modo Defensa)
             // Botón 1: Abrir Enlace (Ataque 2016)
             GameObject btnAtaqueObj = CreateWorldGazeButton(
                 "Btn_AbrirEnlaceAtaque", panelCorreo.transform,
-                new Vector2(-60f, -48f), new Vector2(105f, 20f),
+                new Vector2(-195f, -170f), new Vector2(340f, 64f),
                 "ABRIR ENLACE", new Color(0.38f, 0.12f, 0.12f, 0.95f), AlertRedColor);
 
             Button btnAtaque = btnAtaqueObj.GetComponent<Button>();
@@ -453,7 +466,7 @@ namespace AndesSim.Environment
             // Botón 2: Reportar Phishing (Defensa)
             GameObject btnDefensaObj = CreateWorldGazeButton(
                 "Btn_ReportarPhishing", panelCorreo.transform,
-                new Vector2(60f, -48f), new Vector2(105f, 20f),
+                new Vector2(195f, -170f), new Vector2(340f, 64f),
                 "REPORTAR PHISHING", new Color(0.08f, 0.28f, 0.18f, 0.95f), TerminalBorderGreen);
 
             Button btnDefensa = btnDefensaObj.GetComponent<Button>();
@@ -499,25 +512,25 @@ namespace AndesSim.Environment
 
             // Línea de borde izquierda indicadora
             CreateUiLine("Borde_Hotspot", hotspotObj.transform,
-                new Vector2(-size.x * 0.5f + 1.2f, 0f), new Vector2(2.4f, size.y - 2f), TerminalBorderGreen);
+                new Vector2(-size.x * 0.5f + 2f, 0f), new Vector2(4f, size.y - 4f), TerminalBorderGreen);
 
             GameObject txtObj = new GameObject("Text");
             txtObj.transform.SetParent(hotspotObj.transform, false);
             RectTransform txtRect = txtObj.AddComponent<RectTransform>();
             txtRect.anchorMin = Vector2.zero;
             txtRect.anchorMax = Vector2.one;
-            txtRect.offsetMin = new Vector2(6f, 0f);
-            txtRect.offsetMax = new Vector2(-4f, 0f);
+            txtRect.offsetMin = new Vector2(16f, 0f);
+            txtRect.offsetMax = new Vector2(-8f, 0f);
 
             TextMeshProUGUI tmp = txtObj.AddComponent<TextMeshProUGUI>();
             tmp.text = labelText;
-            tmp.fontSize = 7.0f;
+            tmp.fontSize = 17.5f;
             tmp.alignment = TextAlignmentOptions.MidlineLeft;
             tmp.color = HighLegibilityTextColor;
 
-            // BoxCollider escalado en metros para retícula Cardboard
+            // BoxCollider en unidades de Canvas para retícula Cardboard VR
             BoxCollider col = hotspotObj.AddComponent<BoxCollider>();
-            col.size = new Vector3(size.x * 0.0022f, size.y * 0.0022f, 0.02f);
+            col.size = new Vector3(size.x, size.y, 25f);
 
             GazeInteractable gaze = hotspotObj.AddComponent<GazeInteractable>();
             gaze.interactableLabel = "Inspeccionar: " + description;
@@ -541,6 +554,7 @@ namespace AndesSim.Environment
 
         /// <summary>
         /// Configura el display operativo de Monitor_02 (Analista de Comercio Exterior - Operaciones SWIFT).
+        /// Alta resolución 800x480 con tipografía nítida para VR.
         /// </summary>
         public static void BuildMonitor2TradeFinanceDisplay(GameObject monitor02)
         {
@@ -559,24 +573,27 @@ namespace AndesSim.Environment
             GameObject txtTable = new GameObject("Txt_OperacionesSwift");
             txtTable.transform.SetParent(panel.transform, false);
             RectTransform tRect = txtTable.AddComponent<RectTransform>();
-            tRect.anchoredPosition = new Vector2(0f, 6f);
-            tRect.sizeDelta = new Vector2(236f, 85f);
+            tRect.anchoredPosition = new Vector2(0f, 0f);
+            tRect.sizeDelta = new Vector2(760f, 320f);
 
             TextMeshProUGUI tmp = txtTable.AddComponent<TextMeshProUGUI>();
-            tmp.fontSize = 6.4f;
+            tmp.fontSize = 17.5f;
             tmp.alignment = TextAlignmentOptions.TopLeft;
             tmp.color = HighLegibilityTextColor;
             tmp.text = "<color=#38F28A><b>BANCO ANDINO · SISTEMA DE TRANSFERENCIAS SWIFT MT103</b></color>\n" +
-                       "<color=#718096>------------------------------------------------------------</color>\n" +
-                       "OP #9481 | Bco Central NY      | US$ 1,250,000.00 | <color=#38F28A>[LIQUIDADO]</color>\n" +
-                       "OP #9482 | Standard Chartered | US$   480,000.00 | <color=#38F28A>[LIQUIDADO]</color>\n" +
-                       "OP #9483 | RCBC Makati Branch | US$ 81,000,000.00 | <color=#FFC24A>[EN ESPERA]</color>\n" +
-                       "<color=#718096>------------------------------------------------------------</color>\n" +
-                       "Terminal ID: <color=#38F28A>PC-PAGOS-02</color> | Destinatario Correo #7 | IP: 192.168.10.16";
+                       "<color=#475569>================================================================================</color>\n" +
+                       "<b>HORA      | REF SWIFT      | DESTINATARIO          | MONTO USD         | ESTADO</b>\n" +
+                       "<color=#475569>--------------------------------------------------------------------------------</color>\n" +
+                       "08:42:15  | OP #9481-NY    | Bco Central New York  | $  1,250,000.00   | <color=#38F28A>[LIQUIDADO]</color>\n" +
+                       "09:05:40  | OP #9482-LON   | Standard Chartered    | $    480,000.00   | <color=#38F28A>[LIQUIDADO]</color>\n" +
+                       "09:18:22  | OP #9483-MKT   | RCBC Makati Branch    | $ 81,000,000.00   | <color=#FFC24A>[EN ESPERA]</color>\n" +
+                       "<color=#475569>================================================================================</color>\n" +
+                       "Terminal ID: <color=#38F28A>PC-PAGOS-02</color>  |  Analista Comercio Exterior  |  IP: 192.168.10.16";
         }
 
         /// <summary>
         /// Configura el display de Monitor_03 (Consola SIEM de Monitoreo de Red y Defensas).
+        /// Alta resolución 800x480 con registros forenses legibles y botón interactivo grande.
         /// </summary>
         public static void BuildMonitor3SiemDisplay(GameObject monitor03, AccessLogTerminal siemTerminal = null)
         {
@@ -594,23 +611,25 @@ namespace AndesSim.Environment
             GameObject txtLog = new GameObject("Txt_LogTerminalSiem");
             txtLog.transform.SetParent(panel.transform, false);
             RectTransform lRect = txtLog.AddComponent<RectTransform>();
-            lRect.anchoredPosition = new Vector2(0f, 15f);
-            lRect.sizeDelta = new Vector2(236f, 75f);
+            lRect.anchoredPosition = new Vector2(0f, 45f);
+            lRect.sizeDelta = new Vector2(760f, 250f);
 
             TextMeshProUGUI tmp = txtLog.AddComponent<TextMeshProUGUI>();
-            tmp.fontSize = 6.2f;
+            tmp.fontSize = 17f;
             tmp.alignment = TextAlignmentOptions.TopLeft;
             tmp.color = HighLegibilityTextColor;
             tmp.text = "<color=#38F28A><b>BANCO ANDINO · CONSOLA SIEM DE EVENTOS DE RED (29 ENE 2015)</b></color>\n" +
-                       "<color=#718096>[08:52:10]</color> AUTH OK: c.mendoza (Terminal SWIFT-01 / 192.168.10.15)\n" +
-                       "<color=#718096>[09:14:02]</color> MAIL IN: rasel.ahlam@career-applicants-bd.com -> 16 usuarios\n" +
+                       "<color=#475569>================================================================================</color>\n" +
+                       "<color=#94A3B8>[08:52:10]</color> AUTH OK: c.mendoza (Terminal SWIFT-01 / 192.168.10.15)\n" +
+                       "<color=#94A3B8>[09:14:02]</color> MAIL IN: rasel.ahlam@career-applicants-bd.com -> 16 buzones\n" +
                        "<color=#FFC24A>[09:18:04]</color> TRAFFIC OUT: 192.168.10.15 -> 185.130.44.82 (HTTP GET .scr.zip)\n" +
-                       "<color=#FF5A4E>[09:18:22]</color> PROC CREATE: svchost_upd.exe (MD5: 4f8b2a... Lazarus Dropper)";
+                       "<color=#FF5A4E>[09:18:22]</color> PROC CREATE: svchost_upd.exe (MD5: 4f8b2a... Lazarus Dropper)\n" +
+                       "<color=#FF5A4E>[09:18:45]</color> REGISTRY ADD: RunKey Persistence -> C:\\Windows\\Temp\\msupdate.dll";
 
             // Botón interactivo de registro de evidencia forense (RF-05)
             GameObject logBtnObj = CreateWorldGazeButton(
                 "Btn_RegistrarLogEvidencia", panel.transform,
-                new Vector2(0f, -48f), new Vector2(165f, 20f),
+                new Vector2(0f, -165f), new Vector2(520f, 62f),
                 "REGISTRAR LOG COMO EVIDENCIA", new Color(0.12f, 0.28f, 0.42f, 0.95f), TerminalBorderGreen);
 
             if (siemTerminal != null)
@@ -659,7 +678,7 @@ namespace AndesSim.Environment
 
             // Borde superior o lateral indicador
             CreateUiLine("Borde_Boton", btnObj.transform,
-                new Vector2(0f, size.y * 0.5f - 1.0f), new Vector2(size.x, 2.0f), borderColor);
+                new Vector2(0f, size.y * 0.5f - 1.5f), new Vector2(size.x, 3.0f), borderColor);
 
             Button btn = btnObj.AddComponent<Button>();
             ColorBlock cb = btn.colors;
@@ -677,12 +696,13 @@ namespace AndesSim.Environment
 
             TextMeshProUGUI tmp = txtObj.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
-            tmp.fontSize = 7.5f;
+            tmp.fontSize = 20f;
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.color = Color.white;
 
+            // BoxCollider en unidades locales de Canvas para retícula Cardboard VR
             BoxCollider col = btnObj.AddComponent<BoxCollider>();
-            col.size = new Vector3(size.x * 0.0022f, size.y * 0.0022f, 0.02f);
+            col.size = new Vector3(size.x, size.y, 25f);
 
             GazeInteractable gaze = btnObj.AddComponent<GazeInteractable>();
             gaze.interactableLabel = text;

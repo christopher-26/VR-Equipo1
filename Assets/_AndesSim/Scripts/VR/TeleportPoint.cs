@@ -121,7 +121,7 @@ namespace AndesSim.VR
 
             if (ringRenderer != null)
             {
-                _ringMaterialInstance = ringRenderer.material;
+                _ringMaterialInstance = Application.isPlaying ? ringRenderer.material : ringRenderer.sharedMaterial;
                 _ringMaterialInstance.EnableKeyword("_EMISSION");
                 _ringMaterialInstance.SetColor("_Color", ringColor);
                 _ringMaterialInstance.SetColor("_EmissionColor", ringColor * 0.8f);

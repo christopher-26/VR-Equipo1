@@ -404,7 +404,7 @@ namespace AndesSim.Editor
             GameObject lineObj1 = new GameObject("Line_RedPlana_Desk1_Desk2");
             lineObj1.transform.SetParent(visualizerObj.transform);
             LineRenderer lr1 = lineObj1.AddComponent<LineRenderer>();
-            lr1.material = laserMat;
+            lr1.sharedMaterial = laserMat;
             lr1.startWidth = 0.045f;
             lr1.endWidth = 0.045f;
             lr1.useWorldSpace = true;
@@ -417,7 +417,7 @@ namespace AndesSim.Editor
             GameObject lineObj2 = new GameObject("Line_RedPlana_Desk1_Desk3");
             lineObj2.transform.SetParent(visualizerObj.transform);
             LineRenderer lr2 = lineObj2.AddComponent<LineRenderer>();
-            lr2.material = laserMat;
+            lr2.sharedMaterial = laserMat;
             lr2.startWidth = 0.045f;
             lr2.endWidth = 0.045f;
             lr2.useWorldSpace = true;
@@ -983,7 +983,7 @@ namespace AndesSim.Editor
             dHeaderRect.anchoredPosition = new Vector2(0f, 38f);
             dHeaderRect.sizeDelta = new Vector2(270f, 16f);
             TextMeshProUGUI dHeaderTmp = dHeaderObj.AddComponent<TextMeshProUGUI>();
-            dHeaderTmp.text = "<b><color=#4EC9B0>📞 CANAL DE EMERGENCIA TI · ANEXO 4040</color></b>";
+            dHeaderTmp.text = "<b><color=#4EC9B0>[SOC] CANAL DE EMERGENCIA TI · ANEXO 4040</color></b>";
             dHeaderTmp.fontSize = 8.5f;
             dHeaderTmp.alignment = TextAlignmentOptions.Center;
 
@@ -2033,7 +2033,7 @@ namespace AndesSim.Editor
             sumRect.sizeDelta = new Vector2(450f, 85f);
             TextMeshProUGUI summaryTmp = summaryObj.AddComponent<TextMeshProUGUI>();
             summaryTmp.text =
-                "16 empleados recibieron el correo de «Rasel Ahlam» el 29 de enero de 2015; al menos 3 computadoras intentaron abrir el archivo; " +
+                "16 empleados recibieron el correo de \"Rasel Ahlam\" el 29 de enero de 2015; al menos 3 computadoras intentaron abrir el archivo; " +
                 "la ausencia de sandbox, el desconocimiento de phishing y las credenciales anotadas de Carla Mendoza permitieron a Lazarus " +
                 "abrir una puerta trasera hacia la terminal SWIFT (que culminaría en las 36 órdenes por US$ 951 millones).";
             summaryTmp.fontSize = 7.8f;

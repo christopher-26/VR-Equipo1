@@ -142,9 +142,17 @@ namespace AndesSim.VR
 #if ENABLE_INPUT_SYSTEM
             if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame) isTriggered = true;
             if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame) isTriggered = true;
-#elif ENABLE_LEGACY_INPUT_MANAGER
-            if (Input.GetMouseButtonDown(0)) isTriggered = true;
-            if (Input.touchCount > 0 && Input.GetTouch(0).phase == UnityEngine.TouchPhase.Began) isTriggered = true;
+#endif
+#if ENABLE_LEGACY_INPUT_MANAGER
+            if (!isTriggered)
+            {
+                try
+                {
+                    if (Input.GetMouseButtonDown(0)) isTriggered = true;
+                    if (Input.touchCount > 0 && Input.GetTouch(0).phase == UnityEngine.TouchPhase.Began) isTriggered = true;
+                }
+                catch { }
+            }
 #endif
 
             if (isTriggered)

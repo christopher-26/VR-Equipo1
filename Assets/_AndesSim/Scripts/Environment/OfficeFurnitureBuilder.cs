@@ -28,35 +28,35 @@ namespace AndesSim.Environment
         #region Paleta de Colores Oficial (Senior Technical Artist)
 
         /// <summary>
-        /// Color exacto para el tablero y estructura del escritorio moderno: Gris oscuro (#111816).
+        /// Color exacto para el tablero y estructura del escritorio moderno: Pizarra ceniza elegante (#262d38).
         /// </summary>
-        public static readonly Color DeskDarkGrayColor = new Color(0.0667f, 0.0941f, 0.0863f, 1.0f); // #111816
+        public static readonly Color DeskDarkGrayColor = new Color(0.18f, 0.22f, 0.27f, 1.0f); // #2e3845
 
         /// <summary>
-        /// Moldura perimetral y faldón de privacidad: Tono carbón pizarra (#0d1311).
+        /// Moldura perimetral y faldón de privacidad: Tono carbón arquitectónico (#1e252f).
         /// </summary>
-        public static readonly Color DeskTrimColor = new Color(0.051f, 0.074f, 0.067f, 1.0f);
+        public static readonly Color DeskTrimColor = new Color(0.14f, 0.17f, 0.21f, 1.0f);
 
         /// <summary>
-        /// Patas metálicas tubulares y estructura de soporte: Acero cepillado oscuro / Gunmetal (#26292e).
+        /// Patas metálicas tubulares y estructura de soporte: Aluminio arquitectónico anodizado satinado (#8a9ba8).
         /// </summary>
-        public static readonly Color MetalSteelLegColor = new Color(0.15f, 0.16f, 0.18f, 1.0f);
+        public static readonly Color MetalSteelLegColor = new Color(0.55f, 0.61f, 0.68f, 1.0f);
 
         /// <summary>
-        /// Acentos cromados (tiradores, pistón neumático, bujes de ruedas): Cromo satinado (#a8adb5).
+        /// Acentos cromados (tiradores, pistón neumático, bujes de ruedas): Cromo satinado brillante (#cbd5e1).
         /// </summary>
-        public static readonly Color MetalChromeColor = new Color(0.66f, 0.68f, 0.71f, 1.0f);
+        public static readonly Color MetalChromeColor = new Color(0.82f, 0.85f, 0.90f, 1.0f);
 
         /// <summary>
-        /// Color exacto para tapizado de asiento y respaldo de silla ergonómica: Verde oscuro corporativo (#072618).
+        /// Color exacto para tapizado de asiento y respaldo de silla ergonómica: Verde azulado ejecutivo oscuro (#162e24).
         /// Identidad institucional de BANCO ANDINO SOC nocturno.
         /// </summary>
-        public static readonly Color ChairCorporateGreenColor = new Color(0.0275f, 0.1490f, 0.0941f, 1.0f); // #072618
+        public static readonly Color ChairCorporateGreenColor = new Color(0.10f, 0.22f, 0.18f, 1.0f);
 
         /// <summary>
-        /// Chasis, base de 5 radios y brazos de la silla: Nylon industrial negro mate (#0f1113).
+        /// Chasis, base de 5 radios y brazos de la silla: Nylon industrial grafito (#252a32).
         /// </summary>
-        public static readonly Color ChairFrameNylonColor = new Color(0.06f, 0.07f, 0.08f, 1.0f);
+        public static readonly Color ChairFrameNylonColor = new Color(0.16f, 0.18f, 0.21f, 1.0f);
 
         /// <summary>
         /// Color exacto para el Post-It de credenciales: Amarillo/ámbar fluorescente (#ffc24a).
@@ -65,19 +65,19 @@ namespace AndesSim.Environment
         public static readonly Color PostItFluorescentYellowColor = new Color(1.0f, 0.7608f, 0.2902f, 1.0f); // #ffc24a
 
         /// <summary>
-        /// Plásticos de periféricos (teclado, mouse, monitor): Grafito oscuro mate (#141619).
+        /// Plásticos de periféricos (teclado, mouse, monitor): Grafito mate (#22262c).
         /// </summary>
-        public static readonly Color PeripheralsDarkColor = new Color(0.08f, 0.09f, 0.10f, 1.0f);
+        public static readonly Color PeripheralsDarkColor = new Color(0.15f, 0.17f, 0.20f, 1.0f);
 
         /// <summary>
-        /// Alfombrilla de mouse: Tejido de microfibra negro carbón (#0b0c0e).
+        /// Alfombrilla de mouse: Tejido de microfibra azul oscuro (#111827).
         /// </summary>
-        public static readonly Color MousepadColor = new Color(0.045f, 0.05f, 0.06f, 1.0f);
+        public static readonly Color MousepadColor = new Color(0.08f, 0.11f, 0.16f, 1.0f);
 
         /// <summary>
-        /// Cerámica de la taza de café nocturno: Cerámica bancaria blanca satinada (#e2e6eb).
+        /// Cerámica de la taza de café nocturno: Cerámica bancaria blanca satinada (#f1f5f9).
         /// </summary>
-        public static readonly Color CeramicMugColor = new Color(0.88f, 0.90f, 0.92f, 1.0f);
+        public static readonly Color CeramicMugColor = new Color(0.95f, 0.96f, 0.98f, 1.0f);
 
         /// <summary>
         /// Líquido de café espresso concentrado (#130702).
@@ -127,42 +127,45 @@ namespace AndesSim.Environment
         {
             Dictionary<string, Material> mats = new Dictionary<string, Material>();
 
-            // 1. Escritorio gris oscuro #111816 (Satinado suave anti-reflejo)
-            mats["DeskTop"] = CreatePbrMaterial("Mat_DeskDarkGray_111816", DeskDarkGrayColor, 0.42f, 0.12f);
-            mats["DeskTrim"] = CreatePbrMaterial("Mat_DeskDarkTrim", DeskTrimColor, 0.35f, 0.08f);
+            // 1. Escritorio gris pizarra #2e3845 (Satinado suave anti-reflejo)
+            mats["DeskTop"] = CreatePbrMaterial("Mat_DeskDarkGray_2e3845", DeskDarkGrayColor, 0.55f, 0.08f);
+            mats["DeskTrim"] = CreatePbrMaterial("Mat_DeskDarkTrim", DeskTrimColor, 0.45f, 0.12f);
 
-            // 2. Patas y herrajes metálicos (Acero oscuro satinado)
-            mats["MetalLegs"] = CreatePbrMaterial("Mat_MetalSteelLegs", MetalSteelLegColor, 0.68f, 0.85f);
-            mats["MetalChrome"] = CreatePbrMaterial("Mat_MetalChromeTrim", MetalChromeColor, 0.85f, 0.95f);
+            // 2. Patas y herrajes metálicos (Aluminio satinado)
+            mats["MetalLegs"] = CreatePbrMaterial("Mat_MetalSteelLegs", MetalSteelLegColor, 0.78f, 0.88f);
+            mats["MetalChrome"] = CreatePbrMaterial("Mat_MetalChromeTrim", MetalChromeColor, 0.90f, 0.95f);
 
-            // 3. Silla ergonómica: Tapizado verde oscuro corporativo #072618
-            mats["ChairFabric"] = CreatePbrMaterial("Mat_ChairCorporateGreen_072618", ChairCorporateGreenColor, 0.22f, 0.0f);
-            mats["ChairFrame"] = CreatePbrMaterial("Mat_ChairFrameNylon", ChairFrameNylonColor, 0.30f, 0.10f);
+            // 3. Silla ergonómica: Tapizado verde oscuro corporativo
+            mats["ChairFabric"] = CreatePbrMaterial("Mat_ChairCorporateGreen", ChairCorporateGreenColor, 0.22f, 0.0f);
+            mats["ChairFrame"] = CreatePbrMaterial("Mat_ChairFrameNylon", ChairFrameNylonColor, 0.40f, 0.12f);
 
             // 4. Periféricos y accesorios
-            mats["Peripherals"] = CreatePbrMaterial("Mat_PeripheralsDark", PeripheralsDarkColor, 0.38f, 0.25f);
-            mats["Keybed"] = CreatePbrMaterial("Mat_KeybedBlack", new Color(0.04f, 0.045f, 0.05f), 0.25f, 0.05f);
-            mats["Mousepad"] = CreatePbrMaterial("Mat_MousepadMicrofiber", MousepadColor, 0.15f, 0.0f);
-            mats["Mug"] = CreatePbrMaterial("Mat_CeramicCoffeeMug", CeramicMugColor, 0.85f, 0.05f);
+            mats["Peripherals"] = CreatePbrMaterial("Mat_PeripheralsDark", PeripheralsDarkColor, 0.45f, 0.20f);
+            mats["Keybed"] = CreatePbrMaterial("Mat_KeybedBlack", new Color(0.08f, 0.09f, 0.11f), 0.30f, 0.05f);
+            mats["Mousepad"] = CreatePbrMaterial("Mat_MousepadMicrofiber", MousepadColor, 0.20f, 0.0f);
+            mats["Mug"] = CreatePbrMaterial("Mat_CeramicCoffeeMug", CeramicMugColor, 0.90f, 0.05f);
             mats["Coffee"] = CreatePbrMaterial("Mat_LiquidCoffeeEspresso", CoffeeLiquidColor, 0.96f, 0.08f);
 
             // 5. Post-It fluorescente #ffc24a
-            mats["PostIt"] = CreatePbrMaterial("Mat_PostItFluorescentYellow_ffc24a", PostItFluorescentYellowColor, 0.15f, 0.0f);
+            mats["PostIt"] = CreatePbrMaterial("Mat_PostItFluorescentYellow_ffc24a", PostItFluorescentYellowColor, 0.20f, 0.0f);
 
             // 6. Monitor y chasis PC
-            mats["Bezel"] = CreatePbrMaterial("Mat_MonitorBezel_Black", new Color(0.07f, 0.08f, 0.09f), 0.50f, 0.40f);
-            mats["PcChassis"] = CreatePbrMaterial("Mat_PcTowerChassis", new Color(0.09f, 0.10f, 0.12f), 0.45f, 0.35f);
+            mats["Bezel"] = CreatePbrMaterial("Mat_MonitorBezel_Black", new Color(0.10f, 0.11f, 0.13f), 0.50f, 0.35f);
+            mats["PcChassis"] = CreatePbrMaterial("Mat_PcTowerChassis", new Color(0.14f, 0.16f, 0.19f), 0.52f, 0.40f);
+
+            // 7. Panel acústico de privacidad de escritorio
+            mats["AcousticDivider"] = CreatePbrMaterial("Mat_DeskAcousticDivider", new Color(0.20f, 0.25f, 0.32f), 0.30f, 0.02f);
 
             return mats;
         }
 
         #endregion
 
-        #region 1. Escritorio Moderno Gris Oscuro (#111816) con Patas Metálicas
+        #region 1. Escritorio Moderno Gris Oscuro con Patas Metálicas
 
         /// <summary>
-        /// Construye un escritorio de oficina moderno en color gris oscuro (#111816) con patas metálicas,
-        /// bisel de acabado, pasacables, faldón de privacidad y cajonera metálica inferior.
+        /// Construye un escritorio de oficina moderno en color gris oscuro con patas metálicas,
+        /// bisel de acabado, pasacables, faldón de privacidad, panel divisor acústico y cajonera metálica inferior.
         /// </summary>
         public static GameObject BuildModernDesk(Transform parent, Vector3 localPos, Quaternion localRot, Dictionary<string, Material> mats = null)
         {
@@ -173,11 +176,19 @@ namespace AndesSim.Environment
             deskRoot.transform.localPosition = localPos;
             deskRoot.transform.localRotation = localRot;
 
-            // 1.1 Tablero Principal (1.60m largo x 0.85m ancho x 0.045m espesor a Y = 0.72f) en #111816
+            // 1.1 Tablero Principal (1.60m largo x 0.85m ancho x 0.045m espesor a Y = 0.72f)
             GameObject top = CreateBox("Tablero_Principal", deskRoot.transform,
                 new Vector3(0f, 0.72f, 0f), new Vector3(1.60f, 0.045f, 0.85f), mats["DeskTop"]);
 
             // Moldura perimetral inferior para profundidad visual arquitectónica
+            CreateBox("Bisel_Perimetral_Inferior", deskRoot.transform,
+                new Vector3(0f, 0.693f, 0f), new Vector3(1.57f, 0.012f, 0.82f), mats["DeskTrim"]);
+
+            // Pantalla divisoria acústica superior en el borde posterior para realismo y encuadre del monitor
+            CreateBox("Panel_Separador_Acustico_Top", deskRoot.transform,
+                new Vector3(0f, 0.95f, 0.41f), new Vector3(1.54f, 0.42f, 0.022f), mats["AcousticDivider"]);
+            CreateBox("Marco_Separador_Acustico", deskRoot.transform,
+                new Vector3(0f, 0.95f, 0.41f), new Vector3(1.56f, 0.44f, 0.028f), mats["MetalLegs"]);
             CreateBox("Bisel_Perimetral_Inferior", deskRoot.transform,
                 new Vector3(0f, 0.693f, 0f), new Vector3(1.57f, 0.012f, 0.82f), mats["DeskTrim"]);
 

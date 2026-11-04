@@ -241,7 +241,7 @@ namespace AndesSim.Scenario01
 
         private void ConfigureLineRenderer(LineRenderer lr)
         {
-            lr.material = energyLineMaterial;
+            lr.sharedMaterial = energyLineMaterial;
             lr.startWidth = defaultLineWidth;
             lr.endWidth = defaultLineWidth;
             lr.useWorldSpace = true;

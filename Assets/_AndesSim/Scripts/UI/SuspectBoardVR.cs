@@ -174,7 +174,7 @@ namespace AndesSim.UI
                     threatColorHex = ColorAlertRed,
                     careerAndPsychology =
                         "• <b>Trayectoria:</b> 12 años en banca comercial e infraestructura de redes. Ingeniero de Sistemas colegiado, especialista certificado en CISCO y CheckPoint.\n" +
-                        "• <b>Perfil Psicológico:</b> Meticuloso, tecnócrata y amargado por la burocracia directiva. Siente desdén por gerentes no técnicos que recortaron su presupuesto. Adopta una actitud de «cumplimiento pasivo estricto»: si la dirección no aprueba fondos, no implementa salvaguardas compensatorias.",
+                        "• <b>Perfil Psicológico:</b> Meticuloso, tecnócrata y amargado por la burocracia directiva. Siente desdén por gerentes no técnicos que recortaron su presupuesto. Adopta una actitud de \"cumplimiento pasivo estricto\": si la dirección no aprueba fondos, no implementa salvaguardas compensatorias.",
                     incriminatingPoints =
                         "• Poseía privilegios de Administrador Supremo (Domain Admin) en todos los switches, servidores de correo Exchange y enrutadores perimetrales.\n" +
                         "• Omitió configurar reglas elementales de filtrado MIME en Exchange para bloquear ejecutables sospechosos (.scr, .exe, .scr.zip).\n" +

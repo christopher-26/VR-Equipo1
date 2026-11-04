@@ -201,9 +201,9 @@ namespace AndesSim.VR
 
         private void SetupHologramVisuals()
         {
-            if (hologramPortalRenderer != null && hologramPortalRenderer.material != null)
+            if (hologramPortalRenderer != null)
             {
-                Material mat = hologramPortalRenderer.material;
+                Material mat = Application.isPlaying ? hologramPortalRenderer.material : hologramPortalRenderer.sharedMaterial;
                 if (mat.HasProperty("_Color")) mat.SetColor("_Color", portalHologramColor);
                 if (mat.HasProperty("_EmissionColor"))
                 {

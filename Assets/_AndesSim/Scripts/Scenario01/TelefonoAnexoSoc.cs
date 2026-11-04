@@ -168,7 +168,7 @@ namespace AndesSim.Scenario01
 
             if (dialogHeaderTitleText != null)
             {
-                dialogHeaderTitleText.text = "<b><color=#FFA633>📞 MARCANDO AL ANEXO 4040 · SEGURIDAD TI</color></b>";
+                dialogHeaderTitleText.text = "<b><color=#FFA633>[SOC] MARCANDO AL ANEXO 4040 · SEGURIDAD TI</color></b>";
             }
 
             if (speakerNameText != null)
@@ -189,7 +189,7 @@ namespace AndesSim.Scenario01
 
             if (dialogHeaderTitleText != null)
             {
-                dialogHeaderTitleText.text = "<b><color=#4EC9B0>📞 CANAL DE EMERGENCIA TI ACTIVO · ANEXO 4040</color></b>";
+                dialogHeaderTitleText.text = "<b><color=#4EC9B0>[SOC] CANAL DE EMERGENCIA TI ACTIVO · ANEXO 4040</color></b>";
             }
 
             if (speakerNameText != null)
@@ -275,10 +275,14 @@ namespace AndesSim.Scenario01
         {
             if (callLedRenderer != null)
             {
-                callLedRenderer.material.color = color;
-                if (callLedRenderer.material.HasProperty("_EmissionColor"))
+                Material mat = Application.isPlaying ? callLedRenderer.material : callLedRenderer.sharedMaterial;
+                if (mat != null)
                 {
-                    callLedRenderer.material.SetColor("_EmissionColor", color * 1.2f);
+                    mat.color = color;
+                    if (mat.HasProperty("_EmissionColor"))
+                    {
+                        mat.SetColor("_EmissionColor", color * 1.2f);
+                    }
                 }
             }
 

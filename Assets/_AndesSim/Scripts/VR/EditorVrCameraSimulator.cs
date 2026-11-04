@@ -122,9 +122,10 @@ namespace AndesSim.VR
         private bool IsRightMouseButtonPressed()
         {
 #if ENABLE_INPUT_SYSTEM
-            return Mouse.current != null && Mouse.current.rightButton.isPressed;
-#elif ENABLE_LEGACY_INPUT_MANAGER
-            return Input.GetMouseButton(1);
+            if (Mouse.current != null && Mouse.current.rightButton.isPressed) return true;
+#endif
+#if ENABLE_LEGACY_INPUT_MANAGER
+            try { return Input.GetMouseButton(1); } catch { return false; }
 #else
             return false;
 #endif
@@ -133,9 +134,10 @@ namespace AndesSim.VR
         private bool IsAltKeyPressed()
         {
 #if ENABLE_INPUT_SYSTEM
-            return Keyboard.current != null && (Keyboard.current.leftAltKey.isPressed || Keyboard.current.rightAltKey.isPressed);
-#elif ENABLE_LEGACY_INPUT_MANAGER
-            return Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);
+            if (Keyboard.current != null && (Keyboard.current.leftAltKey.isPressed || Keyboard.current.rightAltKey.isPressed)) return true;
+#endif
+#if ENABLE_LEGACY_INPUT_MANAGER
+            try { return Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt); } catch { return false; }
 #else
             return false;
 #endif
@@ -144,9 +146,10 @@ namespace AndesSim.VR
         private bool IsCtrlKeyPressed()
         {
 #if ENABLE_INPUT_SYSTEM
-            return Keyboard.current != null && (Keyboard.current.leftCtrlKey.isPressed || Keyboard.current.rightCtrlKey.isPressed);
-#elif ENABLE_LEGACY_INPUT_MANAGER
-            return Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+            if (Keyboard.current != null && (Keyboard.current.leftCtrlKey.isPressed || Keyboard.current.rightCtrlKey.isPressed)) return true;
+#endif
+#if ENABLE_LEGACY_INPUT_MANAGER
+            try { return Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl); } catch { return false; }
 #else
             return false;
 #endif
@@ -160,9 +163,9 @@ namespace AndesSim.VR
                 Vector2 d = Mouse.current.delta.ReadValue();
                 return new Vector2(d.x * 0.1f, d.y * 0.1f);
             }
-            return Vector2.zero;
-#elif ENABLE_LEGACY_INPUT_MANAGER
-            return new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+#endif
+#if ENABLE_LEGACY_INPUT_MANAGER
+            try { return new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")); } catch { return Vector2.zero; }
 #else
             return Vector2.zero;
 #endif
@@ -176,8 +179,12 @@ namespace AndesSim.VR
             bool mPressed = false;
 #if ENABLE_INPUT_SYSTEM
             if (Keyboard.current != null && Keyboard.current.mKey.wasPressedThisFrame) mPressed = true;
-#elif ENABLE_LEGACY_INPUT_MANAGER
-            if (Input.GetKeyDown(KeyCode.M)) mPressed = true;
+#endif
+#if ENABLE_LEGACY_INPUT_MANAGER
+            if (!mPressed)
+            {
+                try { if (Input.GetKeyDown(KeyCode.M)) mPressed = true; } catch { }
+            }
 #endif
 
             if (mPressed)

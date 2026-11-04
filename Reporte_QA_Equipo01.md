@@ -2,7 +2,7 @@
 **Proyecto:** ANDES-SIM · Caso BANCO ANDINO — Escenario 1: Oficina de pagos (VR)
 **Equipo:** Equipo 1 (VR)
 **Escena Auditada:** `Oficina_Pagos.unity`
-**Fecha y Hora:** `2026-11-04 13:04:15`
+**Fecha y Hora:** `2026-11-04 17:26:23`
 **Calificación Obtenida:** **`20.0 / 20.0 PUNTOS`** (100%)
 
 ---
@@ -68,7 +68,7 @@
 | :--- | :--- | :--- | :--- | :--- |
 | **`VR-1`** | Portal de Entrada (Vestíbulo con Briefing y Créditos) | **0.75** / 0.75 | ✅ **APROBADO** | Portal_Entrada instanciado con colisionador interactivo y panel de briefing.<br/>*Evidencia:* `Portal: Portal_Entrada` |
 | **`VR-2`** | Puntos de Teletransporte Discreto (Zero Cybersickness) | **0.75** / 0.75 | ✅ **APROBADO** | Los 3 TeleportPoints (Puestos 1, 2 y 3) están activos en capa Interactive con aro luminoso.<br/>*Evidencia:* `TP1: True, TP2: True, TP3: True (Total: 4)` |
-| **`VR-3`** | Al Menos 5 Objetos Interactivos con la Retícula (>=5) | **0.50** / 0.50 | ✅ **APROBADO** | Se detectaron 28 objetos interactivos en capa 8 (supera ampliamente el mínimo de 5).<br/>*Evidencia:* `Total interactables válidos: 28 (Mínimo: 5)` |
+| **`VR-3`** | Al Menos 5 Objetos Interactivos con la Retícula (>=5) | **0.50** / 0.50 | ✅ **APROBADO** | Se detectaron 36 objetos interactivos en capa 8 (supera ampliamente el mínimo de 5).<br/>*Evidencia:* `Total interactables válidos: 36 (Mínimo: 5)` |
 | **`VR-4`** | Administrador de Audio Procedural (AudioManager) | **0.50** / 0.50 | ✅ **APROBADO** | AudioManager central presente con los 7 tonos matemáticos procedurales.<br/>*Evidencia:* `AudioManager: _SYSTEMS` |
 | **`VR-5`** | Pantalla Final, Tablero de Sospechosos y Créditos/Ética | **0.50** / 0.50 | ✅ **APROBADO** | EndScenarioPanelUI, SuspectBoardVR (4 sospechosos) y CreditsAndEthicsModalUI (Leyes 30096/29733) están presentes.<br/>*Evidencia:* `EndPanel: True, SuspectBoard: True, CreditsModal: True` |
 

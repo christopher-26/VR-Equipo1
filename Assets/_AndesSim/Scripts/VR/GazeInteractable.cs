@@ -101,9 +101,17 @@ namespace AndesSim.VR
 #if ENABLE_INPUT_SYSTEM
             if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame) screenTapped = true;
             if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame) screenTapped = true;
-#elif ENABLE_LEGACY_INPUT_MANAGER
-            if (Input.GetMouseButtonDown(0)) screenTapped = true;
-            if (Input.touchCount > 0 && Input.GetTouch(0).phase == UnityEngine.TouchPhase.Began) screenTapped = true;
+#endif
+#if ENABLE_LEGACY_INPUT_MANAGER
+            if (!screenTapped)
+            {
+                try
+                {
+                    if (Input.GetMouseButtonDown(0)) screenTapped = true;
+                    if (Input.touchCount > 0 && Input.GetTouch(0).phase == UnityEngine.TouchPhase.Began) screenTapped = true;
+                }
+                catch { }
+            }
 #endif
 
             if (screenTapped)
@@ -269,14 +277,17 @@ namespace AndesSim.VR
 
             if (targetRenderer != null)
             {
-                _instancedMaterial = targetRenderer.material; // Crea instancia para no afectar a otros objetos
-                if (_instancedMaterial.HasProperty("_Color"))
+                _instancedMaterial = Application.isPlaying ? targetRenderer.material : targetRenderer.sharedMaterial;
+                if (_instancedMaterial != null)
                 {
-                    _originalMaterialColor = _instancedMaterial.color;
-                }
-                else if (_instancedMaterial.HasProperty("_BaseColor"))
-                {
-                    _originalMaterialColor = _instancedMaterial.GetColor("_BaseColor");
+                    if (_instancedMaterial.HasProperty("_Color"))
+                    {
+                        _originalMaterialColor = _instancedMaterial.color;
+                    }
+                    else if (_instancedMaterial.HasProperty("_BaseColor"))
+                    {
+                        _originalMaterialColor = _instancedMaterial.GetColor("_BaseColor");
+                    }
                 }
 
                 if (_instancedMaterial.HasProperty("_EmissionColor"))

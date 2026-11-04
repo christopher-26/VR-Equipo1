@@ -120,6 +120,10 @@ namespace AndesSim.Environment
             // 10. Plafón modular de techo
             _cachedMats["Ceiling"] = CreatePbrMaterial("Mat_CeilingAcousticPlates", new Color(0.08f, 0.09f, 0.11f), 0.12f, 0.0f);
 
+            // 11. Difusor acrílico blanco arquitectónico de luminaria troffer
+            _cachedMats["TrofferDiffuser"] = CreatePbrMaterial("Mat_CeilingTrofferDiffuser",
+                new Color(0.95f, 0.98f, 1.0f), 0.90f, 0.05f, new Color(0.95f, 0.98f, 1.0f) * 1.6f);
+
             return _cachedMats;
         }
 
@@ -600,27 +604,52 @@ namespace AndesSim.Environment
             {
                 CreateCeilingTroffer(parent, $"Luminaria_Puesto_0{i + 1}", new Vector3(lightX[i], 3.15f, 1.5f), mats);
             }
+
+            // Reloj digital de pared bancario en la pared lateral izquierda
+            GameObject wallClockObj = new GameObject("Reloj_Pared_Digital");
+            wallClockObj.transform.SetParent(parent, false);
+            wallClockObj.transform.position = new Vector3(-4.88f, 2.45f, 1.5f);
+            wallClockObj.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
+
+            CreateBox("Marco_Reloj", wallClockObj.transform, Vector3.zero, new Vector3(0.85f, 0.35f, 0.05f), mats["AnodizedMetal"]);
+            CreateBox("Fondo_Display", wallClockObj.transform, new Vector3(0f, 0f, -0.026f), new Vector3(0.80f, 0.30f, 0.01f), mats["TechnicalFloor"]);
+
+            GameObject clockDigits = new GameObject("Txt_DigitosReloj");
+            clockDigits.transform.SetParent(wallClockObj.transform, false);
+            clockDigits.transform.localPosition = new Vector3(0f, 0f, -0.035f);
+            TextMeshPro clockTmp = clockDigits.AddComponent<TextMeshPro>();
+            clockTmp.text = "<color=#FF5A4E><b>23:45:12</b></color>\n<size=55%><color=#A0AEC0>29 ENE 2015 · LIMA</color></size>";
+            clockTmp.fontSize = 2.0f;
+            clockTmp.alignment = TextAlignmentOptions.Center;
         }
 
         private static void CreateCeilingTroffer(Transform parent, string name, Vector3 pos, Dictionary<string, Material> mats)
         {
-            GameObject troffer = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            troffer.name = name;
+            GameObject troffer = new GameObject(name);
             troffer.transform.SetParent(parent, false);
             troffer.transform.position = pos;
-            troffer.transform.localScale = new Vector3(1.20f, 0.04f, 0.60f);
-            troffer.GetComponent<Renderer>().sharedMaterial = mats["NeonLedGreen"];
 
-            // Luz suave puntual nocturna
+            // Marco exterior de aluminio empotrado en el cielo raso
+            Material metalMat = mats.ContainsKey("AnodizedMetal") ? mats["AnodizedMetal"] : null;
+            Material diffuserMat = mats.ContainsKey("TrofferDiffuser") ? mats["TrofferDiffuser"] : mats["NeonLedGreen"];
+
+            CreateBox("Marco_Aluminio_Troffer", troffer.transform,
+                Vector3.zero, new Vector3(1.24f, 0.04f, 0.64f), metalMat);
+
+            // Panel difusor acrílico blanco arquitectónico (luz no cegadora)
+            CreateBox("Panel_Difusor_Troffer", troffer.transform,
+                new Vector3(0f, -0.015f, 0f), new Vector3(1.18f, 0.02f, 0.58f), diffuserMat);
+
+            // Luz suave puntual de iluminación uniforme
             GameObject lObj = new GameObject(name + "_Light");
             lObj.transform.SetParent(troffer.transform, false);
             lObj.transform.localPosition = new Vector3(0f, -0.4f, 0f);
 
             Light l = lObj.AddComponent<Light>();
             l.type = LightType.Point;
-            l.color = new Color(0.85f, 0.95f, 1.0f);
-            l.intensity = 0.65f;
-            l.range = 5.0f;
+            l.color = new Color(0.95f, 0.97f, 1.0f);
+            l.intensity = 1.25f;
+            l.range = 6.5f;
             l.shadows = LightShadows.None;
         }
 
@@ -653,6 +682,27 @@ namespace AndesSim.Environment
             vCeiling.transform.position = new Vector3(0f, 3.25f, -4.25f);
             vCeiling.transform.localScale = new Vector3(6.0f, 0.10f, 3.5f);
             vCeiling.GetComponent<Renderer>().sharedMaterial = mats["Ceiling"];
+
+            // Luminaria sobre la terminal del menú de inicio
+            CreateCeilingTroffer(vestibuleRoot.transform, "Luminaria_Vestibulo_Menu", new Vector3(0f, 3.15f, -4.2f), mats);
+
+            // Letrero luminoso de salida de emergencia sobre el portal (Z = -2.5m)
+            GameObject exitSign = new GameObject("Letrero_SalidaEmergencia");
+            exitSign.transform.SetParent(vestibuleRoot.transform, false);
+            exitSign.transform.position = new Vector3(0f, 2.75f, -2.48f);
+            exitSign.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
+
+            CreateBox("Carcasa_Sign", exitSign.transform, Vector3.zero, new Vector3(0.70f, 0.22f, 0.04f), mats["AnodizedMetal"]);
+            CreateBox("Panel_Luz_Sign", exitSign.transform, new Vector3(0f, 0f, -0.022f), new Vector3(0.66f, 0.18f, 0.01f), mats["NeonLedGreen"]);
+
+            GameObject exitTxtObj = new GameObject("Txt_Exit");
+            exitTxtObj.transform.SetParent(exitSign.transform, false);
+            exitTxtObj.transform.localPosition = new Vector3(0f, 0f, -0.03f);
+            TextMeshPro exitTmp = exitTxtObj.AddComponent<TextMeshPro>();
+            exitTmp.text = "<b>SALIDA DE EMERGENCIA</b>";
+            exitTmp.fontSize = 1.6f;
+            exitTmp.alignment = TextAlignmentOptions.Center;
+            exitTmp.color = Color.white;
 
             // Guías de neón verde en el suelo hacia el portal
             CreateBox("Neon_Piso_Guia_Central", vestibuleRoot.transform,
@@ -690,45 +740,5 @@ namespace AndesSim.Environment
         }
 
         #endregion
-    }
-
-    /// <summary>
-    /// Componente de animación ligero para el efecto decorativo de lluvia de código SWIFT en el ventanal.
-    /// Optimizado al 100% para móviles (OpenGLES3 - 60 FPS) mediante desplazamiento continuo de UVs.
-    /// </summary>
-    public class SwiftCodeRainAnimator : MonoBehaviour
-    {
-        [Tooltip("Velocidad de descenso de la lluvia de código SWIFT.")]
-        [SerializeField] private float scrollSpeedY = -0.12f;
-
-        private Renderer _renderer;
-        private Material _materialInstance;
-        private Vector2 _currentOffset = Vector2.zero;
-
-        private void Awake()
-        {
-            _renderer = GetComponent<Renderer>();
-            if (_renderer != null)
-            {
-                _materialInstance = _renderer.material;
-            }
-        }
-
-        private void Update()
-        {
-            if (_materialInstance != null)
-            {
-                _currentOffset.y += scrollSpeedY * Time.deltaTime;
-                _materialInstance.mainTextureOffset = _currentOffset;
-            }
-        }
-
-        private void OnDestroy()
-        {
-            if (_materialInstance != null)
-            {
-                Destroy(_materialInstance);
-            }
-        }
     }
 }

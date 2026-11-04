@@ -262,7 +262,7 @@ namespace AndesSim.UI
             {
                 technicalSummaryBodyText.text =
                     "<b>Resumen de Hechos Históricos:</b>\n" +
-                    "16 empleados recibieron el correo de «Rasel Ahlam» el 29 de enero de 2015; al menos 3 computadoras " +
+                    "16 empleados recibieron el correo de \"Rasel Ahlam\" el 29 de enero de 2015; al menos 3 computadoras " +
                     "intentaron abrir el archivo; la ausencia de sandbox, el desconocimiento de phishing y las credenciales anotadas " +
                     "de Carla Mendoza permitieron a Lazarus abrir una puerta trasera hacia la terminal SWIFT " +
                     "(que culminaría en las 36 órdenes fraudulentas por <b>US$ 951 millones</b>).";
@@ -323,7 +323,7 @@ namespace AndesSim.UI
             {
                 technicalSummaryBodyText.text =
                     "<b>Resumen de Mitigación Defensiva:</b>\n" +
-                    "El filtro de correo con sandbox aisló el enlace malicioso en cuarentena, el botón «Reportar phishing» " +
+                    "El filtro de correo con sandbox aisló el enlace malicioso en cuarentena, el botón \"Reportar phishing\" " +
                     "alertó al SOC y el gestor de contraseñas con MFA protegió las credenciales de Carla Mendoza.\n\n" +
                     "<b><color=#38F28A>• Infecciones: 0</color>   |   <color=#38F28A>• Dinero robado: US$ 0</color>   |   <color=#38F28A>• Red SWIFT: Intacta</color></b>";
                 technicalSummaryBodyText.color = ColorLightText;
