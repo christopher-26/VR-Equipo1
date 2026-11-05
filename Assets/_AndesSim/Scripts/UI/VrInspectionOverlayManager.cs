@@ -374,7 +374,7 @@ namespace AndesSim.UI
                     }
                     if (AndesSim.Audio.AudioManager.I != null)
                     {
-                        AndesSim.Audio.AudioManager.I.PlayEvidenceFound(transform.position);
+                        AndesSim.Audio.AudioManager.I.PlayEvidenceFound();
                     }
                     CloseOverlay();
                 }
@@ -480,7 +480,7 @@ namespace AndesSim.UI
                     }
                     if (AndesSim.Audio.AudioManager.I != null)
                     {
-                        AndesSim.Audio.AudioManager.I.PlayEvidenceFound(transform.position);
+                        AndesSim.Audio.AudioManager.I.PlayEvidenceFound();
                     }
                     CloseOverlay();
                 }
@@ -525,7 +525,7 @@ namespace AndesSim.UI
 
             if (AndesSim.Audio.AudioManager.I != null)
             {
-                AndesSim.Audio.AudioManager.I.PlayGazeClick(transform.position);
+                AndesSim.Audio.AudioManager.I.PlayGazeClick();
             }
         }
 
