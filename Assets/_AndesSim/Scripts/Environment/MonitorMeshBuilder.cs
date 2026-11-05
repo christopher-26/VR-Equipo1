@@ -347,7 +347,7 @@ namespace AndesSim.Environment
             hRect.sizeDelta = new Vector2(760f, 40f);
 
             TextMeshProUGUI tmp = headerObj.AddComponent<TextMeshProUGUI>();
-            tmp.fontSize = 20f;
+            tmp.fontSize = 13f;
             tmp.alignment = TextAlignmentOptions.MidlineLeft;
             tmp.color = HighLegibilityTextColor;
 
@@ -411,7 +411,7 @@ namespace AndesSim.Environment
 
             TextMeshProUGUI counterTmp = counterObj.AddComponent<TextMeshProUGUI>();
             counterTmp.text = "Señales Detectadas: <b><color=#FFC24A>0/3</color></b> (Inspecciona con la mirada)";
-            counterTmp.fontSize = 19.5f;
+            counterTmp.fontSize = 12.5f;
             counterTmp.alignment = TextAlignmentOptions.Center;
             counterTmp.color = HighLegibilityTextColor;
 
@@ -451,7 +451,7 @@ namespace AndesSim.Environment
             bRect.sizeDelta = new Vector2(750f, 36f);
             TextMeshProUGUI bodyTmp = bodyObj.AddComponent<TextMeshProUGUI>();
             bodyTmp.text = "<color=#94A3B8><i>\"Estimada Carla, le ruego revisar mi CV adjunto hoy mismo para la posición de pagos.\"</i></color>";
-            bodyTmp.fontSize = 16.5f;
+            bodyTmp.fontSize = 11f;
             bodyTmp.alignment = TextAlignmentOptions.Center;
 
             // 3.4 Botones Interactivos de Decisión por Mirada (Modo Ataque vs Modo Defensa)
@@ -524,7 +524,7 @@ namespace AndesSim.Environment
 
             TextMeshProUGUI tmp = txtObj.AddComponent<TextMeshProUGUI>();
             tmp.text = labelText;
-            tmp.fontSize = 17.5f;
+            tmp.fontSize = 12f;
             tmp.alignment = TextAlignmentOptions.MidlineLeft;
             tmp.color = HighLegibilityTextColor;
 
@@ -577,7 +577,7 @@ namespace AndesSim.Environment
             tRect.sizeDelta = new Vector2(760f, 320f);
 
             TextMeshProUGUI tmp = txtTable.AddComponent<TextMeshProUGUI>();
-            tmp.fontSize = 17.5f;
+            tmp.fontSize = 11.5f;
             tmp.alignment = TextAlignmentOptions.TopLeft;
             tmp.color = HighLegibilityTextColor;
             tmp.text = "<color=#38F28A><b>BANCO ANDINO · SISTEMA DE TRANSFERENCIAS SWIFT MT103</b></color>\n" +
@@ -615,7 +615,7 @@ namespace AndesSim.Environment
             lRect.sizeDelta = new Vector2(760f, 250f);
 
             TextMeshProUGUI tmp = txtLog.AddComponent<TextMeshProUGUI>();
-            tmp.fontSize = 17f;
+            tmp.fontSize = 11.5f;
             tmp.alignment = TextAlignmentOptions.TopLeft;
             tmp.color = HighLegibilityTextColor;
             tmp.text = "<color=#38F28A><b>BANCO ANDINO · CONSOLA SIEM DE EVENTOS DE RED (29 ENE 2015)</b></color>\n" +
@@ -696,7 +696,7 @@ namespace AndesSim.Environment
 
             TextMeshProUGUI tmp = txtObj.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
-            tmp.fontSize = 20f;
+            tmp.fontSize = 12.5f;
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.color = Color.white;
 

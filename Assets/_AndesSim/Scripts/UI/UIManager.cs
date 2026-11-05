@@ -585,8 +585,8 @@ namespace AndesSim.UI
             {
                 wristOrDeskHudPanel = new GameObject("WristOrDeskHUD");
                 wristOrDeskHudPanel.transform.SetParent(transform, false);
-                wristOrDeskHudPanel.transform.localPosition = new Vector3(-2.15f, 0.95f, 1.85f);
-                wristOrDeskHudPanel.transform.localRotation = Quaternion.Euler(15f, -30f, 0f);
+                wristOrDeskHudPanel.transform.localPosition = new Vector3(-2.85f, 1.15f, 2.35f);
+                wristOrDeskHudPanel.transform.localRotation = Quaternion.Euler(0f, 30f, 0f);
 
                 Canvas canvas = wristOrDeskHudPanel.AddComponent<Canvas>();
                 canvas.renderMode = RenderMode.WorldSpace;

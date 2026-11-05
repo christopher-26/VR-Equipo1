@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using AndesSim.Core;
+using AndesSim.UI;
 using AndesSim.VR;
 
 namespace AndesSim.Scenario01
@@ -277,6 +278,12 @@ namespace AndesSim.Scenario01
             {
                 _isEvidenceLogged = true;
                 GameManager.I.RegisterEvidence("Evidencia_PostIt");
+            }
+
+            // Desplegar vista ampliada en primer plano VR (RF-05)
+            if (!isDefense && VrInspectionOverlayManager.I != null)
+            {
+                VrInspectionOverlayManager.I.OpenCredentialsInspection();
             }
 
             if (forensicPopupPanel != null)

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using AndesSim.Core;
+using AndesSim.UI;
 using AndesSim.VR;
 
 namespace AndesSim.Scenario01
@@ -167,6 +168,23 @@ namespace AndesSim.Scenario01
 
             // 4. Mostrar panel 3D informativo
             ShowPopupPanel();
+
+            // 5. Desplegar vista ampliada en primer plano VR (RF-05)
+            if (VrInspectionOverlayManager.I != null)
+            {
+                if (evidenceId.Contains("PostIt") || evidenceId.Contains("Credencial"))
+                {
+                    VrInspectionOverlayManager.I.OpenCredentialsInspection();
+                }
+                else if (evidenceId.Contains("Log") || evidenceId.Contains("Acceso"))
+                {
+                    VrInspectionOverlayManager.I.OpenSiemLogInspection();
+                }
+                else if (evidenceId.Contains("Correo"))
+                {
+                    VrInspectionOverlayManager.I.OpenEmailInspection();
+                }
+            }
         }
 
         protected virtual void UpdateVisualState()

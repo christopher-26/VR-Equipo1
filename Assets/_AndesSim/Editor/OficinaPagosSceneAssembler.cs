@@ -289,6 +289,9 @@ namespace AndesSim.Editor
             // 7. UIManager
             systemsObj.AddComponent<UIManager>();
 
+            // 8. VrInspectionOverlayManager (Sistema de Inspección y Zoom VR RF-01 a RF-05)
+            systemsObj.AddComponent<AndesSim.UI.VrInspectionOverlayManager>();
+
             // Ambiente sonoro secundario
             GameObject audioObj = new GameObject("OfficeAudioEnvironment");
             audioObj.transform.SetParent(systemsObj.transform, false);
@@ -404,7 +407,7 @@ namespace AndesSim.Editor
             titleRect.sizeDelta = new Vector2(720f, 75f);
             TextMeshProUGUI titleTmp = titleObj.AddComponent<TextMeshProUGUI>();
             titleTmp.text = "<b><color=#38F28A>ANDES-SIM · CASO BANCO ANDINO</color></b>";
-            titleTmp.fontSize = 28f;
+            titleTmp.fontSize = 20f;
             titleTmp.alignment = TextAlignmentOptions.Center;
 
             // Subtítulo
@@ -415,7 +418,7 @@ namespace AndesSim.Editor
             subRect.sizeDelta = new Vector2(720f, 50f);
             TextMeshProUGUI subTmp = subObj.AddComponent<TextMeshProUGUI>();
             subTmp.text = "<color=#FFC24A>ESCENARIO 1: OFICINA DE PAGOS (VR)</color>";
-            subTmp.fontSize = 23f;
+            subTmp.fontSize = 15f;
             subTmp.alignment = TextAlignmentOptions.Center;
 
             // Cuerpo del Briefing
@@ -428,18 +431,18 @@ namespace AndesSim.Editor
             bodyTmp.text = "Fecha: <b>29 de enero de 2015</b>\n\n" +
                           "Un correo electrónico de solicitud de empleo de <b>\"Rasel Ahlam\"</b> ha llegado a 16 bandejas de entrada de la Oficina de Pagos.\n\n" +
                           "Misión: Entrar a la oficina, examinar las 3 estaciones, detectar las señales de phishing y recolectar las evidencias forenses.";
-            bodyTmp.fontSize = 21f;
+            bodyTmp.fontSize = 13.5f;
             bodyTmp.textWrappingMode = TextWrappingModes.Normal;
             bodyTmp.alignment = TextAlignmentOptions.Left;
 
             // Botón interactivo: Cruzar Portal
             GameObject btnCruzarObj = CreateWorldGazeButton("Btn_CruzarPortal", canvasObj.transform,
-                new Vector2(0f, -145f), new Vector2(540f, 68f), "CRUZAR PORTAL E INICIAR", null, null, 22f);
+                new Vector2(0f, -145f), new Vector2(540f, 68f), "CRUZAR PORTAL E INICIAR", null, null, 15f);
             Button btnCruzar = btnCruzarObj.GetComponent<Button>();
 
             // Botón interactivo: Ver Créditos
             GameObject btnCreditsObj = CreateWorldGazeButton("Btn_VerCreditos", canvasObj.transform,
-                new Vector2(0f, -225f), new Vector2(540f, 58f), "VER CRÉDITOS Y LICENCIAS", null, null, 20f);
+                new Vector2(0f, -225f), new Vector2(540f, 58f), "VER CRÉDITOS Y LICENCIAS", null, null, 13.5f);
             Button btnCredits = btnCreditsObj.GetComponent<Button>();
 
             // Cablear en PortalEntrada
@@ -692,7 +695,7 @@ namespace AndesSim.Editor
             tRect.sizeDelta = new Vector2(760f, 40f);
             TextMeshProUGUI titleTmp = titleObj.AddComponent<TextMeshProUGUI>();
             titleTmp.text = "<b><color=#38F28A>CONSOLA DE CUARENTENA Y SANDBOX - BANCO ANDINO</color></b>";
-            titleTmp.fontSize = 22f;
+            titleTmp.fontSize = 15f;
             titleTmp.alignment = TextAlignmentOptions.Center;
 
             // Log del Sandbox
@@ -706,12 +709,12 @@ namespace AndesSim.Editor
                           "<color=#38F28A>[SANDBOX-ISOLATION]</color> Enlace detonado en sandbox aislado.\n" +
                           "<color=#FFC24A>[DETECCION]</color> Payload malicioso 'Rasel_Ahlam_CV_2015.scr' detectado.\n" +
                           "<color=#38F28A>[CONTENCION]</color> Bloqueo en 16 buzones. 0 equipos comprometidos.";
-            logTmp.fontSize = 18f;
+            logTmp.fontSize = 12f;
             logTmp.alignment = TextAlignmentOptions.TopLeft;
 
             // Botón interactivo: Confirmar Contención
             GameObject btnConfirmObj = CreateWorldGazeButton("Btn_ConfirmarContencion", quarantinePanel.transform,
-                new Vector2(0f, -165f), new Vector2(580f, 65f), "CONFIRMAR CONTENCION Y FINALIZAR", null, null, 20f);
+                new Vector2(0f, -165f), new Vector2(580f, 65f), "CONFIRMAR CONTENCION Y FINALIZAR", null, null, 14f);
             Button btnConfirm = btnConfirmObj.GetComponent<Button>();
 
             quarantinePanel.SetActive(false); // Inicia oculto, se activa en Modo Defensa
@@ -857,17 +860,17 @@ namespace AndesSim.Editor
 
         private static void BuildWorldSpaceHud(Transform parent, GameObject playerRig, UIManager uiManager)
         {
-            // Panel de estado en el escritorio de Carla
+            // Panel de estado acoplado limpiamente en la mampara lateral del escritorio de Carla
             GameObject deskHudObj = new GameObject("WristOrDeskHUD");
             deskHudObj.transform.SetParent(parent, false);
-            deskHudObj.transform.position = new Vector3(-2.15f, 0.96f, 1.85f);
-            deskHudObj.transform.rotation = Quaternion.Euler(15f, -30f, 0f);
+            deskHudObj.transform.position = new Vector3(-2.85f, 1.15f, 2.35f);
+            deskHudObj.transform.rotation = Quaternion.Euler(0f, 30f, 0f);
 
             Canvas deskCanvas = deskHudObj.AddComponent<Canvas>();
             deskCanvas.renderMode = RenderMode.WorldSpace;
             RectTransform deskRect = deskHudObj.GetComponent<RectTransform>();
-            deskRect.sizeDelta = new Vector2(780f, 420f);
-            deskRect.localScale = new Vector3(0.0011667f, 0.0011667f, 0.0011667f);
+            deskRect.sizeDelta = new Vector2(700f, 380f);
+            deskRect.localScale = new Vector3(0.00095f, 0.00095f, 0.00095f);
             deskHudObj.AddComponent<CanvasScaler>();
             deskHudObj.AddComponent<GraphicRaycaster>();
 
@@ -881,7 +884,7 @@ namespace AndesSim.Editor
             tRect.sizeDelta = new Vector2(750f, 42f);
             TextMeshProUGUI titleTmp = titleObj.AddComponent<TextMeshProUGUI>();
             titleTmp.text = "<b><color=#38F28A>ANDES-SIM · BANCO ANDINO (SOC VR)</color></b>";
-            titleTmp.fontSize = 24f;
+            titleTmp.fontSize = 16f;
             titleTmp.alignment = TextAlignmentOptions.Center;
 
             GameObject modeObj = new GameObject("Txt_ModeStatus");
@@ -891,16 +894,16 @@ namespace AndesSim.Editor
             mRect.sizeDelta = new Vector2(430f, 38f);
             TextMeshProUGUI modeTmp = modeObj.AddComponent<TextMeshProUGUI>();
             modeTmp.text = "<b>MODO: <color=#FF5A4E>ATAQUE 2016 (LAZARUS)</color></b>";
-            modeTmp.fontSize = 21f;
+            modeTmp.fontSize = 13f;
             modeTmp.alignment = TextAlignmentOptions.Left;
 
             GameObject btnModeObj = CreateWorldGazeButton("Btn_CambiarModoHUD", deskHudObj.transform,
-                new Vector2(230f, 115f), new Vector2(260f, 42f), "Cambiar a: CON DEFENSA", null, null, 18f);
+                new Vector2(230f, 115f), new Vector2(260f, 42f), "Cambiar a: CON DEFENSA", null, null, 12f);
             Button btnMode = btnModeObj.GetComponent<Button>();
             TextMeshProUGUI btnModeTmp = btnModeObj.GetComponentInChildren<TextMeshProUGUI>();
             if (btnModeTmp != null)
             {
-                btnModeTmp.fontSize = 18f;
+                btnModeTmp.fontSize = 12f;
                 btnModeTmp.text = "<b>Cambiar a: CON DEFENSA</b>";
                 btnModeTmp.color = UIManager.ColorLightText;
             }
@@ -912,7 +915,7 @@ namespace AndesSim.Editor
             cRect.sizeDelta = new Vector2(340f, 36f);
             TextMeshProUGUI clockTmp = clockObj.AddComponent<TextMeshProUGUI>();
             clockTmp.text = "Tiempo Restante: <b><color=#38F28A>03:00</color></b>";
-            clockTmp.fontSize = 20f;
+            clockTmp.fontSize = 13f;
             clockTmp.alignment = TextAlignmentOptions.Left;
 
             GameObject stepObj = new GameObject("Txt_StepGuide");
@@ -922,7 +925,7 @@ namespace AndesSim.Editor
             sRect.sizeDelta = new Vector2(390f, 36f);
             TextMeshProUGUI stepTmp = stepObj.AddComponent<TextMeshProUGUI>();
             stepTmp.text = "Paso <b>1/6</b>: Portal de Entrada";
-            stepTmp.fontSize = 20f;
+            stepTmp.fontSize = 12.5f;
             stepTmp.alignment = TextAlignmentOptions.Left;
 
             // Checklists en vivo
@@ -933,7 +936,7 @@ namespace AndesSim.Editor
             sigRect.sizeDelta = new Vector2(720f, 36f);
             TextMeshProUGUI sigTmp = sigObj.AddComponent<TextMeshProUGUI>();
             sigTmp.text = "- Señales de Phishing: <b><color=#FFC24A>0/3</color></b> (Remitente, Urgencia, Enlace)";
-            sigTmp.fontSize = 19f;
+            sigTmp.fontSize = 12f;
             sigTmp.alignment = TextAlignmentOptions.Left;
 
             GameObject eviObj = new GameObject("Txt_CheckEvidences");
@@ -943,7 +946,7 @@ namespace AndesSim.Editor
             eviRect.sizeDelta = new Vector2(720f, 36f);
             TextMeshProUGUI eviTmp = eviObj.AddComponent<TextMeshProUGUI>();
             eviTmp.text = "- Evidencias Forenses: <b><color=#FFC24A>0/3</color></b> (Correo, Post-It, SIEM)";
-            eviTmp.fontSize = 19f;
+            eviTmp.fontSize = 12f;
             eviTmp.alignment = TextAlignmentOptions.Left;
 
             GameObject defObj = new GameObject("Txt_CheckDefenses");
@@ -953,7 +956,7 @@ namespace AndesSim.Editor
             defRect.sizeDelta = new Vector2(720f, 36f);
             TextMeshProUGUI defTmp = defObj.AddComponent<TextMeshProUGUI>();
             defTmp.text = "- Defensas Aplicadas: <b><color=#FFC24A>0/3</color></b> (Sandbox, Reporte, MFA)";
-            defTmp.fontSize = 19f;
+            defTmp.fontSize = 12f;
             defTmp.alignment = TextAlignmentOptions.Left;
 
             // Banner flotante NotificationToast
@@ -1262,7 +1265,7 @@ namespace AndesSim.Editor
             tbRect.sizeDelta = new Vector2(980f, 18f);
             TextMeshProUGUI tbTmp = topBadgeObj.AddComponent<TextMeshProUGUI>();
             tbTmp.text = "<color=#38F28A>[SISTEMA: EN LINEA]</color> · <color=#00F2FE>PROTOCOLO FORENSE VR</color> · <color=#FFC24A>FECHA INCIDENTE: 29/01/2015</color>";
-            tbTmp.fontSize = 15f;
+            tbTmp.fontSize = 11f;
             tbTmp.alignment = TextAlignmentOptions.Center;
 
             GameObject titleObj = new GameObject("MainTitle");
@@ -1272,7 +1275,7 @@ namespace AndesSim.Editor
             tRect.sizeDelta = new Vector2(980f, 32f);
             TextMeshProUGUI tTmp = titleObj.AddComponent<TextMeshProUGUI>();
             tTmp.text = "<b><color=#00F2FE>ANDES-SIM: BANCO ANDINO</color> · <color=#FFFFFF>OPERACION LAZARUS 2015</color></b>";
-            tTmp.fontSize = 25f;
+            tTmp.fontSize = 17f;
             tTmp.alignment = TextAlignmentOptions.Center;
 
             GameObject subObj = new GameObject("SubTitle");
@@ -1282,7 +1285,7 @@ namespace AndesSim.Editor
             sRect.sizeDelta = new Vector2(980f, 22f);
             TextMeshProUGUI sTmp = subObj.AddComponent<TextMeshProUGUI>();
             sTmp.text = "<color=#94A3B8>SISTEMA DE ENTRENAMIENTO FORENSE Y GESTION DE INCIDENTES SOC (VR)</color>";
-            sTmp.fontSize = 15f;
+            sTmp.fontSize = 11.5f;
             sTmp.alignment = TextAlignmentOptions.Center;
 
             // BARRA DE PESTAÑAS (5 TABS)
@@ -1312,7 +1315,7 @@ namespace AndesSim.Editor
                 float posX = startX + i * (tabWidth + tabSpacing);
                 GameObject tBtnObj = CreateWorldGazeButton($"TabBtn_{i}", tabBarObj.transform,
                     new Vector2(posX, 0f), new Vector2(tabWidth, 36f), tabNames[i],
-                    new Color(0.10f, 0.16f, 0.25f, 0.85f), new Color(0f, 0.95f, 1f, 0.95f), 15.5f);
+                    new Color(0.10f, 0.16f, 0.25f, 0.85f), new Color(0f, 0.95f, 1f, 0.95f), 12f);
 
                 tabButtons[i] = tBtnObj.GetComponent<Button>();
                 tabButtonBgs[i] = tBtnObj.GetComponent<Image>();
@@ -1358,7 +1361,7 @@ namespace AndesSim.Editor
             brTmp.text = "<b>FECHA: 29 DE ENERO DE 2015 · OFICINA DE PAGOS DEL BANCO ANDINO</b>\n" +
                          "Un sofisticado ataque APT atribuido al <b>Grupo Lazarus</b> ha enviado un correo con falso CV a 16 empleados.\n" +
                          "<color=#38F28A><b>Misión:</b> Identificar las 3 señales de phishing en < 3 min, registrar las evidencias y comparar la respuesta.</color>";
-            brTmp.fontSize = 15f;
+            brTmp.fontSize = 11.5f;
             brTmp.alignment = TextAlignmentOptions.Center;
 
             // Card Modo Ataque (Izquierda)
@@ -1386,17 +1389,17 @@ namespace AndesSim.Editor
             catRect.anchoredPosition = new Vector2(0f, 26f);
             catRect.sizeDelta = new Vector2(450f, 110f);
             TextMeshProUGUI caTmp = caTxtObj.AddComponent<TextMeshProUGUI>();
-            caTmp.text = "<size=18><b><color=#FF5A4E>[MODO ATAQUE 2015 - HISTORICO]</color></b></size>\n" +
-                         "<size=13.5><color=#94A3B8>Cadena de intrusion real sin mitigacion de defensas</color></size>\n\n" +
+            caTmp.text = "<size=15><b><color=#FF5A4E>[MODO ATAQUE 2015 - HISTORICO]</color></b></size>\n" +
+                         "<size=11.5><color=#94A3B8>Cadena de intrusion real sin mitigacion de defensas</color></size>\n\n" +
                          "[-] <b>Vector:</b> Dropper 'Rasel_Ahlam_CV_2015.scr.zip' detonado.\n" +
                          "[-] <b>Propagacion:</b> Red plana bancaria sin VLANs ni Sandbox.\n" +
                          "[-] <b>Impacto:</b> Backdoor C2 activo y movimiento lateral hacia SWIFT.";
-            caTmp.fontSize = 14f;
+            caTmp.fontSize = 11f;
             caTmp.alignment = TextAlignmentOptions.TopLeft;
 
             GameObject btnAtkObj = CreateWorldGazeButton("Btn_SelectAtaque", cAttackObj.transform,
                 new Vector2(0f, -60f), new Vector2(280f, 36f), "SELECCIONAR MODO ATAQUE",
-                new Color(0.45f, 0.12f, 0.15f, 0.95f), new Color(1f, 0.35f, 0.31f, 1f), 15.5f);
+                new Color(0.45f, 0.12f, 0.15f, 0.95f), new Color(1f, 0.35f, 0.31f, 1f), 12f);
             Button btnAtk = btnAtkObj.GetComponent<Button>();
 
             // Card Modo Defensa (Derecha)
@@ -1424,17 +1427,17 @@ namespace AndesSim.Editor
             cdtRect.anchoredPosition = new Vector2(0f, 26f);
             cdtRect.sizeDelta = new Vector2(450f, 110f);
             TextMeshProUGUI cdTmp = cdTxtObj.AddComponent<TextMeshProUGUI>();
-            cdTmp.text = "<size=18><b><color=#38F28A>[MODO DEFENSA SOC - CONTENCION]</color></b></size>\n" +
-                         "<size=13.5><color=#94A3B8>Protocolos de respuesta y mitigacion perimetral</color></size>\n\n" +
+            cdTmp.text = "<size=15><b><color=#38F28A>[MODO DEFENSA SOC - CONTENCION]</color></b></size>\n" +
+                         "<size=11.5><color=#94A3B8>Protocolos de respuesta y mitigacion perimetral</color></size>\n\n" +
                          "[OK] <b>Deteccion:</b> Inspeccion de las 3 senales en menos de 3 min.\n" +
                          "[OK] <b>Contencion:</b> Envio a Sandbox Cuckoo y bloqueo de IP C2.\n" +
                          "[OK] <b>Mitigacion:</b> Purga de 16 buzones y token MFA activo.";
-            cdTmp.fontSize = 14f;
+            cdTmp.fontSize = 11f;
             cdTmp.alignment = TextAlignmentOptions.TopLeft;
 
             GameObject btnDefObj = CreateWorldGazeButton("Btn_SelectDefensa", cDefObj.transform,
                 new Vector2(0f, -60f), new Vector2(280f, 36f), "SELECCIONAR MODO DEFENSA",
-                new Color(0.12f, 0.35f, 0.20f, 0.95f), new Color(0.22f, 0.95f, 0.54f, 1f), 15.5f);
+                new Color(0.12f, 0.35f, 0.20f, 0.95f), new Color(0.22f, 0.95f, 0.54f, 1f), 12f);
             Button btnDef = btnDefObj.GetComponent<Button>();
 
             // Modo Badge
@@ -1445,7 +1448,7 @@ namespace AndesSim.Editor
             mbRect.sizeDelta = new Vector2(950f, 24f);
             TextMeshProUGUI mbTmp = mBadgeObj.AddComponent<TextMeshProUGUI>();
             mbTmp.text = "MODO SELECCIONADO: <color=#FF5A4E><b>[MODO ATAQUE 2015 - HISTORICO]</b></color>";
-            mbTmp.fontSize = 17.5f;
+            mbTmp.fontSize = 12.5f;
             mbTmp.alignment = TextAlignmentOptions.Center;
 
             // Modo Descripción detallada
@@ -1456,13 +1459,13 @@ namespace AndesSim.Editor
             mdRect.sizeDelta = new Vector2(950f, 40f);
             TextMeshProUGUI mdTmp = mDescObj.AddComponent<TextMeshProUGUI>();
             mdTmp.text = "<b>Objetivo:</b> Recrear la cadena de intrusion historica. Entra a la oficina para examinar la estacion de Carla Mendoza.";
-            mdTmp.fontSize = 15f;
+            mdTmp.fontSize = 11f;
             mdTmp.alignment = TextAlignmentOptions.Center;
 
             // Gran Botón de Inicio de Simulación
             GameObject btnStartObj = CreateWorldGazeButton("Btn_IniciarSimulacion", p0.transform,
                 new Vector2(0f, -170f), new Vector2(640f, 54f), ">>> INICIAR SIMULACION FORENSE (03:00 MIN) <<<",
-                new Color(0.08f, 0.42f, 0.55f, 0.95f), new Color(0f, 0.95f, 1f, 1f), 19f);
+                new Color(0.08f, 0.42f, 0.55f, 0.95f), new Color(0f, 0.95f, 1f, 1f), 14f);
             Button btnStart = btnStartObj.GetComponent<Button>();
 
             // -----------------------------------------------------------------
@@ -1697,7 +1700,7 @@ namespace AndesSim.Editor
             tRect.sizeDelta = new Vector2(900f, 32f);
             TextMeshProUGUI tmp = tObj.AddComponent<TextMeshProUGUI>();
             tmp.text = "<b><color=#00F2FE>CONFIGURACION DE ACCESIBILIDAD, MIRADA Y AUDIO VR</color></b>";
-            tmp.fontSize = 19f;
+            tmp.fontSize = 14f;
             tmp.alignment = TextAlignmentOptions.Center;
 
             // Dwell section
@@ -1708,22 +1711,22 @@ namespace AndesSim.Editor
             dsRect.sizeDelta = new Vector2(900f, 26f);
             TextMeshProUGUI dsTmp = dSubObj.AddComponent<TextMeshProUGUI>();
             dsTmp.text = "<b>TIEMPO DE PERMANENCIA DE MIRADA (GAZE DWELL TIME):</b>";
-            dsTmp.fontSize = 16f;
+            dsTmp.fontSize = 12f;
             dsTmp.alignment = TextAlignmentOptions.Center;
 
             GameObject bFObj = CreateWorldGazeButton("Btn_Dwell12", setObj.transform,
                 new Vector2(-240f, 50f), new Vector2(210f, 38f), "1.2s (Rapido)",
-                new Color(0.12f, 0.25f, 0.38f, 0.9f), new Color(0f, 0.95f, 1f, 1f), 15.5f);
+                new Color(0.12f, 0.25f, 0.38f, 0.9f), new Color(0f, 0.95f, 1f, 1f), 12f);
             btnFast = bFObj.GetComponent<Button>();
 
             GameObject bNObj = CreateWorldGazeButton("Btn_Dwell18", setObj.transform,
                 new Vector2(0f, 50f), new Vector2(210f, 38f), "1.8s (Estandar)",
-                new Color(0.12f, 0.38f, 0.28f, 0.9f), new Color(0.22f, 0.95f, 0.54f, 1f), 15.5f);
+                new Color(0.12f, 0.38f, 0.28f, 0.9f), new Color(0.22f, 0.95f, 0.54f, 1f), 12f);
             btnNorm = bNObj.GetComponent<Button>();
 
             GameObject bAObj = CreateWorldGazeButton("Btn_Dwell25", setObj.transform,
                 new Vector2(240f, 50f), new Vector2(210f, 38f), "2.5s (Accesible)",
-                new Color(0.38f, 0.25f, 0.12f, 0.9f), new Color(1f, 0.75f, 0.25f, 1f), 15.5f);
+                new Color(0.38f, 0.25f, 0.12f, 0.9f), new Color(1f, 0.75f, 0.25f, 1f), 12f);
             btnAcc = bAObj.GetComponent<Button>();
 
             GameObject dBadgeObj = new GameObject("DwellBadge");
@@ -1733,7 +1736,7 @@ namespace AndesSim.Editor
             dbRect.sizeDelta = new Vector2(900f, 24f);
             txtDwellBadge = dBadgeObj.AddComponent<TextMeshProUGUI>();
             txtDwellBadge.text = "TIEMPO DE MIRADA ACTUAL: <b>1.8s</b>";
-            txtDwellBadge.fontSize = 16f;
+            txtDwellBadge.fontSize = 11.5f;
             txtDwellBadge.alignment = TextAlignmentOptions.Center;
 
             // Audio Section
@@ -1744,12 +1747,12 @@ namespace AndesSim.Editor
             asRect.sizeDelta = new Vector2(900f, 26f);
             TextMeshProUGUI asTmp = aSubObj.AddComponent<TextMeshProUGUI>();
             asTmp.text = "<b>CONTROL DE AUDIO GENERAL:</b>";
-            asTmp.fontSize = 16f;
+            asTmp.fontSize = 12f;
             asTmp.alignment = TextAlignmentOptions.Center;
 
             GameObject bTogAudObj = CreateWorldGazeButton("Btn_ToggleAudio", setObj.transform,
                 new Vector2(0f, -80f), new Vector2(280f, 38f), "SILENCIAR / ACTIVAR AUDIO",
-                new Color(0.22f, 0.15f, 0.35f, 0.9f), new Color(0.85f, 0.45f, 1f, 1f), 15.5f);
+                new Color(0.22f, 0.15f, 0.35f, 0.9f), new Color(0.85f, 0.45f, 1f, 1f), 12f);
             btnTogAudio = bTogAudObj.GetComponent<Button>();
 
             GameObject aStatObj = new GameObject("AudioStatus");
@@ -1759,7 +1762,7 @@ namespace AndesSim.Editor
             astRect.sizeDelta = new Vector2(900f, 24f);
             txtAudioStat = aStatObj.AddComponent<TextMeshProUGUI>();
             txtAudioStat.text = "AUDIO: [ACTIVO 100%]";
-            txtAudioStat.fontSize = 16f;
+            txtAudioStat.fontSize = 11.5f;
             txtAudioStat.alignment = TextAlignmentOptions.Center;
         }
 

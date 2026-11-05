@@ -49374,7 +49374,7 @@ MonoBehaviour:
   reticleLabelText: {fileID: 0}
   defaultReticleColor: {r: 1, g: 1, b: 1, a: 0.75}
   activeHoverColor: {r: 0.2, g: 0.85, b: 1, a: 0.95}
-  progressFillColor: {r: 0.3, g: 1, b: 0.5, a: 1}
+  progressFillColor: {r: 0, g: 0.95, b: 1, a: 0.95}
 --- !u!81 &1244410326
 AudioListener:
   m_ObjectHideFlags: 0
@@ -74181,9 +74181,9 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1836546192}
-  m_LocalRotation: {x: 0.12607862, y: -0.25660482, z: 0.033782665, w: 0.9576622}
-  m_LocalPosition: {x: 0, y: 0, z: 1.85}
-  m_LocalScale: {x: 0.0011667, y: 0.0011667, z: 0.0011667}
+  m_LocalRotation: {x: 0, y: 0.25881905, z: 0, w: 0.9659258}
+  m_LocalPosition: {x: 0, y: 0, z: 2.35}
+  m_LocalScale: {x: 0.00095, y: 0.00095, z: 0.00095}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1901407324}
@@ -74198,7 +74198,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -2.15, y: 0.96}
+  m_AnchoredPosition: {x: -2.85, y: 1.15}
   m_SizeDelta: {x: 780, y: 420}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1836546194

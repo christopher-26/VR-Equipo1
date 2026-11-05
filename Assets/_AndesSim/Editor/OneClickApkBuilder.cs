@@ -448,9 +448,9 @@ namespace AndesSim.Editor
             // Identificador de paquete
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, PackageIdentifier);
 
-            // Nivel de SDK Android (Mínimo API 26 - Oreo 8.0)
+            // Nivel de SDK Android (Mínimo API 26 - Oreo 8.0, Target API 34 - Android 14.0 para evitar bloqueo por endurecimiento de seguridad)
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
-            PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
+            PlayerSettings.Android.targetSdkVersion = (AndroidSdkVersions)34;
 
             // Arquitectura 64 bits IL2CPP
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);

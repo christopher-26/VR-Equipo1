@@ -50,9 +50,10 @@ namespace AndesSim.EditorTools
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
             Debug.Log($"{LogPrefix} Arquitectura de destino configurada a: <color=#4EC9B0>ARM64</color>");
 
-            // 5. Android Minimum SDK Version: API Level 26 (Android 8.0 Oreo o superior)
+            // 5. Android Minimum SDK Version: API Level 26 (Android 8.0 Oreo), Target SDK: API Level 34 (Android 14.0)
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
-            Debug.Log($"{LogPrefix} SDK Mínimo configurado a: <color=#4EC9B0>Android 8.0 (API Level 26)</color>");
+            PlayerSettings.Android.targetSdkVersion = (AndroidSdkVersions)34;
+            Debug.Log($"{LogPrefix} SDK Mínimo configurado a: <color=#4EC9B0>Android 8.0 (API Level 26)</color>, Target SDK: <color=#4EC9B0>Android 14.0 (API Level 34)</color>");
 
             // 6. Graphics APIs: Configurar exclusivamente OpenGLES3 y descartar Vulkan (Requisito Cardboard XR)
             PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);

@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using AndesSim.Core;
+using AndesSim.UI;
 using AndesSim.VR;
 
 namespace AndesSim.Scenario01
@@ -192,8 +193,16 @@ namespace AndesSim.Scenario01
             }
             else
             {
-                // En modo ataque normal o esperando acción del usuario
-                SetState(MonitorState.InfeccionActiva);
+                // En modo ataque, el monitor se mantiene en estado Normal para leer el correo
+                // Solo pasa a InfeccionActiva si el ataque ya fue detonado
+                if (PhishingInspector.I != null && PhishingInspector.I.DecisionExecuted)
+                {
+                    SetState(MonitorState.InfeccionActiva);
+                }
+                else
+                {
+                    SetState(MonitorState.Normal);
+                }
             }
         }
 
@@ -351,9 +360,9 @@ namespace AndesSim.Scenario01
         #region Interacción a Distancia y Alta Legibilidad
 
         /// <summary>
-        /// Al mirar y hacer clic en el monitor desde lejos:
-        /// 1. Si está lejos del puesto (> distanceTeleportThreshold), lo teletransporta al punto óptimo.
-        /// 2. Si ya está cerca, o si se hace clic nuevamente, despliega la pantalla en alta legibilidad.
+        /// Al mirar y hacer clic en el monitor (o tocar la pantalla):
+        /// 1. Si está lejos (> distanceTeleportThreshold), lo teletransporta al punto óptimo.
+        /// 2. Despliega la pantalla en zoom de alta legibilidad VR (Modal Holográfico en primer plano).
         /// </summary>
         public void OnMonitorClicked()
         {
@@ -364,14 +373,39 @@ namespace AndesSim.Scenario01
 
             if (distance > distanceTeleportThreshold)
             {
-                // El jugador está lejos -> Acercarlo al punto de vista óptimo del monitor
                 TeleportToOptimalViewpoint();
             }
-            else
+
+            OpenInspectionZoomModal();
+        }
+
+        public void OpenInspectionZoomModal()
+        {
+            PlaySound(zoomInspectClip);
+
+            // Priorizar VrInspectionOverlayManager para visualización inmersiva en primer plano
+            if (VrInspectionOverlayManager.I != null)
             {
-                // El jugador está cerca -> Alternar pantalla en alta legibilidad para lectura cómoda
-                ToggleHighLegibilityOverlay();
+                string id = (monitorId + " " + gameObject.name).ToLowerInvariant();
+                if (id.Contains("01") || id.Contains("carla"))
+                {
+                    VrInspectionOverlayManager.I.OpenEmailInspection();
+                    return;
+                }
+                else if (id.Contains("02") || id.Contains("analista") || id.Contains("comercio"))
+                {
+                    VrInspectionOverlayManager.I.OpenSwiftInspection();
+                    return;
+                }
+                else if (id.Contains("03") || id.Contains("siem") || id.Contains("log"))
+                {
+                    VrInspectionOverlayManager.I.OpenSiemLogInspection();
+                    return;
+                }
             }
+
+            // Fallback: panel de alta legibilidad en el canvas del monitor
+            ToggleHighLegibilityOverlay();
         }
 
         private void TeleportToOptimalViewpoint()

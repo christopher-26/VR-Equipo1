@@ -85,7 +85,7 @@ MonoBehaviour:
   m_symmetricProjection: 0
   m_optimizeMultiviewRenderRegions: 0
   m_multiviewRenderRegionsOptimizationMode: 0
-  m_hasMigratedMultiviewRenderRegionSetting: 0
+  m_hasMigratedMultiviewRenderRegionSetting: 1
   m_foveatedRenderingApi: 1
   m_useOpenXRPredictedTime: 1
 --- !u!114 &-6057494974135361040
@@ -101,29 +101,29 @@ MonoBehaviour:
   m_Name: Standalone
   m_EditorClassIdentifier: Unity.XR.OpenXR::UnityEngine.XR.OpenXR.OpenXRSettings
   features:
-  - {fileID: -9175056512056733415}
-  - {fileID: -834163236956814750}
-  - {fileID: 7340801764151123091}
-  - {fileID: -1183328374969935186}
-  - {fileID: -5620405426743024491}
-  - {fileID: 2633541408679766622}
   - {fileID: 9036363023475587929}
-  - {fileID: 504310140323578718}
-  - {fileID: 3281452835521266323}
-  - {fileID: 6933662651980371921}
-  - {fileID: 1248301456029411637}
+  - {fileID: 2633541408679766622}
+  - {fileID: 7340801764151123091}
+  - {fileID: -4567195017973219292}
+  - {fileID: -8367860941546730445}
   - {fileID: -3859383061137973400}
+  - {fileID: 504310140323578718}
+  - {fileID: 1248301456029411637}
   - {fileID: -5597419851048569813}
+  - {fileID: 1487384078641321448}
+  - {fileID: 4769397294309523586}
+  - {fileID: -1183328374969935186}
+  - {fileID: 2371475883912059779}
+  - {fileID: 8842674705195424536}
+  - {fileID: 3281452835521266323}
+  - {fileID: -5620405426743024491}
+  - {fileID: 8769012693169553492}
+  - {fileID: -834163236956814750}
   - {fileID: 5067738972507373016}
   - {fileID: 521521152297209971}
+  - {fileID: -9175056512056733415}
   - {fileID: 6329627791843333060}
-  - {fileID: 4769397294309523586}
-  - {fileID: 8842674705195424536}
-  - {fileID: -8367860941546730445}
-  - {fileID: -4567195017973219292}
-  - {fileID: 1487384078641321448}
-  - {fileID: 8769012693169553492}
-  - {fileID: 2371475883912059779}
+  - {fileID: 6933662651980371921}
   - {fileID: 5957976150756352400}
   customLoaderName: 
   m_renderMode: 1
@@ -137,7 +137,7 @@ MonoBehaviour:
   m_symmetricProjection: 0
   m_optimizeMultiviewRenderRegions: 0
   m_multiviewRenderRegionsOptimizationMode: 0
-  m_hasMigratedMultiviewRenderRegionSetting: 0
+  m_hasMigratedMultiviewRenderRegionSetting: 1
   m_foveatedRenderingApi: 1
   m_useOpenXRPredictedTime: 1
 --- !u!114 &-5620405426743024491

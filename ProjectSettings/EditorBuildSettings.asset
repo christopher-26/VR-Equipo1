@@ -8,12 +8,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_AndesSim/Scenes/Oficina_Pagos.unity
     guid: be5483015b08c004a8cd23e82c3ec9db
-  - enabled: 1
-    path: Assets/_AndesSim/Scenes/Scenario01_OficinaPagos.unity
-    guid: 527734626c3f4cf4984e06522346ec45
-  - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 55daccc09a3b69647bbab145b54a3ab3
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: bfa1182bd221b4ca89619141f66f1260, type: 2}
     Unity.XR.WindowsMR.Settings: {fileID: 11400000, guid: dc5a169419fa04987b057f65238cf3ba, type: 2}

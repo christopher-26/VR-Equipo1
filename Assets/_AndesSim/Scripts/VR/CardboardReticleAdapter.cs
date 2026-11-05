@@ -49,15 +49,20 @@ namespace AndesSim.VR
         [SerializeField] private TMP_Text reticleLabelText;
 
         [Header("--- Estilo y Colores ---")]
-        [SerializeField] private Color defaultReticleColor = new Color(1f, 1f, 1f, 0.75f);
-        [SerializeField] private Color activeHoverColor = new Color(0.2f, 0.85f, 1.0f, 0.95f);
-        [SerializeField] private Color progressFillColor = new Color(0.3f, 1.0f, 0.5f, 1.0f);
+        [SerializeField] private Color defaultReticleColor = new Color(1f, 1f, 1f, 0.70f);
+        [SerializeField] private Color activeHoverColor = new Color(0f, 0.95f, 1.0f, 1.0f);
+        [SerializeField] private Color progressFillColor = new Color(0f, 0.95f, 1.0f, 0.95f);
+        [SerializeField] private Color trackRingColor = new Color(1f, 1f, 1f, 0.15f);
+
+        [Tooltip("Anillo de pista tenue que sirve de guía al progreso radial.")]
+        [SerializeField] private Image reticleTrackRing;
 
         // Componentes y estado interno
         private Camera _playerCamera;
         private GazeInteractable _currentInteractable;
         private RaycastHit _currentHit;
         private bool _isHittingInteractable;
+        private GameObject _labelContainerGO;
 
         public GazeInteractable CurrentTarget => _currentInteractable;
         public bool IsHittingInteractable => _isHittingInteractable;
@@ -163,6 +168,7 @@ namespace AndesSim.VR
         }
 
         /// <summary>
+        /// <summary>
         /// Posiciona la retícula en el espacio 3D y actualiza el anillo de progreso y la etiqueta.
         /// </summary>
         private void UpdateReticleVisuals()
@@ -177,18 +183,38 @@ namespace AndesSim.VR
                 reticleRoot.position = _currentHit.point - (centerRay.direction * 0.04f);
                 reticleRoot.rotation = Quaternion.LookRotation(centerRay.direction);
 
-                // Escalar con la distancia para mantener tamaño angular constante
+                // Escalar ergonómicamente con la distancia (1.5° de ángulo visual VR confortable)
                 float distance = Vector3.Distance(_playerCamera.transform.position, _currentHit.point);
-                float scaleFactor = Mathf.Clamp(distance * 0.015f, 0.01f, 0.4f);
+                float scaleFactor = Mathf.Clamp(distance * 0.0016f, 0.0012f, 0.008f);
+
+                // Micro-animación elástica sutil al progresar la mirada
+                if (_currentInteractable != null)
+                {
+                    scaleFactor *= (1f + 0.10f * _currentInteractable.DwellProgress);
+                }
                 reticleRoot.localScale = Vector3.one * scaleFactor;
 
                 // Actualizar textos y colores
                 if (_currentInteractable != null)
                 {
+                    bool hasLabel = !string.IsNullOrEmpty(_currentInteractable.InteractableLabel);
                     if (reticleLabelText != null)
                     {
                         reticleLabelText.text = _currentInteractable.InteractableLabel;
-                        reticleLabelText.gameObject.SetActive(!string.IsNullOrEmpty(_currentInteractable.InteractableLabel));
+                    }
+
+                    if (_labelContainerGO != null)
+                    {
+                        _labelContainerGO.SetActive(hasLabel);
+                    }
+                    else if (reticleLabelText != null)
+                    {
+                        reticleLabelText.gameObject.SetActive(hasLabel);
+                    }
+
+                    if (reticleTrackRing != null)
+                    {
+                        reticleTrackRing.gameObject.SetActive(true);
                     }
 
                     if (reticleProgressRing != null)
@@ -209,13 +235,22 @@ namespace AndesSim.VR
                 reticleRoot.position = centerRay.origin + (centerRay.direction * defaultDistance);
                 reticleRoot.rotation = Quaternion.LookRotation(centerRay.direction);
 
-                float scaleFactor = defaultDistance * 0.015f;
+                float scaleFactor = Mathf.Clamp(defaultDistance * 0.0016f, 0.0012f, 0.008f);
                 reticleRoot.localScale = Vector3.one * scaleFactor;
 
-                if (reticleLabelText != null)
+                if (_labelContainerGO != null)
+                {
+                    _labelContainerGO.SetActive(false);
+                }
+                else if (reticleLabelText != null)
                 {
                     reticleLabelText.text = string.Empty;
                     reticleLabelText.gameObject.SetActive(false);
+                }
+
+                if (reticleTrackRing != null)
+                {
+                    reticleTrackRing.gameObject.SetActive(false);
                 }
 
                 if (reticleProgressRing != null)
@@ -251,9 +286,9 @@ namespace AndesSim.VR
             canvasRect.sizeDelta = new Vector2(200, 200);
             reticleRoot = canvasGO.transform;
 
-            // 2. Sprite procedural de anillo y punto
-            Sprite circleSprite = GenerateCircleSprite(64, isRing: false);
-            Sprite ringSprite = GenerateCircleSprite(64, isRing: true);
+            // 2. Sprite procedural de anillo fino de alta precisión y punto suave
+            Sprite circleSprite = GenerateCircleSprite(64, isRing: false, innerRatio: 0f);
+            Sprite ringSprite = GenerateCircleSprite(64, isRing: true, innerRatio: 0.86f);
 
             // 3. Crear Punto Central
             GameObject dotGO = new GameObject("ReticleCenterDot");
@@ -262,9 +297,19 @@ namespace AndesSim.VR
             reticleCenterDot.sprite = circleSprite;
             reticleCenterDot.color = defaultReticleColor;
             RectTransform dotRect = dotGO.GetComponent<RectTransform>();
-            dotRect.sizeDelta = new Vector2(8, 8);
+            dotRect.sizeDelta = new Vector2(5, 5);
 
-            // 4. Crear Anillo de Progreso (Radial 360)
+            // 4. Crear Pista Guía de Fondo (Track Ring)
+            GameObject trackGO = new GameObject("ReticleTrackRing");
+            trackGO.transform.SetParent(reticleRoot, false);
+            reticleTrackRing = trackGO.AddComponent<Image>();
+            reticleTrackRing.sprite = ringSprite;
+            reticleTrackRing.color = trackRingColor;
+            RectTransform trackRect = trackGO.GetComponent<RectTransform>();
+            trackRect.sizeDelta = new Vector2(22, 22);
+            reticleTrackRing.gameObject.SetActive(false);
+
+            // 5. Crear Anillo de Progreso Radial Fino (Holo Cyan)
             GameObject ringGO = new GameObject("ReticleProgressRing");
             ringGO.transform.SetParent(reticleRoot, false);
             reticleProgressRing = ringGO.AddComponent<Image>();
@@ -276,36 +321,47 @@ namespace AndesSim.VR
             reticleProgressRing.fillAmount = 0f;
             reticleProgressRing.color = progressFillColor;
             RectTransform ringRect = ringGO.GetComponent<RectTransform>();
-            ringRect.sizeDelta = new Vector2(28, 28);
+            ringRect.sizeDelta = new Vector2(22, 22);
 
-            // 5. Crear Etiqueta TextMeshPro
-            GameObject textGO = new GameObject("ReticleLabel");
-            textGO.transform.SetParent(reticleRoot, false);
+            // 6. Crear Etiqueta TextMeshPro Elegante y Proporcionada con Píldora de Fondo
+            _labelContainerGO = new GameObject("ReticleLabelPill");
+            _labelContainerGO.transform.SetParent(reticleRoot, false);
+            RectTransform pillRect = _labelContainerGO.AddComponent<RectTransform>();
+            pillRect.sizeDelta = new Vector2(170, 22);
+            pillRect.anchoredPosition = new Vector2(0, -18);
+
+            Image pillBg = _labelContainerGO.AddComponent<Image>();
+            pillBg.color = new Color(0.04f, 0.08f, 0.14f, 0.88f);
+
+            GameObject textGO = new GameObject("LabelText");
+            textGO.transform.SetParent(_labelContainerGO.transform, false);
+            RectTransform textRect = textGO.AddComponent<RectTransform>();
+            textRect.anchorMin = Vector2.zero;
+            textRect.anchorMax = Vector2.one;
+            textRect.sizeDelta = Vector2.zero;
+
             reticleLabelText = textGO.AddComponent<TextMeshProUGUI>();
-            reticleLabelText.fontSize = 18;
+            reticleLabelText.fontSize = 9.5f;
             reticleLabelText.alignment = TextAlignmentOptions.Center;
-            reticleLabelText.color = Color.white;
-            reticleLabelText.outlineWidth = 0.2f;
-            reticleLabelText.outlineColor = Color.black;
-            RectTransform textRect = textGO.GetComponent<RectTransform>();
-            textRect.sizeDelta = new Vector2(250, 40);
-            textRect.anchoredPosition = new Vector2(0, -28);
+            reticleLabelText.color = new Color(0.9f, 0.96f, 1f, 0.95f);
+            reticleLabelText.outlineWidth = 0.15f;
+            reticleLabelText.outlineColor = new Color(0f, 0f, 0f, 0.8f);
 
             reticleLabelText.text = string.Empty;
-            reticleLabelText.gameObject.SetActive(false);
+            _labelContainerGO.SetActive(false);
 
-            Debug.Log($"{LogPrefix} Canvas de retícula World Space generado proceduralmente con éxito.");
+            Debug.Log($"{LogPrefix} Canvas de retícula World Space generado proceduralmente con estética holo-cyan.");
         }
 
         /// <summary>
         /// Genera en memoria un Sprite circular suave y anti-aliasing sin requerir archivos externos de texturas.
         /// </summary>
-        private Sprite GenerateCircleSprite(int size, bool isRing)
+        private Sprite GenerateCircleSprite(int size, bool isRing, float innerRatio = 0.86f)
         {
             Texture2D texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
             Color[] colors = new Color[size * size];
             float radius = size * 0.5f;
-            float innerRadius = isRing ? radius * 0.70f : 0f;
+            float innerRadius = isRing ? radius * innerRatio : 0f;
 
             for (int y = 0; y < size; y++)
             {
@@ -315,10 +371,10 @@ namespace AndesSim.VR
 
                     if (dist <= radius && dist >= innerRadius)
                     {
-                        float alpha = Mathf.Clamp01((radius - dist) * 1.5f);
+                        float alpha = Mathf.Clamp01((radius - dist) * 2.0f);
                         if (isRing)
                         {
-                            alpha *= Mathf.Clamp01((dist - innerRadius) * 1.5f);
+                            alpha *= Mathf.Clamp01((dist - innerRadius) * 2.0f);
                         }
                         colors[y * size + x] = new Color(1f, 1f, 1f, alpha);
                     }
