@@ -486,6 +486,7 @@ namespace AndesSim.Editor
                         Debug.Log($"{LogPrefix} Desactivado '{loader.name}' para Android: evita inyección de paquetes Oculus/MetaQuest incompatibles con smartphones estándar.");
                     }
                 }
+                settings.InitManagerOnStart = false;
                 EditorUtility.SetDirty(settings);
                 EditorUtility.SetDirty(manager);
                 AssetDatabase.SaveAssets();
