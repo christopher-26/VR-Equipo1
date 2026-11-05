@@ -19,7 +19,12 @@ namespace AndesSim.EditorTools
         private const string ExpectedProductName = "ANDES-SIM_E1_OficinaPagos";
 
         [MenuItem(MenuPath, priority = 2)]
-        public static void ApplyAndroidCardboardConfiguration()
+        public static void ApplyAndroidCardboardConfigurationMenuItem()
+        {
+            ApplyAndroidCardboardConfiguration(showDialog: true);
+        }
+
+        public static void ApplyAndroidCardboardConfiguration(bool showDialog = false)
         {
             Debug.Log($"{LogPrefix} <b>Iniciando aplicación de configuración técnica para Android / Cardboard XR...</b>");
 
@@ -64,7 +69,25 @@ namespace AndesSim.EditorTools
             PlayerSettings.MTRendering = false;
             Debug.Log($"{LogPrefix} Multithreaded Rendering (MTRendering) desactivado para estabilidad de Cardboard XR con GLES3.");
 
-            // 8. EditorUserBuildSettings: Asegurar grupo seleccionado en Android
+            // 8. Desactivar OpenXR / MetaQuest en Android para garantizar compatibilidad con smartphones y visores Cardboard
+            var xrSettings = UnityEditor.XR.Management.XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(BuildTargetGroup.Android);
+            if (xrSettings != null && xrSettings.Manager != null)
+            {
+                var manager = xrSettings.Manager;
+                var loaders = new System.Collections.Generic.List<UnityEngine.XR.Management.XRLoader>(manager.activeLoaders);
+                foreach (var loader in loaders)
+                {
+                    if (loader != null && (loader.name.Contains("OpenXR") || loader.GetType().FullName.Contains("OpenXR")))
+                    {
+                        manager.TryRemoveLoader(loader);
+                        Debug.Log($"{LogPrefix} Desactivado '{loader.name}' para Android: evita inyección de paquetes Oculus/MetaQuest incompatibles con smartphones estándar.");
+                    }
+                }
+                EditorUtility.SetDirty(xrSettings);
+                EditorUtility.SetDirty(manager);
+            }
+
+            // 9. EditorUserBuildSettings: Asegurar grupo seleccionado en Android
             EditorUserBuildSettings.selectedBuildTargetGroup = BuildTargetGroup.Android;
 
             // Guardar configuración en disco
@@ -86,26 +109,32 @@ namespace AndesSim.EditorTools
             // Verificar si la plataforma activa actual en el Editor es Android
             if (EditorUserBuildSettings.activeBuildTarget != BuildTarget.Android)
             {
-                bool switchNow = EditorUtility.DisplayDialog(
-                    "ANDES-SIM | Plataforma Activa",
-                    $"{summary}\n\nATENCIÓN: La plataforma activa actual del editor es '{EditorUserBuildSettings.activeBuildTarget}'.\n¿Deseas cambiar la plataforma activa a Android ahora?",
-                    "Cambiar a Android",
-                    "Mantener plataforma actual"
-                );
-
-                if (switchNow)
+                if (showDialog)
                 {
-                    Debug.Log($"{LogPrefix} Iniciando cambio de plataforma activa hacia Android...");
-                    EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
+                    bool switchNow = EditorUtility.DisplayDialog(
+                        "ANDES-SIM | Plataforma Activa",
+                        $"{summary}\n\nATENCIÓN: La plataforma activa actual del editor es '{EditorUserBuildSettings.activeBuildTarget}'.\n¿Deseas cambiar la plataforma activa a Android ahora?",
+                        "Cambiar a Android",
+                        "Mantener plataforma actual"
+                    );
+
+                    if (switchNow)
+                    {
+                        Debug.Log($"{LogPrefix} Iniciando cambio de plataforma activa hacia Android...");
+                        EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
+                    }
                 }
             }
             else
             {
-                EditorUtility.DisplayDialog(
-                    "ANDES-SIM | Configuración Técnica VR",
-                    $"{summary}\n\nLa plataforma activa ya es Android. El proyecto está listo para compilar.",
-                    "Aceptar"
-                );
+                if (showDialog)
+                {
+                    EditorUtility.DisplayDialog(
+                        "ANDES-SIM | Configuración Técnica VR",
+                        $"{summary}\n\nLa plataforma activa ya es Android. El proyecto está listo para compilar.",
+                        "Aceptar"
+                    );
+                }
             }
         }
     }

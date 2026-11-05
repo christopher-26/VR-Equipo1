@@ -332,6 +332,12 @@ namespace AndesSim.VR
                 PlayUiSound(null, 1200f);
             }
 
+            // Conmutar banda sonora a Investigación Forense
+            if (AudioManager.I != null)
+            {
+                AudioManager.I.PlayMusicTrack(MusicTheme.CyberInvestigation, 1.5f);
+            }
+
             // 2. Efecto visual de desvanecimiento suave de la terminal
             if (menuCanvasGroup != null)
             {

@@ -475,7 +475,14 @@ namespace AndesSim.QA
             const string cat = "[RF-05] Registro de Evidencias Forenses (3.0 Pts)";
 
             // 5.1 GameManager y ProgressTracker
-            GameManager gm = GameManager.I ?? FindFirstObjectByType<GameManager>(FindObjectsInactive.Include);
+            GameManager gm = (GameManager.I != null) 
+                ? GameManager.I 
+                : FindFirstObjectByType<GameManager>(FindObjectsInactive.Include);
+            if (gm == null)
+            {
+                GameObject systemsObj = GameObject.Find("_SYSTEMS");
+                if (systemsObj != null) gm = systemsObj.GetComponent<GameManager>();
+            }
             ScenarioData dataAsset = (gm != null && gm.data != null) ? gm.data : Resources.Load<ScenarioData>("Data/Scenario01_Data");
             bool hasGm = gm != null && (gm.data != null || dataAsset != null);
 

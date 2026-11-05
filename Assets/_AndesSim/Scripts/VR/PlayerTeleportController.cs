@@ -254,15 +254,20 @@ namespace AndesSim.VR
 
         private void PlayTeleportSound(Vector3 atPosition)
         {
-            if (teleportSound == null) return;
-
-            if (audioSource != null)
+            if (teleportSound != null)
             {
-                audioSource.PlayOneShot(teleportSound);
+                if (audioSource != null)
+                {
+                    audioSource.PlayOneShot(teleportSound);
+                }
+                else
+                {
+                    AudioSource.PlayClipAtPoint(teleportSound, atPosition);
+                }
             }
-            else
+            else if (AndesSim.Audio.AudioManager.I != null)
             {
-                AudioSource.PlayClipAtPoint(teleportSound, atPosition);
+                AndesSim.Audio.AudioManager.I.PlayTeleportWhoosh(atPosition);
             }
         }
 

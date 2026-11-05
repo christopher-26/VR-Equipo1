@@ -286,6 +286,10 @@ namespace AndesSim.Scenario01
             }
 
             PlaySound(signalFoundClip, GenerateSignalFoundChime());
+            if (AndesSim.Audio.AudioManager.I != null)
+            {
+                AndesSim.Audio.AudioManager.I.PlayLaserScan(transform.position);
+            }
             UpdateCounterUi();
 
             // 2. Si se han completado las 3 señales oficiales
@@ -673,6 +677,10 @@ namespace AndesSim.Scenario01
             if (target != null && audioSource != null)
             {
                 audioSource.PlayOneShot(target);
+            }
+            if (AndesSim.Audio.AudioManager.I != null)
+            {
+                AndesSim.Audio.AudioManager.I.PlayKeyboardTyping(transform.position);
             }
         }
 

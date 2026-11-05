@@ -139,7 +139,7 @@ namespace AndesSim.VR
                     }
                     else
                     {
-                        Debug.LogWarning($"{LogPrefix} Alerta: No se encontró ningún XR Loader activo en XRGeneralSettings.");
+                        Debug.Log($"{LogPrefix} Modo Google Cardboard / Smartphone activo: operando con giroscopio nativo e IMU (60 FPS).");
                     }
                 }
                 else

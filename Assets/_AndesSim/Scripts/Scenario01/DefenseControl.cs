@@ -391,6 +391,10 @@ namespace AndesSim.Scenario01
             {
                 audioSource.PlayOneShot(clip);
             }
+            else if (AndesSim.Audio.AudioManager.I != null)
+            {
+                AndesSim.Audio.AudioManager.I.PlaySwitchToggle(transform.position);
+            }
             else if (clip == null && audioSource != null && isApplied)
             {
                 AudioClip proceduralBeep = GenerateProceduralToggleTone();

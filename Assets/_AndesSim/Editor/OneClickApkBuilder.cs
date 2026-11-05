@@ -464,7 +464,32 @@ namespace AndesSim.Editor
             PlayerSettings.Android.blitType = AndroidBlitType.Always;
             PlayerSettings.gpuSkinning = true;
 
-            Debug.Log($"{LogPrefix} <color=#38F28A>PlayerSettings Android aplicados (IL2CPP, ARM64, API 26, OpenGLES3, LandscapeLeft).</color>");
+            // Desactivar OpenXR / MetaQuest en Android para garantizar compatibilidad con smartphones y visores Cardboard
+            EnsureCardboardXrConfiguration();
+
+            Debug.Log($"{LogPrefix} <color=#38F28A>PlayerSettings Android aplicados (IL2CPP, ARM64, API 26, OpenGLES3, LandscapeLeft, Cardboard Safe).</color>");
+        }
+
+        public static void EnsureCardboardXrConfiguration()
+        {
+            var buildTargetGroup = BuildTargetGroup.Android;
+            var settings = UnityEditor.XR.Management.XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(buildTargetGroup);
+            if (settings != null && settings.Manager != null)
+            {
+                var manager = settings.Manager;
+                var loaders = new List<UnityEngine.XR.Management.XRLoader>(manager.activeLoaders);
+                foreach (var loader in loaders)
+                {
+                    if (loader != null && (loader.name.Contains("OpenXR") || loader.GetType().FullName.Contains("OpenXR")))
+                    {
+                        manager.TryRemoveLoader(loader);
+                        Debug.Log($"{LogPrefix} Desactivado '{loader.name}' para Android: evita inyección de paquetes Oculus/MetaQuest incompatibles con smartphones estándar.");
+                    }
+                }
+                EditorUtility.SetDirty(settings);
+                EditorUtility.SetDirty(manager);
+                AssetDatabase.SaveAssets();
+            }
         }
 
         #endregion

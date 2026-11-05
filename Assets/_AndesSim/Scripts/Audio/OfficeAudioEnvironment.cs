@@ -61,6 +61,13 @@ namespace AndesSim.Audio
         private void SetupAudioSources()
         {
             // 1. Loop ambiental
+#if UNITY_EDITOR
+            if (officeAmbienceClip == null)
+                officeAmbienceClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_AndesSim/Audio/Ambience/SFX_Office_Atmosphere_Loop.wav");
+            if (phoneRingClip == null)
+                phoneRingClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_AndesSim/Audio/SFX/SFX_Phone_Ring_3D.wav");
+#endif
+
             if (ambientLoopSource == null)
             {
                 ambientLoopSource = gameObject.AddComponent<AudioSource>();

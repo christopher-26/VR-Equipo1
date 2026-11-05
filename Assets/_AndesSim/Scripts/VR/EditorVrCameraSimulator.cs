@@ -206,21 +206,32 @@ namespace AndesSim.VR
 #if UNITY_ANDROID && !UNITY_EDITOR
         /// <summary>
         /// Configura el giroscopio del smartphone en caso de que no haya subsistema XR activo.
+        /// Compatible tanto con New Input System (AttitudeSensor) como con Legacy Input Manager (Input.gyro).
         /// </summary>
         private void InitializeAndroidGyroscope()
         {
-            if (enableGyroFallback && SystemInfo.supportsGyroscope)
+            if (!enableGyroFallback) return;
+
+#if ENABLE_INPUT_SYSTEM
+            if (AttitudeSensor.current != null)
             {
+                InputSystem.EnableDevice(AttitudeSensor.current);
+                _gyroInitialized = true;
+                Debug.Log($"{LogPrefix} Sensor de orientación (AttitudeSensor - New Input System) inicializado.");
+            }
+#endif
 #if ENABLE_LEGACY_INPUT_MANAGER
+            if (!_gyroInitialized && SystemInfo.supportsGyroscope)
+            {
                 try
                 {
                     Input.gyro.enabled = true;
                     _gyroInitialized = true;
-                    Debug.Log($"{LogPrefix} Giroscopio nativo de Android inicializado correctamente.");
+                    Debug.Log($"{LogPrefix} Giroscopio nativo de Android (Legacy Input) inicializado correctamente.");
                 }
                 catch { }
-#endif
             }
+#endif
         }
 
         /// <summary>
@@ -230,10 +241,18 @@ namespace AndesSim.VR
         {
             if (!_gyroInitialized || !enableGyroFallback) return;
 
+#if ENABLE_INPUT_SYSTEM
+            if (AttitudeSensor.current != null && AttitudeSensor.current.enabled)
+            {
+                Quaternion attitude = AttitudeSensor.current.attitude.ReadValue();
+                Quaternion convertedRotation = new Quaternion(attitude.x, attitude.y, -attitude.z, -attitude.w);
+                transform.localRotation = Quaternion.Euler(90f, 0f, 0f) * convertedRotation;
+                return;
+            }
+#endif
 #if ENABLE_LEGACY_INPUT_MANAGER
             try
             {
-                // Si UnityEngine.XR.XRSettings no tiene un dispositivo activo (modo no-XR / ventana previa)
                 if (!UnityEngine.XR.XRSettings.isDeviceActive)
                 {
                     Quaternion attitude = Input.gyro.attitude;

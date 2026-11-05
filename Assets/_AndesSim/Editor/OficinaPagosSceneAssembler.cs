@@ -124,6 +124,12 @@ namespace AndesSim.Editor
             cyberGridObj.transform.SetParent(envRoot.transform, false);
             cyberGridObj.AddComponent<AmbientCyberGridEffect>();
 
+            // Partículas Atmosféricas Cibernéticas (Dust Motes flotantes para inmersión VR móvil)
+            GameObject motesObj = new GameObject("Atmospheric_CyberMotes");
+            motesObj.transform.SetParent(envRoot.transform, false);
+            motesObj.transform.localPosition = new Vector3(0f, 1.5f, 0f);
+            BuildAtmosphericParticles(motesObj);
+
             // -------------------------------------------------------------------------
             // PASO 5: Instanciar el Player VR en el Vestíbulo frente al Portal
             // -------------------------------------------------------------------------
@@ -251,8 +257,31 @@ namespace AndesSim.Editor
             // 4. ProgressTracker
             systemsObj.AddComponent<ProgressTracker>();
 
-            // 5. AudioManager (Sintetizador Procedural de Audio Central)
-            systemsObj.AddComponent<AudioManager>();
+            // 5. AudioManager (Sintetizador Procedural de Audio Central y Soundtrack)
+            AudioManager audioMgr = systemsObj.AddComponent<AudioManager>();
+            SerializedObject sAudio = new SerializedObject(audioMgr);
+            sAudio.FindProperty("menuIntroMusicClip").objectReferenceValue = 
+                AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_AndesSim/Audio/Music/Music_VrStartMenu_Intro.wav");
+            sAudio.FindProperty("investigationMusicClip").objectReferenceValue = 
+                AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_AndesSim/Audio/Music/Music_CyberInvestigation_Theme.wav");
+            sAudio.FindProperty("attackTensionMusicClip").objectReferenceValue = 
+                AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_AndesSim/Audio/Music/Music_AttackTension_Theme.wav");
+            sAudio.FindProperty("defenseVictoryMusicClip").objectReferenceValue = 
+                AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_AndesSim/Audio/Music/Music_DefenseVictory_Theme.wav");
+
+            sAudio.FindProperty("phoneRingClip").objectReferenceValue = 
+                AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_AndesSim/Audio/SFX/SFX_Phone_Ring_3D.wav");
+            sAudio.FindProperty("keyboardTypingClip").objectReferenceValue = 
+                AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_AndesSim/Audio/SFX/SFX_Keyboard_Typing.wav");
+            sAudio.FindProperty("switchToggleClip").objectReferenceValue = 
+                AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_AndesSim/Audio/SFX/SFX_Switch_Toggle.wav");
+            sAudio.FindProperty("laserScanClip").objectReferenceValue = 
+                AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_AndesSim/Audio/SFX/SFX_Cyber_LaserScan.wav");
+            sAudio.FindProperty("teleportWhooshClip").objectReferenceValue = 
+                AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_AndesSim/Audio/SFX/SFX_Teleport_Whoosh.wav");
+            sAudio.FindProperty("ambientNightOfficeClip").objectReferenceValue = 
+                AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_AndesSim/Audio/Ambience/SFX_Office_Atmosphere_Loop.wav");
+            sAudio.ApplyModifiedProperties();
 
             // 6. CardboardXrLifecycleManager
             systemsObj.AddComponent<CardboardXrLifecycleManager>();
@@ -1735,6 +1764,36 @@ namespace AndesSim.Editor
         }
 
         #endregion
+
+        private static void BuildAtmosphericParticles(GameObject obj)
+        {
+            ParticleSystem ps = obj.AddComponent<ParticleSystem>();
+            var main = ps.main;
+            main.maxParticles = 50;
+            main.startLifetime = 7.0f;
+            main.startSpeed = 0.04f;
+            main.startSize = 0.025f;
+            main.startColor = new Color(0.35f, 0.85f, 1f, 0.25f);
+            main.simulationSpace = ParticleSystemSimulationSpace.World;
+            main.playOnAwake = true;
+            main.loop = true;
+
+            var emission = ps.emission;
+            emission.rateOverTime = 6f;
+
+            var shape = ps.shape;
+            shape.shapeType = ParticleSystemShapeType.Box;
+            shape.scale = new Vector3(9f, 2.5f, 8f);
+
+            var vel = ps.velocityOverLifetime;
+            vel.enabled = true;
+            vel.x = new ParticleSystem.MinMaxCurve(0.01f);
+            vel.y = new ParticleSystem.MinMaxCurve(0.015f);
+            vel.z = new ParticleSystem.MinMaxCurve(0.01f);
+
+            ParticleSystemRenderer rend = obj.GetComponent<ParticleSystemRenderer>();
+            rend.sharedMaterial = CreateColorMaterial("Mat_CyberMoteParticle", new Color(0.4f, 0.9f, 1f, 0.35f));
+        }
 
         private static Material CreateColorMaterial(string name, Color color)
         {
