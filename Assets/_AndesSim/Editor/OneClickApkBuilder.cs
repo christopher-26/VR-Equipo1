@@ -460,6 +460,9 @@ namespace AndesSim.Editor
             PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
             PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new GraphicsDeviceType[] { GraphicsDeviceType.OpenGLES3 });
 
+            // Application Entry Point: Activity tradicional requerida para Google Cardboard XR Plugin
+            PlayerSettings.Android.applicationEntry = AndroidApplicationEntry.Activity;
+
             // Ajustes de rendimiento y confort
             PlayerSettings.Android.blitType = AndroidBlitType.Always;
             PlayerSettings.gpuSkinning = true;
