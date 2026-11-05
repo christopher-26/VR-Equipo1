@@ -291,7 +291,7 @@ PlayerSettings:
   useAndroidAppCategory: 1
   androidAppCategoryOther: 
   AndroidEnableTango: 0
-  androidEnableBanner: 1
+  androidEnableBanner: 0
   androidUseLowAccuracyLocation: 0
   androidUseCustomKeystore: 0
   m_AndroidBanners:

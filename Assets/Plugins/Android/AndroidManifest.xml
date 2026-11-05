@@ -23,7 +23,6 @@
         android:extractNativeLibs="true"
         android:allowBackup="false"
         android:isGame="true"
-        android:banner="@mipmap/app_banner"
         android:hardwareAccelerated="true"
         tools:replace="android:allowBackup,android:extractNativeLibs">
 
