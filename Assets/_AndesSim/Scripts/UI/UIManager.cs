@@ -171,11 +171,11 @@ namespace AndesSim.UI
             // Asegurar que existan los paneles o construirlos dinámicamente
             EnsureUiPanelsExist();
 
-            // Asegurar posición despejada en la Pared Oeste para no sobreponerse a las PCs de los operadores
+            // El panel flotante WristOrDeskHUD era un widget de prototipo que resultaba invasivo y redundante en la pared.
+            // Se desactiva para mantener las paredes de la oficina bancaria limpias, profesionales y realistas.
             if (wristOrDeskHudPanel != null)
             {
-                wristOrDeskHudPanel.transform.position = new Vector3(-4.85f, 1.55f, 1.8f);
-                wristOrDeskHudPanel.transform.rotation = Quaternion.Euler(0f, 75f, 0f);
+                wristOrDeskHudPanel.SetActive(false);
             }
 
             // Configurar botón interactivo de alternar modo
@@ -685,6 +685,9 @@ namespace AndesSim.UI
                 GameObject defObj = CreateTextObject("Txt_CheckDefenses", wristOrDeskHudPanel.transform, new Vector2(0f, -38f), new Vector2(240f, 13f));
                 defensesChecklistText = defObj.GetComponent<TextMeshProUGUI>();
                 defensesChecklistText.fontSize = 7.2f;
+
+                // Desactivado por defecto para no ensuciar el entorno 3D
+                wristOrDeskHudPanel.SetActive(false);
             }
 
             // 2. NotificationToast
