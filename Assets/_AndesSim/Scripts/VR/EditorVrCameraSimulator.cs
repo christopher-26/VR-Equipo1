@@ -240,6 +240,8 @@ namespace AndesSim.VR
         private void HandleAndroidGyroFallback()
         {
             if (!_gyroInitialized || !enableGyroFallback) return;
+            // Con Cardboard XR activo, el TrackedPoseDriver ya mueve la cabeza: no pelear con él.
+            if (UnityEngine.XR.XRSettings.isDeviceActive) return;
 
 #if ENABLE_INPUT_SYSTEM
             if (AttitudeSensor.current != null && AttitudeSensor.current.enabled)

@@ -70,7 +70,33 @@ namespace AndesSim.VR
         {
             // 3. Verificación e inicialización de XR Management en Android
             VerifyAndInitializeXrManagement();
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+            // Primer arranque: pedir el QR del visor Cardboard (se guarda en el teléfono).
+            if (IsCardboardActive && !Google.XR.Cardboard.Api.HasDeviceParams())
+            {
+                Google.XR.Cardboard.Api.ScanDeviceParams();
+            }
+#endif
         }
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+        private static bool IsCardboardActive =>
+            XRGeneralSettings.Instance != null &&
+            XRGeneralSettings.Instance.Manager != null &&
+            XRGeneralSettings.Instance.Manager.activeLoader is Google.XR.Cardboard.XRLoader;
+
+        // Botones nativos de la vista estéreo (engranaje = reescanear visor, X = salir).
+        private void Update()
+        {
+            if (!IsCardboardActive) return;
+
+            if (Google.XR.Cardboard.Api.IsCloseButtonPressed) Application.Quit();
+            if (Google.XR.Cardboard.Api.IsGearButtonPressed) Google.XR.Cardboard.Api.ScanDeviceParams();
+            if (Google.XR.Cardboard.Api.HasNewDeviceParams()) Google.XR.Cardboard.Api.ReloadDeviceParams();
+            Google.XR.Cardboard.Api.UpdateScreenParams();
+        }
+#endif
 
         /// <summary>
         /// Aplica la configuración de suspensión de pantalla y targetFrameRate.

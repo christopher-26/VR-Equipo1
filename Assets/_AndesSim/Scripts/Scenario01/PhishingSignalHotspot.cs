@@ -172,7 +172,7 @@ namespace AndesSim.Scenario01
         /// Acción ejecutada al mirar y hacer clic en el hotspot:
         /// 1. Resalta el recuadro en ámbar/rojo con [SEÑAL DE PHISHING DETECTADA].
         /// 2. Despliega la explicación técnica forense.
-        /// 3. Notifica a PhishingEmailInspector y ScenarioFlowController.
+        /// 3. Notifica a PhishingInspector y ScenarioFlowController.
         /// </summary>
         public void InspectSignal()
         {
@@ -194,7 +194,7 @@ namespace AndesSim.Scenario01
             // 2. Mostrar tooltip con la explicación técnica
             ShowExplanationTooltip();
 
-            // 3. Notificar a PhishingInspector oficial y PhishingEmailInspector
+            // 3. Notificar a PhishingInspector oficial
             if (PhishingInspector.I != null)
             {
                 PhishingInspector.I.MarkPhishingSignal(signalId);
@@ -208,24 +208,22 @@ namespace AndesSim.Scenario01
                 }
             }
 
-            if (PhishingEmailInspector.I != null)
-            {
-                PhishingEmailInspector.I.OnSignalInspected(signalId);
-            }
-            else
-            {
-                PhishingEmailInspector inspectorLegacy = FindFirstObjectByType<PhishingEmailInspector>();
-                if (inspectorLegacy != null)
-                {
-                    inspectorLegacy.OnSignalInspected(signalId);
-                }
-            }
-
             // 4. Notificar a ScenarioFlowController para la máquina de estados de 6 pasos
             if (ScenarioFlowController.I != null)
             {
                 ScenarioFlowController.I.NotifyPhishingSignalInspected(signalId);
             }
+        }
+
+        /// <summary>
+        /// Devuelve el hotspot a su estado inicial (invocado por PhishingInspector al reiniciar).
+        /// </summary>
+        public void ResetSignal()
+        {
+            isDetected = false;
+            if (_hideTooltipCoroutine != null) StopCoroutine(_hideTooltipCoroutine);
+            if (explanationTooltipPanel != null) explanationTooltipPanel.SetActive(false);
+            UpdateVisualAppearance();
         }
 
         private void UpdateVisualAppearance()
