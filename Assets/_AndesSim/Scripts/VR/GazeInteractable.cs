@@ -42,7 +42,7 @@ namespace AndesSim.VR
 
         [Tooltip("Tiempo en segundos que el jugador debe mantener la mirada para detonar el clic (1.8 segundos por defecto).")]
         [Range(0.5f, 5.0f)]
-        [SerializeField] public float dwellTime = 1.8f;
+        [SerializeField] public float dwellTime = 1.2f;
 
         public float DwellTime { get => dwellTime; set => dwellTime = value; }
 
@@ -73,6 +73,8 @@ namespace AndesSim.VR
         private bool _isHovered = false;
         private bool _hasClickedThisHover = false;
         private float _dwellTimer = 0f;
+        private float _exitGraceTimer = 0f;
+        private const float ExitGracePeriod = 0.15f;
 
         // Caché de materiales y colores originales
         private Color _originalGraphicColor;
@@ -120,8 +122,18 @@ namespace AndesSim.VR
                 return;
             }
 
-            // 2. Conteo por permanencia de mirada (Dwell Time: 1.8s)
-            if (enableDwellClick && !_hasClickedThisHover)
+            if (_exitGraceTimer > 0f)
+            {
+                _exitGraceTimer -= Time.deltaTime;
+                if (_exitGraceTimer <= 0f && !_isHovered)
+                {
+                    _dwellTimer = 0f;
+                    onDwellProgress?.Invoke(0f);
+                }
+            }
+
+            // 2. Conteo por permanencia de mirada (Dwell Time)
+            if (_isHovered && enableDwellClick && !_hasClickedThisHover)
             {
                 _dwellTimer += Time.deltaTime;
                 float progress = Mathf.Clamp01(_dwellTimer / dwellTime);
@@ -154,7 +166,11 @@ namespace AndesSim.VR
 
             _isHovered = true;
             _hasClickedThisHover = false;
-            _dwellTimer = 0f;
+            if (_exitGraceTimer <= 0f)
+            {
+                _dwellTimer = 0f;
+            }
+            _exitGraceTimer = 0f;
 
             CurrentHovered = this;
             OnGazeTargetChanged?.Invoke(this);
@@ -178,16 +194,13 @@ namespace AndesSim.VR
             if (!_isHovered) return;
 
             _isHovered = false;
-            _hasClickedThisHover = false;
-            _dwellTimer = 0f;
+            _exitGraceTimer = ExitGracePeriod;
 
             if (CurrentHovered == this)
             {
                 CurrentHovered = null;
                 OnGazeTargetChanged?.Invoke(null);
             }
-
-            onDwellProgress?.Invoke(0f);
             ApplyHighlight(false);
             onExit?.Invoke();
         }

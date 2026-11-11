@@ -111,7 +111,14 @@ namespace AndesSim.Scenario01
             if (_gazeInteractable != null)
             {
                 _gazeInteractable.interactableLabel = $"Inspeccionar {monitorId}";
+                _gazeInteractable.dwellTime = 1.1f;
                 _gazeInteractable.onClick.AddListener(OnMonitorClicked);
+            }
+
+            if (_collider is BoxCollider boxCol)
+            {
+                Vector3 currentSize = boxCol.size;
+                boxCol.size = new Vector3(Mathf.Max(currentSize.x, 0.72f), Mathf.Max(currentSize.y, 0.48f), Mathf.Max(currentSize.z, 0.25f));
             }
         }
 

@@ -45,7 +45,7 @@ namespace AndesSim.UI
 
         private const string LogPrefix = "[ANDES-SIM - InspectionOverlay]";
 
-        private static readonly Color DarkGlassBgColor = new Color(0.04f, 0.07f, 0.12f, 0.96f);
+        private static readonly Color DarkGlassBgColor = new Color(0.02f, 0.05f, 0.09f, 1.0f);
         private static readonly Color CyanNeonAccent = new Color(0f, 0.95f, 1f, 1f);
         private static readonly Color GreenSuccessColor = new Color(0.22f, 0.95f, 0.54f, 1f);
         private static readonly Color WarningAmberColor = new Color(1f, 0.76f, 0.29f, 1f);
@@ -317,6 +317,11 @@ namespace AndesSim.UI
         {
             EnsureOverlayCanvas();
             ClearActiveContent();
+
+            if (AndesSim.Scenario01.InfectionSpreadVisualizer.I != null)
+            {
+                AndesSim.Scenario01.InfectionSpreadVisualizer.I.ShowDefenseContainmentSign();
+            }
 
             _headerTitleText.text = "<b><color=#38F28A>CONSOLA DE CUARENTENA Y FILTRO SANDBOX · BANCO ANDINO</color></b>";
             _subTitleText.text = "Protección Perimetral del SOC · Correo Malicioso Aislado Preventivamente";
@@ -867,12 +872,31 @@ namespace AndesSim.UI
             {
                 for (int i = _contentContainer.childCount - 1; i >= 0; i--)
                 {
-                    DestroyImmediate(_contentContainer.GetChild(i).gameObject);
+                    Transform child = _contentContainer.GetChild(i);
+                    child.gameObject.SetActive(false);
+                    child.SetParent(null);
+                    if (Application.isPlaying)
+                    {
+                        Destroy(child.gameObject);
+                    }
+                    else
+                    {
+                        DestroyImmediate(child.gameObject);
+                    }
                 }
             }
             if (_activeContentPanel != null)
             {
-                DestroyImmediate(_activeContentPanel);
+                _activeContentPanel.SetActive(false);
+                _activeContentPanel.transform.SetParent(null);
+                if (Application.isPlaying)
+                {
+                    Destroy(_activeContentPanel);
+                }
+                else
+                {
+                    DestroyImmediate(_activeContentPanel);
+                }
                 _activeContentPanel = null;
             }
         }
@@ -900,8 +924,8 @@ namespace AndesSim.UI
 
             // Colisionador BoxCollider para detección precisa con retícula VR
             BoxCollider boxCol = btnGO.AddComponent<BoxCollider>();
-            boxCol.size = new Vector3(size.x, size.y, 8f);
-            boxCol.center = Vector3.zero;
+            boxCol.size = new Vector3(size.x, size.y, 25f);
+            boxCol.center = new Vector3(0f, 0f, -5f);
             boxCol.isTrigger = true;
 
             // Añadir soporte de retícula VR
@@ -943,8 +967,8 @@ namespace AndesSim.UI
 
             // Colisionador BoxCollider calibrado para el raycast de retícula VR
             BoxCollider boxCol = btnGO.AddComponent<BoxCollider>();
-            boxCol.size = new Vector3(size.x, size.y, 8f);
-            boxCol.center = Vector3.zero;
+            boxCol.size = new Vector3(size.x, size.y, 25f);
+            boxCol.center = new Vector3(0f, 0f, -5f);
             boxCol.isTrigger = true;
 
             GazeInteractable gaze = btnGO.AddComponent<GazeInteractable>();

@@ -83,7 +83,7 @@ PlayerSettings:
   androidFullscreenMode: 1
   androidAutoRotationBehavior: 1
   androidPredictiveBackSupport: 0
-  androidApplicationEntry: 1
+  androidApplicationEntry: 0
   defaultIsNativeResolution: 1
   macRetinaSupport: 1
   runInBackground: 1
@@ -290,10 +290,7 @@ PlayerSettings:
   androidEnableBanner: 0
   androidUseLowAccuracyLocation: 0
   androidUseCustomKeystore: 0
-  m_AndroidBanners:
-  - width: 320
-    height: 180
-    banner: {fileID: 0}
+  m_AndroidBanners: []
   androidGamepadSupportLevel: 0
   AndroidMinifyRelease: 0
   AndroidMinifyDebug: 0
@@ -1010,7 +1007,7 @@ PlayerSettings:
   qnxGraphicConfPath: 
   apiCompatibilityLevel: 6
   captureStartupLogs: {}
-  activeInputHandler: 1
+  activeInputHandler: 2
   windowsGamepadBackendHint: 0
   cloudProjectId: 
   framebufferDepthMemorylessMode: 0

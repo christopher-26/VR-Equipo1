@@ -100,38 +100,46 @@ namespace AndesSim.VR
         {
             Ray centerRay = _playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
 
-            if (Physics.Raycast(centerRay, out RaycastHit hit, maxDistance, interactiveMask))
+            // Raycast que detecta capa interactiva Y respeta oclusores físicos del entorno (paredes, columnas, puertas)
+            int occluderMask = LayerMask.GetMask("Default", "Environment", "Obstacle");
+            int combinedMask = (interactiveMask.value != 0) ? (interactiveMask.value | occluderMask) : ~0;
+
+            if (Physics.Raycast(centerRay, out RaycastHit hit, maxDistance, combinedMask))
             {
-                _currentHit = hit;
-                _isHittingInteractable = true;
-
-                GazeInteractable interactable = hit.collider.GetComponentInParent<GazeInteractable>();
-
-                if (interactable != _currentInteractable)
+                int interactiveLayer = LayerMask.NameToLayer(InteractiveLayerName);
+                if (hit.collider.gameObject.layer == interactiveLayer)
                 {
-                    // Salir del objetivo anterior
-                    if (_currentInteractable != null)
-                    {
-                        _currentInteractable.OnPointerExit();
-                    }
+                    _currentHit = hit;
+                    _isHittingInteractable = true;
 
-                    // Entrar en el nuevo objetivo
-                    _currentInteractable = interactable;
-                    if (_currentInteractable != null)
+                    GazeInteractable interactable = hit.collider.GetComponentInParent<GazeInteractable>();
+
+                    if (interactable != _currentInteractable)
                     {
-                        _currentInteractable.OnPointerEnter();
+                        // Salir del objetivo anterior
+                        if (_currentInteractable != null)
+                        {
+                            _currentInteractable.OnPointerExit();
+                        }
+
+                        // Entrar en el nuevo objetivo
+                        _currentInteractable = interactable;
+                        if (_currentInteractable != null)
+                        {
+                            _currentInteractable.OnPointerEnter();
+                        }
                     }
+                    return;
                 }
             }
-            else
-            {
-                _isHittingInteractable = false;
 
-                if (_currentInteractable != null)
-                {
-                    _currentInteractable.OnPointerExit();
-                    _currentInteractable = null;
-                }
+            // Si no impactó un objeto interactivo o fue ocluido por una pared/columna:
+            _isHittingInteractable = false;
+
+            if (_currentInteractable != null)
+            {
+                _currentInteractable.OnPointerExit();
+                _currentInteractable = null;
             }
         }
 
@@ -147,18 +155,14 @@ namespace AndesSim.VR
 #if ENABLE_INPUT_SYSTEM
             if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame) isTriggered = true;
             if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame) isTriggered = true;
+            if (Pointer.current != null && Pointer.current.press.wasPressedThisFrame) isTriggered = true;
 #endif
-#if ENABLE_LEGACY_INPUT_MANAGER
-            if (!isTriggered)
+            try
             {
-                try
-                {
-                    if (Input.GetMouseButtonDown(0)) isTriggered = true;
-                    if (Input.touchCount > 0 && Input.GetTouch(0).phase == UnityEngine.TouchPhase.Began) isTriggered = true;
-                }
-                catch { }
+                if (Input.GetMouseButtonDown(0)) isTriggered = true;
+                if (Input.touchCount > 0 && Input.GetTouch(0).phase == UnityEngine.TouchPhase.Began) isTriggered = true;
             }
-#endif
+            catch { }
 
             if (isTriggered)
             {

@@ -304,7 +304,13 @@ namespace AndesSim.Scenario01
                 AndesSim.Environment.AmbientCyberGridEffect.I.TriggerQuarantineDefenseShield();
             }
 
-            // 4. Iniciar animación de análisis forense en Sandbox
+            // 4. Transformar letrero superior del SOC a Modo Defensa y apagar haces rojos
+            if (InfectionSpreadVisualizer.I != null)
+            {
+                InfectionSpreadVisualizer.I.ShowDefenseContainmentSign();
+            }
+
+            // 5. Iniciar animación de análisis forense en Sandbox
             if (_sandboxCoroutine != null)
             {
                 StopCoroutine(_sandboxCoroutine);
