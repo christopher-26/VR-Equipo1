@@ -237,8 +237,8 @@ namespace AndesSim.Editor
             // Panel de Briefing en World Space frente al jugador en el vestíbulo
             GameObject canvasObj = new GameObject("Canvas_Briefing_Portal");
             canvasObj.transform.SetParent(portalObj.transform);
-            canvasObj.transform.localPosition = new Vector3(0f, 1.4f, 0.25f);
-            canvasObj.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
+            canvasObj.transform.localPosition = new Vector3(0f, 1.4f, -0.15f);
+            canvasObj.transform.localRotation = Quaternion.identity;
 
             Canvas canvas = canvasObj.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.WorldSpace;

@@ -97,6 +97,7 @@ namespace AndesSim.VR
 
         private void Start()
         {
+            EnsureBriefingCanvasOrientation();
             ResolveTargetPoints();
             SetupUserInterface();
             SetupHologramVisuals();
@@ -105,6 +106,22 @@ namespace AndesSim.VR
             if (GameManager.I != null)
             {
                 GameManager.I.OnModeChanged += HandleModeChanged;
+            }
+        }
+
+        /// <summary>
+        /// Asegura que el Canvas de Briefing del Portal esté orientado de frente hacia el jugador en el vestíbulo (rotación 0°)
+        /// y nunca de espaldas (180° invertido), evitando que el texto aparezca espejado o ilegible.
+        /// </summary>
+        private void EnsureBriefingCanvasOrientation()
+        {
+            Transform briefingCanvas = transform.Find("Canvas_Briefing_Portal");
+            if (briefingCanvas != null)
+            {
+                briefingCanvas.localRotation = Quaternion.identity;
+                Vector3 cPos = briefingCanvas.localPosition;
+                if (cPos.z > -0.05f) cPos.z = -0.15f;
+                briefingCanvas.localPosition = cPos;
             }
         }
 
