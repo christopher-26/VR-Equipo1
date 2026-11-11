@@ -40,6 +40,7 @@ public class GameManager : MonoBehaviour
     public event Action<string> OnPhishingSignalRegistered;
     public event Action<SimMode> OnModeChanged;
     public event Action<string, bool> OnScenarioEnded; // (resumen, cumplió criterio de tiempo)
+    public event Action OnSimulationReset;
 
     public IReadOnlyCollection<string> DiscoveredEvidences => _discoveredEvidences;
     public IReadOnlyCollection<string> AppliedDefenses => _appliedDefenses;
@@ -280,10 +281,12 @@ public class GameManager : MonoBehaviour
     {
         _discoveredEvidences.Clear();
         _appliedDefenses.Clear();
+        _discoveredPhishingSignals.Clear();
         _elapsedTime = 0f;
         _isTimerRunning = true;
         _scenarioEnded = false;
 
         Debug.Log($"{LogPrefix} Simulación reiniciada.");
+        OnSimulationReset?.Invoke();
     }
 }

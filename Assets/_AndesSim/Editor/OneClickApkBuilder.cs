@@ -473,6 +473,8 @@ namespace AndesSim.Editor
             Debug.Log($"{LogPrefix} <color=#38F28A>PlayerSettings Android aplicados (IL2CPP, ARM64, API 26, OpenGLES3, LandscapeLeft, Cardboard Safe).</color>");
         }
 
+        private const string CardboardLoaderType = "Google.XR.Cardboard.XRLoader";
+
         public static void EnsureCardboardXrConfiguration()
         {
             var buildTargetGroup = BuildTargetGroup.Android;
@@ -489,7 +491,9 @@ namespace AndesSim.Editor
                         Debug.Log($"{LogPrefix} Desactivado '{loader.name}' para Android: evita inyección de paquetes Oculus/MetaQuest incompatibles con smartphones estándar.");
                     }
                 }
-                settings.InitManagerOnStart = false;
+                // Vista estéreo de Google Cardboard (paquete com.google.xr.cardboard).
+                UnityEditor.XR.Management.Metadata.XRPackageMetadataStore.AssignLoader(manager, CardboardLoaderType, buildTargetGroup);
+                settings.InitManagerOnStart = true;
                 EditorUtility.SetDirty(settings);
                 EditorUtility.SetDirty(manager);
                 AssetDatabase.SaveAssets();

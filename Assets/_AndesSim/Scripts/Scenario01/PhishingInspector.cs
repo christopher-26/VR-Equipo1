@@ -158,6 +158,7 @@ namespace AndesSim.Scenario01
             if (GameManager.I != null)
             {
                 GameManager.I.OnModeChanged += HandleModeChanged;
+                GameManager.I.OnSimulationReset += HandleSimulationReset;
             }
 
             if (ScenarioFlowController.I != null)
@@ -175,6 +176,7 @@ namespace AndesSim.Scenario01
             if (GameManager.I != null)
             {
                 GameManager.I.OnModeChanged -= HandleModeChanged;
+                GameManager.I.OnSimulationReset -= HandleSimulationReset;
             }
 
             if (ScenarioFlowController.I != null)
@@ -484,6 +486,34 @@ namespace AndesSim.Scenario01
 
         private void HandleModeChanged(SimMode newMode)
         {
+            UpdateButtonVisibility();
+        }
+
+        // Al reiniciar la simulación, las señales deben volver a 0/3.
+        private void HandleSimulationReset()
+        {
+            if (_infectionSequenceCoroutine != null)
+            {
+                StopCoroutine(_infectionSequenceCoroutine);
+                _infectionSequenceCoroutine = null;
+            }
+
+            _discoveredSignals.Clear();
+            _allSignalsFound = false;
+            _criterion1Passed = false;
+            _completionTime = 0f;
+            _decisionExecuted = false;
+
+            foreach (PhishingSignalHotspot hotspot in FindObjectsByType<PhishingSignalHotspot>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                hotspot.ResetSignal();
+            }
+
+            if (criterionBannerPanel != null) criterionBannerPanel.SetActive(false);
+            if (infectionAlertBanner != null) infectionAlertBanner.SetActive(false);
+            if (quarantineNoticeBanner != null) quarantineNoticeBanner.SetActive(false);
+
+            UpdateCounterUi();
             UpdateButtonVisibility();
         }
 

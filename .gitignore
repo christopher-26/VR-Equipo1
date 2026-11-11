@@ -55,3 +55,7 @@ sysinfo.txt
 .DS_Store*
 Thumbs.db
 Desktop.ini
+
+# Logs de builds/auditorías locales
+/*.log
+/*_log.txt

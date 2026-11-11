@@ -431,8 +431,8 @@ MonoBehaviour:
   colliderThickness: 0.02
   overrideInteractableLabel: 
   audioSource: {fileID: 0}
-  clickSoundClip: {fileID: 0}
-  hoverSoundClip: {fileID: 0}
+  clickSoundClip: {fileID: 8300000, guid: cbd53e7b3ec84f1439bc86153c67fc26, type: 3}
+  hoverSoundClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
   enablePunchScale: 1
 --- !u!114 &5484721
 MonoBehaviour:
@@ -4006,9 +4006,9 @@ MonoBehaviour:
   popupDetailText: {fileID: 0}
   popupAutoHideDuration: 4
   audioSource: {fileID: 0}
-  toggleSwitchClip: {fileID: 0}
-  defenseAppliedClip: {fileID: 0}
-  hoverClip: {fileID: 0}
+  toggleSwitchClip: {fileID: 8300000, guid: 831255ae548ab85438a26c35e9f14ada, type: 3}
+  defenseAppliedClip: {fileID: 8300000, guid: dbd4334f2da13fb488efe0a42b05df78, type: 3}
+  hoverClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
 --- !u!114 &95009267
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5666,9 +5666,9 @@ MonoBehaviour:
   toastDisplayDuration: 2.8
   targetCamera: {fileID: 1244410323}
   audioSource: {fileID: 0}
-  toastClip: {fileID: 0}
-  modeToggleClip: {fileID: 0}
-  buttonClickClip: {fileID: 0}
+  toastClip: {fileID: 8300000, guid: b5434ac78b3c3dd44ae4c0972df31cf0, type: 3}
+  modeToggleClip: {fileID: 8300000, guid: a41a3a1c187a9164a8e92dc417058a49, type: 3}
+  buttonClickClip: {fileID: 8300000, guid: cbd53e7b3ec84f1439bc86153c67fc26, type: 3}
 --- !u!114 &134842782
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5698,22 +5698,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01cc8d2636974c87a1e4044343f37445, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.Audio.AudioManager
-  menuIntroMusicClip: {fileID: 8300000, guid: 6d43006e2637c694c933075bca03c514, type: 3}
-  investigationMusicClip: {fileID: 8300000, guid: 058c7296db3b6f745bb5ca94e6f8aa64, type: 3}
-  attackTensionMusicClip: {fileID: 8300000, guid: 6701f0cfde408dd47ad0ff3a1161f176, type: 3}
+  menuIntroMusicClip: {fileID: 8300000, guid: 0016700b517d6554b83658ba97eb7630, type: 3}
+  investigationMusicClip: {fileID: 8300000, guid: 6b730971448c125469c0ed128c1cd236, type: 3}
+  attackTensionMusicClip: {fileID: 8300000, guid: 40cbfff1b538647498fcdc5de702bd60, type: 3}
   defenseVictoryMusicClip: {fileID: 8300000, guid: 430a55dbf51836a4db6a82835b673320, type: 3}
-  ambientNightOfficeClip: {fileID: 8300000, guid: 8ed19a3a033b42941801548e1c7238e7, type: 3}
-  gazeHoverClip: {fileID: 0}
-  gazeClickClip: {fileID: 0}
-  evidenceFoundClip: {fileID: 0}
-  phishingSignalClip: {fileID: 0}
-  infectionAlarmClip: {fileID: 0}
-  quarantineSuccessClip: {fileID: 0}
-  phoneRingClip: {fileID: 8300000, guid: 4e99f91fed5a2bd40ab9d1d66246acfe, type: 3}
-  keyboardTypingClip: {fileID: 8300000, guid: a8001deaab524de43927c86f37d9d3ef, type: 3}
-  switchToggleClip: {fileID: 8300000, guid: ad92fdcf369ce0240a3b3035781a0f0a, type: 3}
-  laserScanClip: {fileID: 8300000, guid: aca4973fe90dadc479cb2403e9e8b069, type: 3}
-  teleportWhooshClip: {fileID: 8300000, guid: d1693b1e5622c0141b10c4821f33135b, type: 3}
+  ambientNightOfficeClip: {fileID: 8300000, guid: 475ac6500ff1b8b4d8eb5b590469b2df, type: 3}
+  gazeHoverClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
+  gazeClickClip: {fileID: 8300000, guid: cbd53e7b3ec84f1439bc86153c67fc26, type: 3}
+  evidenceFoundClip: {fileID: 8300000, guid: c6043e62eff9ad041a4bd4d806ee36ad, type: 3}
+  phishingSignalClip: {fileID: 8300000, guid: 8c9bfa74da55f924d96e241d21cc0756, type: 3}
+  infectionAlarmClip: {fileID: 8300000, guid: 0a19c3f81356c774da9958cff14d03f2, type: 3}
+  quarantineSuccessClip: {fileID: 8300000, guid: dbd4334f2da13fb488efe0a42b05df78, type: 3}
+  phoneRingClip: {fileID: 8300000, guid: 7d89fa3a373fb074a82e6b56123e8af6, type: 3}
+  keyboardTypingClip: {fileID: 8300000, guid: 91f607368dc22294ea15ed4ba800f59b, type: 3}
+  switchToggleClip: {fileID: 8300000, guid: 831255ae548ab85438a26c35e9f14ada, type: 3}
+  laserScanClip: {fileID: 8300000, guid: 4b1017addcc946c4a8f1952857075c6c, type: 3}
+  teleportWhooshClip: {fileID: 8300000, guid: fc1b70b39a183ef409c5cd846922504b, type: 3}
   musicSource: {fileID: 0}
   ambientSource: {fileID: 0}
   sfxSource: {fileID: 0}
@@ -5870,9 +5870,9 @@ MonoBehaviour:
   countdownDisplay: {fileID: 0}
   ambientClockDisplay: {fileID: 0}
   alertAudioSource: {fileID: 0}
-  alert60SecondsClip: {fileID: 0}
-  alert30SecondsClip: {fileID: 0}
-  timeExpiredClip: {fileID: 0}
+  alert60SecondsClip: {fileID: 8300000, guid: 73c28471392bde5469ed72e3aecae0a4, type: 3}
+  alert30SecondsClip: {fileID: 8300000, guid: 73c28471392bde5469ed72e3aecae0a4, type: 3}
+  timeExpiredClip: {fileID: 8300000, guid: 06b0f5b825cec2447864500da728cb0c, type: 3}
 --- !u!114 &134842788
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6024,9 +6024,9 @@ MonoBehaviour:
   btnToggleAudio: {fileID: 1877622696}
   txtAudioStatus: {fileID: 534297369}
   audioSource: {fileID: 0}
-  tabSwitchSound: {fileID: 0}
-  modeSwitchSound: {fileID: 0}
-  startSimWarpSound: {fileID: 0}
+  tabSwitchSound: {fileID: 8300000, guid: 01e384dda23e23b42991a50569bfa9aa, type: 3}
+  modeSwitchSound: {fileID: 8300000, guid: a41a3a1c187a9164a8e92dc417058a49, type: 3}
+  startSimWarpSound: {fileID: 8300000, guid: 93652d40c4cef9f468d900b193a89437, type: 3}
   teleportDestination: {fileID: 0}
   menuCanvasGroup: {fileID: 1819146066}
 --- !u!1 &142185451
@@ -7187,8 +7187,8 @@ MonoBehaviour:
   spawnDistanceInFront: 2.1
   fadeDuration: 0.25
   audioSource: {fileID: 0}
-  openModalSound: {fileID: 0}
-  closeModalSound: {fileID: 0}
+  openModalSound: {fileID: 8300000, guid: 478b9acaae24df84782925cf21ce6c6f, type: 3}
+  closeModalSound: {fileID: 8300000, guid: cada739b18b0ccf49b395dc58a29a87a, type: 3}
 --- !u!225 &182974832
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -8085,10 +8085,10 @@ MonoBehaviour:
   telephoneSource: {fileID: 0}
   printerSource: {fileID: 0}
   alertSource: {fileID: 0}
-  officeAmbienceClip: {fileID: 0}
-  phoneRingClip: {fileID: 0}
-  printerWorkClip: {fileID: 0}
-  warningAlertClip: {fileID: 0}
+  officeAmbienceClip: {fileID: 8300000, guid: 0fa265743859d2540a0de55a3f52dae6, type: 3}
+  phoneRingClip: {fileID: 8300000, guid: 7d89fa3a373fb074a82e6b56123e8af6, type: 3}
+  printerWorkClip: {fileID: 8300000, guid: 9dcb5aedcd34fb84b8bebb8c22fe110f, type: 3}
+  warningAlertClip: {fileID: 8300000, guid: 09e47288dd69de7428b8e2717ecc38f7, type: 3}
   minPhoneInterval: 25
   maxPhoneInterval: 55
   masterVolume: 0.8
@@ -8745,8 +8745,8 @@ MonoBehaviour:
   tooltipDetailText: {fileID: 0}
   autoHideSeconds: 6
   audioSource: {fileID: 0}
-  signalDetectedClip: {fileID: 0}
-  hoverClip: {fileID: 0}
+  signalDetectedClip: {fileID: 8300000, guid: 8c9bfa74da55f924d96e241d21cc0756, type: 3}
+  hoverClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
 --- !u!114 &235938985
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9641,8 +9641,8 @@ MonoBehaviour:
   colliderThickness: 0.02
   overrideInteractableLabel: 
   audioSource: {fileID: 0}
-  clickSoundClip: {fileID: 0}
-  hoverSoundClip: {fileID: 0}
+  clickSoundClip: {fileID: 8300000, guid: cbd53e7b3ec84f1439bc86153c67fc26, type: 3}
+  hoverSoundClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
   enablePunchScale: 1
 --- !u!114 &254797649
 MonoBehaviour:
@@ -16696,9 +16696,9 @@ MonoBehaviour:
   popupDetailText: {fileID: 0}
   popupAutoHideDuration: 4
   audioSource: {fileID: 0}
-  toggleSwitchClip: {fileID: 0}
-  defenseAppliedClip: {fileID: 0}
-  hoverClip: {fileID: 0}
+  toggleSwitchClip: {fileID: 8300000, guid: 831255ae548ab85438a26c35e9f14ada, type: 3}
+  defenseAppliedClip: {fileID: 8300000, guid: dbd4334f2da13fb488efe0a42b05df78, type: 3}
+  hoverClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
 --- !u!114 &428501759
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16809,8 +16809,8 @@ MonoBehaviour:
   colliderThickness: 0.02
   overrideInteractableLabel: 
   audioSource: {fileID: 0}
-  clickSoundClip: {fileID: 0}
-  hoverSoundClip: {fileID: 0}
+  clickSoundClip: {fileID: 8300000, guid: cbd53e7b3ec84f1439bc86153c67fc26, type: 3}
+  hoverSoundClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
   enablePunchScale: 1
 --- !u!114 &432503876
 MonoBehaviour:
@@ -20142,7 +20142,7 @@ MonoBehaviour:
   associatedWorkstationId: Monitor_02
   standPosition: {fileID: 505482131}
   fadeDuration: 0.15
-  teleportAudioClip: {fileID: 0}
+  teleportAudioClip: {fileID: 8300000, guid: fc1b70b39a183ef409c5cd846922504b, type: 3}
   ringRenderer: {fileID: 668261212}
   ringColor: {r: 0.22, g: 0.95, b: 0.54, a: 1}
   pulseSpeed: 2.4
@@ -27193,8 +27193,8 @@ MonoBehaviour:
   colliderThickness: 0.02
   overrideInteractableLabel: 
   audioSource: {fileID: 0}
-  clickSoundClip: {fileID: 0}
-  hoverSoundClip: {fileID: 0}
+  clickSoundClip: {fileID: 8300000, guid: cbd53e7b3ec84f1439bc86153c67fc26, type: 3}
+  hoverSoundClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
   enablePunchScale: 1
 --- !u!114 &687509596
 MonoBehaviour:
@@ -28055,8 +28055,8 @@ MonoBehaviour:
   colliderThickness: 0.02
   overrideInteractableLabel: 
   audioSource: {fileID: 0}
-  clickSoundClip: {fileID: 0}
-  hoverSoundClip: {fileID: 0}
+  clickSoundClip: {fileID: 8300000, guid: cbd53e7b3ec84f1439bc86153c67fc26, type: 3}
+  hoverSoundClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
   enablePunchScale: 1
 --- !u!114 &719659238
 MonoBehaviour:
@@ -31175,7 +31175,6 @@ GameObject:
   m_Component:
   - component: {fileID: 780192102}
   - component: {fileID: 780192103}
-  - component: {fileID: 780192104}
   m_Layer: 0
   m_Name: Luz_ScreenGlow
   m_TagString: Untagged
@@ -31263,35 +31262,6 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
---- !u!114 &780192104
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 780192101}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
-  m_UsePipelineSettings: 1
-  m_AdditionalLightsShadowResolutionTier: 2
-  m_CustomShadowLayers: 0
-  m_LightCookieSize: {x: 1, y: 1}
-  m_LightCookieOffset: {x: 0, y: 0}
-  m_SoftShadowQuality: 0
-  m_RenderingLayersMask:
-    serializedVersion: 0
-    m_Bits: 1
-  m_ShadowRenderingLayersMask:
-    serializedVersion: 0
-    m_Bits: 1
-  m_Version: 4
-  m_LightLayerMask: 1
-  m_ShadowLayerMask: 1
-  m_RenderingLayers: 1
-  m_ShadowRenderingLayers: 1
 --- !u!1 &781125691
 GameObject:
   m_ObjectHideFlags: 0
@@ -32148,9 +32118,9 @@ MonoBehaviour:
   popupAutoHideDuration: 4.5
   postItPhysicalToReplace: {fileID: 1763377663}
   audioSource: {fileID: 0}
-  codeRotatedBeepClip: {fileID: 0}
-  buttonClickClip: {fileID: 0}
-  mfaActivatedChimeClip: {fileID: 0}
+  codeRotatedBeepClip: {fileID: 8300000, guid: 2dffb06fffa144a419432c3d0d709d73, type: 3}
+  buttonClickClip: {fileID: 8300000, guid: cbd53e7b3ec84f1439bc86153c67fc26, type: 3}
+  mfaActivatedChimeClip: {fileID: 8300000, guid: 3762a3e6404c01743b1af4f4bd9ba91b, type: 3}
 --- !u!114 &824097265
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32924,8 +32894,8 @@ MonoBehaviour:
   colliderThickness: 0.02
   overrideInteractableLabel: 
   audioSource: {fileID: 0}
-  clickSoundClip: {fileID: 0}
-  hoverSoundClip: {fileID: 0}
+  clickSoundClip: {fileID: 8300000, guid: cbd53e7b3ec84f1439bc86153c67fc26, type: 3}
+  hoverSoundClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
   enablePunchScale: 1
 --- !u!114 &842674979
 MonoBehaviour:
@@ -33379,8 +33349,8 @@ MonoBehaviour:
   colliderThickness: 0.02
   overrideInteractableLabel: 
   audioSource: {fileID: 0}
-  clickSoundClip: {fileID: 0}
-  hoverSoundClip: {fileID: 0}
+  clickSoundClip: {fileID: 8300000, guid: cbd53e7b3ec84f1439bc86153c67fc26, type: 3}
+  hoverSoundClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
   enablePunchScale: 1
 --- !u!114 &844345182
 MonoBehaviour:
@@ -35051,8 +35021,8 @@ MonoBehaviour:
   colliderThickness: 0.02
   overrideInteractableLabel: 
   audioSource: {fileID: 0}
-  clickSoundClip: {fileID: 0}
-  hoverSoundClip: {fileID: 0}
+  clickSoundClip: {fileID: 8300000, guid: cbd53e7b3ec84f1439bc86153c67fc26, type: 3}
+  hoverSoundClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
   enablePunchScale: 1
 --- !u!114 &881747822
 MonoBehaviour:
@@ -37409,10 +37379,10 @@ MonoBehaviour:
   phase2Duration: 2.2
   phase3Duration: 1.5
   audioSource: {fileID: 0}
-  scanHumClip: {fileID: 0}
-  threatDetectedClip: {fileID: 0}
-  quarantineSuccessClip: {fileID: 0}
-  confirmButtonClickClip: {fileID: 0}
+  scanHumClip: {fileID: 8300000, guid: 0fa265743859d2540a0de55a3f52dae6, type: 3}
+  threatDetectedClip: {fileID: 8300000, guid: 09e47288dd69de7428b8e2717ecc38f7, type: 3}
+  quarantineSuccessClip: {fileID: 8300000, guid: dbd4334f2da13fb488efe0a42b05df78, type: 3}
+  confirmButtonClickClip: {fileID: 8300000, guid: 8d045ec56bee52b439119cbb9e1d2f4d, type: 3}
 --- !u!114 &948128029
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37449,10 +37419,10 @@ MonoBehaviour:
   monitor02Controller: {fileID: 0}
   monitor03Controller: {fileID: 0}
   audioSource: {fileID: 0}
-  signalFoundClip: {fileID: 0}
-  allSignalsCompletedClip: {fileID: 0}
-  infectionSpreadClip: {fileID: 0}
-  reportDefenseClip: {fileID: 0}
+  signalFoundClip: {fileID: 8300000, guid: 8c9bfa74da55f924d96e241d21cc0756, type: 3}
+  allSignalsCompletedClip: {fileID: 8300000, guid: 3762a3e6404c01743b1af4f4bd9ba91b, type: 3}
+  infectionSpreadClip: {fileID: 8300000, guid: eef7a26abcb2cae4c9fa24010cb898ed, type: 3}
+  reportDefenseClip: {fileID: 8300000, guid: dbd4334f2da13fb488efe0a42b05df78, type: 3}
 --- !u!114 &948128030
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37535,9 +37505,9 @@ MonoBehaviour:
   screenGlowLight: {fileID: 0}
   screenMaterialIndex: 0
   audioSource: {fileID: 0}
-  infectionGlitchClip: {fileID: 0}
-  quarantinedChimeClip: {fileID: 0}
-  zoomInspectClip: {fileID: 0}
+  infectionGlitchClip: {fileID: 8300000, guid: a53b88c1a2cdbd046b0ed5d731774ece, type: 3}
+  quarantinedChimeClip: {fileID: 8300000, guid: dbd4334f2da13fb488efe0a42b05df78, type: 3}
+  zoomInspectClip: {fileID: 8300000, guid: 5aad0fd451f8eef4e95e59e382c68e57, type: 3}
 --- !u!1 &949112057
 GameObject:
   m_ObjectHideFlags: 0
@@ -37589,7 +37559,7 @@ MonoBehaviour:
   associatedWorkstationId: SuspectBoard
   standPosition: {fileID: 949112058}
   fadeDuration: 0.15
-  teleportAudioClip: {fileID: 0}
+  teleportAudioClip: {fileID: 8300000, guid: fc1b70b39a183ef409c5cd846922504b, type: 3}
   ringRenderer: {fileID: 1379428364}
   ringColor: {r: 0.22, g: 0.95, b: 0.54, a: 1}
   pulseSpeed: 2.4
@@ -40438,8 +40408,8 @@ MonoBehaviour:
   colliderThickness: 0.02
   overrideInteractableLabel: 
   audioSource: {fileID: 0}
-  clickSoundClip: {fileID: 0}
-  hoverSoundClip: {fileID: 0}
+  clickSoundClip: {fileID: 8300000, guid: cbd53e7b3ec84f1439bc86153c67fc26, type: 3}
+  hoverSoundClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
   enablePunchScale: 1
 --- !u!114 &1011559796
 MonoBehaviour:
@@ -41929,9 +41899,9 @@ MonoBehaviour:
   holographicSignBody: {fileID: 2054094637}
   holographicSignBorder: {fileID: 0}
   audioSource: {fileID: 0}
-  downloadExploitClip: {fileID: 0}
-  networkLaserPulseClip: {fileID: 0}
-  backdoorBreachStingClip: {fileID: 0}
+  downloadExploitClip: {fileID: 8300000, guid: 11570c011d231894b928f78f41de2d22, type: 3}
+  networkLaserPulseClip: {fileID: 8300000, guid: 4b1017addcc946c4a8f1952857075c6c, type: 3}
+  backdoorBreachStingClip: {fileID: 8300000, guid: c813a2ace6bbca1499c3ec7f9ac86f18, type: 3}
 --- !u!1 &1055495903
 GameObject:
   m_ObjectHideFlags: 0
@@ -45688,8 +45658,8 @@ MonoBehaviour:
   colliderThickness: 0.02
   overrideInteractableLabel: 
   audioSource: {fileID: 0}
-  clickSoundClip: {fileID: 0}
-  hoverSoundClip: {fileID: 0}
+  clickSoundClip: {fileID: 8300000, guid: cbd53e7b3ec84f1439bc86153c67fc26, type: 3}
+  hoverSoundClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
   enablePunchScale: 1
 --- !u!114 &1152495115
 MonoBehaviour:
@@ -46506,8 +46476,8 @@ MonoBehaviour:
   colliderThickness: 0.02
   overrideInteractableLabel: 
   audioSource: {fileID: 0}
-  clickSoundClip: {fileID: 0}
-  hoverSoundClip: {fileID: 0}
+  clickSoundClip: {fileID: 8300000, guid: cbd53e7b3ec84f1439bc86153c67fc26, type: 3}
+  hoverSoundClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
   enablePunchScale: 1
 --- !u!114 &1180320559
 MonoBehaviour:
@@ -46705,10 +46675,10 @@ MonoBehaviour:
   carlaDialogueDuration: 3.5
   socDialogueDuration: 4
   audioSource: {fileID: 0}
-  phonePickUpClip: {fileID: 0}
-  dtmfDialClip: {fileID: 0}
-  radioSquelchClip: {fileID: 0}
-  callEndChimeClip: {fileID: 0}
+  phonePickUpClip: {fileID: 8300000, guid: 1d1ca954643a6fb479249ef8db993037, type: 3}
+  dtmfDialClip: {fileID: 8300000, guid: 1a805fedd4407f149b4bc99a824d4c5b, type: 3}
+  radioSquelchClip: {fileID: 8300000, guid: 79e20a9d863ac7145b325e919fb6f973, type: 3}
+  callEndChimeClip: {fileID: 8300000, guid: 643c1a4b267acba43884419faba5ff37, type: 3}
 --- !u!114 &1182899267
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -48310,8 +48280,8 @@ MonoBehaviour:
   colliderThickness: 0.02
   overrideInteractableLabel: 
   audioSource: {fileID: 0}
-  clickSoundClip: {fileID: 0}
-  hoverSoundClip: {fileID: 0}
+  clickSoundClip: {fileID: 8300000, guid: cbd53e7b3ec84f1439bc86153c67fc26, type: 3}
+  hoverSoundClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
   enablePunchScale: 1
 --- !u!114 &1224127207
 MonoBehaviour:
@@ -48891,9 +48861,9 @@ MonoBehaviour:
   creditsBodyText: {fileID: 0}
   closeCreditsButton: {fileID: 0}
   audioSource: {fileID: 0}
-  attackDefeatClip: {fileID: 0}
-  defenseVictoryClip: {fileID: 0}
-  buttonClickClip: {fileID: 0}
+  attackDefeatClip: {fileID: 8300000, guid: c813a2ace6bbca1499c3ec7f9ac86f18, type: 3}
+  defenseVictoryClip: {fileID: 8300000, guid: 3db7b5c2c4c884f4292a9eca4ba022d4, type: 3}
+  buttonClickClip: {fileID: 8300000, guid: cbd53e7b3ec84f1439bc86153c67fc26, type: 3}
 --- !u!114 &1233441928
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -49430,6 +49400,7 @@ GameObject:
   - component: {fileID: 1244410326}
   - component: {fileID: 1244410325}
   - component: {fileID: 1244410324}
+  - component: {fileID: 1244410328}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -49553,6 +49524,104 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &1244410328
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1244410322}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2fadf230d1919748a9aa21d40f74619, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.XR.TrackedPoseDriver
+  m_TrackingType: 1
+  m_UpdateType: 0
+  m_IgnoreTrackingState: 0
+  m_PositionInput:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Position
+      m_Type: 0
+      m_ExpectedControlType: Vector3
+      m_Id: 185e4b1b-32b2-45da-aeb4-942c3ba3266c
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings:
+      - m_Name: 
+        m_Id: 8e2d75c3-6a76-44cb-9074-9ddb5b84415a
+        m_Path: <XRHMD>/centerEyePosition
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Position
+        m_Flags: 0
+      m_Flags: 0
+      m_Priority: 0
+    m_Reference: {fileID: 0}
+  m_RotationInput:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Rotation
+      m_Type: 0
+      m_ExpectedControlType: Quaternion
+      m_Id: 0ea5af1c-6939-4d48-baea-8ce1c069e4f5
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings:
+      - m_Name: 
+        m_Id: c1f5c8e0-22c4-4d89-9dbd-b312bc59006f
+        m_Path: <XRHMD>/centerEyeRotation
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Rotation
+        m_Flags: 0
+      m_Flags: 0
+      m_Priority: 0
+    m_Reference: {fileID: 0}
+  m_TrackingStateInput:
+    m_UseReference: 0
+    m_Action:
+      m_Name: TrackingState
+      m_Type: 0
+      m_ExpectedControlType: Integer
+      m_Id: 0e689f3d-6620-4f20-8a5b-21a6685ddc6a
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings:
+      - m_Name: 
+        m_Id: 12e59c9d-e8d9-49c5-9da6-6ca289f76568
+        m_Path: <XRHMD>/trackingState
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: TrackingState
+        m_Flags: 0
+      m_Flags: 0
+      m_Priority: 0
+    m_Reference: {fileID: 0}
+  m_PositionAction:
+    m_Name: 
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: a5730e45-cdb6-467f-abbc-397283da01bd
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+    m_Priority: 0
+  m_RotationAction:
+    m_Name: 
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: a4b54cde-3b25-4064-bd63-3fce27042697
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+    m_Priority: 0
 --- !u!1 &1246238642
 GameObject:
   m_ObjectHideFlags: 0
@@ -51883,7 +51952,7 @@ MonoBehaviour:
   playerCamera: {fileID: 0}
   cameraOffset: {fileID: 0}
   audioSource: {fileID: 0}
-  teleportSound: {fileID: 0}
+  teleportSound: {fileID: 8300000, guid: fc1b70b39a183ef409c5cd846922504b, type: 3}
 --- !u!4 &1325567054
 Transform:
   m_ObjectHideFlags: 0
@@ -52566,8 +52635,8 @@ MonoBehaviour:
   tooltipDetailText: {fileID: 0}
   autoHideSeconds: 6
   audioSource: {fileID: 0}
-  signalDetectedClip: {fileID: 0}
-  hoverClip: {fileID: 0}
+  signalDetectedClip: {fileID: 8300000, guid: 8c9bfa74da55f924d96e241d21cc0756, type: 3}
+  hoverClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
 --- !u!114 &1348147994
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -55805,9 +55874,9 @@ MonoBehaviour:
   portalHologramColor: {r: 0, g: 0.9, b: 1, a: 0.85}
   immersionParticles: {fileID: 0}
   audioSource: {fileID: 0}
-  immersionWarpClip: {fileID: 0}
-  returnLobbyClip: {fileID: 0}
-  buttonClickClip: {fileID: 0}
+  immersionWarpClip: {fileID: 8300000, guid: 93652d40c4cef9f468d900b193a89437, type: 3}
+  returnLobbyClip: {fileID: 8300000, guid: 29116d90d2af3d04a9bba527bcfdf67a, type: 3}
+  buttonClickClip: {fileID: 8300000, guid: cbd53e7b3ec84f1439bc86153c67fc26, type: 3}
 --- !u!114 &1415600908
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -58793,9 +58862,9 @@ MonoBehaviour:
   screenGlowLight: {fileID: 0}
   screenMaterialIndex: 0
   audioSource: {fileID: 0}
-  infectionGlitchClip: {fileID: 0}
-  quarantinedChimeClip: {fileID: 0}
-  zoomInspectClip: {fileID: 0}
+  infectionGlitchClip: {fileID: 8300000, guid: a53b88c1a2cdbd046b0ed5d731774ece, type: 3}
+  quarantinedChimeClip: {fileID: 8300000, guid: dbd4334f2da13fb488efe0a42b05df78, type: 3}
+  zoomInspectClip: {fileID: 8300000, guid: 5aad0fd451f8eef4e95e59e382c68e57, type: 3}
 --- !u!1 &1467282671
 GameObject:
   m_ObjectHideFlags: 0
@@ -63213,8 +63282,8 @@ MonoBehaviour:
   colliderThickness: 0.02
   overrideInteractableLabel: 
   audioSource: {fileID: 0}
-  clickSoundClip: {fileID: 0}
-  hoverSoundClip: {fileID: 0}
+  clickSoundClip: {fileID: 8300000, guid: cbd53e7b3ec84f1439bc86153c67fc26, type: 3}
+  hoverSoundClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
   enablePunchScale: 1
 --- !u!114 &1574722894
 MonoBehaviour:
@@ -66192,7 +66261,7 @@ MonoBehaviour:
   associatedWorkstationId: Monitor_01
   standPosition: {fileID: 1661434690}
   fadeDuration: 0.15
-  teleportAudioClip: {fileID: 0}
+  teleportAudioClip: {fileID: 8300000, guid: fc1b70b39a183ef409c5cd846922504b, type: 3}
   ringRenderer: {fileID: 1507495809}
   ringColor: {r: 0.22, g: 0.95, b: 0.54, a: 1}
   pulseSpeed: 2.4
@@ -66652,8 +66721,8 @@ MonoBehaviour:
   colliderThickness: 0.02
   overrideInteractableLabel: 
   audioSource: {fileID: 0}
-  clickSoundClip: {fileID: 0}
-  hoverSoundClip: {fileID: 0}
+  clickSoundClip: {fileID: 8300000, guid: cbd53e7b3ec84f1439bc86153c67fc26, type: 3}
+  hoverSoundClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
   enablePunchScale: 1
 --- !u!114 &1665995716
 MonoBehaviour:
@@ -67279,8 +67348,8 @@ MonoBehaviour:
   colliderThickness: 0.02
   overrideInteractableLabel: 
   audioSource: {fileID: 0}
-  clickSoundClip: {fileID: 0}
-  hoverSoundClip: {fileID: 0}
+  clickSoundClip: {fileID: 8300000, guid: cbd53e7b3ec84f1439bc86153c67fc26, type: 3}
+  hoverSoundClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
   enablePunchScale: 1
 --- !u!114 &1683153324
 MonoBehaviour:
@@ -68615,7 +68684,7 @@ MonoBehaviour:
   associatedWorkstationId: Monitor_03
   standPosition: {fileID: 1714907395}
   fadeDuration: 0.15
-  teleportAudioClip: {fileID: 0}
+  teleportAudioClip: {fileID: 8300000, guid: fc1b70b39a183ef409c5cd846922504b, type: 3}
   ringRenderer: {fileID: 969787005}
   ringColor: {r: 0.22, g: 0.95, b: 0.54, a: 1}
   pulseSpeed: 2.4
@@ -69768,9 +69837,9 @@ MonoBehaviour:
   popupDetailText: {fileID: 0}
   popupAutoHideDuration: 4
   audioSource: {fileID: 0}
-  toggleSwitchClip: {fileID: 0}
-  defenseAppliedClip: {fileID: 0}
-  hoverClip: {fileID: 0}
+  toggleSwitchClip: {fileID: 8300000, guid: 831255ae548ab85438a26c35e9f14ada, type: 3}
+  defenseAppliedClip: {fileID: 8300000, guid: dbd4334f2da13fb488efe0a42b05df78, type: 3}
+  hoverClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
 --- !u!114 &1734616477
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -70868,8 +70937,8 @@ MonoBehaviour:
   visualBorderImage: {fileID: 0}
   materialIndex: 0
   audioSource: {fileID: 0}
-  evidenceCollectedClip: {fileID: 0}
-  focusHoverClip: {fileID: 0}
+  evidenceCollectedClip: {fileID: 8300000, guid: c6043e62eff9ad041a4bd4d806ee36ad, type: 3}
+  focusHoverClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
 --- !u!114 &1763377665
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -72101,8 +72170,8 @@ MonoBehaviour:
   visualBorderImage: {fileID: 0}
   materialIndex: 0
   audioSource: {fileID: 0}
-  evidenceCollectedClip: {fileID: 0}
-  focusHoverClip: {fileID: 0}
+  evidenceCollectedClip: {fileID: 8300000, guid: c6043e62eff9ad041a4bd4d806ee36ad, type: 3}
+  focusHoverClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
   terminalHeaderText: {fileID: 0}
   logConsoleBodyText: {fileID: 0}
   terminalStatusBannerText: {fileID: 0}
@@ -72110,9 +72179,9 @@ MonoBehaviour:
   registerLogEvidenceButton: {fileID: 719659240}
   registerButtonLabelText: {fileID: 1905182021}
   registerButtonBgImage: {fileID: 719659241}
-  terminalKeyBeepClip: {fileID: 0}
-  alarmBackdoorClip: {fileID: 0}
-  sandboxMitigatedClip: {fileID: 0}
+  terminalKeyBeepClip: {fileID: 8300000, guid: 2dffb06fffa144a419432c3d0d709d73, type: 3}
+  alarmBackdoorClip: {fileID: 8300000, guid: 09e47288dd69de7428b8e2717ecc38f7, type: 3}
+  sandboxMitigatedClip: {fileID: 8300000, guid: dbd4334f2da13fb488efe0a42b05df78, type: 3}
 --- !u!114 &1790345838
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -72139,8 +72208,8 @@ MonoBehaviour:
   networkStatusBanner: {fileID: 0}
   defenseProgressText: {fileID: 0}
   audioSource: {fileID: 0}
-  defenseAppliedClip: {fileID: 0}
-  allDefensesActiveClip: {fileID: 0}
+  defenseAppliedClip: {fileID: 8300000, guid: dbd4334f2da13fb488efe0a42b05df78, type: 3}
+  allDefensesActiveClip: {fileID: 8300000, guid: 3762a3e6404c01743b1af4f4bd9ba91b, type: 3}
 --- !u!114 &1790345839
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -72223,9 +72292,9 @@ MonoBehaviour:
   screenGlowLight: {fileID: 0}
   screenMaterialIndex: 0
   audioSource: {fileID: 0}
-  infectionGlitchClip: {fileID: 0}
-  quarantinedChimeClip: {fileID: 0}
-  zoomInspectClip: {fileID: 0}
+  infectionGlitchClip: {fileID: 8300000, guid: a53b88c1a2cdbd046b0ed5d731774ece, type: 3}
+  quarantinedChimeClip: {fileID: 8300000, guid: dbd4334f2da13fb488efe0a42b05df78, type: 3}
+  zoomInspectClip: {fileID: 8300000, guid: 5aad0fd451f8eef4e95e59e382c68e57, type: 3}
 --- !u!1 &1792986117
 GameObject:
   m_ObjectHideFlags: 0
@@ -74926,8 +74995,8 @@ MonoBehaviour:
   colliderThickness: 0.02
   overrideInteractableLabel: 
   audioSource: {fileID: 0}
-  clickSoundClip: {fileID: 0}
-  hoverSoundClip: {fileID: 0}
+  clickSoundClip: {fileID: 8300000, guid: cbd53e7b3ec84f1439bc86153c67fc26, type: 3}
+  hoverSoundClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
   enablePunchScale: 1
 --- !u!114 &1850210415
 MonoBehaviour:
@@ -75352,8 +75421,8 @@ MonoBehaviour:
   hypothesisStampBadge: {fileID: 0}
   hypothesisStampText: {fileID: 0}
   audioSource: {fileID: 0}
-  switchSuspectSound: {fileID: 0}
-  stampHypothesisSound: {fileID: 0}
+  switchSuspectSound: {fileID: 8300000, guid: 01e384dda23e23b42991a50569bfa9aa, type: 3}
+  stampHypothesisSound: {fileID: 8300000, guid: 88605b6f3f0710342bcf1dd382884af7, type: 3}
 --- !u!223 &1853292678
 Canvas:
   m_ObjectHideFlags: 0
@@ -75696,8 +75765,8 @@ MonoBehaviour:
   colliderThickness: 0.02
   overrideInteractableLabel: 
   audioSource: {fileID: 0}
-  clickSoundClip: {fileID: 0}
-  hoverSoundClip: {fileID: 0}
+  clickSoundClip: {fileID: 8300000, guid: cbd53e7b3ec84f1439bc86153c67fc26, type: 3}
+  hoverSoundClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
   enablePunchScale: 1
 --- !u!114 &1859794252
 MonoBehaviour:
@@ -76766,8 +76835,8 @@ MonoBehaviour:
   colliderThickness: 0.02
   overrideInteractableLabel: 
   audioSource: {fileID: 0}
-  clickSoundClip: {fileID: 0}
-  hoverSoundClip: {fileID: 0}
+  clickSoundClip: {fileID: 8300000, guid: cbd53e7b3ec84f1439bc86153c67fc26, type: 3}
+  hoverSoundClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
   enablePunchScale: 1
 --- !u!114 &1877622694
 MonoBehaviour:
@@ -86381,9 +86450,9 @@ MonoBehaviour:
   popupDetailText: {fileID: 0}
   popupAutoHideDuration: 4.5
   audioSource: {fileID: 0}
-  drawerOpenClip: {fileID: 0}
-  drawerCloseClip: {fileID: 0}
-  hoverClip: {fileID: 0}
+  drawerOpenClip: {fileID: 8300000, guid: f511e29fdff44d340969ef15fee3e34b, type: 3}
+  drawerCloseClip: {fileID: 8300000, guid: 44d3f684acbc0114e8771c5472e4a5aa, type: 3}
+  hoverClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
 --- !u!114 &1998875033
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -87612,8 +87681,8 @@ MonoBehaviour:
   switchModeButtonText: {fileID: 0}
   restartScenarioButton: {fileID: 0}
   audioSource: {fileID: 0}
-  successEndingClip: {fileID: 0}
-  failEndingClip: {fileID: 0}
+  successEndingClip: {fileID: 8300000, guid: 3db7b5c2c4c884f4292a9eca4ba022d4, type: 3}
+  failEndingClip: {fileID: 8300000, guid: c813a2ace6bbca1499c3ec7f9ac86f18, type: 3}
 --- !u!114 &2029120987
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -89549,8 +89618,8 @@ MonoBehaviour:
   colliderThickness: 0.02
   overrideInteractableLabel: 
   audioSource: {fileID: 0}
-  clickSoundClip: {fileID: 0}
-  hoverSoundClip: {fileID: 0}
+  clickSoundClip: {fileID: 8300000, guid: cbd53e7b3ec84f1439bc86153c67fc26, type: 3}
+  hoverSoundClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
   enablePunchScale: 1
 --- !u!114 &2065426858
 MonoBehaviour:
@@ -91045,8 +91114,8 @@ MonoBehaviour:
   tooltipDetailText: {fileID: 0}
   autoHideSeconds: 6
   audioSource: {fileID: 0}
-  signalDetectedClip: {fileID: 0}
-  hoverClip: {fileID: 0}
+  signalDetectedClip: {fileID: 8300000, guid: 8c9bfa74da55f924d96e241d21cc0756, type: 3}
+  hoverClip: {fileID: 8300000, guid: 3222d358ce0aa2d4cbc578709a17eacb, type: 3}
 --- !u!114 &2084700285
 MonoBehaviour:
   m_ObjectHideFlags: 0
