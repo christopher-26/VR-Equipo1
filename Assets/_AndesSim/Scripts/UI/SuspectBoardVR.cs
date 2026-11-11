@@ -125,11 +125,14 @@ namespace AndesSim.UI
         private List<TextMeshProUGUI> _tabButtonTexts = new List<TextMeshProUGUI>();
         private bool _isInitialized = false;
 
+        public static SuspectBoardVR I { get; private set; }
+
         public int CurrentSuspectIndex => _selectedSuspectIndex;
         public IReadOnlyList<SuspectDossierScenario01> Suspects => suspects;
 
         private void Awake()
         {
+            I = this;
             EnsureAudioSource();
             EnsureDefaultDossiers();
         }

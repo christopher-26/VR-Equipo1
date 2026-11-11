@@ -159,10 +159,14 @@ namespace AndesSim.Scenario01
                 TeleportPoint[] points = FindObjectsByType<TeleportPoint>(FindObjectsSortMode.None);
                 for (int i = 0; i < points.Length; i++)
                 {
-                    if (points[i].gameObject.name.IndexOf(monitorId, System.StringComparison.OrdinalIgnoreCase) >= 0 ||
-                        (monitorId == "Monitor_01" && points[i].gameObject.name.Contains("01")) ||
-                        (monitorId == "Monitor_02" && points[i].gameObject.name.Contains("02")) ||
-                        (monitorId == "Monitor_03" && points[i].gameObject.name.Contains("03")))
+                    string pName = points[i].gameObject.name.ToLowerInvariant();
+                    string mId = monitorId.ToLowerInvariant();
+                    string assoc = (points[i].AssociatedWorkstationId ?? "").ToLowerInvariant();
+
+                    if (assoc == mId || pName.Contains(mId) ||
+                        (mId.Contains("01") && (pName.Contains("puesto1") || pName.Contains("carla") || pName.Contains("01"))) ||
+                        (mId.Contains("02") && (pName.Contains("puesto2") || pName.Contains("analista") || pName.Contains("comercio") || pName.Contains("02"))) ||
+                        (mId.Contains("03") && (pName.Contains("puesto3") || pName.Contains("siem") || pName.Contains("log") || pName.Contains("03"))))
                     {
                         optimalTeleportPoint = points[i];
                         break;
@@ -371,11 +375,30 @@ namespace AndesSim.Scenario01
 
             Debug.Log($"{LogPrefix} Clic en {monitorId} a distancia: {distance:F2}m (Límite: {distanceTeleportThreshold}m)");
 
+            // Notificar al flujo pedagógico de la simulación (Paso 2 -> Paso 3 -> Paso 4)
+            if (ScenarioFlowController.I != null)
+            {
+                ScenarioFlowController.I.NotifyWorkstationInteracted(monitorId);
+                if (monitorId.Contains("01") || monitorId.ToLowerInvariant().Contains("carla"))
+                {
+                    ScenarioFlowController.I.NotifyEmailOpened();
+                }
+            }
+
             if (distance > distanceTeleportThreshold)
             {
                 TeleportToOptimalViewpoint();
+                StartCoroutine(OpenInspectionAfterTeleport());
             }
+            else
+            {
+                OpenInspectionZoomModal();
+            }
+        }
 
+        private IEnumerator OpenInspectionAfterTeleport()
+        {
+            yield return new WaitForSeconds(0.2f);
             OpenInspectionZoomModal();
         }
 
@@ -389,8 +412,24 @@ namespace AndesSim.Scenario01
                 string id = (monitorId + " " + gameObject.name).ToLowerInvariant();
                 if (id.Contains("01") || id.Contains("carla"))
                 {
-                    VrInspectionOverlayManager.I.OpenEmailInspection();
-                    return;
+                    SimMode mode = GameManager.I != null ? GameManager.I.mode : SimMode.Ataque;
+                    if (mode == SimMode.Defensa)
+                    {
+                        // MODO DEFENSA (RF-04): El correo NUNCA llega a abrirse.
+                        // La bandeja de entrada es reemplazada por el panel de cuarentena del SOC (Sandbox).
+                        if (MailQuarantine.I != null)
+                        {
+                            MailQuarantine.I.TriggerQuarantineDefense();
+                        }
+                        VrInspectionOverlayManager.I.OpenQuarantineInspection();
+                        return;
+                    }
+                    else
+                    {
+                        // MODO ATAQUE: Abre el correo de Rasel Ahlam para inspeccionar señales y detonar
+                        VrInspectionOverlayManager.I.OpenEmailInspection();
+                        return;
+                    }
                 }
                 else if (id.Contains("02") || id.Contains("analista") || id.Contains("comercio"))
                 {

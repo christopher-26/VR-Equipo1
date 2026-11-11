@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -100,12 +101,15 @@ namespace AndesSim.UI
                 if (_targetCamera == null) return;
             }
 
-            // Suave orientación y posicionamiento frente a los ojos del jugador
-            Vector3 targetPosition = _targetCamera.transform.position + (_targetCamera.transform.forward * distanceFromCamera);
-            Quaternion targetRotation = Quaternion.LookRotation(_targetCamera.transform.forward, _targetCamera.transform.up);
-
-            _overlayRoot.transform.position = Vector3.Lerp(_overlayRoot.transform.position, targetPosition, Time.deltaTime * smoothFollowSpeed);
-            _overlayRoot.transform.rotation = Quaternion.Slerp(_overlayRoot.transform.rotation, targetRotation, Time.deltaTime * smoothFollowSpeed);
+            // El panel de inspección se mantiene ESTACIONARIO en el espacio 3D para permitir apuntar
+            // libremente la retícula VR hacia los botones sin que el panel se desplace con la cabeza.
+            // Si el jugador gira la cabeza más de 65 grados alejándose del panel, se cierra automáticamente.
+            Vector3 dirToPanel = (_overlayRoot.transform.position - _targetCamera.transform.position).normalized;
+            float angle = Vector3.Angle(_targetCamera.transform.forward, dirToPanel);
+            if (angle > 65f)
+            {
+                CloseOverlay();
+            }
         }
 
         /// <summary>
@@ -116,11 +120,14 @@ namespace AndesSim.UI
             if (_overlayRoot != null) return;
 
             _overlayRoot = new GameObject("VrInspectionOverlayCanvas");
-            _overlayRoot.transform.SetParent(transform, false);
+            _overlayRoot.transform.SetParent(null); // Canvas independiente en World Space
+            _overlayRoot.layer = LayerMask.NameToLayer("Interactive");
 
             _overlayCanvas = _overlayRoot.AddComponent<Canvas>();
             _overlayCanvas.renderMode = RenderMode.WorldSpace;
-            _overlayCanvas.sortingOrder = 950;
+            _overlayCanvas.sortingOrder = 5000;
+            if (_targetCamera == null) _targetCamera = Camera.main;
+            if (_targetCamera != null) _overlayCanvas.worldCamera = _targetCamera;
 
             CanvasScaler scaler = _overlayRoot.AddComponent<CanvasScaler>();
             scaler.dynamicPixelsPerUnit = 4f;
@@ -247,45 +254,45 @@ namespace AndesSim.UI
             GameObject bodyBox = new GameObject("EmailBodyBox");
             bodyBox.transform.SetParent(emailPanel.transform, false);
             RectTransform bbRect = bodyBox.AddComponent<RectTransform>();
-            bbRect.anchoredPosition = new Vector2(0f, -20f);
-            bbRect.sizeDelta = new Vector2(900f, 110f);
+            bbRect.anchoredPosition = new Vector2(0f, -25f);
+            bbRect.sizeDelta = new Vector2(900f, 130f);
             Image bodyBg = bodyBox.AddComponent<Image>();
             bodyBg.color = new Color(0.08f, 0.12f, 0.18f, 0.9f);
 
-            CreateLabel("Txt_EmailBody", bodyBox.transform, Vector2.zero, new Vector2(870f, 95f),
-                "<i>\"Estimada Carla Mendoza,\n\nLe ruego revisar con carácter de extrema urgencia mi Curriculum Vitae adjunto en el enlace seguro:\n" +
-                "<color=#00F2FE><u>http://185.130.44.82/Rasel_Ahlam_CV_2015.scr.zip</u></color>\n" +
-                "Poseo amplia experiencia en liquidación de divisas SWIFT y estoy disponible para incorporación inmediata.\"</i>",
-                13f, TextAlignmentOptions.TopLeft, new Color(0.9f, 0.95f, 1f));
+            CreateLabel("Txt_EmailBody", bodyBox.transform, new Vector2(0f, 25f), new Vector2(870f, 65f),
+                "<i>\"Estimada Carla Mendoza,\n\nLe ruego revisar con carácter de extrema urgencia mi Curriculum Vitae adjunto en el enlace seguro:\"</i>",
+                13.5f, TextAlignmentOptions.TopLeft, new Color(0.9f, 0.95f, 1f));
+
+            // ENLACE ADJUNTO INTERACTIVO DIRECTO (RF-02 / RF-04)
+            CreateInspectionButton(
+                "Btn_AttachmentLink", bodyBox.transform,
+                new Vector2(0f, -28f), new Vector2(760f, 44f),
+                "<b><color=#00F2FE><u>http://185.130.44.82/Rasel_Ahlam_CV_2015.scr.zip</u></color></b>\n<size=10><color=#FFC24A>▲ Clic con retícula para descargar y abrir adjunto del CV</color></size>",
+                new Color(0.12f, 0.18f, 0.28f, 0.98f),
+                Color.white,
+                TriggerAttackInfectionSequence
+            );
 
             // Botones de Decisión Oficiales (RF-04)
             // Botón Rojo: ABRIR ENLACE (MODO ATAQUE)
             CreateInspectionButton(
                 "Btn_AttackOpenLink", emailPanel.transform,
-                new Vector2(-220f, -145f), new Vector2(400f, 58f),
+                new Vector2(-220f, -150f), new Vector2(400f, 58f),
                 "<b>[ ABRIR ENLACE (MODO ATAQUE 2016) ]</b>\n<size=10.5>Detonar infección malware de Lazarus</size>",
                 new Color(0.5f, 0.12f, 0.12f, 0.95f),
                 new Color(1f, 0.4f, 0.35f, 1f),
-                () =>
-                {
-                    CloseOverlay();
-                    if (PhishingInspector.I != null)
-                    {
-                        PhishingInspector.I.ExecuteOpenLinkAttackSequence();
-                    }
-                }
+                TriggerAttackInfectionSequence
             );
 
             // Botón Verde: REPORTAR PHISHING (MODO DEFENSA)
             CreateInspectionButton(
                 "Btn_DefenseReport", emailPanel.transform,
-                new Vector2(220f, -145f), new Vector2(400f, 58f),
+                new Vector2(220f, -150f), new Vector2(400f, 58f),
                 "<b>[ REPORTAR PHISHING (MODO DEFENSA) ]</b>\n<size=10.5>Aislar muestra en Sandbox del SOC</size>",
                 new Color(0.08f, 0.35f, 0.2f, 0.95f),
                 new Color(0.35f, 1f, 0.6f, 1f),
                 () =>
                 {
-                    CloseOverlay();
                     if (MailQuarantine.I != null)
                     {
                         MailQuarantine.I.TriggerQuarantineDefense();
@@ -294,10 +301,218 @@ namespace AndesSim.UI
                     {
                         PhishingInspector.I.ExecuteReportPhishingDefenseSequence();
                     }
+                    OpenQuarantineInspection();
                 }
             );
 
             _activeContentPanel = emailPanel;
+            ShowOverlay();
+        }
+
+        /// <summary>
+        /// MODO DEFENSA (RF-04): El correo NUNCA llega a abrirse.
+        /// La bandeja de entrada es reemplazada visualmente por el panel de cuarentena (simulando filtro Sandbox).
+        /// </summary>
+        public void OpenQuarantineInspection()
+        {
+            EnsureOverlayCanvas();
+            ClearActiveContent();
+
+            _headerTitleText.text = "<b><color=#38F28A>CONSOLA DE CUARENTENA Y FILTRO SANDBOX · BANCO ANDINO</color></b>";
+            _subTitleText.text = "Protección Perimetral del SOC · Correo Malicioso Aislado Preventivamente";
+
+            GameObject qPanel = new GameObject("QuarantineContentPanel");
+            qPanel.transform.SetParent(_contentContainer, false);
+            RectTransform qRect = qPanel.AddComponent<RectTransform>();
+            qRect.anchorMin = Vector2.zero;
+            qRect.anchorMax = Vector2.one;
+            qRect.sizeDelta = Vector2.zero;
+
+            GameObject boxGO = new GameObject("SandboxLogBox");
+            boxGO.transform.SetParent(qPanel.transform, false);
+            RectTransform boxRect = boxGO.AddComponent<RectTransform>();
+            boxRect.anchoredPosition = new Vector2(0f, 35f);
+            boxRect.sizeDelta = new Vector2(900f, 360f);
+            Image boxBg = boxGO.AddComponent<Image>();
+            boxBg.color = new Color(0.04f, 0.08f, 0.12f, 0.98f);
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("<b><color=#38F28A>[SISTEMA DE PREVENCIÓN DE INTRUSIONES · ESTADO: ACTIVO]</color></b>");
+            sb.AppendLine("────────────────────────────────────────────────────────────────────────────");
+            sb.AppendLine("• <b>Correo Interceptado:</b> Rasel Ahlam &lt;rasel.ahlam@career-applicants-bd.com&gt;");
+            sb.AppendLine("• <b>Destinatario Original:</b> Carla Mendoza (c.mendoza@bancoandino.pe) y 15 buzones");
+            sb.AppendLine("• <b>Análisis SPF/DKIM:</b> <color=#FF9F43>[FALLIDO]</color> Dominio no autenticado / Creado hace 48h");
+            sb.AppendLine("• <b>Filtro Sandbox Cuckoo:</b> Adjunto 'Rasel_Ahlam_CV_2015.scr.zip' detonado en entorno virtual.");
+            sb.AppendLine("• <b>Payload Detectado:</b> <color=#FF5A4E><b>[Win32/Lazarus.Dropper!tr]</b></color> (svchost_upd.exe)");
+            sb.AppendLine("• <b>Acción del SOC:</b> <color=#38F28A>[CORREO BLOQUEADO]</color> - La bandeja nunca fue expuesta.");
+            sb.AppendLine("• <b>Regla Perimetral:</b> Tráfico hacia C2 185.130.44.82 cortado en Firewall.");
+            sb.AppendLine("• <b>Terminales Protegidas:</b> 3 de 3 puestos 100% limpios. Red SWIFT intacta.");
+            sb.AppendLine("────────────────────────────────────────────────────────────────────────────");
+            sb.AppendLine("<color=#38F28A><b>✓ CONCLUSIÓN TÉCNICA: Infección evitada al 100%. Criterio de Aceptación 2 Cumplido.</b></color>");
+
+            CreateLabel("Txt_QuarantineLog", boxGO.transform, Vector2.zero, new Vector2(860f, 340f),
+                sb.ToString(), 13.5f, TextAlignmentOptions.TopLeft, Color.white);
+
+            // Botón interactivo: CONFIRMAR CONTENCIÓN Y FINALIZAR DEFENSA
+            CreateInspectionButton(
+                "Btn_ConfirmDefense", qPanel.transform,
+                new Vector2(0f, -180f), new Vector2(480f, 60f),
+                "<b><color=#38F28A>[ CONFIRMAR CONTENCIÓN Y FINALIZAR DEFENSA ]</color></b>\n<size=11>Completar simulación con éxito (Evaluación 20/20)</size>",
+                new Color(0.08f, 0.35f, 0.18f, 0.98f),
+                Color.white,
+                () =>
+                {
+                    CloseOverlay();
+                    if (MailQuarantine.I != null)
+                    {
+                        MailQuarantine.I.ConfirmContainmentAndEndScenario();
+                    }
+                    else if (GameManager.I != null)
+                    {
+                        GameManager.I.ApplyDefense("Defensa_Sandbox");
+                        GameManager.I.ApplyDefense("Defensa_BotonReportar");
+                        GameManager.I.ApplyDefense("Defensa_MFA");
+                        GameManager.I.EndScenario();
+                    }
+                }
+            );
+
+            _activeContentPanel = qPanel;
+            ShowOverlay();
+        }
+
+        /// <summary>
+        /// MODO ATAQUE (RF-04):
+        /// Al hacer clic en el enlace del CV, activa la animación visual de la infección propagándose
+        /// por la pantalla, propaga el ataque a la red y termina mostrando el robo millonario consumado.
+        /// </summary>
+        public void TriggerAttackInfectionSequence()
+        {
+            // Ejecutar la propagación en red (Beams 3D + 3 PCs infectadas)
+            if (PhishingInspector.I != null)
+            {
+                PhishingInspector.I.ExecuteOpenLinkAttackSequence();
+            }
+            else if (InfectionSpreadVisualizer.I != null)
+            {
+                InfectionSpreadVisualizer.I.PlayInfectionSequence();
+            }
+
+            // Iniciar animación visual en pantalla completa
+            StartCoroutine(InfectionScreenAnimationRoutine());
+        }
+
+        private IEnumerator InfectionScreenAnimationRoutine()
+        {
+            EnsureOverlayCanvas();
+            ClearActiveContent();
+
+            _headerTitleText.text = "<b><color=#FF3834>[ALERTA CRÍTICA: MALWARE LAZARUS EN EJECUCIÓN]</color></b>";
+            _subTitleText.text = "Infección de Red Plana Activa · Dropper .scr Ejecutado en Puesto 1";
+
+            GameObject infectPanel = new GameObject("InfectionContentPanel");
+            infectPanel.transform.SetParent(_contentContainer, false);
+            RectTransform iRect = infectPanel.AddComponent<RectTransform>();
+            iRect.anchorMin = Vector2.zero;
+            iRect.anchorMax = Vector2.one;
+            iRect.sizeDelta = Vector2.zero;
+
+            GameObject terminalBox = new GameObject("InfectionTerminalBox");
+            terminalBox.transform.SetParent(infectPanel.transform, false);
+            RectTransform tRect = terminalBox.AddComponent<RectTransform>();
+            tRect.anchoredPosition = new Vector2(0f, 30f);
+            tRect.sizeDelta = new Vector2(900f, 350f);
+            Image tBg = terminalBox.AddComponent<Image>();
+            tBg.color = new Color(0.18f, 0.02f, 0.02f, 0.98f);
+
+            GameObject textObj = CreateLabel("Txt_InfectionTrace", terminalBox.transform, Vector2.zero, new Vector2(860f, 330f),
+                "<color=#FF5A4E><b>[INICIANDO DESCARGA DE EXPLOIT...]</b></color>", 14f, TextAlignmentOptions.TopLeft, Color.white);
+            TextMeshProUGUI traceTmp = textObj.GetComponent<TextMeshProUGUI>();
+
+            _activeContentPanel = infectPanel;
+            ShowOverlay();
+
+            StringBuilder sb = new StringBuilder();
+
+            // Paso 1 (1.0s): Descarga
+            sb.AppendLine("<b><color=#FF5A4E>[09:18:44] CONEXIÓN SALIENTE ESTABLECIDA:</color></b>");
+            sb.AppendLine("• GET http://185.130.44.82/Rasel_Ahlam_CV_2015.scr.zip -> 200 OK (1.2 MB)");
+            sb.AppendLine("• Descompresión en memoria del ejecutable camuflado: <color=#FF5A4E><b>Rasel_Ahlam_CV_2015.scr</b></color>");
+            traceTmp.text = sb.ToString();
+            yield return new WaitForSeconds(1.2f);
+
+            // Paso 2 (1.2s): Inyección de backdoor
+            sb.AppendLine("\n<b><color=#FF3834>[09:18:47] INSTALACIÓN DE BACKDOOR LAZARUS (svchost_upd.exe):</color></b>");
+            sb.AppendLine("• Persistencia: HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run");
+            sb.AppendLine("• Bypassing UAC & evasión de defensas locales.");
+            sb.AppendLine("• Conexión C2 establecida con 185.130.44.82:443 (TLS Encrypted).");
+            traceTmp.text = sb.ToString();
+            tBg.color = new Color(0.28f, 0.03f, 0.03f, 0.98f);
+            yield return new WaitForSeconds(1.4f);
+
+            // Paso 3 (1.4s): Propagación lateral por red plana
+            sb.AppendLine("\n<b><color=#FF2222>[09:18:50] MOVIMIENTO LATERAL - RED PLANA COMPROMETIDA:</color></b>");
+            sb.AppendLine("• Escaneo ARP por segmento 10.0.0.0/24 sin VLANs de aislamiento.");
+            sb.AppendLine("• Salto lateral a Puesto 2: <color=#FF3834>Terminal SWIFT Alliance Access [INFECTADA]</color>");
+            sb.AppendLine("• Salto lateral a Puesto 3: <color=#FF3834>Consola SIEM [REGISTROS ALTERADOS]</color>");
+            sb.AppendLine("• Manipulación de software de impresión SWIFT para ocultar transferencias MT103.");
+            traceTmp.text = sb.ToString();
+            yield return new WaitForSeconds(1.8f);
+
+            // =========================================================
+            // PANTALLA OFICIAL DE ROBO CONSUMADO (US$ 951,000,000.00)
+            // =========================================================
+            ClearActiveContent();
+
+            _headerTitleText.text = "<b><color=#FF2222>ROBO CONSUMADO: BANCO ANDINO COMPROMETIDO (ATAQUE 2016)</color></b>";
+            _subTitleText.text = "Recreación Histórica del Fraude Bancario de Lazarus a través de la Red SWIFT";
+
+            GameObject robPanel = new GameObject("RobberyResultPanel");
+            robPanel.transform.SetParent(_contentContainer, false);
+            RectTransform rRect = robPanel.AddComponent<RectTransform>();
+            rRect.anchorMin = Vector2.zero;
+            rRect.anchorMax = Vector2.one;
+            rRect.sizeDelta = Vector2.zero;
+
+            GameObject rBox = new GameObject("RobberyBox");
+            rBox.transform.SetParent(robPanel.transform, false);
+            RectTransform rbRect = rBox.AddComponent<RectTransform>();
+            rbRect.anchoredPosition = new Vector2(0f, 35f);
+            rbRect.sizeDelta = new Vector2(900f, 360f);
+            Image rbBg = rBox.AddComponent<Image>();
+            rbBg.color = new Color(0.08f, 0.02f, 0.02f, 0.98f);
+
+            StringBuilder rsb = new StringBuilder();
+            rsb.AppendLine("<b><color=#FF3834>INCIDENTE DE CIBERSEGURIDAD FORENSE — IMPACTO OFICIAL:</color></b>");
+            rsb.AppendLine("────────────────────────────────────────────────────────────────────────────");
+            rsb.AppendLine("• <b>MONTO TOTAL COMPROMETIDO:</b> <color=#FF3834><size=16><b>US$ 951,000,000.00</b></size></color>");
+            rsb.AppendLine("• <b>Monto transferido con éxito:</b> <color=#FF5A4E>US$ 81,000,000.00 (Lavado vía casinos en Filipinas)</color>");
+            rsb.AppendLine("• <b>Monto retenido por coincidencia tipográfica:</b> US$ 870,000,000.00 ('Fandation' vs Foundation)");
+            rsb.AppendLine("• <b>Paciente Cero:</b> Carla Mendoza (Puesto 1) ejecutó el malware tras engaño por Spear Phishing.");
+            rsb.AppendLine("• <b>Causas Raíz:</b> Ausencia de Sandbox perimetral + Red plana compartida con terminales SWIFT.");
+            rsb.AppendLine("────────────────────────────────────────────────────────────────────────────");
+            rsb.AppendLine("<i>El escenario concluye demostrando las consecuencias catastróficas del ataque histórico de Lazarus.</i>");
+
+            CreateLabel("Txt_RobberySummary", rBox.transform, Vector2.zero, new Vector2(860f, 340f),
+                rsb.ToString(), 13.5f, TextAlignmentOptions.TopLeft, Color.white);
+
+            CreateInspectionButton(
+                "Btn_FinalizeAttack", robPanel.transform,
+                new Vector2(0f, -180f), new Vector2(480f, 60f),
+                "<b><color=#FF5A4E>[ FINALIZAR EVALUACIÓN DEL ATAQUE ]</color></b>\n<size=11>Desplegar reporte forense oficial de la simulación</size>",
+                new Color(0.5f, 0.12f, 0.12f, 0.98f),
+                Color.white,
+                () =>
+                {
+                    CloseOverlay();
+                    if (GameManager.I != null)
+                    {
+                        GameManager.I.EndScenario();
+                    }
+                }
+            );
+
+            _activeContentPanel = robPanel;
             ShowOverlay();
         }
 
@@ -490,6 +705,111 @@ namespace AndesSim.UI
             ShowOverlay();
         }
 
+        /// <summary>
+        /// RF-05: Abre la vista ampliada del expediente del sospechoso seleccionado en el Tablero Táctico.
+        /// </summary>
+        public void OpenSuspectDossierInspection(int suspectIndex)
+        {
+            EnsureOverlayCanvas();
+            ClearActiveContent();
+
+            GameObject dossierPanel = new GameObject("SuspectDossierModalPanel");
+            dossierPanel.transform.SetParent(_contentContainer, false);
+            RectTransform dr = dossierPanel.AddComponent<RectTransform>();
+            dr.sizeDelta = new Vector2(1020f, 580f);
+
+            SuspectBoardVR board = SuspectBoardVR.I != null ? SuspectBoardVR.I : FindFirstObjectByType<SuspectBoardVR>();
+            SuspectDossierScenario01 suspect = null;
+            if (board != null && board.Suspects != null && suspectIndex >= 0 && suspectIndex < board.Suspects.Count)
+            {
+                suspect = board.Suspects[suspectIndex];
+            }
+
+            string name = suspect != null ? suspect.fullName : "Sospechoso";
+            string role = suspect != null ? suspect.roleTitle : "Personal Banco Andino";
+            string badge = suspect != null ? suspect.threatLevelBadge : "EN INVESTIGACIÓN";
+            string incrim = suspect != null ? suspect.incriminatingPoints : "Sin indicios registrados.";
+            string exon = suspect != null ? suspect.exoneratingPoints : "Sin descargos registrados.";
+
+            // Encabezado
+            CreateLabel("Txt_Header", dossierPanel.transform, new Vector2(0f, 245f), new Vector2(960f, 35f),
+                $"<b><color=#38F28A>CASO BANCO ANDINO · AUDITORÍA INTERNA 2015</color></b> | EXPEDIENTE #{suspectIndex + 1}",
+                15f, TextAlignmentOptions.Center, PrimaryCyanColor);
+
+            CreateLabel("Txt_SuspectTitle", dossierPanel.transform, new Vector2(0f, 210f), new Vector2(960f, 35f),
+                $"<b>{name}</b> — <color=#E2E8F0>{role}</color> | <color=#FF5A4E>[{badge}]</color>",
+                13.5f, TextAlignmentOptions.Center, Color.white);
+
+            // Caja Izquierda: Puntos en Contra / Incriminatorios
+            GameObject leftBox = new GameObject("LeftBox");
+            leftBox.transform.SetParent(dossierPanel.transform, false);
+            RectTransform lbRect = leftBox.AddComponent<RectTransform>();
+            lbRect.anchoredPosition = new Vector2(-240f, 30f);
+            lbRect.sizeDelta = new Vector2(470f, 310f);
+            Image lbBg = leftBox.AddComponent<Image>();
+            lbBg.color = new Color(0.12f, 0.08f, 0.08f, 0.94f);
+
+            CreateLabel("Txt_LeftTitle", leftBox.transform, new Vector2(0f, 130f), new Vector2(440f, 30f),
+                "<b><color=#FF5A4E>▲ PUNTOS EN CONTRA / INCRIMINATORIOS</color></b>",
+                12.5f, TextAlignmentOptions.TopLeft, WarningAmberColor);
+
+            CreateLabel("Txt_LeftContent", leftBox.transform, new Vector2(0f, -10f), new Vector2(440f, 240f),
+                $"<size=11>{incrim}</size>",
+                11f, TextAlignmentOptions.TopLeft, new Color(0.95f, 0.90f, 0.90f));
+
+            // Caja Derecha: Elementos a Favor / Descargo
+            GameObject rightBox = new GameObject("RightBox");
+            rightBox.transform.SetParent(dossierPanel.transform, false);
+            RectTransform rbRect = rightBox.AddComponent<RectTransform>();
+            rbRect.anchoredPosition = new Vector2(240f, 30f);
+            rbRect.sizeDelta = new Vector2(470f, 310f);
+            Image rbBg = rightBox.AddComponent<Image>();
+            rbBg.color = new Color(0.08f, 0.14f, 0.10f, 0.94f);
+
+            CreateLabel("Txt_RightTitle", rightBox.transform, new Vector2(0f, 130f), new Vector2(440f, 30f),
+                "<b><color=#38F28A>✓ ELEMENTOS A FAVOR / DESCARGO</color></b>",
+                12.5f, TextAlignmentOptions.TopLeft, GreenSuccessColor);
+
+            CreateLabel("Txt_RightContent", rightBox.transform, new Vector2(0f, -10f), new Vector2(440f, 240f),
+                $"<size=11>{exon}</size>",
+                11f, TextAlignmentOptions.TopLeft, new Color(0.90f, 0.98f, 0.92f));
+
+            // Botón Fijar Hipótesis
+            CreateInspectionButton(
+                "Btn_SelectHypothesis", dossierPanel.transform,
+                new Vector2(-150f, -190f), new Vector2(430f, 50f),
+                $"<b>[ REGISTRAR A {name.ToUpper()} COMO HIPÓTESIS ]</b>",
+                new Color(0.12f, 0.38f, 0.22f, 0.96f),
+                GreenSuccessColor,
+                () =>
+                {
+                    if (board != null)
+                    {
+                        board.DisplaySuspect(suspectIndex);
+                        board.OnSelectHypothesisClicked();
+                    }
+                    if (AndesSim.Audio.AudioManager.I != null)
+                    {
+                        AndesSim.Audio.AudioManager.I.PlayEvidenceFound();
+                    }
+                    CloseOverlay();
+                }
+            );
+
+            // Botón Cerrar
+            CreateInspectionButton(
+                "Btn_CloseDossier", dossierPanel.transform,
+                new Vector2(290f, -190f), new Vector2(220f, 50f),
+                "<b>[ CERRAR DOSSIER ]</b>",
+                new Color(0.25f, 0.28f, 0.32f, 0.96f),
+                Color.white,
+                () => CloseOverlay()
+            );
+
+            _activeContentPanel = dossierPanel;
+            ShowOverlay();
+        }
+
         #endregion
 
         #region Control de Ventana y Ayudantes de UI
@@ -502,8 +822,18 @@ namespace AndesSim.UI
                 if (_targetCamera == null) _targetCamera = Camera.main;
                 if (_targetCamera != null)
                 {
-                    _overlayRoot.transform.position = _targetCamera.transform.position + (_targetCamera.transform.forward * distanceFromCamera);
-                    _overlayRoot.transform.rotation = Quaternion.LookRotation(_targetCamera.transform.forward, _targetCamera.transform.up);
+                    if (_overlayCanvas != null) _overlayCanvas.worldCamera = _targetCamera;
+
+                    Vector3 forward = _targetCamera.transform.forward;
+                    forward.y = 0f;
+                    if (forward.sqrMagnitude < 0.001f) forward = _targetCamera.transform.forward;
+                    forward.Normalize();
+
+                    Vector3 spawnPos = _targetCamera.transform.position + (forward * distanceFromCamera);
+                    spawnPos.y = _targetCamera.transform.position.y - 0.05f;
+
+                    _overlayRoot.transform.position = spawnPos;
+                    _overlayRoot.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
                 }
                 _overlayRoot.SetActive(true);
             }
@@ -531,9 +861,16 @@ namespace AndesSim.UI
 
         private void ClearActiveContent()
         {
+            if (_contentContainer != null)
+            {
+                for (int i = _contentContainer.childCount - 1; i >= 0; i--)
+                {
+                    DestroyImmediate(_contentContainer.GetChild(i).gameObject);
+                }
+            }
             if (_activeContentPanel != null)
             {
-                Destroy(_activeContentPanel);
+                DestroyImmediate(_activeContentPanel);
                 _activeContentPanel = null;
             }
         }
@@ -559,9 +896,16 @@ namespace AndesSim.UI
             btn.colors = cb;
             if (onClick != null) btn.onClick.AddListener(() => onClick.Invoke());
 
+            // Colisionador BoxCollider para detección precisa con retícula VR
+            BoxCollider boxCol = btnGO.AddComponent<BoxCollider>();
+            boxCol.size = new Vector3(size.x, size.y, 8f);
+            boxCol.center = Vector3.zero;
+            boxCol.isTrigger = true;
+
             // Añadir soporte de retícula VR
             GazeInteractable gaze = btnGO.AddComponent<GazeInteractable>();
             gaze.interactableLabel = text.Replace("<b>", "").Replace("</b>", "").Split('\n')[0];
+            gaze.dwellTime = 1.1f;
             if (onClick != null) gaze.onClick.AddListener(() => onClick.Invoke());
 
             GameObject txtGO = new GameObject("Text");
@@ -594,8 +938,16 @@ namespace AndesSim.UI
             bg.color = new Color(0.18f, 0.14f, 0.08f, 0.95f);
 
             Button btn = btnGO.AddComponent<Button>();
+
+            // Colisionador BoxCollider calibrado para el raycast de retícula VR
+            BoxCollider boxCol = btnGO.AddComponent<BoxCollider>();
+            boxCol.size = new Vector3(size.x, size.y, 8f);
+            boxCol.center = Vector3.zero;
+            boxCol.isTrigger = true;
+
             GazeInteractable gaze = btnGO.AddComponent<GazeInteractable>();
             gaze.interactableLabel = $"Inspeccionar {signalId}";
+            gaze.dwellTime = 1.0f;
 
             GameObject txtGO = new GameObject("Text");
             txtGO.transform.SetParent(btnGO.transform, false);
@@ -612,9 +964,17 @@ namespace AndesSim.UI
 
             Action markAction = () =>
             {
+                if (ScenarioFlowController.I != null)
+                {
+                    ScenarioFlowController.I.NotifyPhishingSignalInspected(signalId);
+                }
                 if (PhishingInspector.I != null)
                 {
                     PhishingInspector.I.MarkPhishingSignal(signalId);
+                }
+                if (AndesSim.Audio.AudioManager.I != null)
+                {
+                    AndesSim.Audio.AudioManager.I.PlayEvidenceFound();
                 }
                 bg.color = new Color(0.08f, 0.35f, 0.18f, 0.95f);
                 tmp.text = $"<b>[✓ IDENTIFICADA]</b>\n<size=10>{signalId}</size>";

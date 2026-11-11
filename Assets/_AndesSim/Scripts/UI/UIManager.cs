@@ -171,6 +171,13 @@ namespace AndesSim.UI
             // Asegurar que existan los paneles o construirlos dinámicamente
             EnsureUiPanelsExist();
 
+            // Asegurar posición despejada en la Pared Oeste para no sobreponerse a las PCs de los operadores
+            if (wristOrDeskHudPanel != null)
+            {
+                wristOrDeskHudPanel.transform.position = new Vector3(-4.85f, 1.55f, 1.8f);
+                wristOrDeskHudPanel.transform.rotation = Quaternion.Euler(0f, 75f, 0f);
+            }
+
             // Configurar botón interactivo de alternar modo
             if (toggleModeButton != null)
             {
@@ -580,13 +587,13 @@ namespace AndesSim.UI
         /// </summary>
         private void EnsureUiPanelsExist()
         {
-            // 1. WristOrDeskHUD
+            // 1. WristOrDeskHUD (Ubicado en Pared Oeste del SOC para no obstruir el Puesto 1 de Carla Mendoza)
             if (wristOrDeskHudPanel == null)
             {
                 wristOrDeskHudPanel = new GameObject("WristOrDeskHUD");
                 wristOrDeskHudPanel.transform.SetParent(transform, false);
-                wristOrDeskHudPanel.transform.localPosition = new Vector3(-2.85f, 1.15f, 2.35f);
-                wristOrDeskHudPanel.transform.localRotation = Quaternion.Euler(0f, 30f, 0f);
+                wristOrDeskHudPanel.transform.localPosition = new Vector3(-4.85f, 1.55f, 1.8f);
+                wristOrDeskHudPanel.transform.localRotation = Quaternion.Euler(0f, 75f, 0f);
 
                 Canvas canvas = wristOrDeskHudPanel.AddComponent<Canvas>();
                 canvas.renderMode = RenderMode.WorldSpace;

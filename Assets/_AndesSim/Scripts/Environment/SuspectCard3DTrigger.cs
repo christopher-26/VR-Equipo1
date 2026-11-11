@@ -31,6 +31,12 @@ namespace AndesSim.Environment
                     _originalColor = _instancedMat.GetColor("_Color");
                 }
             }
+
+            var gaze = GetComponent<AndesSim.VR.GazeInteractable>();
+            if (gaze != null)
+            {
+                gaze.onClick.AddListener(SelectSuspect);
+            }
         }
 
         public void OnPointerClick(PointerEventData eventData)
@@ -53,6 +59,11 @@ namespace AndesSim.Environment
             if (_cachedBoard != null)
             {
                 _cachedBoard.DisplaySuspect(suspectIndex);
+            }
+
+            if (VrInspectionOverlayManager.I != null)
+            {
+                VrInspectionOverlayManager.I.OpenSuspectDossierInspection(suspectIndex);
             }
 
             Debug.Log($"[SuspectBoardMeshBuilder] <color=#38F28A>Ficha 3D seleccionada:</color> [{suspectIndex}] {suspectName}");
