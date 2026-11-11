@@ -42,7 +42,7 @@ namespace AndesSim.VR
 
         [Tooltip("Tiempo en segundos que el jugador debe mantener la mirada para detonar el clic (1.8 segundos por defecto).")]
         [Range(0.5f, 5.0f)]
-        [SerializeField] private float dwellTime = 1.8f;
+        [SerializeField] public float dwellTime = 1.8f;
 
         public float DwellTime { get => dwellTime; set => dwellTime = value; }
 

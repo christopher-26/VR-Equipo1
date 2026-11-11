@@ -425,9 +425,11 @@ namespace AndesSim.UI
             Image tBg = terminalBox.AddComponent<Image>();
             tBg.color = new Color(0.18f, 0.02f, 0.02f, 0.98f);
 
-            GameObject textObj = CreateLabel("Txt_InfectionTrace", terminalBox.transform, Vector2.zero, new Vector2(860f, 330f),
-                "<color=#FF5A4E><b>[INICIANDO DESCARGA DE EXPLOIT...]</b></color>", 14f, TextAlignmentOptions.TopLeft, Color.white);
-            TextMeshProUGUI traceTmp = textObj.GetComponent<TextMeshProUGUI>();
+            CreateLabel("Txt_InfectionTrace", terminalBox.transform, Vector2.zero, new Vector2(860f, 330f), "<color=#FF5A4E><b>[INICIANDO DESCARGA DE EXPLOIT...]</b></color>", 14f, TextAlignmentOptions.TopLeft, Color.white);
+
+            GameObject textObj = terminalBox.transform.Find("Txt_InfectionTrace")?.gameObject;
+            TextMeshProUGUI traceTmp = textObj != null ? textObj.GetComponent<TextMeshProUGUI>() : null;
+            
 
             _activeContentPanel = infectPanel;
             ShowOverlay();
@@ -734,7 +736,7 @@ namespace AndesSim.UI
             // Encabezado
             CreateLabel("Txt_Header", dossierPanel.transform, new Vector2(0f, 245f), new Vector2(960f, 35f),
                 $"<b><color=#38F28A>CASO BANCO ANDINO · AUDITORÍA INTERNA 2015</color></b> | EXPEDIENTE #{suspectIndex + 1}",
-                15f, TextAlignmentOptions.Center, PrimaryCyanColor);
+                15f, TextAlignmentOptions.Center, Color.cyan);
 
             CreateLabel("Txt_SuspectTitle", dossierPanel.transform, new Vector2(0f, 210f), new Vector2(960f, 35f),
                 $"<b>{name}</b> — <color=#E2E8F0>{role}</color> | <color=#FF5A4E>[{badge}]</color>",

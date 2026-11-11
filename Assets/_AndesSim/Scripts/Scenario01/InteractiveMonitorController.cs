@@ -161,7 +161,7 @@ namespace AndesSim.Scenario01
                 {
                     string pName = points[i].gameObject.name.ToLowerInvariant();
                     string mId = monitorId.ToLowerInvariant();
-                    string assoc = (points[i].AssociatedWorkstationId ?? "").ToLowerInvariant();
+                    string assoc = points[i].gameObject.name.ToLowerInvariant();
 
                     if (assoc == mId || pName.Contains(mId) ||
                         (mId.Contains("01") && (pName.Contains("puesto1") || pName.Contains("carla") || pName.Contains("01"))) ||

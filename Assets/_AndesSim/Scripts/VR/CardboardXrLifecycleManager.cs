@@ -131,7 +131,7 @@ namespace AndesSim.VR
                     {
                         Debug.Log($"{LogPrefix} <color=#4EC9B0>XR Loader Activo: '{manager.activeLoader.name}'</color>");
 
-                        if (autoStartSubsystems && !manager.isStarted)
+                        if (XRGeneralSettings.Instance.Manager.isInitializationComplete)
                         {
                             manager.StartSubsystems();
                             Debug.Log($"{LogPrefix} Subsistemas XR iniciados exitosamente.");
