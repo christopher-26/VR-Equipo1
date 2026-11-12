@@ -378,13 +378,32 @@ namespace AndesSim.VR
 
             yield return new WaitForSeconds(0.3f);
 
-            // Reestablecer alpha para cuando el jugador regrese al vestíbulo
+            // Ocultar terminal completamente al entrar a la oficina para no obstruir la vista ni verse desde atrás
+            HideMenu();
+
+            _isStarting = false;
+        }
+
+        public void HideMenu()
+        {
+            if (menuCanvasGroup != null)
+            {
+                menuCanvasGroup.alpha = 0f;
+                menuCanvasGroup.interactable = false;
+                menuCanvasGroup.blocksRaycasts = false;
+            }
+            gameObject.SetActive(false);
+        }
+
+        public void ShowMenu()
+        {
+            gameObject.SetActive(true);
             if (menuCanvasGroup != null)
             {
                 menuCanvasGroup.alpha = 1f;
+                menuCanvasGroup.interactable = true;
+                menuCanvasGroup.blocksRaycasts = true;
             }
-
-            _isStarting = false;
         }
 
         private void ResolveTeleportDestination()

@@ -358,6 +358,11 @@ namespace AndesSim.VR
                 ScenarioFlowController.I.SetStep(ScenarioStep.Step1_PortalEntrada);
             }
 
+            if (VrStartMenuController.I != null)
+            {
+                VrStartMenuController.I.ShowMenu();
+            }
+
             _isTransitioning = false;
         }
 

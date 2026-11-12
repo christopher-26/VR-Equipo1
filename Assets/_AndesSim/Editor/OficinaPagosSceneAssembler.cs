@@ -418,6 +418,7 @@ namespace AndesSim.Editor
 
             // Canvas de Briefing en World Space frente al jugador en el vestíbulo
             GameObject canvasObj = new GameObject("Canvas_Briefing_Portal");
+            canvasObj.SetActive(false); // Oculto: El menú principal se gestiona en Terminal_MenuInicio_VR
             canvasObj.transform.SetParent(portalObj.transform, false);
             canvasObj.transform.localPosition = new Vector3(0f, 1.4f, -0.15f);
             canvasObj.transform.localRotation = Quaternion.identity;
@@ -1167,7 +1168,7 @@ namespace AndesSim.Editor
             GameObject terminalRoot = new GameObject("Terminal_MenuInicio_VR");
             terminalRoot.transform.SetParent(parent, false);
             terminalRoot.transform.position = new Vector3(0f, 0f, -3.7f); // Centrado en el vestíbulo frente al jugador
-            terminalRoot.transform.rotation = Quaternion.Euler(0f, 180f, 0f); // Mirando directamente hacia -Z (hacia el spawn del jugador en -5.2m)
+            terminalRoot.transform.rotation = Quaternion.identity; // Orientado de frente hacia el jugador en -5.2m (lectura normal no invertida)
             terminalRoot.layer = LayerMask.NameToLayer("Interactive");
 
             // Materiales de alta tecnología
@@ -1252,7 +1253,7 @@ namespace AndesSim.Editor
             GameObject canvasObj = new GameObject("Canvas_Menu_Holografico");
             canvasObj.transform.SetParent(terminalRoot.transform, false);
             canvasObj.transform.localPosition = new Vector3(0f, 1.40f, -0.06f);
-            canvasObj.transform.localRotation = Quaternion.Euler(-5f, 0f, 0f);
+            canvasObj.transform.localRotation = Quaternion.Euler(6f, 0f, 0f);
 
             Canvas canvas = canvasObj.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.WorldSpace;
@@ -1422,17 +1423,17 @@ namespace AndesSim.Editor
             catRect.anchoredPosition = new Vector2(0f, 26f);
             catRect.sizeDelta = new Vector2(450f, 110f);
             TextMeshProUGUI caTmp = caTxtObj.AddComponent<TextMeshProUGUI>();
-            caTmp.text = "<size=15><b><color=#FF5A4E>[MODO ATAQUE 2016]</color></b></size>\n" +
-                         "<size=11.5><color=#94A3B8>Recreación del ciberataque real de Lazarus</color></size>\n\n" +
-                         "• <b>Vector:</b> Spear Phishing con dropper .scr\n" +
-                         "• <b>Propagación:</b> Red plana bancaria sin aislamiento\n" +
-                         "• <b>Impacto:</b> Fraude y robo SWIFT millonario (US$ 951M)";
-            caTmp.fontSize = 11f;
+            caTmp.text = "<size=18><b><color=#FF5A4E>[ ⚠ MODO ATAQUE 2016 ]</color></b></size>\n" +
+                         "<size=13.5><color=#D1D5DB>Recreación del ciberataque histórico real de Lazarus</color></size>\n\n" +
+                         "• <b>Vector:</b> Spear Phishing con dropper .scr a Carla Mendoza\n" +
+                         "• <b>Salto Lateral:</b> Red plana bancaria sin VLANs hacia SWIFT\n" +
+                         "• <b>Impacto:</b> Fraude y robo financiero (US$ 81M a Filipinas)";
+            caTmp.fontSize = 13.5f;
             caTmp.alignment = TextAlignmentOptions.TopLeft;
 
             GameObject btnAtkObj = CreateWorldGazeButton("Btn_SelectAtaque", cAttackObj.transform,
-                new Vector2(0f, -60f), new Vector2(280f, 36f), "SELECCIONAR MODO ATAQUE",
-                new Color(0.45f, 0.12f, 0.15f, 0.95f), new Color(1f, 0.35f, 0.31f, 1f), 12f);
+                new Vector2(0f, -60f), new Vector2(300f, 38f), "SELECCIONAR MODO ATAQUE",
+                new Color(0.45f, 0.12f, 0.15f, 0.95f), new Color(1f, 0.35f, 0.31f, 1f), 13.5f);
             Button btnAtk = btnAtkObj.GetComponent<Button>();
 
             // Card Modo Defensa (Derecha)
@@ -1460,17 +1461,17 @@ namespace AndesSim.Editor
             cdtRect.anchoredPosition = new Vector2(0f, 26f);
             cdtRect.sizeDelta = new Vector2(450f, 110f);
             TextMeshProUGUI cdTmp = cdTxtObj.AddComponent<TextMeshProUGUI>();
-            cdTmp.text = "<size=15><b><color=#38F28A>[MODO DEFENSA SOC]</color></b></size>\n" +
-                         "<size=11.5><color=#94A3B8>Respuesta táctica y contención perimetral</color></size>\n\n" +
-                         "• <b>Detección:</b> Identificación de las 3 señales clave\n" +
-                         "• <b>Contención:</b> Aislamiento preventivo en Sandbox\n" +
-                         "• <b>Resultado:</b> Fondos y terminales 100% protegidos";
-            cdTmp.fontSize = 11f;
+            cdTmp.text = "<size=18><b><color=#38F28A>[ 🛡 MODO DEFENSA SOC ]</color></b></size>\n" +
+                         "<size=13.5><color=#D1D5DB>Respuesta táctica y contención perimetral del SOC</color></size>\n\n" +
+                         "• <b>Detección:</b> Alerta por remitente falso sin SPF/DKIM\n" +
+                         "• <b>Sandbox Cuckoo:</b> Aislamiento preventivo del adjunto en Sandbox\n" +
+                         "• <b>Resultado:</b> Bloqueo de IP C2 y 100% de fondos protegidos";
+            cdTmp.fontSize = 13.5f;
             cdTmp.alignment = TextAlignmentOptions.TopLeft;
 
             GameObject btnDefObj = CreateWorldGazeButton("Btn_SelectDefensa", cDefObj.transform,
-                new Vector2(0f, -60f), new Vector2(280f, 36f), "SELECCIONAR MODO DEFENSA",
-                new Color(0.12f, 0.35f, 0.20f, 0.95f), new Color(0.22f, 0.95f, 0.54f, 1f), 12f);
+                new Vector2(0f, -60f), new Vector2(300f, 38f), "SELECCIONAR MODO DEFENSA",
+                new Color(0.12f, 0.35f, 0.20f, 0.95f), new Color(0.22f, 0.95f, 0.54f, 1f), 13.5f);
             Button btnDef = btnDefObj.GetComponent<Button>();
 
             // Modo Badge
@@ -1480,8 +1481,8 @@ namespace AndesSim.Editor
             mbRect.anchoredPosition = new Vector2(0f, -80f);
             mbRect.sizeDelta = new Vector2(950f, 24f);
             TextMeshProUGUI mbTmp = mBadgeObj.AddComponent<TextMeshProUGUI>();
-            mbTmp.text = "MODO SELECCIONADO: <color=#FF5A4E><b>[MODO ATAQUE 2015 - HISTORICO]</b></color>";
-            mbTmp.fontSize = 12.5f;
+            mbTmp.text = "MODO SELECCIONADO: <color=#FF5A4E><b>[MODO ATAQUE 2016 - HISTÓRICO]</b></color>";
+            mbTmp.fontSize = 14.5f;
             mbTmp.alignment = TextAlignmentOptions.Center;
 
             // Modo Descripción detallada
@@ -1491,14 +1492,14 @@ namespace AndesSim.Editor
             mdRect.anchoredPosition = new Vector2(0f, -112f);
             mdRect.sizeDelta = new Vector2(950f, 40f);
             TextMeshProUGUI mdTmp = mDescObj.AddComponent<TextMeshProUGUI>();
-            mdTmp.text = "<b>Objetivo:</b> Recrear la cadena de intrusion historica. Entra a la oficina para examinar la estacion de Carla Mendoza.";
-            mdTmp.fontSize = 11f;
+            mdTmp.text = "<b>Objetivo:</b> Recrear la cadena de intrusión histórica. Entra a la oficina para examinar la estación de Carla Mendoza.";
+            mdTmp.fontSize = 13f;
             mdTmp.alignment = TextAlignmentOptions.Center;
 
             // Gran Botón de Inicio de Simulación
             GameObject btnStartObj = CreateWorldGazeButton("Btn_IniciarSimulacion", p0.transform,
-                new Vector2(0f, -170f), new Vector2(620f, 54f), "[ ▶ ENTRAR A LA OFICINA (INICIAR) ]",
-                new Color(0.08f, 0.45f, 0.55f, 0.98f), new Color(0f, 0.95f, 1f, 1f), 15f);
+                new Vector2(0f, -170f), new Vector2(660f, 60f), "<b><size=17>[ ▶ ENTRAR A LA OFICINA (INICIAR) ]</size></b>",
+                new Color(0.08f, 0.45f, 0.55f, 0.98f), new Color(0f, 0.95f, 1f, 1f), 17f);
             Button btnStart = btnStartObj.GetComponent<Button>();
 
             // -----------------------------------------------------------------

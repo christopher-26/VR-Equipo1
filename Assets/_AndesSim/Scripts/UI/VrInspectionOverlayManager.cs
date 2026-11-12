@@ -169,7 +169,7 @@ namespace AndesSim.UI
             titleRect.anchoredPosition = new Vector2(0f, 320f);
             titleRect.sizeDelta = new Vector2(920f, 45f);
             _headerTitleText = titleGO.AddComponent<TextMeshProUGUI>();
-            _headerTitleText.fontSize = 22f;
+            _headerTitleText.fontSize = 24f;
             _headerTitleText.alignment = TextAlignmentOptions.Center;
             _headerTitleText.color = CyanNeonAccent;
             _headerTitleText.fontStyle = FontStyles.Bold;
@@ -181,7 +181,7 @@ namespace AndesSim.UI
             subRect.anchoredPosition = new Vector2(0f, 280f);
             subRect.sizeDelta = new Vector2(920f, 32f);
             _subTitleText = subGO.AddComponent<TextMeshProUGUI>();
-            _subTitleText.fontSize = 14f;
+            _subTitleText.fontSize = 15f;
             _subTitleText.alignment = TextAlignmentOptions.Center;
             _subTitleText.color = new Color(0.8f, 0.88f, 0.95f, 0.9f);
 
@@ -237,71 +237,67 @@ namespace AndesSim.UI
             eRect.anchorMax = Vector2.one;
             eRect.sizeDelta = Vector2.zero;
 
-            // Encabezado de correo
+            // Encabezado de correo limpio y de alta visibilidad VR
             CreateLabel("Lbl_From", emailPanel.transform, new Vector2(0f, 210f), new Vector2(900f, 32f),
-                "<b>De:</b> Rasel Ahlam &lt;rasel.ahlam@career-applicants-bd.com&gt;", 15f, TextAlignmentOptions.Left, Color.white);
+                "<b>De:</b> Rasel Ahlam <color=#FF5A4E>&lt;rasel.ahlam@career-applicants-bd.com&gt;</color>", 16.5f, TextAlignmentOptions.Left, Color.white);
 
             CreateLabel("Lbl_To", emailPanel.transform, new Vector2(0f, 180f), new Vector2(900f, 28f),
-                "<b>Para:</b> Carla Mendoza &lt;c.mendoza@bancoandino.pe&gt; y 15 destinatarios de pagos", 13.5f, TextAlignmentOptions.Left, new Color(0.7f, 0.8f, 0.9f));
+                "<b>Para:</b> Carla Mendoza &lt;c.mendoza@bancoandino.pe&gt; (Operadora SWIFT)", 15f, TextAlignmentOptions.Left, new Color(0.75f, 0.85f, 0.95f));
 
             CreateLabel("Lbl_Subject", emailPanel.transform, new Vector2(0f, 145f), new Vector2(900f, 32f),
-                "<b>Asunto:</b> <color=#FF5A4E>URGENTE: Contratacion Inmediata</color> - Curriculum Vitae y Anexos", 15.5f, TextAlignmentOptions.Left, Color.white);
+                "<b>Asunto:</b> <color=#FF5A4E>URGENTE: Postulación CV Especialista SWIFT</color>", 16.5f, TextAlignmentOptions.Left, Color.white);
 
-            // Señal 1: Botón Remitente
+            // 3 Señales Forenses Claras con tipografía ampliada
             CreateSignalButton("Btn_Signal1", emailPanel.transform, new Vector2(-290f, 85f), new Vector2(280f, 65f),
-                "1. SEÑAL: REMITENTE\n<size=11><color=#FFC24A>@career-applicants-bd.com</color></size>",
+                "<b>1. REMITENTE FALSO</b>\n<size=12><color=#FFC24A>Dominio Externo no SPF</color></size>",
                 PhishingInspector.SignalRemitenteId);
 
-            // Señal 2: Botón Urgencia
             CreateSignalButton("Btn_Signal2", emailPanel.transform, new Vector2(0f, 85f), new Vector2(280f, 65f),
-                "2. SEÑAL: URGENCIA\n<size=11><color=#FFC24A>\"Contratación Inmediata\"</color></size>",
+                "<b>2. URGENCIA FALSA</b>\n<size=12><color=#FFC24A>Presión Psicológica</color></size>",
                 PhishingInspector.SignalUrgenciaId);
 
-            // Señal 3: Botón Enlace Malicioso
             CreateSignalButton("Btn_Signal3", emailPanel.transform, new Vector2(290f, 85f), new Vector2(280f, 65f),
-                "3. SEÑAL: ADJUNTO MALICIOSO\n<size=11><color=#FFC24A>CV_2015.scr.zip (IP externa)</color></size>",
+                "<b>3. ADJUNTO MALICIOSO</b>\n<size=12><color=#FFC24A>Doble extensión (.scr.zip)</color></size>",
                 PhishingInspector.SignalEnlaceId);
 
-            // Cuerpo del correo
+            // Cuerpo del correo directo y al grano
             GameObject bodyBox = new GameObject("EmailBodyBox");
             bodyBox.transform.SetParent(emailPanel.transform, false);
             RectTransform bbRect = bodyBox.AddComponent<RectTransform>();
             bbRect.anchoredPosition = new Vector2(0f, -25f);
             bbRect.sizeDelta = new Vector2(900f, 130f);
             Image bodyBg = bodyBox.AddComponent<Image>();
-            bodyBg.color = new Color(0.08f, 0.12f, 0.18f, 0.9f);
+            bodyBg.color = new Color(0.08f, 0.12f, 0.18f, 0.92f);
 
             CreateLabel("Txt_EmailBody", bodyBox.transform, new Vector2(0f, 25f), new Vector2(870f, 65f),
-                "<i>\"Estimada Carla Mendoza,\n\nLe ruego revisar con carácter de extrema urgencia mi Curriculum Vitae adjunto en el enlace seguro:\"</i>",
-                13.5f, TextAlignmentOptions.TopLeft, new Color(0.9f, 0.95f, 1f));
+                "<i>\"Estimada Carla: Adjunto remito mi CV comprimido para la vacante urgente en el área de pagos internacionales SWIFT.\"</i>",
+                15.5f, TextAlignmentOptions.TopLeft, new Color(0.92f, 0.96f, 1f));
 
-            // ENLACE ADJUNTO INTERACTIVO DIRECTO (RF-02 / RF-04)
+            // Enlace de descarga interactivo
             CreateInspectionButton(
                 "Btn_AttachmentLink", bodyBox.transform,
                 new Vector2(0f, -28f), new Vector2(760f, 44f),
-                "<b><color=#00F2FE><u>http://185.130.44.82/Rasel_Ahlam_CV_2015.scr.zip</u></color></b>\n<size=10><color=#FFC24A>▲ Clic con retícula para descargar y abrir adjunto del CV</color></size>",
+                "<b><color=#00F2FE>📎 <u>http://185.130.44.82/Rasel_Ahlam_CV_2015.scr.zip</u></color></b>\n<size=11><color=#FFC24A>▲ Clic con retícula para descargar archivo</color></size>",
                 new Color(0.12f, 0.18f, 0.28f, 0.98f),
                 Color.white,
                 TriggerAttackInfectionSequence
             );
 
-            // Botones de Decisión Oficiales (RF-04)
-            // Botón Rojo: ABRIR ENLACE (MODO ATAQUE)
+            // Botones de Decisión Claros y Grandes (Ataque vs Defensa)
             CreateInspectionButton(
                 "Btn_AttackOpenLink", emailPanel.transform,
-                new Vector2(-220f, -150f), new Vector2(400f, 58f),
-                "<b>[ ABRIR ENLACE (MODO ATAQUE 2016) ]</b>\n<size=10.5>Detonar infección malware de Lazarus</size>",
-                new Color(0.5f, 0.12f, 0.12f, 0.95f),
+                new Vector2(-220f, -150f), new Vector2(400f, 60f),
+                "<b><size=15><color=#FF5A4E>[ ⚠ ABRIR ENLACE (ATAQUE) ]</color></size></b>\n<size=12>Recrear infección histórica de 2016</size>",
+                new Color(0.5f, 0.12f, 0.12f, 0.98f),
                 new Color(1f, 0.4f, 0.35f, 1f),
                 TriggerAttackInfectionSequence
             );
 
-            // Botón Verde: REPORTAR PHISHING (MODO DEFENSA)
             CreateInspectionButton(
                 "Btn_DefenseReport", emailPanel.transform,
-                new Vector2(220f, -150f), new Vector2(400f, 58f),
-                "<b>[ REPORTAR PHISHING (MODO DEFENSA) ]</b>\n<size=10.5>Aislar muestra en Sandbox del SOC</size>",
-                new Color(0.08f, 0.35f, 0.2f, 0.95f),
+                new Vector2(220f, -150f), new Vector2(400f, 60f),
+                "<b><size=15><color=#38F28A>[ 🛡 AISLAR EN SANDBOX (DEFENSA) ]</color></size></b>\n<size=12>Contener amenaza y proteger fondos</size>",
+                new Color(0.08f, 0.35f, 0.2f, 0.98f),
                 new Color(0.35f, 1f, 0.6f, 1f),
                 () =>
                 {
@@ -354,21 +350,17 @@ namespace AndesSim.UI
             boxBg.color = new Color(0.04f, 0.08f, 0.12f, 0.98f);
 
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("<b><color=#38F28A>[SISTEMA DE PREVENCIÓN DE INTRUSIONES · ESTADO: ACTIVO]</color></b>");
+            sb.AppendLine("<b><size=17><color=#38F28A>[REPORTE FORENSE DE MITIGACIÓN SOC — BANCO ANDINO]</color></size></b>");
             sb.AppendLine("────────────────────────────────────────────────────────────────────────────");
-            sb.AppendLine("• <b>Correo Interceptado:</b> Rasel Ahlam &lt;rasel.ahlam@career-applicants-bd.com&gt;");
-            sb.AppendLine("• <b>Destinatario Original:</b> Carla Mendoza (c.mendoza@bancoandino.pe) y 15 buzones");
-            sb.AppendLine("• <b>Análisis SPF/DKIM:</b> <color=#FF9F43>[FALLIDO]</color> Dominio no autenticado / Creado hace 48h");
-            sb.AppendLine("• <b>Filtro Sandbox Cuckoo:</b> Adjunto 'Rasel_Ahlam_CV_2015.scr.zip' detonado en entorno virtual.");
-            sb.AppendLine("• <b>Payload Detectado:</b> <color=#FF5A4E><b>[Win32/Lazarus.Dropper!tr]</b></color> (svchost_upd.exe)");
-            sb.AppendLine("• <b>Acción del SOC:</b> <color=#38F28A>[CORREO BLOQUEADO]</color> - La bandeja nunca fue expuesta.");
-            sb.AppendLine("• <b>Regla Perimetral:</b> Tráfico hacia C2 185.130.44.82 cortado en Firewall.");
-            sb.AppendLine("• <b>Terminales Protegidas:</b> 3 de 3 puestos 100% limpios. Red SWIFT intacta.");
+            sb.AppendLine("• <b>FILTRO SANDBOX CUCKOO:</b> Adjunto <i>Rasel_Ahlam_CV.scr</i> detonado y aislado preventivamente.");
+            sb.AppendLine("• <b>ANÁLISIS SPF/DKIM:</b> Dominio atacante <i>career-applicants-bd.com</i> bloqueado por suplantación.");
+            sb.AppendLine("• <b>REGLA FIREWALL:</b> Tráfico hacia Servidor C2 <b>185.130.44.82:443</b> cortado de inmediato.");
+            sb.AppendLine("• <b>SEGMENTACIÓN SWIFT:</b> Terminales aisladas en VLAN 100 con autenticación MFA activa.");
             sb.AppendLine("────────────────────────────────────────────────────────────────────────────");
-            sb.AppendLine("<color=#38F28A><b>✓ CONCLUSIÓN TÉCNICA: Infección evitada al 100%. Criterio de Aceptación 2 Cumplido.</b></color>");
+            sb.AppendLine("<size=16><color=#38F28A><b>✓ CONCLUSIÓN TÉCNICA: Intrusión evitada al 100% · Cero pérdidas financieras.</b></color></size>");
 
             CreateLabel("Txt_QuarantineLog", boxGO.transform, Vector2.zero, new Vector2(860f, 340f),
-                sb.ToString(), 13.5f, TextAlignmentOptions.TopLeft, Color.white);
+                sb.ToString(), 15.5f, TextAlignmentOptions.TopLeft, Color.white);
 
             CreateInspectionButton(
                 "Btn_ConfirmDefense", qPanel.transform,
@@ -517,18 +509,18 @@ namespace AndesSim.UI
             rbBg.color = new Color(0.08f, 0.02f, 0.02f, 0.98f);
 
             StringBuilder rsb = new StringBuilder();
-            rsb.AppendLine("<b><color=#FF3834>INCIDENTE DE CIBERSEGURIDAD FORENSE — IMPACTO OFICIAL:</color></b>");
+            rsb.AppendLine("<b><size=17><color=#FF3834>[INFORME FORENSE: FRAUDE BANCARIO CONSUMADO]</color></size></b>");
             rsb.AppendLine("────────────────────────────────────────────────────────────────────────────");
-            rsb.AppendLine("• <b>MONTO TOTAL COMPROMETIDO:</b> <color=#FF3834><size=16><b>US$ 951,000,000.00</b></size></color>");
-            rsb.AppendLine("• <b>Monto transferido con éxito:</b> <color=#FF5A4E>US$ 81,000,000.00 (Lavado vía casinos en Filipinas)</color>");
-            rsb.AppendLine("• <b>Monto retenido por coincidencia tipográfica:</b> US$ 870,000,000.00 ('Fandation' vs Foundation)");
-            rsb.AppendLine("• <b>Paciente Cero:</b> Carla Mendoza (Puesto 1) ejecutó el malware tras engaño por Spear Phishing.");
-            rsb.AppendLine("• <b>Causas Raíz:</b> Ausencia de Sandbox perimetral + Red plana compartida con terminales SWIFT.");
+            rsb.AppendLine("• <b>MONTO TRANSFERIDO:</b> <color=#FF3834><size=18><b>US$ 81,000,000.00</b></size></color> (Lavado en Filipinas)");
+            rsb.AppendLine("• <b>MONTO RETENIDO:</b> US$ 870,000,000.00 (Frenado por error ortográfico 'Fandation')");
+            rsb.AppendLine("• <b>VECTOR DE ENTRADA:</b> Spear Phishing a Carla Mendoza (Dropper .scr camuflado).");
+            rsb.AppendLine("• <b>MOVIMIENTO LATERAL:</b> Red plana sin VLANs permitió salto inmediato a Terminal SWIFT.");
+            rsb.AppendLine("• <b>ANÁLISIS DE MALWARE:</b> Backdoor <i>svchost_upd.exe</i> con conexión a IP C2 <b>185.130.44.82</b>.");
             rsb.AppendLine("────────────────────────────────────────────────────────────────────────────");
-            rsb.AppendLine("<i>El escenario concluye demostrando las consecuencias catastróficas del ataque histórico de Lazarus.</i>");
+            rsb.AppendLine("<size=15><color=#FFC24A>▲ <b>CAUSA RAÍZ:</b> Ausencia de Sandbox de correo y falta de segmentación VLAN 100.</color></size>");
 
             CreateLabel("Txt_RobberySummary", rBox.transform, Vector2.zero, new Vector2(860f, 340f),
-                rsb.ToString(), 13.5f, TextAlignmentOptions.TopLeft, Color.white);
+                rsb.ToString(), 15.5f, TextAlignmentOptions.TopLeft, Color.white);
 
             CreateInspectionButton(
                 "Btn_FinalizeAttack", robPanel.transform,
@@ -669,17 +661,16 @@ namespace AndesSim.UI
             tbBg.color = new Color(0.06f, 0.1f, 0.16f, 0.95f);
 
             CreateLabel("Txt_SwiftTable", tableBox.transform, Vector2.zero, new Vector2(850f, 290f),
-                "<b>SISTEMA SWIFT ALLIANCE ACCESS - MENSAJERÍA MT103 PENDIENTE:</b>\n" +
+                "<b><size=17><color=#00F2FE>SISTEMA SWIFT ALLIANCE ACCESS — MENSAJERÍA MT103</color></size></b>\n" +
                 "────────────────────────────────────────────────────────────────────────────\n" +
-                "<b>ID Transacción:</b> MT103-20150129-948192\n" +
-                "<b>Banco Emisor:</b> BANCO ANDINO (Código SWIFT: ANDIPEPL)\n" +
-                "<b>Banco Beneficiario:</b> Federal Reserve Bank of New York -> RCBC Filipinas\n" +
-                "<b>Monto Total Comprometido:</b> <color=#FF5A4E><b>US$ 951,000,000.00</b></color>\n" +
-                "<b>Estado de Tráfico:</b> Sin filtrado de paquetes ni inspección profunda\n" +
-                "<b>Segmentación de Red:</b> <color=#FFC24A>RED PLANA (Switch Cisco no configurado con VLAN 100)</color>\n" +
+                "• <b>Transacción:</b> MT103-20150129-948192 (Orden de Transferencia Internacional)\n" +
+                "• <b>Banco Emisor:</b> BANCO ANDINO -> Beneficiario: RCBC Filipinas\n" +
+                "• <b>Monto en Riesgo:</b> <color=#FF5A4E><b>US$ 951,000,000.00</b></color>\n" +
+                "• <b>Vulnerabilidad de Red:</b> <color=#FFC24A>RED PLANA (Sin VLAN 100 ni microsegmentación)</color>\n" +
+                "• <b>Falla de Control:</b> Ausencia de segundo factor de autenticación (MFA) en transferencias.\n" +
                 "────────────────────────────────────────────────────────────────────────────\n" +
-                "<i>Nota Forense: La ausencia de segmentación permitió que la infección de Carla se propagara a este puesto en segundos.</i>",
-                13f, TextAlignmentOptions.TopLeft, new Color(0.85f, 0.95f, 1f));
+                "<b><size=14><color=#FF5A4E>▲ La ausencia de VLANs permitió que el malware de Carla alcanzara este puesto en segundos.</color></size></b>",
+                15.5f, TextAlignmentOptions.TopLeft, new Color(0.88f, 0.95f, 1f));
 
             _activeContentPanel = swiftPanel;
             ShowOverlay();
@@ -712,16 +703,15 @@ namespace AndesSim.UI
             lBg.color = new Color(0.04f, 0.08f, 0.12f, 0.95f);
 
             CreateLabel("Txt_SiemLogs", logBox.transform, Vector2.zero, new Vector2(850f, 270f),
-                "<b>SECURITY INFORMATION AND EVENT MANAGEMENT (SIEM) - ACCESS LOG:</b>\n" +
+                "<b><size=17><color=#38F28A>CONSOLA SIEM — INDICADORES DE COMPROMISO (IOCs)</color></size></b>\n" +
                 "────────────────────────────────────────────────────────────────────────────\n" +
-                "[09:18:22] <color=#FF5A4E>TCP CONNECT: 192.168.1.101:49152 -> 185.130.44.82:443 [ESTABLISHED]</color>\n" +
-                "[09:18:25] PROCESS: svchost_upd.exe (PID 4820) origin: C:\\Users\\c.mendoza\\AppData\\Local\n" +
-                "[09:18:29] DNS QUERY: career-applicants-bd.com -> 185.130.44.82 (Dominio malicioso Lazarus)\n" +
-                "[09:18:35] ALERT: Descarga de archivo de 4.8MB (.scr.zip) sin escaneo perimetral.\n" +
-                "[09:18:40] STATUS: Alerta desestimada por excepción manual en firewall perimetral.\n" +
+                "• <b>[09:18:22] CONEXIÓN C2:</b> <color=#FF5A4E>192.168.1.101 -> 185.130.44.82:443 [ESTABLECIDA]</color>\n" +
+                "• <b>[09:18:25] PROCESO MALICIOSO:</b> svchost_upd.exe (PID 4820) desde AppData\\Local\n" +
+                "• <b>[09:18:29] DOMINIO ATACANTE:</b> career-applicants-bd.com (Dominio Lazarus de 48h)\n" +
+                "• <b>[09:18:35] ALERTA PERIMETRAL:</b> Dropper .scr descargado sin pasar por Sandbox Cuckoo.\n" +
                 "────────────────────────────────────────────────────────────────────────────\n" +
-                "<b>Indicio Clave:</b> La IP 185.130.44.82 es el centro de comando del grupo Lazarus.",
-                12.5f, TextAlignmentOptions.TopLeft, new Color(0.85f, 0.95f, 1f));
+                "<b><size=15><color=#38F28A>✓ IOC Identificado: Servidor de Mando y Control 185.130.44.82 (Grupo Lazarus)</color></size></b>",
+                15f, TextAlignmentOptions.TopLeft, new Color(0.88f, 0.95f, 1f));
 
             // Botón de Registro de Evidencia SIEM
             CreateInspectionButton(
