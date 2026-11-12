@@ -162,7 +162,7 @@ namespace AndesSim.Editor
             // -------------------------------------------------------------------------
             // PASO 5: Instanciar el Player VR en el Vestíbulo frente al Portal
             // -------------------------------------------------------------------------
-            Debug.Log($"{LogPrefix} [5/8] Instanciando rig del Player VR en el vestíbulo frente al Portal_Entrada...");
+            Debug.Log($"{LogPrefix} [5/8] Instanciando rig del Player VR en la puerta de entrada de la oficina...");
             GameObject playerRig = BuildVrPlayerRig();
 
             // Enlazar referencias de cámara y PlayerRig en CardboardXrLifecycleManager y UIManager
@@ -332,9 +332,9 @@ namespace AndesSim.Editor
         {
             GameObject playerObj = new GameObject("Player");
             playerObj.tag = "PlayerRig";
-            // Jugador posicionado cómodamente en la oficina frente al Puesto 01 de Carla Mendoza
-            playerObj.transform.position = new Vector3(-3.0f, 0f, 0.8f);
-            playerObj.transform.rotation = Quaternion.identity;
+            // Jugador posicionado en la puerta de entrada de la oficina (z = 3.40f, x = -2.60f) mirando al interior
+            playerObj.transform.position = new Vector3(-2.60f, 0.0f, 3.40f);
+            playerObj.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
 
             playerObj.AddComponent<PlayerTeleportController>();
 
@@ -374,11 +374,16 @@ namespace AndesSim.Editor
 
         #region Paso 7: Puestos de Trabajo, Monitores y Periféricos
 
-        private static GameObject CreateTeleportPoint(Transform parent, string name, Vector3 localPos, string label, string associatedWorkstationId)
+        private static GameObject CreateTeleportPoint(Transform parent, string name, Vector3 localPos, string label, string associatedWorkstationId, Quaternion? rotation = null)
         {
             GameObject tpObj = new GameObject(name);
+            tpObj.tag = "TeleportPoint";
             tpObj.transform.SetParent(parent, false);
             tpObj.transform.localPosition = localPos;
+            if (rotation.HasValue)
+            {
+                tpObj.transform.localRotation = rotation.Value;
+            }
             tpObj.layer = LayerMask.NameToLayer("Interactive");
 
             // Disco en el suelo (Aro verde esmeralda #38f28a)
@@ -500,6 +505,10 @@ namespace AndesSim.Editor
 
             // Componente cinemático oficial de propagación de infección en red (InfectionSpreadVisualizer)
             BuildInfectionSpreadVisualizer(parent, monitor01, monitor02, monitor03);
+
+            // TeleportPoint de retorno a la Puerta de Entrada (Acceso Principal)
+            CreateTeleportPoint(parent, "Teleport_PuertaEntrada",
+                new Vector3(-2.60f, 0.01f, 3.40f), "Puerta de Entrada (Acceso Principal)", "", Quaternion.Euler(0f, 180f, 0f));
         }
 
         private static GameObject BuildMonitorDisplay(Transform parent, string name, string label, Material bezelMat)
@@ -951,9 +960,9 @@ namespace AndesSim.Editor
         {
             GameObject menuRoot = new GameObject("MenuInicio_Simple_VR");
             menuRoot.transform.SetParent(parent, false);
-            // Flotando cómodamente frente a la estación de Carla Mendoza a la altura de los ojos
-            menuRoot.transform.position = new Vector3(-3.0f, 1.45f, 1.85f);
-            menuRoot.transform.rotation = Quaternion.identity;
+            // Flotando cómodamente frente a la puerta de entrada a la altura de los ojos, de cara al jugador
+            menuRoot.transform.position = new Vector3(-2.60f, 1.45f, 2.35f);
+            menuRoot.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
             menuRoot.layer = LayerMask.NameToLayer("Interactive");
 
             // Canvas World Space
@@ -1052,6 +1061,12 @@ namespace AndesSim.Editor
             startController.TxtModoSeleccionadoBadge = bTmp;
             startController.BtnIniciarSimulacion = btnStart;
             startController.MenuCanvasGroup = canvasGroup;
+
+            GameObject tp1Obj = GameObject.Find("Teleport_Puesto1_Carla");
+            if (tp1Obj != null)
+            {
+                startController.TeleportDestination = tp1Obj.GetComponent<TeleportPoint>();
+            }
 
             Debug.Log($"{LogPrefix} <color=#38F28A>Menú de Inicio VR Simple y Flotante creado exitosamente.</color>");
             return menuRoot;
