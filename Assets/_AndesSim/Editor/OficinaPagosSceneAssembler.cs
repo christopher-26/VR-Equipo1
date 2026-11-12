@@ -419,88 +419,140 @@ namespace AndesSim.Editor
 
         private static void BuildWorkstationsAndMonitors(Transform parent, GameObject portalObj)
         {
-            Material deskMat = OfficeFurnitureBuilder.CreatePbrMaterial("Mat_DeskDarkGray_111816", OfficeFurnitureBuilder.DeskDarkGrayColor, 0.42f, 0.12f);
+            // -------------------------------------------------------------------------
+            // PASO 6: Configurar las 3 Estaciones de Trabajo REALES del Escenario (VNB - Office Set)
+            // (Reutilizando los 3 PCs ya presentes en la oficina, eliminando escritorios procedurales innecesarios)
+            // -------------------------------------------------------------------------
+            Debug.Log($"{LogPrefix} [6/8] Configurando las 3 estaciones de trabajo reales existentes en el escenario...");
+
+            // 1. Identificar los 3 monitores existentes del escenario (new_monitor)
+            GameObject monitor01 = null;
+            GameObject monitor02 = null;
+            GameObject monitor03 = null;
+
+            GameObject mCandidate1 = GameObject.Find("new_monitor");
+            GameObject mCandidate2 = GameObject.Find("new_monitor (4)");
+            GameObject mCandidate3 = GameObject.Find("new_monitor (1)");
+
+            List<GameObject> allMonitors = new List<GameObject>();
+            if (mCandidate1 != null) allMonitors.Add(mCandidate1);
+            if (mCandidate2 != null) allMonitors.Add(mCandidate2);
+            if (mCandidate3 != null) allMonitors.Add(mCandidate3);
+
+            if (allMonitors.Count < 3)
+            {
+                MeshFilter[] filters = UnityEngine.Object.FindObjectsByType<MeshFilter>(FindObjectsSortMode.None);
+                foreach (var mf in filters)
+                {
+                    if (mf.sharedMesh != null && mf.sharedMesh.name.IndexOf("monitor", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        if (!allMonitors.Contains(mf.gameObject))
+                        {
+                            allMonitors.Add(mf.gameObject);
+                        }
+                    }
+                }
+            }
+
+            // Clasificar por coordenadas X:
+            // x < -2.0   -> Monitor_03 (SIEM / Defensas en oficina privada SOC a x ≈ -6.37)
+            // -2.0 a 3.0 -> Monitor_01 (Carla Mendoza / SWIFT a x ≈ 1.37)
+            // x > 3.0    -> Monitor_02 (Analista Comercio Exterior a x ≈ 5.33)
+            foreach (var mon in allMonitors)
+            {
+                float x = mon.transform.position.x;
+                if (x < -2.0f) monitor03 = mon;
+                else if (x > 3.0f) monitor02 = mon;
+                else monitor01 = mon;
+            }
+
             Material bezelMat = CreateColorMaterial("Mat_MonitorBezel_Black", new Color(0.12f, 0.12f, 0.14f));
+            if (monitor01 == null)
+            {
+                monitor01 = BuildMonitorDisplay(parent, "Monitor_01", "Puesto 1: Carla Mendoza (SWIFT)", bezelMat);
+                monitor01.transform.position = new Vector3(1.372f, 0.949f, -1.624f);
+                monitor01.transform.rotation = Quaternion.Euler(0f, 171.3f, 0f);
+            }
+            if (monitor02 == null)
+            {
+                monitor02 = BuildMonitorDisplay(parent, "Monitor_02", "Puesto 2: Analista Comercio Exterior", bezelMat);
+                monitor02.transform.position = new Vector3(5.335f, 0.949f, -1.478f);
+                monitor02.transform.rotation = Quaternion.Euler(0f, 183.0f, 0f);
+            }
+            if (monitor03 == null)
+            {
+                monitor03 = BuildMonitorDisplay(parent, "Monitor_03", "Puesto 3: Consola SIEM (Logs)", bezelMat);
+                monitor03.transform.position = new Vector3(-6.372f, 0.949f, -4.241f);
+                monitor03.transform.rotation = Quaternion.Euler(0f, 159.5f, 0f);
+            }
 
             // =========================================================================
             // PUESTO 1: Carla Mendoza (Operadora SWIFT)
             // =========================================================================
-            GameObject ws1Obj = new GameObject("Puesto_01_CarlaMendoza");
-            ws1Obj.transform.SetParent(parent, false);
-            ws1Obj.transform.position = new Vector3(-3.0f, 0f, 2.0f);
+            ConfigureExistingMonitorObject(monitor01, "Monitor_01", "Puesto 1: Carla Mendoza (SWIFT)", "Monitor_01");
+            MonitorMeshBuilder.BuildTerminalWorldSpaceCanvas(monitor01.transform, "Monitor_01",
+                new Vector3(0f, 0.28f, 0.02f), Quaternion.Euler(0f, 180f, 0f), new Vector2(800f, 480f), new Vector3(0.00055f, 0.00055f, 0.00055f));
 
-            BuildDeskAndChair(ws1Obj.transform, 0);
-            GameObject monitor01 = BuildMonitorDisplay(ws1Obj.transform, "Monitor_01", "Puesto 1: Carla Mendoza (SWIFT)", bezelMat);
-
-            // Agregar PhishingInspector y MailQuarantine
             PhishingInspector phishingInspector = monitor01.AddComponent<PhishingInspector>();
             MailQuarantine mailQuarantine = monitor01.AddComponent<MailQuarantine>();
             GameObject panelCorreo = BuildPhishingEmailPanel(monitor01, phishingInspector, mailQuarantine);
 
-            // Post-It físico adherido con credenciales SWIFT expuestas (Amarillo fluorescente #ffc24a)
-            GameObject postItObj = BuildPostItNote(ws1Obj.transform, new Vector3(0.32f, 0.88f, 0.43f));
-
-            // Cajón interactivo en el escritorio de Carla
-            BuildDeskDrawer(ws1Obj.transform, deskMat);
-
-            // Teléfono IP para llamar al Anexo SOC (404)
-            BuildSocTelephone(ws1Obj.transform);
+            // Post-It adherido al marco derecho del monitor de Carla
+            GameObject postItObj = BuildPostItNote(monitor01.transform, new Vector3(0.24f, 0.18f, 0.025f));
 
             // Token MFA que sustituye al Post-It en Modo Defensa
-            BuildTokenMfaBoveda(ws1Obj.transform, postItObj);
+            BuildTokenMfaBoveda(monitor01.transform, postItObj);
 
-            // TeleportPoint Puesto 1
-            GameObject tp1 = CreateTeleportPoint(ws1Obj.transform, "Teleport_Puesto1_Carla",
-                new Vector3(0f, 0.01f, -1.2f), "Puesto 1: Carla Mendoza (Operadora SWIFT)", "Monitor_01");
+            // Cajón interactivo en el escritorio de Carla
+            Material deskMat = OfficeFurnitureBuilder.CreatePbrMaterial("Mat_DeskDarkGray_111816", OfficeFurnitureBuilder.DeskDarkGrayColor, 0.42f, 0.12f);
+            GameObject drawerObj = new GameObject("Cajon_Credenciales_Puesto1");
+            drawerObj.transform.SetParent(parent, false);
+            drawerObj.transform.position = new Vector3(1.70f, 0.50f, -1.70f);
+            BuildDeskDrawer(drawerObj.transform, deskMat);
 
-            // Enlazar destino del Portal al Teleport 1
-            if (portalObj != null)
-            {
-                PortalEntrada portal = portalObj.GetComponent<PortalEntrada>();
-                if (portal != null)
-                {
-                    SerializedObject sPortal = new SerializedObject(portal);
-                    sPortal.FindProperty("destinationTeleportPoint").objectReferenceValue = tp1.GetComponent<TeleportPoint>();
-                    sPortal.ApplyModifiedProperties();
-                }
-            }
+            // Teléfono IP para llamar al Anexo SOC (404)
+            GameObject phoneObj = new GameObject("Telefono_Puesto1");
+            phoneObj.transform.SetParent(parent, false);
+            phoneObj.transform.position = new Vector3(0.95f, 0.95f, -1.75f);
+            BuildSocTelephone(phoneObj.transform);
+
+            // TeleportPoint Puesto 1 (Carla Mendoza) - ubicado frente al escritorio
+            GameObject tp1 = CreateTeleportPoint(parent, "Teleport_Puesto1_Carla",
+                new Vector3(1.40f, 0.01f, -2.50f), "Puesto 1: Carla Mendoza (Operadora SWIFT)", "Monitor_01", Quaternion.identity);
 
             // =========================================================================
             // PUESTO 2: Analista de Comercio Exterior (Destinatario #7)
             // =========================================================================
-            GameObject ws2Obj = new GameObject("Puesto_02_ComercioExterior");
-            ws2Obj.transform.SetParent(parent, false);
-            ws2Obj.transform.position = new Vector3(0f, 0f, 2.0f);
-
-            BuildDeskAndChair(ws2Obj.transform, 1);
-            GameObject monitor02 = BuildMonitorDisplay(ws2Obj.transform, "Monitor_02", "Puesto 2: Analista Comercio Exterior", bezelMat);
+            ConfigureExistingMonitorObject(monitor02, "Monitor_02", "Puesto 2: Analista Comercio Exterior", "Monitor_02");
+            MonitorMeshBuilder.BuildTerminalWorldSpaceCanvas(monitor02.transform, "Monitor_02",
+                new Vector3(0f, 0.28f, 0.02f), Quaternion.Euler(0f, 180f, 0f), new Vector2(800f, 480f), new Vector3(0.00055f, 0.00055f, 0.00055f));
             MonitorMeshBuilder.BuildMonitor2TradeFinanceDisplay(monitor02);
 
-            CreateTeleportPoint(ws2Obj.transform, "Teleport_Puesto2_Analista",
-                new Vector3(0f, 0.01f, -1.2f), "Puesto 2: Analista de Comercio Exterior", "Monitor_02");
+            CreateTeleportPoint(parent, "Teleport_Puesto2_Analista",
+                new Vector3(5.33f, 0.01f, -2.40f), "Puesto 2: Analista de Comercio Exterior", "Monitor_02", Quaternion.identity);
 
             // =========================================================================
-            // PUESTO 3: Consola SIEM y Panel de Defensas
+            // PUESTO 3: Consola SIEM y Panel de Defensas (Oficina Privada / SOC)
             // =========================================================================
-            GameObject ws3Obj = new GameObject("Puesto_03_ConsolaDefensas");
-            ws3Obj.transform.SetParent(parent, false);
-            ws3Obj.transform.position = new Vector3(3.0f, 0f, 2.0f);
+            ConfigureExistingMonitorObject(monitor03, "Monitor_03", "Puesto 3: Consola SIEM (Logs)", "Monitor_03");
+            MonitorMeshBuilder.BuildTerminalWorldSpaceCanvas(monitor03.transform, "Monitor_03",
+                new Vector3(0f, 0.28f, 0.02f), Quaternion.Euler(0f, 180f, 0f), new Vector2(800f, 480f), new Vector3(0.00055f, 0.00055f, 0.00055f));
 
-            BuildDeskAndChair(ws3Obj.transform, 2);
-            GameObject monitor03 = BuildMonitorDisplay(ws3Obj.transform, "Monitor_03", "Puesto 3: Consola SIEM (Logs)", bezelMat);
-
-            // DefenseTerminalController y AccessLogTerminal
             monitor03.AddComponent<DefenseTerminalController>();
             AccessLogTerminal siemTerminal = monitor03.AddComponent<AccessLogTerminal>();
             MonitorMeshBuilder.BuildMonitor3SiemDisplay(monitor03, siemTerminal);
 
-            CreateTeleportPoint(ws3Obj.transform, "Teleport_Puesto3_LogsYDefensa",
-                new Vector3(0f, 0.01f, -1.2f), "Puesto 3: Terminal de Registros y Panel de Defensa", "Monitor_03");
+            CreateTeleportPoint(parent, "Teleport_Puesto3_LogsYDefensa",
+                new Vector3(-6.26f, 0.01f, -5.00f), "Puesto 3: Terminal de Registros y Panel de Defensa", "Monitor_03", Quaternion.Euler(0f, 20f, 0f));
 
-            // Construir los 3 interruptores físicos de contramedidas (DefenseControl)
-            BuildDefenseSwitches(ws3Obj.transform);
+            // Consola física de contramedidas en el escritorio de Monitor 3
+            GameObject defSwitchesObj = new GameObject("Consola_Contramedidas_Puesto3");
+            defSwitchesObj.transform.SetParent(parent, false);
+            defSwitchesObj.transform.position = new Vector3(-5.85f, 0.95f, -4.35f);
+            defSwitchesObj.transform.rotation = Quaternion.Euler(0f, 160f, 0f);
+            BuildDefenseSwitches(defSwitchesObj.transform);
 
-            // Construir la Consola de Cuarentena y Sandbox en Monitor_01 sincronizada con los 3 puestos
+            // Consola de Cuarentena y Sandbox en Monitor_01 sincronizada con los 3 puestos
             BuildQuarantineConsolePanel(monitor01, monitor02, monitor03, mailQuarantine, panelCorreo);
 
             // Componente cinemático oficial de propagación de infección en red (InfectionSpreadVisualizer)
@@ -509,6 +561,28 @@ namespace AndesSim.Editor
             // TeleportPoint de retorno a la Puerta de Entrada (Acceso Principal)
             CreateTeleportPoint(parent, "Teleport_PuertaEntrada",
                 new Vector3(-2.60f, 0.01f, 3.40f), "Puerta de Entrada (Acceso Principal)", "", Quaternion.Euler(0f, 180f, 0f));
+        }
+
+        private static void ConfigureExistingMonitorObject(GameObject monitorObj, string newName, string label, string workstationId)
+        {
+            monitorObj.name = newName;
+            monitorObj.tag = "Monitor";
+            monitorObj.layer = LayerMask.NameToLayer("Interactive");
+
+            BoxCollider col = monitorObj.GetComponent<BoxCollider>();
+            if (col == null)
+            {
+                col = monitorObj.AddComponent<BoxCollider>();
+            }
+            col.center = new Vector3(0f, 0.28f, 0.02f);
+            col.size = new Vector3(0.48f, 0.38f, 0.15f);
+            col.isTrigger = false;
+
+            InteractiveMonitorController monCtrl = monitorObj.GetComponent<InteractiveMonitorController>();
+            if (monCtrl == null) monCtrl = monitorObj.AddComponent<InteractiveMonitorController>();
+            SerializedObject sCtrl = new SerializedObject(monCtrl);
+            sCtrl.FindProperty("monitorId").stringValue = newName;
+            sCtrl.ApplyModifiedProperties();
         }
 
         private static GameObject BuildMonitorDisplay(Transform parent, string name, string label, Material bezelMat)
@@ -691,7 +765,7 @@ namespace AndesSim.Editor
             // Letrero holográfico superior
             GameObject holoPanel = new GameObject("Holographic_Breach_Sign");
             holoPanel.transform.SetParent(visualizerObj.transform, false);
-            holoPanel.transform.position = new Vector3(0f, 2.75f, 2.0f);
+            holoPanel.transform.position = new Vector3(3.35f, 2.75f, -1.55f);
             holoPanel.transform.rotation = Quaternion.identity;
 
             Canvas holoCanvas = holoPanel.AddComponent<Canvas>();

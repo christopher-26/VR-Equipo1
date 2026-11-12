@@ -270,21 +270,20 @@ namespace AndesSim.Environment
         /// Configura el fondo negro puro (#000000) y el marco de líneas perimetrales verde neón (#38f28a).
         /// Alta densidad 800x480 con scale 0.0006875 para máxima legibilidad en VR Cardboard.
         /// </summary>
-        private static Canvas BuildTerminalWorldSpaceCanvas(Transform parent, string monitorId)
+        public static Canvas BuildTerminalWorldSpaceCanvas(Transform parent, string monitorId, Vector3? localPos = null, Quaternion? localRot = null, Vector2? sizeDelta = null, Vector3? scale = null)
         {
             GameObject canvasObj = new GameObject("Canvas_Pantalla");
             canvasObj.transform.SetParent(parent, false);
-            // Colocado frente al chasis a la altura visual de la pantalla (Y = 0.32m, Z = -0.018m)
-            canvasObj.transform.localPosition = new Vector3(0f, 0.32f, -0.018f);
-            canvasObj.transform.localRotation = Quaternion.identity;
+            // Colocado frente al chasis a la altura visual de la pantalla
+            canvasObj.transform.localPosition = localPos ?? new Vector3(0f, 0.32f, -0.018f);
+            canvasObj.transform.localRotation = localRot ?? Quaternion.identity;
 
             Canvas canvas = canvasObj.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.WorldSpace;
 
             RectTransform rect = canvasObj.GetComponent<RectTransform>();
-            // Alta resolución 800x480 escalada a 0.0006875 -> 0.55m x 0.33m (Encaja exacto en marco físico de 24")
-            rect.sizeDelta = new Vector2(800f, 480f);
-            rect.localScale = new Vector3(0.0006875f, 0.0006875f, 0.0006875f);
+            rect.sizeDelta = sizeDelta ?? new Vector2(800f, 480f);
+            rect.localScale = scale ?? new Vector3(0.0006875f, 0.0006875f, 0.0006875f);
 
             canvasObj.AddComponent<CanvasScaler>();
             canvasObj.AddComponent<GraphicRaycaster>();

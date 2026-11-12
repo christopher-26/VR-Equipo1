@@ -366,7 +366,7 @@ namespace AndesSim.VR
                 }
                 else
                 {
-                    PlayerTeleportController.I.TeleportTo(new Vector3(-3.0f, 0f, 0.8f), Quaternion.identity);
+                    PlayerTeleportController.I.TeleportTo(new Vector3(1.40f, 0f, -2.50f), Quaternion.identity);
                 }
             }
 
