@@ -100,11 +100,43 @@ namespace AndesSim.Editor
             }
 
             // -------------------------------------------------------------------------
-            // PASO 2: Crear Nueva Escena Limpia y Configurar Iluminación Ambiental
+            // PASO 2: Cargar Escenario Base de Nuevas Oficinas (VNB - Office Set)
             // -------------------------------------------------------------------------
-            Debug.Log($"{LogPrefix} [2/8] Creando nueva escena limpia y configurando iluminación nocturna...");
-            Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-            SetupEnvironmentLighting();
+            string vnbScenePath = "Assets/VNB - Office Set/Scenes/Demo 1 - Office Set 1.unity";
+            Scene scene;
+            GameObject envRoot;
+            if (File.Exists(vnbScenePath))
+            {
+                Debug.Log($"{LogPrefix} [2/8] Cargando escenario de oficina moderna (VNB - Office Set: Demo 1)...");
+                scene = EditorSceneManager.OpenScene(vnbScenePath, OpenSceneMode.Single);
+                GameObject oldCam = GameObject.Find("Main Camera");
+                if (oldCam != null)
+                {
+                    UnityEngine.Object.DestroyImmediate(oldCam);
+                }
+                envRoot = GameObject.Find("Floor 0");
+                if (envRoot == null) envRoot = new GameObject("--- ENTORNO 3D: BANCO ANDINO ---");
+            }
+            else
+            {
+                Debug.Log($"{LogPrefix} [2/8] Creando nueva escena y configurando iluminacion nocturna...");
+                scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+                SetupEnvironmentLighting();
+                envRoot = new GameObject("--- ENTORNO 3D: BANCO ANDINO ---");
+                ProceduralOfficeEnvironmentBuilder.BuildOfficeGeometry(envRoot.transform, false, false);
+            }
+
+            // Asegurar EventSystem con soporte para touch y mouse
+            if (UnityEngine.EventSystems.EventSystem.current == null && UnityEngine.Object.FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>() == null)
+            {
+                GameObject esObj = new GameObject("EventSystem");
+                esObj.AddComponent<UnityEngine.EventSystems.EventSystem>();
+#if ENABLE_INPUT_SYSTEM
+                esObj.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
+#else
+                esObj.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+#endif
+            }
 
             // -------------------------------------------------------------------------
             // PASO 3: Instanciar el Objeto _SYSTEMS con todos los Core Managers
@@ -113,11 +145,8 @@ namespace AndesSim.Editor
             GameObject systemsObj = BuildSystemsObject(scenarioData);
 
             // -------------------------------------------------------------------------
-            // PASO 4: Instanciar la Geometría Completa de la Oficina (Arquitectura 3D PBR)
+            // PASO 4: Atmosfera Cibernetica y Efectos
             // -------------------------------------------------------------------------
-            Debug.Log($"{LogPrefix} [4/8] Generando arquitectura 3D procedural (Vestíbulo, Salón 10x8, Ventanal y Letrero)...");
-            GameObject envRoot = new GameObject("--- ENTORNO 3D: BANCO ANDINO ---");
-            ProceduralOfficeEnvironmentBuilder.BuildOfficeGeometry(envRoot.transform, false, false);
 
             // Efecto de Rejilla e Iluminación Cibernética Ambiental (Ventanal y Portal - Optimizado Mobile)
             GameObject cyberGridObj = new GameObject("AmbientCyberGridEffect");
@@ -181,7 +210,7 @@ namespace AndesSim.Editor
             Debug.Log($"{LogPrefix} [8/8] Construyendo tablero de sospechosos, panel de defensas, HUD, pantalla final y créditos...");
             GameObject uiRoot = new GameObject("--- INTERFACES DE USUARIO (HUD & FINAL) ---");
             BuildSuspectBoard(uiRoot.transform);
-            BuildWorldSpaceHud(uiRoot.transform, playerRig, uiManager);
+            // BuildWorldSpaceHud desactivado permanentemente para no ensuciar la pared con bloques flotantes
             BuildFinalEvaluationScreen(uiRoot.transform);
             BuildEndScenarioHolographicPanel(uiRoot.transform, playerRig);
             BuildCreditsAndEthicsModal(uiRoot.transform, playerRig);
@@ -265,7 +294,9 @@ namespace AndesSim.Editor
             sAudio.FindProperty("investigationMusicClip").objectReferenceValue = 
                 AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_AndesSim/Audio/Music/Music_CyberInvestigation_Theme.wav");
             sAudio.FindProperty("attackTensionMusicClip").objectReferenceValue = 
-                AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_AndesSim/Audio/Music/Music_AttackTension_Theme.wav");
+                AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Horror_Music_Free_Starter_Kit/WAV_LIGHT_TENSION_LOOP_Run_for_Your_Life.wav");
+            sAudio.FindProperty("infectionVoiceAlertClip").objectReferenceValue = 
+                AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/The Alerted NPC/04. What's That.wav");
             sAudio.FindProperty("defenseVictoryMusicClip").objectReferenceValue = 
                 AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_AndesSim/Audio/Music/Music_DefenseVictory_Theme.wav");
 
@@ -1116,10 +1147,13 @@ namespace AndesSim.Editor
             tmp.color = textColor ?? Color.white;
 
             BoxCollider col = btnObj.AddComponent<BoxCollider>();
-            col.size = new Vector3(size.x, size.y, 25f);
+            col.size = new Vector3(size.x, size.y, 45f);
+            col.center = new Vector3(0f, 0f, -15f);
+            col.isTrigger = true;
 
             GazeInteractable gaze = btnObj.AddComponent<GazeInteractable>();
-            gaze.interactableLabel = text;
+            gaze.interactableLabel = text.Replace("<b>", "").Replace("</b>", "").Split('\n')[0];
+            gaze.dwellTime = 1.1f;
 
             WorldSpaceUiGazeButton wsBtn = btnObj.AddComponent<WorldSpaceUiGazeButton>();
 
@@ -1358,9 +1392,8 @@ namespace AndesSim.Editor
             brtRect.anchorMax = Vector2.one;
             brtRect.sizeDelta = new Vector2(-16f, -8f);
             TextMeshProUGUI brTmp = brTxtObj.AddComponent<TextMeshProUGUI>();
-            brTmp.text = "<b>FECHA: 29 DE ENERO DE 2015 · OFICINA DE PAGOS DEL BANCO ANDINO</b>\n" +
-                         "Un sofisticado ataque APT atribuido al <b>Grupo Lazarus</b> ha enviado un correo con falso CV a 16 empleados.\n" +
-                         "<color=#38F28A><b>Misión:</b> Identificar las 3 señales de phishing en < 3 min, registrar las evidencias y comparar la respuesta.</color>";
+            brTmp.text = "<b><color=#00F2FE>SIMULADOR FORENSE DE CIBERSEGURIDAD · BANCO ANDINO</color></b>\n" +
+                         "<size=12><color=#D6F2E2>Investiga el correo de Spear Phishing enviado a Carla Mendoza y ejecuta la respuesta correspondiente.</size>";
             brTmp.fontSize = 11.5f;
             brTmp.alignment = TextAlignmentOptions.Center;
 
@@ -1389,11 +1422,11 @@ namespace AndesSim.Editor
             catRect.anchoredPosition = new Vector2(0f, 26f);
             catRect.sizeDelta = new Vector2(450f, 110f);
             TextMeshProUGUI caTmp = caTxtObj.AddComponent<TextMeshProUGUI>();
-            caTmp.text = "<size=15><b><color=#FF5A4E>[MODO ATAQUE 2015 - HISTORICO]</color></b></size>\n" +
-                         "<size=11.5><color=#94A3B8>Cadena de intrusion real sin mitigacion de defensas</color></size>\n\n" +
-                         "[-] <b>Vector:</b> Dropper 'Rasel_Ahlam_CV_2015.scr.zip' detonado.\n" +
-                         "[-] <b>Propagacion:</b> Red plana bancaria sin VLANs ni Sandbox.\n" +
-                         "[-] <b>Impacto:</b> Backdoor C2 activo y movimiento lateral hacia SWIFT.";
+            caTmp.text = "<size=15><b><color=#FF5A4E>[MODO ATAQUE 2016]</color></b></size>\n" +
+                         "<size=11.5><color=#94A3B8>Recreación del ciberataque real de Lazarus</color></size>\n\n" +
+                         "• <b>Vector:</b> Spear Phishing con dropper .scr\n" +
+                         "• <b>Propagación:</b> Red plana bancaria sin aislamiento\n" +
+                         "• <b>Impacto:</b> Fraude y robo SWIFT millonario (US$ 951M)";
             caTmp.fontSize = 11f;
             caTmp.alignment = TextAlignmentOptions.TopLeft;
 
@@ -1427,11 +1460,11 @@ namespace AndesSim.Editor
             cdtRect.anchoredPosition = new Vector2(0f, 26f);
             cdtRect.sizeDelta = new Vector2(450f, 110f);
             TextMeshProUGUI cdTmp = cdTxtObj.AddComponent<TextMeshProUGUI>();
-            cdTmp.text = "<size=15><b><color=#38F28A>[MODO DEFENSA SOC - CONTENCION]</color></b></size>\n" +
-                         "<size=11.5><color=#94A3B8>Protocolos de respuesta y mitigacion perimetral</color></size>\n\n" +
-                         "[OK] <b>Deteccion:</b> Inspeccion de las 3 senales en menos de 3 min.\n" +
-                         "[OK] <b>Contencion:</b> Envio a Sandbox Cuckoo y bloqueo de IP C2.\n" +
-                         "[OK] <b>Mitigacion:</b> Purga de 16 buzones y token MFA activo.";
+            cdTmp.text = "<size=15><b><color=#38F28A>[MODO DEFENSA SOC]</color></b></size>\n" +
+                         "<size=11.5><color=#94A3B8>Respuesta táctica y contención perimetral</color></size>\n\n" +
+                         "• <b>Detección:</b> Identificación de las 3 señales clave\n" +
+                         "• <b>Contención:</b> Aislamiento preventivo en Sandbox\n" +
+                         "• <b>Resultado:</b> Fondos y terminales 100% protegidos";
             cdTmp.fontSize = 11f;
             cdTmp.alignment = TextAlignmentOptions.TopLeft;
 
@@ -1464,8 +1497,8 @@ namespace AndesSim.Editor
 
             // Gran Botón de Inicio de Simulación
             GameObject btnStartObj = CreateWorldGazeButton("Btn_IniciarSimulacion", p0.transform,
-                new Vector2(0f, -170f), new Vector2(640f, 54f), ">>> INICIAR SIMULACION FORENSE (03:00 MIN) <<<",
-                new Color(0.08f, 0.42f, 0.55f, 0.95f), new Color(0f, 0.95f, 1f, 1f), 14f);
+                new Vector2(0f, -170f), new Vector2(620f, 54f), "[ ▶ ENTRAR A LA OFICINA (INICIAR) ]",
+                new Color(0.08f, 0.45f, 0.55f, 0.98f), new Color(0f, 0.95f, 1f, 1f), 15f);
             Button btnStart = btnStartObj.GetComponent<Button>();
 
             // -----------------------------------------------------------------

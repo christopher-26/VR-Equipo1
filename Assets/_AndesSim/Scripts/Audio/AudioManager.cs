@@ -44,8 +44,11 @@ namespace AndesSim.Audio
         [Tooltip("Tema principal de investigación en la oficina bancaria (Cyber synth Dm arpegiado).")]
         [SerializeField] private AudioClip investigationMusicClip;
 
-        [Tooltip("Tema de tensión y ataque activo (Driving saw-bass 128BPM ante propagación de malware).")]
+        [Tooltip("Tema de tensión y ataque activo (Música Horror / Tensión de infección).")]
         [SerializeField] private AudioClip attackTensionMusicClip;
+
+        [Tooltip("Audio de reacción de alerta de NPC cuando se ejecuta el malware (Diálogo: 'What's That').")]
+        [SerializeField] private AudioClip infectionVoiceAlertClip;
 
         [Tooltip("Tema de victoria y ciberdefensa restablecida (Fanfarria mayor, escudo digital).")]
         [SerializeField] private AudioClip defenseVictoryMusicClip;
@@ -117,6 +120,7 @@ namespace AndesSim.Audio
         public AudioClip MenuIntroMusicClip => menuIntroMusicClip;
         public AudioClip InvestigationMusicClip => investigationMusicClip;
         public AudioClip AttackTensionMusicClip => attackTensionMusicClip;
+        public AudioClip InfectionVoiceAlertClip => infectionVoiceAlertClip;
         public AudioClip DefenseVictoryMusicClip => defenseVictoryMusicClip;
 
         public AudioClip AmbientNightOfficeClip => ambientNightOfficeClip;
@@ -256,7 +260,15 @@ namespace AndesSim.Audio
             if (investigationMusicClip == null)
                 investigationMusicClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_AndesSim/Audio/Music/Music_CyberInvestigation_Theme.wav");
             if (attackTensionMusicClip == null)
-                attackTensionMusicClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_AndesSim/Audio/Music/Music_AttackTension_Theme.wav");
+            {
+                attackTensionMusicClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Horror_Music_Free_Starter_Kit/WAV_LIGHT_TENSION_LOOP_Run_for_Your_Life.wav");
+                if (attackTensionMusicClip == null)
+                    attackTensionMusicClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_AndesSim/Audio/Music/Music_AttackTension_Theme.wav");
+            }
+            if (infectionVoiceAlertClip == null)
+            {
+                infectionVoiceAlertClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/The Alerted NPC/04. What's That.wav");
+            }
             if (defenseVictoryMusicClip == null)
                 defenseVictoryMusicClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_AndesSim/Audio/Music/Music_DefenseVictory_Theme.wav");
 
@@ -443,6 +455,18 @@ namespace AndesSim.Audio
             alarmSource.loop = loop;
             alarmSource.volume = alarmVolume * masterVolume;
             alarmSource.Play();
+        }
+
+        /// <summary>
+        /// Reproduce la reacción de voz del NPC (04. What's That) cuando el jugador abre el enlace malicioso.
+        /// </summary>
+        public void PlayInfectionVoiceAlert(Vector3 position = default)
+        {
+            if (infectionVoiceAlertClip == null) return;
+            if (position != default)
+                PlaySoundAtPosition(infectionVoiceAlertClip, position, 1.0f, 0.75f);
+            else
+                PlaySound(infectionVoiceAlertClip, 1.0f);
         }
 
         public void StopInfectionAlarm()

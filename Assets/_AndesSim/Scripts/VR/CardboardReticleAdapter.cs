@@ -1,6 +1,7 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -84,6 +85,21 @@ namespace AndesSim.VR
 
             // Construir o validar la UI flotante de la retícula
             EnsureReticleVisuals();
+            EnsureEventSystemExists();
+        }
+
+        private void EnsureEventSystemExists()
+        {
+            if (EventSystem.current == null && FindFirstObjectByType<EventSystem>() == null)
+            {
+                GameObject esObj = new GameObject("EventSystem");
+                esObj.AddComponent<EventSystem>();
+#if ENABLE_INPUT_SYSTEM
+                esObj.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
+#else
+                esObj.AddComponent<StandaloneInputModule>();
+#endif
+            }
         }
 
         private void Update()
@@ -149,25 +165,77 @@ namespace AndesSim.VR
         /// </summary>
         private void HandleInputTrigger()
         {
-            if (_currentInteractable == null) return;
-
             bool isTriggered = false;
+            Vector2 screenPos = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+            bool hasPointerPos = false;
+
 #if ENABLE_INPUT_SYSTEM
-            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame) isTriggered = true;
-            if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame) isTriggered = true;
-            if (Pointer.current != null && Pointer.current.press.wasPressedThisFrame) isTriggered = true;
+            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+            {
+                isTriggered = true;
+                screenPos = Mouse.current.position.ReadValue();
+                hasPointerPos = true;
+            }
+            if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
+            {
+                isTriggered = true;
+                screenPos = Touchscreen.current.primaryTouch.position.ReadValue();
+                hasPointerPos = true;
+            }
+            if (Pointer.current != null && Pointer.current.press.wasPressedThisFrame)
+            {
+                isTriggered = true;
+                screenPos = Pointer.current.position.ReadValue();
+                hasPointerPos = true;
+            }
 #endif
             try
             {
-                if (Input.GetMouseButtonDown(0)) isTriggered = true;
-                if (Input.touchCount > 0 && Input.GetTouch(0).phase == UnityEngine.TouchPhase.Began) isTriggered = true;
+                if (Input.GetMouseButtonDown(0))
+                {
+                    isTriggered = true;
+                    screenPos = Input.mousePosition;
+                    hasPointerPos = true;
+                }
+                if (Input.touchCount > 0 && Input.GetTouch(0).phase == UnityEngine.TouchPhase.Began)
+                {
+                    isTriggered = true;
+                    screenPos = Input.GetTouch(0).position;
+                    hasPointerPos = true;
+                }
             }
             catch { }
 
-            if (isTriggered)
+            if (!isTriggered) return;
+
+            // 1. Si la retícula central ya enfoca un interactuable:
+            if (_currentInteractable != null)
             {
                 Debug.Log($"{LogPrefix} Input manual detectado sobre '{_currentInteractable.InteractableLabel}'.");
                 _currentInteractable.OnPointerClick();
+                return;
+            }
+
+            // 2. Si el jugador tocó o hizo clic en la pantalla en otra posición (pantalla táctil o Editor):
+            if (hasPointerPos && _playerCamera != null)
+            {
+                Ray pointerRay = _playerCamera.ScreenPointToRay(screenPos);
+                int occluderMask = LayerMask.GetMask("Default", "Environment", "Obstacle");
+                int combinedMask = (interactiveMask.value != 0) ? (interactiveMask.value | occluderMask) : ~0;
+
+                if (Physics.Raycast(pointerRay, out RaycastHit hit, maxDistance, combinedMask))
+                {
+                    int interactiveLayer = LayerMask.NameToLayer(InteractiveLayerName);
+                    if (hit.collider.gameObject.layer == interactiveLayer)
+                    {
+                        GazeInteractable interactable = hit.collider.GetComponentInParent<GazeInteractable>();
+                        if (interactable != null)
+                        {
+                            Debug.Log($"{LogPrefix} Clic táctil directo sobre '{interactable.InteractableLabel}'.");
+                            interactable.OnPointerClick();
+                        }
+                    }
+                }
             }
         }
 

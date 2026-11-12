@@ -139,6 +139,8 @@ namespace AndesSim.UI
             canvasRect.localScale = Vector3.one * 0.0016f;
 
             // Panel Fondo Principal
+            EnsureEventSystemExists();
+
             GameObject panelGO = new GameObject("InspectionFrame");
             panelGO.transform.SetParent(_overlayRoot.transform, false);
             _mainPanelRect = panelGO.AddComponent<RectTransform>();
@@ -191,12 +193,22 @@ namespace AndesSim.UI
             contentRect.sizeDelta = new Vector2(920f, 520f);
             _contentContainer = contentGO.transform;
 
+            // Botón Superior Derecho: CERRAR INMEDIATO (X)
+            CreateInspectionButton(
+                "Btn_CerrarTopRight", panelGO.transform,
+                new Vector2(430f, 325f), new Vector2(90f, 36f),
+                "<b>[ X ]</b>",
+                new Color(0.35f, 0.12f, 0.15f, 0.95f),
+                Color.white,
+                CloseOverlay
+            );
+
             // Botón Inferior: CERRAR INSPECCIÓN
             GameObject closeBtnGO = CreateInspectionButton(
                 "Btn_CerrarInspeccion", panelGO.transform,
-                new Vector2(0f, -325f), new Vector2(360f, 50f),
+                new Vector2(0f, -325f), new Vector2(380f, 50f),
                 "<b>[ X CERRAR VISTA DE DETALLE ]</b>",
-                new Color(0.2f, 0.25f, 0.35f, 0.95f),
+                new Color(0.18f, 0.22f, 0.32f, 0.96f),
                 new Color(0.9f, 0.95f, 1f, 1f),
                 CloseOverlay
             );
@@ -358,11 +370,10 @@ namespace AndesSim.UI
             CreateLabel("Txt_QuarantineLog", boxGO.transform, Vector2.zero, new Vector2(860f, 340f),
                 sb.ToString(), 13.5f, TextAlignmentOptions.TopLeft, Color.white);
 
-            // Botón interactivo: CONFIRMAR CONTENCIÓN Y FINALIZAR DEFENSA
             CreateInspectionButton(
                 "Btn_ConfirmDefense", qPanel.transform,
-                new Vector2(0f, -180f), new Vector2(480f, 60f),
-                "<b><color=#38F28A>[ CONFIRMAR CONTENCIÓN Y FINALIZAR DEFENSA ]</color></b>\n<size=11>Completar simulación con éxito (Evaluación 20/20)</size>",
+                new Vector2(-190f, -180f), new Vector2(370f, 54f),
+                "<b><color=#38F28A>[ FINALIZAR CON ÉXITO ]</color></b>\n<size=11>Confirmar contención y terminar</size>",
                 new Color(0.08f, 0.35f, 0.18f, 0.98f),
                 Color.white,
                 () =>
@@ -382,6 +393,15 @@ namespace AndesSim.UI
                 }
             );
 
+            CreateInspectionButton(
+                "Btn_CloseQuarantine", qPanel.transform,
+                new Vector2(190f, -180f), new Vector2(370f, 54f),
+                "<b>[ X CERRAR VISTA ]</b>\n<size=11>Volver al entorno de la oficina</size>",
+                new Color(0.20f, 0.25f, 0.35f, 0.98f),
+                Color.white,
+                CloseOverlay
+            );
+
             _activeContentPanel = qPanel;
             ShowOverlay();
         }
@@ -393,6 +413,13 @@ namespace AndesSim.UI
         /// </summary>
         public void TriggerAttackInfectionSequence()
         {
+            // Reproducir reacción de voz NPC (04. What's That) y música de tensión (Run for Your Life)
+            if (AndesSim.Audio.AudioManager.I != null)
+            {
+                AndesSim.Audio.AudioManager.I.PlayInfectionVoiceAlert();
+                AndesSim.Audio.AudioManager.I.PlayMusicTrack(AndesSim.Audio.MusicTheme.AttackTension, 0.3f);
+            }
+
             // Ejecutar la propagación en red (Beams 3D + 3 PCs infectadas)
             if (PhishingInspector.I != null)
             {
@@ -505,8 +532,8 @@ namespace AndesSim.UI
 
             CreateInspectionButton(
                 "Btn_FinalizeAttack", robPanel.transform,
-                new Vector2(0f, -180f), new Vector2(480f, 60f),
-                "<b><color=#FF5A4E>[ FINALIZAR EVALUACIÓN DEL ATAQUE ]</color></b>\n<size=11>Desplegar reporte forense oficial de la simulación</size>",
+                new Vector2(-190f, -180f), new Vector2(370f, 54f),
+                "<b><color=#FF5A4E>[ FINALIZAR EVALUACIÓN ]</color></b>\n<size=11>Completar simulación</size>",
                 new Color(0.5f, 0.12f, 0.12f, 0.98f),
                 Color.white,
                 () =>
@@ -517,6 +544,15 @@ namespace AndesSim.UI
                         GameManager.I.EndScenario();
                     }
                 }
+            );
+
+            CreateInspectionButton(
+                "Btn_CloseRobbery", robPanel.transform,
+                new Vector2(190f, -180f), new Vector2(370f, 54f),
+                "<b>[ X CERRAR VISTA ]</b>\n<size=11>Volver al entorno de la oficina</size>",
+                new Color(0.20f, 0.25f, 0.35f, 0.98f),
+                Color.white,
+                CloseOverlay
             );
 
             _activeContentPanel = robPanel;
@@ -853,6 +889,7 @@ namespace AndesSim.UI
 
         public void CloseOverlay()
         {
+            StopAllCoroutines();
             _isOpen = false;
             if (_overlayRoot != null)
             {
@@ -924,8 +961,8 @@ namespace AndesSim.UI
 
             // Colisionador BoxCollider para detección precisa con retícula VR
             BoxCollider boxCol = btnGO.AddComponent<BoxCollider>();
-            boxCol.size = new Vector3(size.x, size.y, 25f);
-            boxCol.center = new Vector3(0f, 0f, -5f);
+            boxCol.size = new Vector3(size.x, size.y, 45f);
+            boxCol.center = new Vector3(0f, 0f, -15f);
             boxCol.isTrigger = true;
 
             // Añadir soporte de retícula VR
@@ -1024,6 +1061,20 @@ namespace AndesSim.UI
             tmp.fontSize = fontSize;
             tmp.alignment = alignment;
             tmp.color = color;
+        }
+
+        private void EnsureEventSystemExists()
+        {
+            if (UnityEngine.EventSystems.EventSystem.current == null && FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>() == null)
+            {
+                GameObject esObj = new GameObject("EventSystem");
+                esObj.AddComponent<UnityEngine.EventSystems.EventSystem>();
+#if ENABLE_INPUT_SYSTEM
+                esObj.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
+#else
+                esObj.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+#endif
+            }
         }
 
         #endregion

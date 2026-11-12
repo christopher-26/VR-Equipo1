@@ -171,14 +171,19 @@ namespace AndesSim.UI
             // Asegurar que existan los paneles o construirlos dinámicamente
             EnsureUiPanelsExist();
 
-            // El panel flotante WristOrDeskHUD era un widget de prototipo que resultaba invasivo y redundante en la pared.
-            // Se desactiva para mantener las paredes de la oficina bancaria limpias, profesionales y realistas.
+            // Erradicar de raiz cualquier remanente del bloque flotante WristOrDeskHUD en la pared
             if (wristOrDeskHudPanel != null)
             {
-                wristOrDeskHudPanel.SetActive(false);
+                Destroy(wristOrDeskHudPanel);
+                wristOrDeskHudPanel = null;
             }
+            GameObject lingeringHud = GameObject.Find("WristOrDeskHUD");
+            if (lingeringHud != null)
+            {
+                Destroy(lingeringHud);
+            }
+            EnsureEventSystemExists();
 
-            // Configurar botón interactivo de alternar modo
             if (toggleModeButton != null)
             {
                 toggleModeButton.onClick.RemoveAllListeners();
@@ -587,109 +592,6 @@ namespace AndesSim.UI
         /// </summary>
         private void EnsureUiPanelsExist()
         {
-            // 1. WristOrDeskHUD (Ubicado en Pared Oeste del SOC para no obstruir el Puesto 1 de Carla Mendoza)
-            if (wristOrDeskHudPanel == null)
-            {
-                wristOrDeskHudPanel = new GameObject("WristOrDeskHUD");
-                wristOrDeskHudPanel.transform.SetParent(transform, false);
-                wristOrDeskHudPanel.transform.localPosition = new Vector3(-4.85f, 1.55f, 1.8f);
-                wristOrDeskHudPanel.transform.localRotation = Quaternion.Euler(0f, 75f, 0f);
-
-                Canvas canvas = wristOrDeskHudPanel.AddComponent<Canvas>();
-                canvas.renderMode = RenderMode.WorldSpace;
-                RectTransform r = wristOrDeskHudPanel.GetComponent<RectTransform>();
-                r.sizeDelta = new Vector2(260f, 140f);
-                r.localScale = new Vector3(0.0035f, 0.0035f, 0.0035f);
-                wristOrDeskHudPanel.AddComponent<CanvasScaler>();
-                wristOrDeskHudPanel.AddComponent<GraphicRaycaster>();
-
-                // Fondo
-                Image bg = wristOrDeskHudPanel.AddComponent<Image>();
-                bg.color = ColorDarkBg;
-
-                // Título
-                GameObject headerObj = CreateTextObject("Txt_Header", wristOrDeskHudPanel.transform, new Vector2(0f, 56f), new Vector2(250f, 16f));
-                TextMeshProUGUI headerTmp = headerObj.GetComponent<TextMeshProUGUI>();
-                headerTmp.text = "<b><color=#38F28A>ANDES-SIM · BANCO ANDINO (SOC VR)</color></b>";
-                headerTmp.fontSize = 8.5f;
-
-                // Modo Badge
-                GameObject modeObj = CreateTextObject("Txt_ModeStatus", wristOrDeskHudPanel.transform, new Vector2(-45f, 38f), new Vector2(150f, 14f));
-                modeStatusText = modeObj.GetComponent<TextMeshProUGUI>();
-                modeStatusText.fontSize = 7.5f;
-
-                // Botón Cambiar Modo
-                GameObject btnObj = new GameObject("Btn_CambiarModo");
-                btnObj.transform.SetParent(wristOrDeskHudPanel.transform, false);
-                btnObj.layer = LayerMask.NameToLayer("Interactive");
-                RectTransform btnR = btnObj.AddComponent<RectTransform>();
-                btnR.anchoredPosition = new Vector2(75f, 38f);
-                btnR.sizeDelta = new Vector2(90f, 14f);
-
-                toggleModeButtonGlow = btnObj.AddComponent<Image>();
-                toggleModeButtonGlow.color = ColorCodeGreen;
-
-                BoxCollider box = btnObj.AddComponent<BoxCollider>();
-                box.size = new Vector3(90f, 14f, 1f);
-
-                toggleModeButton = btnObj.AddComponent<Button>();
-                toggleModeButton.targetGraphic = toggleModeButtonGlow;
-
-                btnObj.AddComponent<GazeInteractable>().interactableLabel = "Alternar Modo (Ataque / Defensa)";
-                btnObj.AddComponent<WorldSpaceUiGazeButton>();
-
-                GameObject btnTxtObj = CreateTextObject("Text", btnObj.transform, Vector2.zero, new Vector2(86f, 12f));
-                toggleModeButtonText = btnTxtObj.GetComponent<TextMeshProUGUI>();
-                toggleModeButtonText.fontSize = 6.5f;
-                toggleModeButtonText.text = "<b>Cambiar Modo</b>";
-
-                // Reloj y Flujo
-                GameObject clockObj = CreateTextObject("Txt_Clock", wristOrDeskHudPanel.transform, new Vector2(-45f, 20f), new Vector2(150f, 14f));
-                countdownClockText = clockObj.GetComponent<TextMeshProUGUI>();
-                countdownClockText.fontSize = 7.5f;
-
-                GameObject stepObj = CreateTextObject("Txt_Step", wristOrDeskHudPanel.transform, new Vector2(75f, 20f), new Vector2(90f, 14f));
-                currentStepTitleText = stepObj.GetComponent<TextMeshProUGUI>();
-                currentStepTitleText.fontSize = 7.0f;
-
-                // Barra de progreso de flujo
-                GameObject barBg = new GameObject("Bar_FlujoFondo");
-                barBg.transform.SetParent(wristOrDeskHudPanel.transform, false);
-                RectTransform barBgR = barBg.AddComponent<RectTransform>();
-                barBgR.anchoredPosition = new Vector2(0f, 9f);
-                barBgR.sizeDelta = new Vector2(250f, 3f);
-                Image barBgImg = barBg.AddComponent<Image>();
-                barBgImg.color = new Color(0.1f, 0.2f, 0.15f, 1f);
-
-                GameObject barFill = new GameObject("Bar_FlujoFill");
-                barFill.transform.SetParent(barBg.transform, false);
-                RectTransform barFillR = barFill.AddComponent<RectTransform>();
-                barFillR.anchorMin = Vector2.zero;
-                barFillR.anchorMax = Vector2.one;
-                barFillR.sizeDelta = Vector2.zero;
-                stepProgressBarFill = barFill.AddComponent<Image>();
-                stepProgressBarFill.type = Image.Type.Filled;
-                stepProgressBarFill.fillMethod = Image.FillMethod.Horizontal;
-                stepProgressBarFill.fillAmount = 0.2f;
-                stepProgressBarFill.color = ColorCodeGreen;
-
-                // Checklist 3 líneas
-                GameObject sigObj = CreateTextObject("Txt_CheckSignals", wristOrDeskHudPanel.transform, new Vector2(0f, -8f), new Vector2(240f, 13f));
-                phishingSignalsChecklistText = sigObj.GetComponent<TextMeshProUGUI>();
-                phishingSignalsChecklistText.fontSize = 7.2f;
-
-                GameObject eviObj = CreateTextObject("Txt_CheckEvidences", wristOrDeskHudPanel.transform, new Vector2(0f, -23f), new Vector2(240f, 13f));
-                evidencesChecklistText = eviObj.GetComponent<TextMeshProUGUI>();
-                evidencesChecklistText.fontSize = 7.2f;
-
-                GameObject defObj = CreateTextObject("Txt_CheckDefenses", wristOrDeskHudPanel.transform, new Vector2(0f, -38f), new Vector2(240f, 13f));
-                defensesChecklistText = defObj.GetComponent<TextMeshProUGUI>();
-                defensesChecklistText.fontSize = 7.2f;
-
-                // Desactivado por defecto para no ensuciar el entorno 3D
-                wristOrDeskHudPanel.SetActive(false);
-            }
-
             // 2. NotificationToast
             if (notificationToastPanel == null)
             {
@@ -865,6 +767,20 @@ namespace AndesSim.UI
             AudioClip clip = AudioClip.Create("UI_ClickTone", numSamples, 1, sampleRate, false);
             clip.SetData(samples, 0);
             return clip;
+        }
+
+        private void EnsureEventSystemExists()
+        {
+            if (UnityEngine.EventSystems.EventSystem.current == null && FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>() == null)
+            {
+                GameObject esObj = new GameObject("EventSystem");
+                esObj.AddComponent<UnityEngine.EventSystems.EventSystem>();
+#if ENABLE_INPUT_SYSTEM
+                esObj.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
+#else
+                esObj.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+#endif
+            }
         }
 
         #endregion
