@@ -762,11 +762,26 @@ namespace AndesSim.Editor
             lr2.positionCount = 16;
             lr2.enabled = false;
 
-            // Letrero holográfico superior
+            // Letrero holográfico superior con tirantes metálicos anclados al techo
             GameObject holoPanel = new GameObject("Holographic_Breach_Sign");
             holoPanel.transform.SetParent(visualizerObj.transform, false);
             holoPanel.transform.position = new Vector3(3.35f, 2.75f, -1.55f);
             holoPanel.transform.rotation = Quaternion.identity;
+
+            Material matRod = CreateColorMaterial("Mat_CeilingMountRod", new Color(0.25f, 0.28f, 0.33f));
+            GameObject rodL = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            rodL.name = "Tirante_Techo_Izq";
+            rodL.transform.SetParent(holoPanel.transform, false);
+            rodL.transform.localPosition = new Vector3(-1.25f, 0.45f, 0f);
+            rodL.transform.localScale = new Vector3(0.02f, 0.45f, 0.02f);
+            rodL.GetComponent<Renderer>().sharedMaterial = matRod;
+
+            GameObject rodR = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            rodR.name = "Tirante_Techo_Der";
+            rodR.transform.SetParent(holoPanel.transform, false);
+            rodR.transform.localPosition = new Vector3(1.25f, 0.45f, 0f);
+            rodR.transform.localScale = new Vector3(0.02f, 0.45f, 0.02f);
+            rodR.GetComponent<Renderer>().sharedMaterial = matRod;
 
             Canvas holoCanvas = holoPanel.AddComponent<Canvas>();
             holoCanvas.renderMode = RenderMode.WorldSpace;
@@ -846,12 +861,13 @@ namespace AndesSim.Editor
         private static void BuildSuspectBoard(Transform parent)
         {
             // Construir el panel táctico de corcho 3D con las 4 fichas de los sospechosos y líneas rojas (RF-02)
-            GameObject boardObj = SuspectBoardMeshBuilder.BuildTacticalCorkBoard(parent, new Vector3(4.90f, 1.6f, -0.5f), Quaternion.Euler(0f, -90f, 0f));
+            // Anclado sólidamente a la pared sur de la oficina (z = -5.92f) con soporte estructural al piso (RF-05 / QA)
+            GameObject boardObj = SuspectBoardMeshBuilder.BuildTacticalCorkBoard(parent, new Vector3(2.20f, 1.55f, -5.92f), Quaternion.Euler(0f, 180f, 0f));
             boardObj.name = "Tablero_Sospechosos_VR";
 
-            // TeleportPoint específico frente al tablero de sospechosos
-            CreateTeleportPoint(parent, "Teleport_TableroSospechosos", new Vector3(4.30f, 0.01f, -0.5f),
-                "Examinar Tablero Táctico de Sospechosos", "SuspectBoard");
+            // TeleportPoint específico frente al tablero de sospechosos, mirando hacia el sur
+            CreateTeleportPoint(parent, "Teleport_TableroSospechosos", new Vector3(2.20f, 0.01f, -4.40f),
+                "Examinar Tablero Táctico de Sospechosos", "SuspectBoard", Quaternion.Euler(0f, 180f, 0f));
         }
 
         private static void BuildWorldSpaceHud(Transform parent, GameObject playerRig, UIManager uiManager)
@@ -1034,10 +1050,44 @@ namespace AndesSim.Editor
         {
             GameObject menuRoot = new GameObject("MenuInicio_Simple_VR");
             menuRoot.transform.SetParent(parent, false);
-            // Flotando cómodamente frente a la puerta de entrada a la altura de los ojos, de cara al jugador
+            // Kiosk/Tótem interactivo situado frente a la puerta de entrada, soportado desde el suelo (y=0)
             menuRoot.transform.position = new Vector3(-2.60f, 1.45f, 2.35f);
             menuRoot.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
             menuRoot.layer = LayerMask.NameToLayer("Interactive");
+
+            // Pedestal estructural del tótem (anclado físicamente al suelo en y=0)
+            Material matKioskBase = CreateColorMaterial("Mat_Kiosk_MetalDark", new Color(0.06f, 0.09f, 0.14f));
+            Material matKioskNeon = CreateColorMaterial("Mat_Kiosk_NeonCyan", new Color(0f, 0.85f, 1f));
+            matKioskNeon.EnableKeyword("_EMISSION");
+            matKioskNeon.SetColor("_EmissionColor", new Color(0f, 0.85f, 1f) * 1.2f);
+
+            GameObject kioskBaseObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            kioskBaseObj.name = "Quiosco_Base_Piso";
+            kioskBaseObj.transform.SetParent(menuRoot.transform, false);
+            kioskBaseObj.transform.localPosition = new Vector3(0f, -1.42f, 0f);
+            kioskBaseObj.transform.localScale = new Vector3(0.85f, 0.06f, 0.45f);
+            kioskBaseObj.GetComponent<Renderer>().sharedMaterial = matKioskBase;
+
+            GameObject kioskTrimObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            kioskTrimObj.name = "Quiosco_Trim_Neon";
+            kioskTrimObj.transform.SetParent(menuRoot.transform, false);
+            kioskTrimObj.transform.localPosition = new Vector3(0f, -1.385f, 0f);
+            kioskTrimObj.transform.localScale = new Vector3(0.88f, 0.015f, 0.48f);
+            kioskTrimObj.GetComponent<Renderer>().sharedMaterial = matKioskNeon;
+
+            GameObject kioskColObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            kioskColObj.name = "Quiosco_Columna_Soporte";
+            kioskColObj.transform.SetParent(menuRoot.transform, false);
+            kioskColObj.transform.localPosition = new Vector3(0f, -0.95f, 0f);
+            kioskColObj.transform.localScale = new Vector3(0.18f, 0.88f, 0.10f);
+            kioskColObj.GetComponent<Renderer>().sharedMaterial = matKioskBase;
+
+            GameObject kioskStripeObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            kioskStripeObj.name = "Quiosco_Franja_Luminosa";
+            kioskStripeObj.transform.SetParent(menuRoot.transform, false);
+            kioskStripeObj.transform.localPosition = new Vector3(0f, -0.95f, -0.055f);
+            kioskStripeObj.transform.localScale = new Vector3(0.04f, 0.86f, 0.015f);
+            kioskStripeObj.GetComponent<Renderer>().sharedMaterial = matKioskNeon;
 
             // Canvas World Space
             GameObject canvasObj = new GameObject("Canvas_MenuInicio_Simple");

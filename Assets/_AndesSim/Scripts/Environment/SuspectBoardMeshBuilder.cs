@@ -162,6 +162,36 @@ namespace AndesSim.Environment
                 new Vector3(0f, 0f, -0.012f), new Vector3(boardW - 0.06f, boardH - 0.06f, 0.005f), mats["MetalTrim"]);
 
             // -------------------------------------------------------------
+            // Patas de soporte vertical y anclaje al suelo (Evitar que el tablero flote en el aire)
+            // -------------------------------------------------------------
+            float legHeight = 0.56f; // Longitud de la pata desde el marco inferior hasta el piso (y=0)
+            float legY = -boardH * 0.5f - (legHeight * 0.5f);
+            float legSpanX = boardW * 0.38f; // ~1.22m desde el centro
+
+            // Pata izquierda y derecha de madera caoba
+            CreateBox("Pata_Soporte_Izq", boardRoot.transform,
+                new Vector3(-legSpanX, legY, 0f), new Vector3(0.08f, legHeight, 0.06f), mats["FrameWood"]);
+            CreateBox("Pata_Soporte_Der", boardRoot.transform,
+                new Vector3(legSpanX, legY, 0f), new Vector3(0.08f, legHeight, 0.06f), mats["FrameWood"]);
+
+            // Travesaño horizontal inferior entre patas
+            CreateBox("Travesano_Inferior_Patas", boardRoot.transform,
+                new Vector3(0f, -boardH * 0.5f - 0.28f, 0f), new Vector3(boardW * 0.82f, 0.05f, 0.04f), mats["FrameWood"]);
+
+            // Zapatas / bases metálicas fijadas al piso
+            float floorFootY = -boardH * 0.5f - legHeight + 0.015f;
+            CreateBox("Zapata_Piso_Izq", boardRoot.transform,
+                new Vector3(-legSpanX, floorFootY, 0f), new Vector3(0.14f, 0.03f, 0.38f), mats["MetalTrim"]);
+            CreateBox("Zapata_Piso_Der", boardRoot.transform,
+                new Vector3(legSpanX, floorFootY, 0f), new Vector3(0.14f, 0.03f, 0.38f), mats["MetalTrim"]);
+
+            // Anclajes metálicos posteriores hacia la pared
+            CreateBox("Anclaje_Pared_Sup_Izq", boardRoot.transform,
+                new Vector3(-legSpanX, boardH * 0.42f, 0.045f), new Vector3(0.06f, 0.08f, 0.07f), mats["MetalTrim"]);
+            CreateBox("Anclaje_Pared_Sup_Der", boardRoot.transform,
+                new Vector3(legSpanX, boardH * 0.42f, 0.045f), new Vector3(0.06f, 0.08f, 0.07f), mats["MetalTrim"]);
+
+            // -------------------------------------------------------------
             // 1.2 Luminaria Tubular Focal Superior
             // -------------------------------------------------------------
             GameObject lampFixture = new GameObject("Luminaria_Tubular_Focal");

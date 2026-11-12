@@ -261,7 +261,9 @@ namespace AndesSim.Audio
                 investigationMusicClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_AndesSim/Audio/Music/Music_CyberInvestigation_Theme.wav");
             if (attackTensionMusicClip == null)
             {
-                attackTensionMusicClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Horror_Music_Free_Starter_Kit/WAV_LIGHT_TENSION_LOOP_Run_for_Your_Life.wav");
+                attackTensionMusicClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Horror_Music_Free_Starter_Kit/WAV_LIGHT_TENSION_LOOP_The_Urge_to_Kill.wav");
+                if (attackTensionMusicClip == null)
+                    attackTensionMusicClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Horror_Music_Free_Starter_Kit/WAV_LIGHT_TENSION_LOOP_Run_for_Your_Life.wav");
                 if (attackTensionMusicClip == null)
                     attackTensionMusicClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_AndesSim/Audio/Music/Music_AttackTension_Theme.wav");
             }
