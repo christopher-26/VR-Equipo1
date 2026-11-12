@@ -185,24 +185,17 @@ namespace AndesSim.Editor
             }
 
             // -------------------------------------------------------------------------
-            // PASO 6: Instanciar Portal_Entrada y los 3 TeleportPoints en Capa "Interactive"
+            // PASO 6: Instanciar los 3 Puestos de Trabajo, Monitores, Correo, Post-It y Terminal SIEM
             // -------------------------------------------------------------------------
-            Debug.Log($"{LogPrefix} [6/8] Instanciando Portal_Entrada y los 3 TeleportPoints en capa 'Interactive'...");
-            Material portalMat = CreateColorMaterial("Mat_PortalFrame_Blue", new Color(0.12f, 0.45f, 0.85f));
-            GameObject portalObj = BuildPortalEntrada(envRoot.transform, portalMat);
-
-            // -------------------------------------------------------------------------
-            // PASO 6.5: Instanciar Terminal Holográfica 3D del Menú de Inicio VR en el Vestíbulo
-            // -------------------------------------------------------------------------
-            Debug.Log($"{LogPrefix} Instanciando Terminal Holográfica 3D del Menú de Inicio VR en el vestíbulo...");
-            GameObject startMenuObj = BuildVrStartMenuTerminal(envRoot.transform, portalObj);
-
-            // -------------------------------------------------------------------------
-            // PASO 7: Instanciar los 3 Puestos de Trabajo, Monitores, Correo, Post-It y Terminal SIEM
-            // -------------------------------------------------------------------------
-            Debug.Log($"{LogPrefix} [7/8] Construyendo los 3 puestos de trabajo, monitores, correo phishing, Post-It y terminal SIEM...");
+            Debug.Log($"{LogPrefix} [6/8] Construyendo los 3 puestos de trabajo, monitores, correo phishing, Post-It y terminal SIEM...");
             GameObject stationsRoot = new GameObject("--- PUESTOS DE TRABAJO (RF-01) ---");
-            BuildWorkstationsAndMonitors(stationsRoot.transform, portalObj);
+            BuildWorkstationsAndMonitors(stationsRoot.transform, null);
+
+            // -------------------------------------------------------------------------
+            // PASO 7: Menú de Inicio VR Simple y Flotante (Sin muro ni arco intrusivo)
+            // -------------------------------------------------------------------------
+            Debug.Log($"{LogPrefix} [7/8] Instanciando Menú de Inicio VR Simple y Flotante...");
+            GameObject startMenuObj = BuildSimpleVrStartMenu(envRoot.transform);
 
             // -------------------------------------------------------------------------
             // PASO 8: Instanciar Tablero de Sospechosos, Defensas, Pantalla Final, HUD y Créditos
@@ -339,7 +332,8 @@ namespace AndesSim.Editor
         {
             GameObject playerObj = new GameObject("Player");
             playerObj.tag = "PlayerRig";
-            playerObj.transform.position = new Vector3(0f, 0f, -5.2f); // Vestíbulo frente a la terminal de inicio
+            // Jugador posicionado cómodamente en la oficina frente al Puesto 01 de Carla Mendoza
+            playerObj.transform.position = new Vector3(-3.0f, 0f, 0.8f);
             playerObj.transform.rotation = Quaternion.identity;
 
             playerObj.AddComponent<PlayerTeleportController>();
@@ -376,118 +370,9 @@ namespace AndesSim.Editor
 
         #endregion
 
-        #region Paso 6: Portal de Entrada y TeleportPoints
+        
 
-        private static GameObject BuildPortalEntrada(Transform parent, Material portalMat)
-        {
-            GameObject portalObj = new GameObject("Portal_Entrada");
-            portalObj.transform.SetParent(parent, false);
-            portalObj.transform.position = new Vector3(0f, 0f, -2.5f); // Umbral de acceso entre vestíbulo y oficina
-            portalObj.layer = LayerMask.NameToLayer("Interactive");
-
-            BoxCollider col = portalObj.AddComponent<BoxCollider>();
-            col.center = new Vector3(0f, 1.25f, 0f);
-            col.size = new Vector3(2.6f, 2.5f, 0.4f);
-
-            GazeInteractable gaze = portalObj.AddComponent<GazeInteractable>();
-            gaze.interactableLabel = "Cruzar Portal: Entrar a la Oficina 2015";
-
-            // Geometría del arco
-            GameObject postLeft = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            postLeft.name = "Marco_Izquierdo";
-            postLeft.transform.SetParent(portalObj.transform, false);
-            postLeft.transform.localPosition = new Vector3(-1.2f, 1.25f, 0f);
-            postLeft.transform.localScale = new Vector3(0.2f, 2.5f, 0.2f);
-            postLeft.GetComponent<Renderer>().sharedMaterial = portalMat;
-
-            GameObject postRight = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            postRight.name = "Marco_Derecho";
-            postRight.transform.SetParent(portalObj.transform, false);
-            postRight.transform.localPosition = new Vector3(1.2f, 1.25f, 0f);
-            postRight.transform.localScale = new Vector3(0.2f, 2.5f, 0.2f);
-            postRight.GetComponent<Renderer>().sharedMaterial = portalMat;
-
-            GameObject topBeam = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            topBeam.name = "Marco_Superior";
-            topBeam.transform.SetParent(portalObj.transform, false);
-            topBeam.transform.localPosition = new Vector3(0f, 2.5f, 0f);
-            topBeam.transform.localScale = new Vector3(2.6f, 0.2f, 0.2f);
-            topBeam.GetComponent<Renderer>().sharedMaterial = portalMat;
-
-            PortalEntrada portalScript = portalObj.AddComponent<PortalEntrada>();
-
-            // Canvas de Briefing en World Space frente al jugador en el vestíbulo
-            GameObject canvasObj = new GameObject("Canvas_Briefing_Portal");
-            canvasObj.SetActive(false); // Oculto: El menú principal se gestiona en Terminal_MenuInicio_VR
-            canvasObj.transform.SetParent(portalObj.transform, false);
-            canvasObj.transform.localPosition = new Vector3(0f, 1.4f, -0.15f);
-            canvasObj.transform.localRotation = Quaternion.identity;
-
-            Canvas canvas = canvasObj.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.WorldSpace;
-            RectTransform rect = canvasObj.GetComponent<RectTransform>();
-            rect.sizeDelta = new Vector2(750f, 645f);
-            rect.localScale = new Vector3(0.002667f, 0.002667f, 0.002667f);
-            canvasObj.AddComponent<CanvasScaler>();
-            canvasObj.AddComponent<GraphicRaycaster>();
-
-            // Título
-            GameObject titleObj = new GameObject("Text_Titulo");
-            titleObj.transform.SetParent(canvasObj.transform, false);
-            RectTransform titleRect = titleObj.AddComponent<RectTransform>();
-            titleRect.anchoredPosition = new Vector2(0f, 255f);
-            titleRect.sizeDelta = new Vector2(720f, 75f);
-            TextMeshProUGUI titleTmp = titleObj.AddComponent<TextMeshProUGUI>();
-            titleTmp.text = "<b><color=#38F28A>ANDES-SIM · CASO BANCO ANDINO</color></b>";
-            titleTmp.fontSize = 20f;
-            titleTmp.alignment = TextAlignmentOptions.Center;
-
-            // Subtítulo
-            GameObject subObj = new GameObject("Text_Subtitulo");
-            subObj.transform.SetParent(canvasObj.transform, false);
-            RectTransform subRect = subObj.AddComponent<RectTransform>();
-            subRect.anchoredPosition = new Vector2(0f, 185f);
-            subRect.sizeDelta = new Vector2(720f, 50f);
-            TextMeshProUGUI subTmp = subObj.AddComponent<TextMeshProUGUI>();
-            subTmp.text = "<color=#FFC24A>ESCENARIO 1: OFICINA DE PAGOS (VR)</color>";
-            subTmp.fontSize = 15f;
-            subTmp.alignment = TextAlignmentOptions.Center;
-
-            // Cuerpo del Briefing
-            GameObject bodyObj = new GameObject("Text_Cuerpo");
-            bodyObj.transform.SetParent(canvasObj.transform, false);
-            RectTransform bodyRect = bodyObj.AddComponent<RectTransform>();
-            bodyRect.anchoredPosition = new Vector2(0f, 30f);
-            bodyRect.sizeDelta = new Vector2(700f, 240f);
-            TextMeshProUGUI bodyTmp = bodyObj.AddComponent<TextMeshProUGUI>();
-            bodyTmp.text = "Fecha: <b>29 de enero de 2015</b>\n\n" +
-                          "Un correo electrónico de solicitud de empleo de <b>\"Rasel Ahlam\"</b> ha llegado a 16 bandejas de entrada de la Oficina de Pagos.\n\n" +
-                          "Misión: Entrar a la oficina, examinar las 3 estaciones, detectar las señales de phishing y recolectar las evidencias forenses.";
-            bodyTmp.fontSize = 13.5f;
-            bodyTmp.textWrappingMode = TextWrappingModes.Normal;
-            bodyTmp.alignment = TextAlignmentOptions.Left;
-
-            // Botón interactivo: Cruzar Portal
-            GameObject btnCruzarObj = CreateWorldGazeButton("Btn_CruzarPortal", canvasObj.transform,
-                new Vector2(0f, -145f), new Vector2(540f, 68f), "CRUZAR PORTAL E INICIAR", null, null, 15f);
-            Button btnCruzar = btnCruzarObj.GetComponent<Button>();
-
-            // Botón interactivo: Ver Créditos
-            GameObject btnCreditsObj = CreateWorldGazeButton("Btn_VerCreditos", canvasObj.transform,
-                new Vector2(0f, -225f), new Vector2(540f, 58f), "VER CRÉDITOS Y LICENCIAS", null, null, 13.5f);
-            Button btnCredits = btnCreditsObj.GetComponent<Button>();
-
-            // Cablear en PortalEntrada
-            SerializedObject sPortal = new SerializedObject(portalScript);
-            sPortal.FindProperty("portalTitleDisplay").objectReferenceValue = titleTmp;
-            sPortal.FindProperty("briefingDisplay").objectReferenceValue = bodyTmp;
-            sPortal.FindProperty("enterPortalButton").objectReferenceValue = btnCruzar;
-            sPortal.FindProperty("viewCreditsButton").objectReferenceValue = btnCredits;
-            sPortal.FindProperty("lobbySpawnPoint").objectReferenceValue = portalObj.transform;
-            sPortal.ApplyModifiedProperties();
-
-            return portalObj;
-        }
+        #region Paso 7: Puestos de Trabajo, Monitores y Periféricos
 
         private static GameObject CreateTeleportPoint(Transform parent, string name, Vector3 localPos, string label, string associatedWorkstationId)
         {
@@ -526,10 +411,6 @@ namespace AndesSim.Editor
 
             return tpObj;
         }
-
-        #endregion
-
-        #region Paso 7: Puestos de Trabajo, Monitores y Periféricos
 
         private static void BuildWorkstationsAndMonitors(Transform parent, GameObject portalObj)
         {
@@ -892,109 +773,12 @@ namespace AndesSim.Editor
 
         private static void BuildWorldSpaceHud(Transform parent, GameObject playerRig, UIManager uiManager)
         {
-            // Panel de estado acoplado limpiamente en la mampara lateral del escritorio de Carla
-            GameObject deskHudObj = new GameObject("WristOrDeskHUD");
-            deskHudObj.transform.SetParent(parent, false);
-            deskHudObj.transform.position = new Vector3(-2.85f, 1.15f, 2.35f);
-            deskHudObj.transform.rotation = Quaternion.Euler(0f, 30f, 0f);
-
-            Canvas deskCanvas = deskHudObj.AddComponent<Canvas>();
-            deskCanvas.renderMode = RenderMode.WorldSpace;
-            RectTransform deskRect = deskHudObj.GetComponent<RectTransform>();
-            deskRect.sizeDelta = new Vector2(700f, 380f);
-            deskRect.localScale = new Vector3(0.00095f, 0.00095f, 0.00095f);
-            deskHudObj.AddComponent<CanvasScaler>();
-            deskHudObj.AddComponent<GraphicRaycaster>();
-
-            Image deskBg = deskHudObj.AddComponent<Image>();
-            deskBg.color = UIManager.ColorDarkBg;
-
-            GameObject titleObj = new GameObject("Txt_Header");
-            titleObj.transform.SetParent(deskHudObj.transform, false);
-            RectTransform tRect = titleObj.AddComponent<RectTransform>();
-            tRect.anchoredPosition = new Vector2(0f, 175f);
-            tRect.sizeDelta = new Vector2(750f, 42f);
-            TextMeshProUGUI titleTmp = titleObj.AddComponent<TextMeshProUGUI>();
-            titleTmp.text = "<b><color=#38F28A>ANDES-SIM · BANCO ANDINO (SOC VR)</color></b>";
-            titleTmp.fontSize = 16f;
-            titleTmp.alignment = TextAlignmentOptions.Center;
-
-            GameObject modeObj = new GameObject("Txt_ModeStatus");
-            modeObj.transform.SetParent(deskHudObj.transform, false);
-            RectTransform mRect = modeObj.AddComponent<RectTransform>();
-            mRect.anchoredPosition = new Vector2(-150f, 115f);
-            mRect.sizeDelta = new Vector2(430f, 38f);
-            TextMeshProUGUI modeTmp = modeObj.AddComponent<TextMeshProUGUI>();
-            modeTmp.text = "<b>MODO: <color=#FF5A4E>ATAQUE 2016 (LAZARUS)</color></b>";
-            modeTmp.fontSize = 13f;
-            modeTmp.alignment = TextAlignmentOptions.Left;
-
-            GameObject btnModeObj = CreateWorldGazeButton("Btn_CambiarModoHUD", deskHudObj.transform,
-                new Vector2(230f, 115f), new Vector2(260f, 42f), "Cambiar a: CON DEFENSA", null, null, 12f);
-            Button btnMode = btnModeObj.GetComponent<Button>();
-            TextMeshProUGUI btnModeTmp = btnModeObj.GetComponentInChildren<TextMeshProUGUI>();
-            if (btnModeTmp != null)
-            {
-                btnModeTmp.fontSize = 12f;
-                btnModeTmp.text = "<b>Cambiar a: CON DEFENSA</b>";
-                btnModeTmp.color = UIManager.ColorLightText;
-            }
-
-            GameObject clockObj = new GameObject("Txt_Clock");
-            clockObj.transform.SetParent(deskHudObj.transform, false);
-            RectTransform cRect = clockObj.AddComponent<RectTransform>();
-            cRect.anchoredPosition = new Vector2(-190f, 55f);
-            cRect.sizeDelta = new Vector2(340f, 36f);
-            TextMeshProUGUI clockTmp = clockObj.AddComponent<TextMeshProUGUI>();
-            clockTmp.text = "Tiempo Restante: <b><color=#38F28A>03:00</color></b>";
-            clockTmp.fontSize = 13f;
-            clockTmp.alignment = TextAlignmentOptions.Left;
-
-            GameObject stepObj = new GameObject("Txt_StepGuide");
-            stepObj.transform.SetParent(deskHudObj.transform, false);
-            RectTransform sRect = stepObj.AddComponent<RectTransform>();
-            sRect.anchoredPosition = new Vector2(170f, 55f);
-            sRect.sizeDelta = new Vector2(390f, 36f);
-            TextMeshProUGUI stepTmp = stepObj.AddComponent<TextMeshProUGUI>();
-            stepTmp.text = "Paso <b>1/6</b>: Portal de Entrada";
-            stepTmp.fontSize = 12.5f;
-            stepTmp.alignment = TextAlignmentOptions.Left;
-
-            // Checklists en vivo
-            GameObject sigObj = new GameObject("Txt_CheckPhishing");
-            sigObj.transform.SetParent(deskHudObj.transform, false);
-            RectTransform sigRect = sigObj.AddComponent<RectTransform>();
-            sigRect.anchoredPosition = new Vector2(0f, -8f);
-            sigRect.sizeDelta = new Vector2(720f, 36f);
-            TextMeshProUGUI sigTmp = sigObj.AddComponent<TextMeshProUGUI>();
-            sigTmp.text = "- Señales de Phishing: <b><color=#FFC24A>0/3</color></b> (Remitente, Urgencia, Enlace)";
-            sigTmp.fontSize = 12f;
-            sigTmp.alignment = TextAlignmentOptions.Left;
-
-            GameObject eviObj = new GameObject("Txt_CheckEvidences");
-            eviObj.transform.SetParent(deskHudObj.transform, false);
-            RectTransform eviRect = eviObj.AddComponent<RectTransform>();
-            eviRect.anchoredPosition = new Vector2(0f, -50f);
-            eviRect.sizeDelta = new Vector2(720f, 36f);
-            TextMeshProUGUI eviTmp = eviObj.AddComponent<TextMeshProUGUI>();
-            eviTmp.text = "- Evidencias Forenses: <b><color=#FFC24A>0/3</color></b> (Correo, Post-It, SIEM)";
-            eviTmp.fontSize = 12f;
-            eviTmp.alignment = TextAlignmentOptions.Left;
-
-            GameObject defObj = new GameObject("Txt_CheckDefenses");
-            defObj.transform.SetParent(deskHudObj.transform, false);
-            RectTransform defRect = defObj.AddComponent<RectTransform>();
-            defRect.anchoredPosition = new Vector2(0f, -92f);
-            defRect.sizeDelta = new Vector2(720f, 36f);
-            TextMeshProUGUI defTmp = defObj.AddComponent<TextMeshProUGUI>();
-            defTmp.text = "- Defensas Aplicadas: <b><color=#FFC24A>0/3</color></b> (Sandbox, Reporte, MFA)";
-            defTmp.fontSize = 12f;
-            defTmp.alignment = TextAlignmentOptions.Left;
-
-            // Banner flotante NotificationToast
+            // Erradicado WristOrDeskHUD para evitar colisiones con muros y texto invertido.
+            // Solo mantenemos el banner flotante NotificationToast para feedback de evidencias.
             GameObject toastObj = new GameObject("NotificationToast");
             toastObj.transform.SetParent(parent, false);
-            toastObj.transform.position = new Vector3(0f, 1.45f, -2.0f);
+            toastObj.transform.position = new Vector3(-3.0f, 1.85f, 2.05f);
+            toastObj.transform.rotation = Quaternion.identity;
 
             Canvas toastCanvas = toastObj.AddComponent<Canvas>();
             toastCanvas.renderMode = RenderMode.WorldSpace;
@@ -1033,15 +817,15 @@ namespace AndesSim.Editor
             if (uiManager != null)
             {
                 SerializedObject sUi = new SerializedObject(uiManager);
-                sUi.FindProperty("wristOrDeskHudPanel").objectReferenceValue = deskHudObj;
-                sUi.FindProperty("modeStatusText").objectReferenceValue = modeTmp;
-                sUi.FindProperty("toggleModeButton").objectReferenceValue = btnMode;
-                sUi.FindProperty("toggleModeButtonText").objectReferenceValue = btnModeTmp;
-                sUi.FindProperty("countdownClockText").objectReferenceValue = clockTmp;
-                sUi.FindProperty("currentStepTitleText").objectReferenceValue = stepTmp;
-                sUi.FindProperty("phishingSignalsChecklistText").objectReferenceValue = sigTmp;
-                sUi.FindProperty("evidencesChecklistText").objectReferenceValue = eviTmp;
-                sUi.FindProperty("defensesChecklistText").objectReferenceValue = defTmp;
+                sUi.FindProperty("wristOrDeskHudPanel").objectReferenceValue = null;
+                sUi.FindProperty("modeStatusText").objectReferenceValue = null;
+                sUi.FindProperty("toggleModeButton").objectReferenceValue = null;
+                sUi.FindProperty("toggleModeButtonText").objectReferenceValue = null;
+                sUi.FindProperty("countdownClockText").objectReferenceValue = null;
+                sUi.FindProperty("currentStepTitleText").objectReferenceValue = null;
+                sUi.FindProperty("phishingSignalsChecklistText").objectReferenceValue = null;
+                sUi.FindProperty("evidencesChecklistText").objectReferenceValue = null;
+                sUi.FindProperty("defensesChecklistText").objectReferenceValue = null;
                 sUi.FindProperty("notificationToastPanel").objectReferenceValue = toastObj;
                 sUi.FindProperty("toastCanvasGroup").objectReferenceValue = toastCg;
                 sUi.FindProperty("toastTitleText").objectReferenceValue = ttTmp;
@@ -1160,6 +944,121 @@ namespace AndesSim.Editor
 
             return btnObj;
         }
+
+        #region Menú de Inicio VR Simple y Flotante (Sin muro ni arco intrusivo)
+
+        private static GameObject BuildSimpleVrStartMenu(Transform parent)
+        {
+            GameObject menuRoot = new GameObject("MenuInicio_Simple_VR");
+            menuRoot.transform.SetParent(parent, false);
+            // Flotando cómodamente frente a la estación de Carla Mendoza a la altura de los ojos
+            menuRoot.transform.position = new Vector3(-3.0f, 1.45f, 1.85f);
+            menuRoot.transform.rotation = Quaternion.identity;
+            menuRoot.layer = LayerMask.NameToLayer("Interactive");
+
+            // Canvas World Space
+            GameObject canvasObj = new GameObject("Canvas_MenuInicio_Simple");
+            canvasObj.transform.SetParent(menuRoot.transform, false);
+            Canvas canvas = canvasObj.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.WorldSpace;
+            RectTransform cRect = canvasObj.GetComponent<RectTransform>();
+            cRect.sizeDelta = new Vector2(820f, 480f);
+            cRect.localScale = new Vector3(0.0018f, 0.0018f, 0.0018f);
+            canvasObj.AddComponent<CanvasScaler>();
+            canvasObj.AddComponent<GraphicRaycaster>();
+
+            CanvasGroup canvasGroup = canvasObj.AddComponent<CanvasGroup>();
+
+            // Fondo Panel Dark Glass con borde cian
+            GameObject bgObj = new GameObject("Panel_Background");
+            bgObj.transform.SetParent(canvasObj.transform, false);
+            RectTransform bgRect = bgObj.AddComponent<RectTransform>();
+            bgRect.anchorMin = Vector2.zero;
+            bgRect.anchorMax = Vector2.one;
+            bgRect.sizeDelta = Vector2.zero;
+            Image bgImg = bgObj.AddComponent<Image>();
+            bgImg.color = new Color(0.04f, 0.08f, 0.14f, 0.94f);
+
+            // Borde estético
+            GameObject borderObj = new GameObject("Border");
+            borderObj.transform.SetParent(bgObj.transform, false);
+            RectTransform bdrRect = borderObj.AddComponent<RectTransform>();
+            bdrRect.anchorMin = Vector2.zero;
+            bdrRect.anchorMax = Vector2.one;
+            bdrRect.sizeDelta = new Vector2(4f, 4f);
+            Image bdrImg = borderObj.AddComponent<Image>();
+            bdrImg.color = new Color(0f, 0.85f, 1f, 0.35f);
+
+            // 1. Título y Subtítulo
+            GameObject titleObj = new GameObject("Title");
+            titleObj.transform.SetParent(canvasObj.transform, false);
+            RectTransform tRect = titleObj.AddComponent<RectTransform>();
+            tRect.anchoredPosition = new Vector2(0f, 185f);
+            tRect.sizeDelta = new Vector2(780f, 42f);
+            TextMeshProUGUI tTmp = titleObj.AddComponent<TextMeshProUGUI>();
+            tTmp.text = "<b><size=22><color=#00F2FE>BANCO ANDINO</color> · <color=#FFFFFF>SIMULADOR FORENSE VR</color></size></b>";
+            tTmp.alignment = TextAlignmentOptions.Center;
+
+            GameObject subObj = new GameObject("SubTitle");
+            subObj.transform.SetParent(canvasObj.transform, false);
+            RectTransform sRect = subObj.AddComponent<RectTransform>();
+            sRect.anchoredPosition = new Vector2(0f, 142f);
+            sRect.sizeDelta = new Vector2(780f, 28f);
+            TextMeshProUGUI sTmp = subObj.AddComponent<TextMeshProUGUI>();
+            sTmp.text = "<size=13.5><color=#94A3B8>Selecciona el modo de simulación para comenzar:</color></size>";
+            sTmp.alignment = TextAlignmentOptions.Center;
+
+            // 2. Tarjetas / Botones de Modo
+            // Card Modo Ataque (Izquierda)
+            GameObject btnAtkObj = CreateWorldGazeButton("Btn_SelectAtaque", canvasObj.transform,
+                new Vector2(-195f, 40f), new Vector2(360f, 130f),
+                "<b><size=17><color=#FF5A4E>[ \u26A0 MODO ATAQUE 2016 ]</color></size></b>\n\n<size=12><color=#E2E8F0>\u2022 Recreaci\u00F3n hist\u00F3rica del ataque Lazarus\n\u2022 Spear Phishing a Carla Mendoza\n\u2022 Salto lateral y robo SWIFT ($81M)</color></size>",
+                new Color(0.20f, 0.06f, 0.08f, 0.95f), new Color(1f, 0.35f, 0.31f, 1f), 13f);
+            Button btnAtk = btnAtkObj.GetComponent<Button>();
+            Image imgAtkBorder = btnAtkObj.GetComponent<Image>();
+
+            // Card Modo Defensa (Derecha)
+            GameObject btnDefObj = CreateWorldGazeButton("Btn_SelectDefensa", canvasObj.transform,
+                new Vector2(195f, 40f), new Vector2(360f, 130f),
+                "<b><size=17><color=#38F28A>[ \uD83D\uDEE1 MODO DEFENSA SOC ]</color></size></b>\n\n<size=12><color=#E2E8F0>\u2022 Protocolo de respuesta t\u00E1ctica del SOC\n\u2022 Aislamiento preventivo en Sandbox\n\u2022 Bloqueo C2 y 100% de fondos protegidos</color></size>",
+                new Color(0.06f, 0.18f, 0.10f, 0.95f), new Color(0.22f, 0.95f, 0.54f, 1f), 13f);
+            Button btnDef = btnDefObj.GetComponent<Button>();
+            Image imgDefBorder = btnDefObj.GetComponent<Image>();
+
+            // 3. Badge de Modo Seleccionado
+            GameObject badgeObj = new GameObject("Txt_ModoBadge");
+            badgeObj.transform.SetParent(canvasObj.transform, false);
+            RectTransform bRect = badgeObj.AddComponent<RectTransform>();
+            bRect.anchoredPosition = new Vector2(0f, -50f);
+            bRect.sizeDelta = new Vector2(780f, 30f);
+            TextMeshProUGUI bTmp = badgeObj.AddComponent<TextMeshProUGUI>();
+            bTmp.text = "MODO SELECCIONADO: <color=#FF5A4E><b>[MODO ATAQUE 2016 - HISTÓRICO]</b></color>";
+            bTmp.fontSize = 14.5f;
+            bTmp.alignment = TextAlignmentOptions.Center;
+
+            // 4. Gran Botón Iniciar Simulación
+            GameObject btnStartObj = CreateWorldGazeButton("Btn_IniciarSimulacion", canvasObj.transform,
+                new Vector2(0f, -135f), new Vector2(560f, 64f),
+                "<b><size=18>[ ▶ INICIAR SIMULACIÓN ]</size></b>",
+                new Color(0.08f, 0.45f, 0.55f, 0.98f), new Color(0f, 0.95f, 1f, 1f), 17f);
+            Button btnStart = btnStartObj.GetComponent<Button>();
+
+            // 5. Configurar VrStartMenuController
+            VrStartMenuController startController = menuRoot.AddComponent<VrStartMenuController>();
+            startController.BtnModoAtaque = btnAtk;
+            startController.BtnModoDefensa = btnDef;
+            startController.ImgModoAtaqueBorder = imgAtkBorder;
+            startController.ImgModoDefensaBorder = imgDefBorder;
+            startController.TxtModoSeleccionadoBadge = bTmp;
+            startController.BtnIniciarSimulacion = btnStart;
+            startController.MenuCanvasGroup = canvasGroup;
+
+            Debug.Log($"{LogPrefix} <color=#38F28A>Menú de Inicio VR Simple y Flotante creado exitosamente.</color>");
+            return menuRoot;
+        }
+
+        #endregion
+
 
         #region Menú de Inicio VR Holográfico 3D (Vestíbulo)
 

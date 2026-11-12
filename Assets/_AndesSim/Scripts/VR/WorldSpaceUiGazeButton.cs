@@ -159,11 +159,10 @@ namespace AndesSim.VR
                 }
             }
 
-            // Inyectar el label en el GazeInteractable mediante reflexión o campo serializado
-            var labelField = typeof(GazeInteractable).GetField("interactableLabel", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            if (labelField != null)
+            // Asignar el label directamente en GazeInteractable
+            if (_gazeInteractable != null && !string.IsNullOrEmpty(label))
             {
-                labelField.SetValue(_gazeInteractable, label);
+                _gazeInteractable.interactableLabel = label;
             }
 
             // Suscribir eventos de mirada
