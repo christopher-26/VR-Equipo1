@@ -53,7 +53,8 @@ namespace AndesSim.UI
 
         [Header("--- Anclaje VR ---")]
         [SerializeField] private float distanceFromCamera = 1.05f;
-        [SerializeField] private float smoothFollowSpeed = 8f;
+
+
 
         // Raíz del Canvas de Inspección
         private GameObject _overlayRoot;
@@ -277,7 +278,7 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_AttachmentLink", bodyBox.transform,
                 new Vector2(0f, -28f), new Vector2(760f, 44f),
-                "<b><color=#00F2FE>📎 <u>http://185.130.44.82/Rasel_Ahlam_CV_2015.scr.zip</u></color></b>\n<size=11><color=#FFC24A>▲ Clic con retícula para descargar archivo</color></size>",
+                "<b><color=#00F2FE>[ADJUNTO] <u>http://185.130.44.82/Rasel_Ahlam_CV_2015.scr.zip</u></color></b>\n<size=11><color=#FFC24A>> Clic con retícula para descargar archivo</color></size>",
                 new Color(0.12f, 0.18f, 0.28f, 0.98f),
                 Color.white,
                 TriggerAttackInfectionSequence
@@ -287,7 +288,7 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_AttackOpenLink", emailPanel.transform,
                 new Vector2(-220f, -150f), new Vector2(400f, 60f),
-                "<b><size=15><color=#FF5A4E>[ ⚠ ABRIR ENLACE (ATAQUE) ]</color></size></b>\n<size=12>Recrear infección histórica de 2016</size>",
+                "<b><size=15><color=#FF5A4E>[ ! ABRIR ENLACE (ATAQUE) ]</color></size></b>\n<size=12>Recrear infección histórica de 2016</size>",
                 new Color(0.5f, 0.12f, 0.12f, 0.98f),
                 new Color(1f, 0.4f, 0.35f, 1f),
                 TriggerAttackInfectionSequence
@@ -296,7 +297,7 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_DefenseReport", emailPanel.transform,
                 new Vector2(220f, -150f), new Vector2(400f, 60f),
-                "<b><size=15><color=#38F28A>[ 🛡 AISLAR EN SANDBOX (DEFENSA) ]</color></size></b>\n<size=12>Contener amenaza y proteger fondos</size>",
+                "<b><size=15><color=#38F28A>[ + AISLAR EN SANDBOX (DEFENSA) ]</color></size></b>\n<size=12>Contener amenaza y proteger fondos</size>",
                 new Color(0.08f, 0.35f, 0.2f, 0.98f),
                 new Color(0.35f, 1f, 0.6f, 1f),
                 () =>
@@ -351,13 +352,13 @@ namespace AndesSim.UI
 
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("<b><size=17><color=#38F28A>[REPORTE FORENSE DE MITIGACIÓN SOC — BANCO ANDINO]</color></size></b>");
-            sb.AppendLine("────────────────────────────────────────────────────────────────────────────");
+            sb.AppendLine("----------------------------------------------------------------------------");
             sb.AppendLine("• <b>FILTRO SANDBOX CUCKOO:</b> Adjunto <i>Rasel_Ahlam_CV.scr</i> detonado y aislado preventivamente.");
             sb.AppendLine("• <b>ANÁLISIS SPF/DKIM:</b> Dominio atacante <i>career-applicants-bd.com</i> bloqueado por suplantación.");
             sb.AppendLine("• <b>REGLA FIREWALL:</b> Tráfico hacia Servidor C2 <b>185.130.44.82:443</b> cortado de inmediato.");
             sb.AppendLine("• <b>SEGMENTACIÓN SWIFT:</b> Terminales aisladas en VLAN 100 con autenticación MFA activa.");
-            sb.AppendLine("────────────────────────────────────────────────────────────────────────────");
-            sb.AppendLine("<size=16><color=#38F28A><b>✓ CONCLUSIÓN TÉCNICA: Intrusión evitada al 100% · Cero pérdidas financieras.</b></color></size>");
+            sb.AppendLine("----------------------------------------------------------------------------");
+            sb.AppendLine("<size=16><color=#38F28A><b>[OK] CONCLUSIÓN TÉCNICA: Intrusión evitada al 100% · Cero pérdidas financieras.</b></color></size>");
 
             CreateLabel("Txt_QuarantineLog", boxGO.transform, Vector2.zero, new Vector2(860f, 340f),
                 sb.ToString(), 15.5f, TextAlignmentOptions.TopLeft, Color.white);
@@ -405,7 +406,7 @@ namespace AndesSim.UI
         /// </summary>
         public void TriggerAttackInfectionSequence()
         {
-            // Reproducir reacción de voz NPC (04. What's That) y música de tensión (Run for Your Life)
+            // Reproducir reacción de voz NPC (04. What's That) y música de tensión (The Urge to Kill)
             if (AndesSim.Audio.AudioManager.I != null)
             {
                 AndesSim.Audio.AudioManager.I.PlayInfectionVoiceAlert();
@@ -423,7 +424,8 @@ namespace AndesSim.UI
             }
 
             // Iniciar animación visual en pantalla completa
-            StartCoroutine(InfectionScreenAnimationRoutine());
+            StopCoroutine(nameof(InfectionScreenAnimationRoutine));
+            StartCoroutine(nameof(InfectionScreenAnimationRoutine));
         }
 
         private IEnumerator InfectionScreenAnimationRoutine()
@@ -510,14 +512,14 @@ namespace AndesSim.UI
 
             StringBuilder rsb = new StringBuilder();
             rsb.AppendLine("<b><size=17><color=#FF3834>[INFORME FORENSE: FRAUDE BANCARIO CONSUMADO]</color></size></b>");
-            rsb.AppendLine("────────────────────────────────────────────────────────────────────────────");
+            rsb.AppendLine("----------------------------------------------------------------------------");
             rsb.AppendLine("• <b>MONTO TRANSFERIDO:</b> <color=#FF3834><size=18><b>US$ 81,000,000.00</b></size></color> (Lavado en Filipinas)");
             rsb.AppendLine("• <b>MONTO RETENIDO:</b> US$ 870,000,000.00 (Frenado por error ortográfico 'Fandation')");
             rsb.AppendLine("• <b>VECTOR DE ENTRADA:</b> Spear Phishing a Carla Mendoza (Dropper .scr camuflado).");
             rsb.AppendLine("• <b>MOVIMIENTO LATERAL:</b> Red plana sin VLANs permitió salto inmediato a Terminal SWIFT.");
             rsb.AppendLine("• <b>ANÁLISIS DE MALWARE:</b> Backdoor <i>svchost_upd.exe</i> con conexión a IP C2 <b>185.130.44.82</b>.");
-            rsb.AppendLine("────────────────────────────────────────────────────────────────────────────");
-            rsb.AppendLine("<size=15><color=#FFC24A>▲ <b>CAUSA RAÍZ:</b> Ausencia de Sandbox de correo y falta de segmentación VLAN 100.</color></size>");
+            rsb.AppendLine("----------------------------------------------------------------------------");
+            rsb.AppendLine("<size=15><color=#FFC24A>[!] <b>CAUSA RAÍZ:</b> Ausencia de Sandbox de correo y falta de segmentación VLAN 100.</color></size>");
 
             CreateLabel("Txt_RobberySummary", rBox.transform, Vector2.zero, new Vector2(860f, 340f),
                 rsb.ToString(), 15.5f, TextAlignmentOptions.TopLeft, Color.white);
@@ -662,14 +664,14 @@ namespace AndesSim.UI
 
             CreateLabel("Txt_SwiftTable", tableBox.transform, Vector2.zero, new Vector2(850f, 290f),
                 "<b><size=17><color=#00F2FE>SISTEMA SWIFT ALLIANCE ACCESS — MENSAJERÍA MT103</color></size></b>\n" +
-                "────────────────────────────────────────────────────────────────────────────\n" +
+                "----------------------------------------------------------------------------\n" +
                 "• <b>Transacción:</b> MT103-20150129-948192 (Orden de Transferencia Internacional)\n" +
                 "• <b>Banco Emisor:</b> BANCO ANDINO -> Beneficiario: RCBC Filipinas\n" +
                 "• <b>Monto en Riesgo:</b> <color=#FF5A4E><b>US$ 951,000,000.00</b></color>\n" +
                 "• <b>Vulnerabilidad de Red:</b> <color=#FFC24A>RED PLANA (Sin VLAN 100 ni microsegmentación)</color>\n" +
                 "• <b>Falla de Control:</b> Ausencia de segundo factor de autenticación (MFA) en transferencias.\n" +
-                "────────────────────────────────────────────────────────────────────────────\n" +
-                "<b><size=14><color=#FF5A4E>▲ La ausencia de VLANs permitió que el malware de Carla alcanzara este puesto en segundos.</color></size></b>",
+                "----------------------------------------------------------------------------\n" +
+                "<b><size=14><color=#FF5A4E>[!] La ausencia de VLANs permitió que el malware de Carla alcanzara este puesto en segundos.</color></size></b>",
                 15.5f, TextAlignmentOptions.TopLeft, new Color(0.88f, 0.95f, 1f));
 
             _activeContentPanel = swiftPanel;
@@ -704,13 +706,13 @@ namespace AndesSim.UI
 
             CreateLabel("Txt_SiemLogs", logBox.transform, Vector2.zero, new Vector2(850f, 270f),
                 "<b><size=17><color=#38F28A>CONSOLA SIEM — INDICADORES DE COMPROMISO (IOCs)</color></size></b>\n" +
-                "────────────────────────────────────────────────────────────────────────────\n" +
+                "----------------------------------------------------------------------------\n" +
                 "• <b>[09:18:22] CONEXIÓN C2:</b> <color=#FF5A4E>192.168.1.101 -> 185.130.44.82:443 [ESTABLECIDA]</color>\n" +
                 "• <b>[09:18:25] PROCESO MALICIOSO:</b> svchost_upd.exe (PID 4820) desde AppData\\Local\n" +
                 "• <b>[09:18:29] DOMINIO ATACANTE:</b> career-applicants-bd.com (Dominio Lazarus de 48h)\n" +
                 "• <b>[09:18:35] ALERTA PERIMETRAL:</b> Dropper .scr descargado sin pasar por Sandbox Cuckoo.\n" +
-                "────────────────────────────────────────────────────────────────────────────\n" +
-                "<b><size=15><color=#38F28A>✓ IOC Identificado: Servidor de Mando y Control 185.130.44.82 (Grupo Lazarus)</color></size></b>",
+                "----------------------------------------------------------------------------\n" +
+                "<b><size=15><color=#38F28A>[OK] IOC Identificado: Servidor de Mando y Control 185.130.44.82 (Grupo Lazarus)</color></size></b>",
                 15f, TextAlignmentOptions.TopLeft, new Color(0.88f, 0.95f, 1f));
 
             // Botón de Registro de Evidencia SIEM
@@ -783,7 +785,7 @@ namespace AndesSim.UI
             lbBg.color = new Color(0.12f, 0.08f, 0.08f, 0.94f);
 
             CreateLabel("Txt_LeftTitle", leftBox.transform, new Vector2(0f, 130f), new Vector2(440f, 30f),
-                "<b><color=#FF5A4E>▲ PUNTOS EN CONTRA / INCRIMINATORIOS</color></b>",
+                "<b><color=#FF5A4E>[!] PUNTOS EN CONTRA / INCRIMINATORIOS</color></b>",
                 12.5f, TextAlignmentOptions.TopLeft, WarningAmberColor);
 
             CreateLabel("Txt_LeftContent", leftBox.transform, new Vector2(0f, -10f), new Vector2(440f, 240f),
@@ -800,7 +802,7 @@ namespace AndesSim.UI
             rbBg.color = new Color(0.08f, 0.14f, 0.10f, 0.94f);
 
             CreateLabel("Txt_RightTitle", rightBox.transform, new Vector2(0f, 130f), new Vector2(440f, 30f),
-                "<b><color=#38F28A>✓ ELEMENTOS A FAVOR / DESCARGO</color></b>",
+                "<b><color=#38F28A>[OK] ELEMENTOS A FAVOR / DESCARGO</color></b>",
                 12.5f, TextAlignmentOptions.TopLeft, GreenSuccessColor);
 
             CreateLabel("Txt_RightContent", rightBox.transform, new Vector2(0f, -10f), new Vector2(440f, 240f),
@@ -947,7 +949,14 @@ namespace AndesSim.UI
             cb.highlightedColor = bgColor * 1.25f;
             cb.pressedColor = bgColor * 0.8f;
             btn.colors = cb;
-            if (onClick != null) btn.onClick.AddListener(() => onClick.Invoke());
+            int lastInvokedFrame = -1;
+            Action invokeOncePerFrame = () =>
+            {
+                if (onClick == null || lastInvokedFrame == Time.frameCount) return;
+                lastInvokedFrame = Time.frameCount;
+                onClick.Invoke();
+            };
+            if (onClick != null) btn.onClick.AddListener(() => invokeOncePerFrame());
 
             // Colisionador BoxCollider para detección precisa con retícula VR
             BoxCollider boxCol = btnGO.AddComponent<BoxCollider>();
@@ -959,7 +968,7 @@ namespace AndesSim.UI
             GazeInteractable gaze = btnGO.AddComponent<GazeInteractable>();
             gaze.interactableLabel = text.Replace("<b>", "").Replace("</b>", "").Split('\n')[0];
             gaze.dwellTime = 1.1f;
-            if (onClick != null) gaze.onClick.AddListener(() => onClick.Invoke());
+            if (onClick != null) gaze.onClick.AddListener(() => invokeOncePerFrame());
 
             GameObject txtGO = new GameObject("Text");
             txtGO.transform.SetParent(btnGO.transform, false);
@@ -1030,7 +1039,7 @@ namespace AndesSim.UI
                     AndesSim.Audio.AudioManager.I.PlayEvidenceFound();
                 }
                 bg.color = new Color(0.08f, 0.35f, 0.18f, 0.95f);
-                tmp.text = $"<b>[✓ IDENTIFICADA]</b>\n<size=10>{signalId}</size>";
+                tmp.text = $"<b>[OK IDENTIFICADA]</b>\n<size=10>{signalId}</size>";
                 tmp.color = GreenSuccessColor;
             };
 

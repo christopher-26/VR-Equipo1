@@ -2,8 +2,8 @@
 **Proyecto:** ANDES-SIM · Caso BANCO ANDINO — Escenario 1: Oficina de pagos (VR)
 **Equipo:** Equipo 1 (VR)
 **Escena Auditada:** `Oficina_Pagos.unity`
-**Fecha y Hora:** `2026-11-05 05:22:33`
-**Calificación Obtenida:** **`20.0 / 20.0 PUNTOS`** (100%)
+**Fecha y Hora:** `2026-11-12 22:41:30`
+**Calificación Obtenida:** **`18.3 / 20.0 PUNTOS`** (91%)
 
 ---
 
@@ -11,8 +11,8 @@
 
 | Métrica | Valor |
 | :--- | :--- |
-| **Puntaje Total** | **20.0 / 20.0 Pts** |
-| **Criterios Aprobados** | **21 / 21** |
+| **Puntaje Total** | **18.3 / 20.0 Pts** |
+| **Criterios Aprobados** | **19 / 21** |
 | **Estado de Cumplimiento** | **EXCELENTE (SOBRESALIENTE)** |
 | **Plataforma Objetivo** | Google Cardboard XR (Android OpenGLES3, 60 FPS) |
 
@@ -25,7 +25,7 @@
 
 | Código | Criterio de Evaluación | Puntaje | Estado | Detalles y Evidencia |
 | :--- | :--- | :--- | :--- | :--- |
-| **`RF01-1`** | Existencia de los 3 puestos de trabajo físicos (RF-01) | **1.00** / 1.00 | ✅ **APROBADO** | Se localizaron las 3 estaciones de trabajo en la oficina.<br/>*Evidencia:* `P1: Puesto_01_CarlaMendoza, P2: Puesto_02_ComercioExterior, P3: Puesto_03_ConsolaDefensas` |
+| **`RF01-1`** | Existencia de los 3 puestos de trabajo físicos (RF-01) | **0.00** / 1.00 | ❌ **OBSERVADO** | Falta uno o más puestos de trabajo.<br/>*Evidencia:* `P1: Falta, P2: Falta, P3: Falta` |
 | **`RF01-2`** | Existencia de Monitor_01, Monitor_02 y Monitor_03 | **1.00** / 1.00 | ✅ **APROBADO** | Los 3 monitores principales están instanciados.<br/>*Evidencia:* `Monitor_01: True, Monitor_02: True, Monitor_03: True` |
 | **`RF01-3`** | Monitores en Capa 'Interactive' (Layer 8) con Collider | **0.75** / 0.75 | ✅ **APROBADO** | Los 3 monitores poseen colisionador y pertenecen a la capa 'Interactive'.<br/>*Evidencia:* `M1 (L:8, Col:True), M2 (L:8), M3 (L:8)` |
 | **`RF01-4`** | Pantallas con Canvas en World Space | **0.75** / 0.75 | ✅ **APROBADO** | Los 3 monitores proyectan su interfaz gráfica en RenderMode.WorldSpace para VR.<br/>*Evidencia:* `C1: WorldSpace, C2: WorldSpace, C3: WorldSpace` |
@@ -66,9 +66,9 @@
 
 | Código | Criterio de Evaluación | Puntaje | Estado | Detalles y Evidencia |
 | :--- | :--- | :--- | :--- | :--- |
-| **`VR-1`** | Portal de Entrada (Vestíbulo con Briefing y Créditos) | **0.75** / 0.75 | ✅ **APROBADO** | Portal_Entrada instanciado con colisionador interactivo y panel de briefing.<br/>*Evidencia:* `Portal: Portal_Entrada` |
-| **`VR-2`** | Puntos de Teletransporte Discreto (Zero Cybersickness) | **0.75** / 0.75 | ✅ **APROBADO** | Los 3 TeleportPoints (Puestos 1, 2 y 3) están activos en capa Interactive con aro luminoso.<br/>*Evidencia:* `TP1: True, TP2: True, TP3: True (Total: 4)` |
-| **`VR-3`** | Al Menos 5 Objetos Interactivos con la Retícula (>=5) | **0.50** / 0.50 | ✅ **APROBADO** | Se detectaron 36 objetos interactivos en capa 8 (supera ampliamente el mínimo de 5).<br/>*Evidencia:* `Total interactables válidos: 36 (Mínimo: 5)` |
+| **`VR-1`** | Portal de Entrada (Vestíbulo con Briefing y Créditos) | **0.00** / 0.75 | ❌ **OBSERVADO** | No se encontró Portal_Entrada.<br/>*Evidencia:* `Portal: ` |
+| **`VR-2`** | Puntos de Teletransporte Discreto (Zero Cybersickness) | **0.75** / 0.75 | ✅ **APROBADO** | Los 3 TeleportPoints (Puestos 1, 2 y 3) están activos en capa Interactive con aro luminoso.<br/>*Evidencia:* `TP1: True, TP2: True, TP3: True (Total: 5)` |
+| **`VR-3`** | Al Menos 5 Objetos Interactivos con la Retícula (>=5) | **0.50** / 0.50 | ✅ **APROBADO** | Se detectaron 25 objetos interactivos en capa 8 (supera ampliamente el mínimo de 5).<br/>*Evidencia:* `Total interactables válidos: 25 (Mínimo: 5)` |
 | **`VR-4`** | Administrador de Audio Procedural (AudioManager) | **0.50** / 0.50 | ✅ **APROBADO** | AudioManager central presente con los 7 tonos matemáticos procedurales.<br/>*Evidencia:* `AudioManager: _SYSTEMS` |
 | **`VR-5`** | Pantalla Final, Tablero de Sospechosos y Créditos/Ética | **0.50** / 0.50 | ✅ **APROBADO** | EndScenarioPanelUI, SuspectBoardVR (4 sospechosos) y CreditsAndEthicsModalUI (Leyes 30096/29733) están presentes.<br/>*Evidencia:* `EndPanel: True, SuspectBoard: True, CreditsModal: True` |
 

@@ -119,9 +119,8 @@ namespace AndesSim.Editor
             }
             else
             {
-                Debug.Log($"{LogPrefix} [2/8] Creando nueva escena y configurando iluminacion nocturna...");
+                Debug.Log($"{LogPrefix} [2/8] Creando nueva escena base...");
                 scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-                SetupEnvironmentLighting();
                 envRoot = new GameObject("--- ENTORNO 3D: BANCO ANDINO ---");
                 ProceduralOfficeEnvironmentBuilder.BuildOfficeGeometry(envRoot.transform, false, false);
             }
@@ -208,6 +207,9 @@ namespace AndesSim.Editor
             BuildEndScenarioHolographicPanel(uiRoot.transform, playerRig);
             BuildCreditsAndEthicsModal(uiRoot.transform, playerRig);
 
+            // Configurar e inyectar iluminación completa del SOC / Oficina VNB después de colocar puestos y menú
+            SetupEnvironmentLighting();
+
             // -------------------------------------------------------------------------
             // GUARDAR Y REGISTRAR ESCENA
             // -------------------------------------------------------------------------
@@ -287,6 +289,7 @@ namespace AndesSim.Editor
             sAudio.FindProperty("investigationMusicClip").objectReferenceValue = 
                 AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_AndesSim/Audio/Music/Music_CyberInvestigation_Theme.wav");
             sAudio.FindProperty("attackTensionMusicClip").objectReferenceValue = 
+                AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Horror_Music_Free_Starter_Kit/WAV_LIGHT_TENSION_LOOP_The_Urge_to_Kill.wav") ??
                 AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Horror_Music_Free_Starter_Kit/WAV_LIGHT_TENSION_LOOP_Run_for_Your_Life.wav");
             sAudio.FindProperty("infectionVoiceAlertClip").objectReferenceValue = 
                 AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/The Alerted NPC/04. What's That.wav");
@@ -1145,7 +1148,7 @@ namespace AndesSim.Editor
             // Card Modo Ataque (Izquierda)
             GameObject btnAtkObj = CreateWorldGazeButton("Btn_SelectAtaque", canvasObj.transform,
                 new Vector2(-195f, 40f), new Vector2(360f, 130f),
-                "<b><size=17><color=#FF5A4E>[ \u26A0 MODO ATAQUE 2016 ]</color></size></b>\n\n<size=12><color=#E2E8F0>\u2022 Recreaci\u00F3n hist\u00F3rica del ataque Lazarus\n\u2022 Spear Phishing a Carla Mendoza\n\u2022 Salto lateral y robo SWIFT ($81M)</color></size>",
+                "<b><size=17><color=#FF5A4E>[ ! MODO ATAQUE 2016 ]</color></size></b>\n\n<size=12><color=#E2E8F0>\u2022 Recreaci\u00F3n hist\u00F3rica del ataque Lazarus\n\u2022 Spear Phishing a Carla Mendoza\n\u2022 Salto lateral y robo SWIFT ($81M)</color></size>",
                 new Color(0.20f, 0.06f, 0.08f, 0.95f), new Color(1f, 0.35f, 0.31f, 1f), 13f);
             Button btnAtk = btnAtkObj.GetComponent<Button>();
             Image imgAtkBorder = btnAtkObj.GetComponent<Image>();
@@ -1153,7 +1156,7 @@ namespace AndesSim.Editor
             // Card Modo Defensa (Derecha)
             GameObject btnDefObj = CreateWorldGazeButton("Btn_SelectDefensa", canvasObj.transform,
                 new Vector2(195f, 40f), new Vector2(360f, 130f),
-                "<b><size=17><color=#38F28A>[ \uD83D\uDEE1 MODO DEFENSA SOC ]</color></size></b>\n\n<size=12><color=#E2E8F0>\u2022 Protocolo de respuesta t\u00E1ctica del SOC\n\u2022 Aislamiento preventivo en Sandbox\n\u2022 Bloqueo C2 y 100% de fondos protegidos</color></size>",
+                "<b><size=17><color=#38F28A>[ + MODO DEFENSA SOC ]</color></size></b>\n\n<size=12><color=#E2E8F0>\u2022 Protocolo de respuesta t\u00E1ctica del SOC\n\u2022 Aislamiento preventivo en Sandbox\n\u2022 Bloqueo C2 y 100% de fondos protegidos</color></size>",
                 new Color(0.06f, 0.18f, 0.10f, 0.95f), new Color(0.22f, 0.95f, 0.54f, 1f), 13f);
             Button btnDef = btnDefObj.GetComponent<Button>();
             Image imgDefBorder = btnDefObj.GetComponent<Image>();
@@ -1172,7 +1175,7 @@ namespace AndesSim.Editor
             // 4. Gran Botón Iniciar Simulación
             GameObject btnStartObj = CreateWorldGazeButton("Btn_IniciarSimulacion", canvasObj.transform,
                 new Vector2(0f, -135f), new Vector2(560f, 64f),
-                "<b><size=18>[ ▶ INICIAR SIMULACIÓN ]</size></b>",
+                "<b><size=18>[ > INICIAR SIMULACIÓN ]</size></b>",
                 new Color(0.08f, 0.45f, 0.55f, 0.98f), new Color(0f, 0.95f, 1f, 1f), 17f);
             Button btnStart = btnStartObj.GetComponent<Button>();
 
@@ -1461,7 +1464,7 @@ namespace AndesSim.Editor
             catRect.anchoredPosition = new Vector2(0f, 26f);
             catRect.sizeDelta = new Vector2(450f, 110f);
             TextMeshProUGUI caTmp = caTxtObj.AddComponent<TextMeshProUGUI>();
-            caTmp.text = "<size=18><b><color=#FF5A4E>[ ⚠ MODO ATAQUE 2016 ]</color></b></size>\n" +
+            caTmp.text = "<size=18><b><color=#FF5A4E>[ ! MODO ATAQUE 2016 ]</color></b></size>\n" +
                          "<size=13.5><color=#D1D5DB>Recreación del ciberataque histórico real de Lazarus</color></size>\n\n" +
                          "• <b>Vector:</b> Spear Phishing con dropper .scr a Carla Mendoza\n" +
                          "• <b>Salto Lateral:</b> Red plana bancaria sin VLANs hacia SWIFT\n" +
@@ -1499,7 +1502,7 @@ namespace AndesSim.Editor
             cdtRect.anchoredPosition = new Vector2(0f, 26f);
             cdtRect.sizeDelta = new Vector2(450f, 110f);
             TextMeshProUGUI cdTmp = cdTxtObj.AddComponent<TextMeshProUGUI>();
-            cdTmp.text = "<size=18><b><color=#38F28A>[ 🛡 MODO DEFENSA SOC ]</color></b></size>\n" +
+            cdTmp.text = "<size=18><b><color=#38F28A>[ + MODO DEFENSA SOC ]</color></b></size>\n" +
                          "<size=13.5><color=#D1D5DB>Respuesta táctica y contención perimetral del SOC</color></size>\n\n" +
                          "• <b>Detección:</b> Alerta por remitente falso sin SPF/DKIM\n" +
                          "• <b>Sandbox Cuckoo:</b> Aislamiento preventivo del adjunto en Sandbox\n" +
@@ -1536,7 +1539,7 @@ namespace AndesSim.Editor
 
             // Gran Botón de Inicio de Simulación
             GameObject btnStartObj = CreateWorldGazeButton("Btn_IniciarSimulacion", p0.transform,
-                new Vector2(0f, -170f), new Vector2(660f, 60f), "<b><size=17>[ ▶ ENTRAR A LA OFICINA (INICIAR) ]</size></b>",
+                new Vector2(0f, -170f), new Vector2(660f, 60f), "<b><size=17>[ > ENTRAR A LA OFICINA (INICIAR) ]</size></b>",
                 new Color(0.08f, 0.45f, 0.55f, 0.98f), new Color(0f, 0.95f, 1f, 1f), 17f);
             Button btnStart = btnStartObj.GetComponent<Button>();
 
