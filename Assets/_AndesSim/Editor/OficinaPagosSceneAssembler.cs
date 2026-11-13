@@ -116,6 +116,7 @@ namespace AndesSim.Editor
                 }
                 envRoot = GameObject.Find("Floor 0");
                 if (envRoot == null) envRoot = new GameObject("--- ENTORNO 3D: BANCO ANDINO ---");
+                CompleteVnbOfficeEnclosureAndCeiling(envRoot);
             }
             else
             {
@@ -202,8 +203,7 @@ namespace AndesSim.Editor
             Debug.Log($"{LogPrefix} [8/8] Construyendo tablero de sospechosos, panel de defensas, HUD, pantalla final y créditos...");
             GameObject uiRoot = new GameObject("--- INTERFACES DE USUARIO (HUD & FINAL) ---");
             BuildSuspectBoard(uiRoot.transform);
-            // BuildWorldSpaceHud desactivado permanentemente para no ensuciar la pared con bloques flotantes
-            BuildFinalEvaluationScreen(uiRoot.transform);
+            // BuildWorldSpaceHud y BuildFinalEvaluationScreen desactivados para evitar duplicados o bloques flotantes
             BuildEndScenarioHolographicPanel(uiRoot.transform, playerRig);
             BuildCreditsAndEthicsModal(uiRoot.transform, playerRig);
 
@@ -765,58 +765,50 @@ namespace AndesSim.Editor
             lr2.positionCount = 16;
             lr2.enabled = false;
 
-            // Letrero holográfico superior con tirantes metálicos anclados al techo
+            // Proyector fijado al techo (Y = 2.97m) + letrero holográfico legible debajo (Y = 2.52m)
+            Material matRod = CreateColorMaterial("Mat_CeilingMountRod", new Color(0.18f, 0.21f, 0.26f));
+            GameObject projectorBox = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            projectorBox.name = "Proyector_Holograma_Techo";
+            projectorBox.transform.SetParent(visualizerObj.transform, false);
+            projectorBox.transform.position = new Vector3(3.35f, 2.97f, -1.55f);
+            projectorBox.transform.localScale = new Vector3(0.65f, 0.06f, 0.16f);
+            projectorBox.GetComponent<Renderer>().sharedMaterial = matRod;
+
             GameObject holoPanel = new GameObject("Holographic_Breach_Sign");
             holoPanel.transform.SetParent(visualizerObj.transform, false);
-            holoPanel.transform.position = new Vector3(3.35f, 2.75f, -1.55f);
+            holoPanel.transform.position = new Vector3(3.35f, 2.52f, -1.55f);
             holoPanel.transform.rotation = Quaternion.identity;
-
-            Material matRod = CreateColorMaterial("Mat_CeilingMountRod", new Color(0.25f, 0.28f, 0.33f));
-            GameObject rodL = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            rodL.name = "Tirante_Techo_Izq";
-            rodL.transform.SetParent(holoPanel.transform, false);
-            rodL.transform.localPosition = new Vector3(-1.25f, 0.45f, 0f);
-            rodL.transform.localScale = new Vector3(0.02f, 0.45f, 0.02f);
-            rodL.GetComponent<Renderer>().sharedMaterial = matRod;
-
-            GameObject rodR = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            rodR.name = "Tirante_Techo_Der";
-            rodR.transform.SetParent(holoPanel.transform, false);
-            rodR.transform.localPosition = new Vector3(1.25f, 0.45f, 0f);
-            rodR.transform.localScale = new Vector3(0.02f, 0.45f, 0.02f);
-            rodR.GetComponent<Renderer>().sharedMaterial = matRod;
 
             Canvas holoCanvas = holoPanel.AddComponent<Canvas>();
             holoCanvas.renderMode = RenderMode.WorldSpace;
             RectTransform hRect = holoPanel.GetComponent<RectTransform>();
-            hRect.sizeDelta = new Vector2(400f, 85f);
+            hRect.sizeDelta = new Vector2(420f, 95f);
             hRect.localScale = new Vector3(0.007f, 0.007f, 0.007f);
 
             CanvasGroup holoCg = holoPanel.AddComponent<CanvasGroup>();
             holoCg.alpha = 0f;
 
             Image hBg = holoPanel.AddComponent<Image>();
-            hBg.color = new Color(0.08f, 0.02f, 0.02f, 0.94f);
+            hBg.color = new Color(0.08f, 0.02f, 0.02f, 0.95f);
 
             GameObject hTitleObj = new GameObject("Txt_HoloTitle");
             hTitleObj.transform.SetParent(holoPanel.transform, false);
             RectTransform htRect = hTitleObj.AddComponent<RectTransform>();
-            htRect.anchoredPosition = new Vector2(0f, 20f);
-            htRect.sizeDelta = new Vector2(380f, 24f);
+            htRect.anchoredPosition = new Vector2(0f, 22f);
+            htRect.sizeDelta = new Vector2(390f, 30f);
             TextMeshProUGUI htTmp = hTitleObj.AddComponent<TextMeshProUGUI>();
-            htTmp.text = "<b><color=#FF5A4E>¡ALERTA CRÍTICA: RED PLANA DEL BANCO COMPROMETIDA!</color></b>";
-            htTmp.fontSize = 13;
+            htTmp.text = "<b><color=#FF5A4E>ALERTA: RED COMPROMETIDA</color></b>";
+            htTmp.fontSize = 18f;
             htTmp.alignment = TextAlignmentOptions.Center;
 
             GameObject hBodyObj = new GameObject("Txt_HoloBody");
             hBodyObj.transform.SetParent(holoPanel.transform, false);
             RectTransform hbRect = hBodyObj.AddComponent<RectTransform>();
-            hbRect.anchoredPosition = new Vector2(0f, -12f);
-            hbRect.sizeDelta = new Vector2(380f, 38f);
+            hbRect.anchoredPosition = new Vector2(0f, -14f);
+            hbRect.sizeDelta = new Vector2(390f, 40f);
             TextMeshProUGUI hbTmp = hBodyObj.AddComponent<TextMeshProUGUI>();
-            hbTmp.text = "<b>29 ENE 2015: PUERTA TRASERA ABIERTA EN LA RED DEL BANCO ANDINO.</b>\n" +
-                         "El grupo Lazarus inicia 1 año de espionaje silencioso que culminará en las 36 órdenes SWIFT.";
-            hbTmp.fontSize = 9.5f;
+            hbTmp.text = "29 ENE 2015: Malware Lazarus activo en los 3 puestos.";
+            hbTmp.fontSize = 13.5f;
             hbTmp.alignment = TextAlignmentOptions.Center;
 
             InfectionSpreadVisualizer visualizer = visualizerObj.AddComponent<InfectionSpreadVisualizer>();
@@ -865,7 +857,7 @@ namespace AndesSim.Editor
         {
             // Construir el panel táctico de corcho 3D con las 4 fichas de los sospechosos y líneas rojas (RF-02)
             // Anclado sólidamente a la pared sur de la oficina (z = -5.92f) con soporte estructural al piso (RF-05 / QA)
-            GameObject boardObj = SuspectBoardMeshBuilder.BuildTacticalCorkBoard(parent, new Vector3(2.20f, 1.55f, -5.92f), Quaternion.Euler(0f, 180f, 0f));
+            GameObject boardObj = SuspectBoardMeshBuilder.BuildTacticalCorkBoard(parent, new Vector3(2.20f, 1.55f, -5.82f), Quaternion.Euler(0f, 180f, 0f));
             boardObj.name = "Tablero_Sospechosos_VR";
 
             // TeleportPoint específico frente al tablero de sospechosos, mirando hacia el sur
@@ -970,7 +962,6 @@ namespace AndesSim.Editor
             endObj.AddComponent<GraphicRaycaster>();
 
             endObj.AddComponent<EndScenarioPanelUI>();
-            endObj.SetActive(false); // Inicia inactivo
         }
 
         private static void BuildCreditsAndEthicsModal(Transform parent, GameObject playerRig)
@@ -982,13 +973,12 @@ namespace AndesSim.Editor
             Canvas canvas = modalObj.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.WorldSpace;
             RectTransform rect = modalObj.GetComponent<RectTransform>();
-            rect.sizeDelta = new Vector2(460f, 280f);
-            rect.localScale = new Vector3(0.004f, 0.004f, 0.004f);
+            rect.sizeDelta = new Vector2(960f, 650f);
+            rect.localScale = new Vector3(0.0019f, 0.0019f, 0.0019f);
             modalObj.AddComponent<CanvasScaler>();
             modalObj.AddComponent<GraphicRaycaster>();
 
             modalObj.AddComponent<CreditsAndEthicsModalUI>();
-            modalObj.SetActive(false); // Inicia oculto
         }
 
         #endregion
@@ -1049,16 +1039,26 @@ namespace AndesSim.Editor
 
         #region Menú de Inicio VR Simple y Flotante (Sin muro ni arco intrusivo)
 
+        private static void AddUiEdgeBar(string name, Transform parent, Vector2 anchoredPos, Vector2 sizeDelta, Color color)
+        {
+            GameObject bar = new GameObject(name);
+            bar.transform.SetParent(parent, false);
+            RectTransform r = bar.AddComponent<RectTransform>();
+            r.anchoredPosition = anchoredPos;
+            r.sizeDelta = sizeDelta;
+            Image img = bar.AddComponent<Image>();
+            img.color = color;
+            img.raycastTarget = false;
+        }
+
         private static GameObject BuildSimpleVrStartMenu(Transform parent)
         {
             GameObject menuRoot = new GameObject("MenuInicio_Simple_VR");
             menuRoot.transform.SetParent(parent, false);
-            // Kiosk/Tótem interactivo situado frente a la puerta de entrada, soportado desde el suelo (y=0)
             menuRoot.transform.position = new Vector3(-2.60f, 1.45f, 2.35f);
             menuRoot.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
             menuRoot.layer = LayerMask.NameToLayer("Interactive");
 
-            // Pedestal estructural del tótem (anclado físicamente al suelo en y=0)
             Material matKioskBase = CreateColorMaterial("Mat_Kiosk_MetalDark", new Color(0.06f, 0.09f, 0.14f));
             Material matKioskNeon = CreateColorMaterial("Mat_Kiosk_NeonCyan", new Color(0f, 0.85f, 1f));
             matKioskNeon.EnableKeyword("_EMISSION");
@@ -1081,31 +1081,31 @@ namespace AndesSim.Editor
             GameObject kioskColObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
             kioskColObj.name = "Quiosco_Columna_Soporte";
             kioskColObj.transform.SetParent(menuRoot.transform, false);
-            kioskColObj.transform.localPosition = new Vector3(0f, -0.95f, 0f);
-            kioskColObj.transform.localScale = new Vector3(0.18f, 0.88f, 0.10f);
+            kioskColObj.transform.localPosition = new Vector3(0f, -0.92f, 0f);
+            kioskColObj.transform.localScale = new Vector3(0.18f, 0.96f, 0.10f);
             kioskColObj.GetComponent<Renderer>().sharedMaterial = matKioskBase;
 
             GameObject kioskStripeObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
             kioskStripeObj.name = "Quiosco_Franja_Luminosa";
             kioskStripeObj.transform.SetParent(menuRoot.transform, false);
-            kioskStripeObj.transform.localPosition = new Vector3(0f, -0.95f, -0.055f);
-            kioskStripeObj.transform.localScale = new Vector3(0.04f, 0.86f, 0.015f);
+            kioskStripeObj.transform.localPosition = new Vector3(0f, -0.92f, -0.055f);
+            kioskStripeObj.transform.localScale = new Vector3(0.04f, 0.94f, 0.015f);
             kioskStripeObj.GetComponent<Renderer>().sharedMaterial = matKioskNeon;
 
-            // Canvas World Space
+            // Canvas World Space amplio y de alta legibilidad VR
             GameObject canvasObj = new GameObject("Canvas_MenuInicio_Simple");
             canvasObj.transform.SetParent(menuRoot.transform, false);
             Canvas canvas = canvasObj.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.WorldSpace;
             RectTransform cRect = canvasObj.GetComponent<RectTransform>();
-            cRect.sizeDelta = new Vector2(820f, 480f);
-            cRect.localScale = new Vector3(0.0018f, 0.0018f, 0.0018f);
+            cRect.sizeDelta = new Vector2(860f, 520f);
+            cRect.localScale = new Vector3(0.0019f, 0.0019f, 0.0019f);
             canvasObj.AddComponent<CanvasScaler>();
             canvasObj.AddComponent<GraphicRaycaster>();
 
             CanvasGroup canvasGroup = canvasObj.AddComponent<CanvasGroup>();
 
-            // Fondo Panel Dark Glass con borde cian
+            // Fondo Dark Glass
             GameObject bgObj = new GameObject("Panel_Background");
             bgObj.transform.SetParent(canvasObj.transform, false);
             RectTransform bgRect = bgObj.AddComponent<RectTransform>();
@@ -1113,81 +1113,166 @@ namespace AndesSim.Editor
             bgRect.anchorMax = Vector2.one;
             bgRect.sizeDelta = Vector2.zero;
             Image bgImg = bgObj.AddComponent<Image>();
-            bgImg.color = new Color(0.04f, 0.08f, 0.14f, 0.94f);
+            bgImg.color = new Color(0.03f, 0.06f, 0.11f, 0.96f);
 
-            // Borde estético
-            GameObject borderObj = new GameObject("Border");
-            borderObj.transform.SetParent(bgObj.transform, false);
-            RectTransform bdrRect = borderObj.AddComponent<RectTransform>();
-            bdrRect.anchorMin = Vector2.zero;
-            bdrRect.anchorMax = Vector2.one;
-            bdrRect.sizeDelta = new Vector2(4f, 4f);
-            Image bdrImg = borderObj.AddComponent<Image>();
-            bdrImg.color = new Color(0f, 0.85f, 1f, 0.35f);
+            // Borde perimetral real con 4 barras cian (sin tapar el fondo ni el texto)
+            Color frameCyan = new Color(0f, 0.88f, 1f, 0.85f);
+            AddUiEdgeBar("Border_Top", bgObj.transform, new Vector2(0f, 258f), new Vector2(860f, 4f), frameCyan);
+            AddUiEdgeBar("Border_Bottom", bgObj.transform, new Vector2(0f, -258f), new Vector2(860f, 4f), frameCyan);
+            AddUiEdgeBar("Border_Left", bgObj.transform, new Vector2(-428f, 0f), new Vector2(4f, 520f), frameCyan);
+            AddUiEdgeBar("Border_Right", bgObj.transform, new Vector2(428f, 0f), new Vector2(4f, 520f), frameCyan);
 
-            // 1. Título y Subtítulo
+            // Título y Subtítulo
             GameObject titleObj = new GameObject("Title");
             titleObj.transform.SetParent(canvasObj.transform, false);
             RectTransform tRect = titleObj.AddComponent<RectTransform>();
-            tRect.anchoredPosition = new Vector2(0f, 185f);
-            tRect.sizeDelta = new Vector2(780f, 42f);
+            tRect.anchoredPosition = new Vector2(0f, 206f);
+            tRect.sizeDelta = new Vector2(810f, 44f);
             TextMeshProUGUI tTmp = titleObj.AddComponent<TextMeshProUGUI>();
-            tTmp.text = "<b><size=22><color=#00F2FE>BANCO ANDINO</color> · <color=#FFFFFF>SIMULADOR FORENSE VR</color></size></b>";
+            tTmp.text = "<b><color=#00F2FE>BANCO ANDINO</color> | SIMULADOR VR</b>";
+            tTmp.fontSize = 26f;
             tTmp.alignment = TextAlignmentOptions.Center;
+            tTmp.color = Color.white;
 
             GameObject subObj = new GameObject("SubTitle");
             subObj.transform.SetParent(canvasObj.transform, false);
             RectTransform sRect = subObj.AddComponent<RectTransform>();
-            sRect.anchoredPosition = new Vector2(0f, 142f);
-            sRect.sizeDelta = new Vector2(780f, 28f);
+            sRect.anchoredPosition = new Vector2(0f, 164f);
+            sRect.sizeDelta = new Vector2(810f, 30f);
             TextMeshProUGUI sTmp = subObj.AddComponent<TextMeshProUGUI>();
-            sTmp.text = "<size=13.5><color=#94A3B8>Selecciona el modo de simulación para comenzar:</color></size>";
+            sTmp.text = "Elige el modo para empezar:";
+            sTmp.fontSize = 18f;
             sTmp.alignment = TextAlignmentOptions.Center;
+            sTmp.color = new Color(0.75f, 0.84f, 0.94f, 1f);
 
-            // 2. Tarjetas / Botones de Modo
-            // Card Modo Ataque (Izquierda)
-            GameObject btnAtkObj = CreateWorldGazeButton("Btn_SelectAtaque", canvasObj.transform,
-                new Vector2(-195f, 40f), new Vector2(360f, 130f),
-                "<b><size=17><color=#FF5A4E>[ ! MODO ATAQUE 2016 ]</color></size></b>\n\n<size=12><color=#E2E8F0>\u2022 Recreaci\u00F3n hist\u00F3rica del ataque Lazarus\n\u2022 Spear Phishing a Carla Mendoza\n\u2022 Salto lateral y robo SWIFT ($81M)</color></size>",
-                new Color(0.20f, 0.06f, 0.08f, 0.95f), new Color(1f, 0.35f, 0.31f, 1f), 13f);
+            // Vista 1: Selección de Modos
+            GameObject panelModos = new GameObject("Panel_VistaModos");
+            panelModos.transform.SetParent(canvasObj.transform, false);
+            RectTransform pmRect = panelModos.AddComponent<RectTransform>();
+            pmRect.anchorMin = Vector2.zero;
+            pmRect.anchorMax = Vector2.one;
+            pmRect.sizeDelta = Vector2.zero;
+
+            // Marco exterior Ataque (evita teñir todo el fondo del botón)
+            GameObject frameAtkObj = new GameObject("Frame_ModoAtaque");
+            frameAtkObj.transform.SetParent(panelModos.transform, false);
+            RectTransform faRect = frameAtkObj.AddComponent<RectTransform>();
+            faRect.anchoredPosition = new Vector2(-205f, 55f);
+            faRect.sizeDelta = new Vector2(380f, 150f);
+            Image imgAtkBorder = frameAtkObj.AddComponent<Image>();
+            imgAtkBorder.color = new Color(1f, 0.35f, 0.31f, 1f);
+
+            GameObject btnAtkObj = CreateWorldGazeButton("Btn_SelectAtaque", frameAtkObj.transform,
+                Vector2.zero, new Vector2(368f, 138f),
+                "<b><size=19><color=#FF5A4E>MODO ATAQUE</color></size></b>\n<size=15><color=#E2E8F0>Mira el phishing y el robo\n($81M en vivo)</color></size>",
+                new Color(0.16f, 0.05f, 0.07f, 0.98f), new Color(1f, 0.35f, 0.31f, 1f), 16f);
             Button btnAtk = btnAtkObj.GetComponent<Button>();
-            Image imgAtkBorder = btnAtkObj.GetComponent<Image>();
 
-            // Card Modo Defensa (Derecha)
-            GameObject btnDefObj = CreateWorldGazeButton("Btn_SelectDefensa", canvasObj.transform,
-                new Vector2(195f, 40f), new Vector2(360f, 130f),
-                "<b><size=17><color=#38F28A>[ + MODO DEFENSA SOC ]</color></size></b>\n\n<size=12><color=#E2E8F0>\u2022 Protocolo de respuesta t\u00E1ctica del SOC\n\u2022 Aislamiento preventivo en Sandbox\n\u2022 Bloqueo C2 y 100% de fondos protegidos</color></size>",
-                new Color(0.06f, 0.18f, 0.10f, 0.95f), new Color(0.22f, 0.95f, 0.54f, 1f), 13f);
+            // Marco exterior Defensa
+            GameObject frameDefObj = new GameObject("Frame_ModoDefensa");
+            frameDefObj.transform.SetParent(panelModos.transform, false);
+            RectTransform fdRect = frameDefObj.AddComponent<RectTransform>();
+            fdRect.anchoredPosition = new Vector2(205f, 55f);
+            fdRect.sizeDelta = new Vector2(380f, 150f);
+            Image imgDefBorder = frameDefObj.AddComponent<Image>();
+            imgDefBorder.color = new Color(0.18f, 0.30f, 0.44f, 0.70f);
+
+            GameObject btnDefObj = CreateWorldGazeButton("Btn_SelectDefensa", frameDefObj.transform,
+                Vector2.zero, new Vector2(368f, 138f),
+                "<b><size=19><color=#38F28A>MODO DEFENSA</color></size></b>\n<size=15><color=#E2E8F0>Detecta pistas, bloquea\ny activa MFA</color></size>",
+                new Color(0.05f, 0.16f, 0.10f, 0.98f), new Color(0.22f, 0.95f, 0.54f, 1f), 16f);
             Button btnDef = btnDefObj.GetComponent<Button>();
-            Image imgDefBorder = btnDefObj.GetComponent<Image>();
 
-            // 3. Badge de Modo Seleccionado
             GameObject badgeObj = new GameObject("Txt_ModoBadge");
-            badgeObj.transform.SetParent(canvasObj.transform, false);
+            badgeObj.transform.SetParent(panelModos.transform, false);
             RectTransform bRect = badgeObj.AddComponent<RectTransform>();
-            bRect.anchoredPosition = new Vector2(0f, -50f);
-            bRect.sizeDelta = new Vector2(780f, 30f);
+            bRect.anchoredPosition = new Vector2(0f, -42f);
+            bRect.sizeDelta = new Vector2(790f, 34f);
             TextMeshProUGUI bTmp = badgeObj.AddComponent<TextMeshProUGUI>();
-            bTmp.text = "MODO SELECCIONADO: <color=#FF5A4E><b>[MODO ATAQUE 2016 - HISTÓRICO]</b></color>";
-            bTmp.fontSize = 14.5f;
+            bTmp.text = "MODO ACTIVO: ATAQUE";
+            bTmp.fontSize = 19f;
+            bTmp.fontStyle = FontStyles.Bold;
             bTmp.alignment = TextAlignmentOptions.Center;
+            bTmp.color = new Color(1f, 0.35f, 0.31f, 1f);
 
-            // 4. Gran Botón Iniciar Simulación
+            GameObject descObj = new GameObject("Txt_ModoDescripcion");
+            descObj.transform.SetParent(panelModos.transform, false);
+            RectTransform dRect = descObj.AddComponent<RectTransform>();
+            dRect.anchoredPosition = new Vector2(0f, -92f);
+            dRect.sizeDelta = new Vector2(790f, 68f);
+            TextMeshProUGUI dTmp = descObj.AddComponent<TextMeshProUGUI>();
+            dTmp.text = "1. Revisa el correo en PC 1\n2. Abre el enlace y mira la infeccion\n3. Ubica al responsable en el tablero";
+            dTmp.fontSize = 15.5f;
+            dTmp.alignment = TextAlignmentOptions.Center;
+            dTmp.color = new Color(0.88f, 0.94f, 1f, 1f);
+
+            // Vista 2: Guía Visual de 3 Pasos (Oculta al inicio)
+            GameObject panelPasos = new GameObject("Panel_VistaPasos");
+            panelPasos.transform.SetParent(canvasObj.transform, false);
+            RectTransform ppRect = panelPasos.AddComponent<RectTransform>();
+            ppRect.anchorMin = Vector2.zero;
+            ppRect.anchorMax = Vector2.one;
+            ppRect.sizeDelta = Vector2.zero;
+
+            GameObject pasosCard = new GameObject("Card_GuiaPasos");
+            pasosCard.transform.SetParent(panelPasos.transform, false);
+            RectTransform pcRect = pasosCard.AddComponent<RectTransform>();
+            pcRect.anchoredPosition = new Vector2(0f, 14f);
+            pcRect.sizeDelta = new Vector2(780f, 236f);
+            Image pcBg = pasosCard.AddComponent<Image>();
+            pcBg.color = new Color(0.06f, 0.11f, 0.18f, 0.96f);
+
+            GameObject pasosTxtObj = new GameObject("Txt_GuiaPasos");
+            pasosTxtObj.transform.SetParent(pasosCard.transform, false);
+            RectTransform ptRect = pasosTxtObj.AddComponent<RectTransform>();
+            ptRect.sizeDelta = new Vector2(740f, 210f);
+            TextMeshProUGUI pTmp = pasosTxtObj.AddComponent<TextMeshProUGUI>();
+            pTmp.text =
+                "<b><color=#00F2FE>COMO FUNCIONA EL SIMULADOR (3 PASOS)</color></b>\n\n" +
+                "<b>1. ENTRA Y MIRA PC 1:</b> Se abrira el correo sospechoso y el Post-It.\n" +
+                "<b>2. PRESIONA LAS PISTAS:</b> Revisa 1ra parte, marca pistas o ve a PC 3 (SIEM).\n" +
+                "<b>3. TABLERO / DEFENSA:</b> Elige sospechoso o activa MFA y Sandbox.";
+            pTmp.fontSize = 18f;
+            pTmp.alignment = TextAlignmentOptions.MidlineLeft;
+            pTmp.color = Color.white;
+            panelPasos.SetActive(false);
+
+            // Botón Principal: Iniciar Simulación
             GameObject btnStartObj = CreateWorldGazeButton("Btn_IniciarSimulacion", canvasObj.transform,
-                new Vector2(0f, -135f), new Vector2(560f, 64f),
-                "<b><size=18>[ > INICIAR SIMULACIÓN ]</size></b>",
-                new Color(0.08f, 0.45f, 0.55f, 0.98f), new Color(0f, 0.95f, 1f, 1f), 17f);
+                new Vector2(0f, -166f), new Vector2(540f, 60f),
+                "<b>[ > INICIAR SIMULACION ]</b>",
+                new Color(0.08f, 0.45f, 0.55f, 0.98f), new Color(0f, 0.95f, 1f, 1f), 20f);
             Button btnStart = btnStartObj.GetComponent<Button>();
 
-            // 5. Configurar VrStartMenuController
+            // Fila Inferior de Utilidades (Cómo Funciona + Créditos)
+            GameObject btnPasosObj = CreateWorldGazeButton("Btn_TogglePasos", canvasObj.transform,
+                new Vector2(-210f, -226f), new Vector2(360f, 44f),
+                "[ ? COMO FUNCIONA ]",
+                new Color(0.10f, 0.20f, 0.34f, 0.95f), new Color(0f, 0.90f, 1f, 1f), 16f);
+            Button btnPasos = btnPasosObj.GetComponent<Button>();
+            TextMeshProUGUI txtPasosLabel = btnPasosObj.GetComponentInChildren<TextMeshProUGUI>();
+
+            GameObject btnCreditosObj = CreateWorldGazeButton("Btn_AbrirCreditos", canvasObj.transform,
+                new Vector2(210f, -226f), new Vector2(360f, 44f),
+                "[ CREDITOS Y ETICA ]",
+                new Color(0.14f, 0.16f, 0.28f, 0.95f), new Color(0.35f, 0.85f, 1f, 1f), 16f);
+            Button btnCreditos = btnCreditosObj.GetComponent<Button>();
+
+            // Configurar VrStartMenuController
             VrStartMenuController startController = menuRoot.AddComponent<VrStartMenuController>();
             startController.BtnModoAtaque = btnAtk;
             startController.BtnModoDefensa = btnDef;
             startController.ImgModoAtaqueBorder = imgAtkBorder;
             startController.ImgModoDefensaBorder = imgDefBorder;
             startController.TxtModoSeleccionadoBadge = bTmp;
+            startController.TxtModoDescripcion = dTmp;
             startController.BtnIniciarSimulacion = btnStart;
             startController.MenuCanvasGroup = canvasGroup;
+            startController.BtnTogglePasos = btnPasos;
+            startController.TxtBtnTogglePasosLabel = txtPasosLabel;
+            startController.PanelVistaModos = panelModos;
+            startController.PanelVistaPasos = panelPasos;
+            startController.BtnAbrirCreditos = btnCreditos;
 
             GameObject tp1Obj = GameObject.Find("Teleport_Puesto1_Carla");
             if (tp1Obj != null)
@@ -1197,6 +1282,209 @@ namespace AndesSim.Editor
 
             Debug.Log($"{LogPrefix} <color=#38F28A>Menú de Inicio VR Simple y Flotante creado exitosamente.</color>");
             return menuRoot;
+        }
+
+        private static void InstantiateWallPrefabOrCube(GameObject prefab, GameObject fallbackPrefab, Transform parent,
+            string name, Vector3 pos, Quaternion rot, Material fallbackMat)
+        {
+            GameObject chosen = prefab != null ? prefab : fallbackPrefab;
+            if (chosen != null)
+            {
+                GameObject instance = PrefabUtility.InstantiatePrefab(chosen, parent) as GameObject;
+                if (instance != null)
+                {
+                    instance.name = name;
+                    instance.transform.position = pos;
+                    instance.transform.rotation = rot;
+                    return;
+                }
+            }
+
+            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cube.name = name;
+            cube.transform.SetParent(parent, false);
+            cube.transform.position = pos + (rot * new Vector3(-1f, 1.5f, 0f));
+            cube.transform.rotation = rot;
+            cube.transform.localScale = new Vector3(2f, 3f, 0.2f);
+            cube.GetComponent<Renderer>().sharedMaterial = fallbackMat;
+        }
+
+        private static void CompleteVnbOfficeEnclosureAndCeiling(GameObject envRoot)
+        {
+            if (envRoot == null) return;
+
+            GameObject existing = GameObject.Find("Estructura_Cerramiento_Techo_VR");
+            if (existing != null) UnityEngine.Object.DestroyImmediate(existing);
+
+            GameObject root = new GameObject("Estructura_Cerramiento_Techo_VR");
+            root.transform.SetParent(envRoot.transform, false);
+
+            GameObject wallStdPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/VNB - Office Set/Prefabs/Building/wall_standard.prefab");
+            GameObject wallWoodPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/VNB - Office Set/Prefabs/Building/wall_standard_wood_alt_1.prefab");
+
+            Material matWallFallback = RoomArchitectureBuilder.CreatePbrMaterial("Mat_Oficina_ParedCierre", new Color(0.80f, 0.82f, 0.86f), 0.2f, 0.0f);
+            Material matCeilingSlab = RoomArchitectureBuilder.CreatePbrMaterial("Mat_Oficina_TechoAcustico", new Color(0.84f, 0.86f, 0.89f), 0.15f, 0.0f);
+            Material matBeamDark = RoomArchitectureBuilder.CreatePbrMaterial("Mat_Oficina_VigaOscura", new Color(0.18f, 0.21f, 0.26f), 0.35f, 0.2f);
+            Material matTrofferFrame = RoomArchitectureBuilder.CreatePbrMaterial("Mat_Luminaria_Marco", new Color(0.12f, 0.15f, 0.20f), 0.45f, 0.35f);
+            Material matTrofferGlow = RoomArchitectureBuilder.CreatePbrMaterial("Mat_Luminaria_DifusorLED", new Color(0.98f, 0.99f, 1.0f), 0.90f, 0.0f, new Color(0.98f, 0.99f, 1.0f) * 2.4f);
+            Material matCoveNeon = RoomArchitectureBuilder.CreatePbrMaterial("Mat_Techo_CoveNeon", new Color(0.30f, 0.88f, 0.98f), 0.90f, 0.0f, new Color(0.30f, 0.88f, 0.98f) * 1.15f);
+            Material matClerestory = RoomArchitectureBuilder.CreatePbrMaterial("Mat_Cerramiento_SocSuperior", new Color(0.66f, 0.76f, 0.84f), 0.72f, 0.1f);
+
+            // 1. Muro Este completo (X = +8.00, rotY = -90 -> Z cubre [-6 .. +4])
+            Transform eastGroup = new GameObject("Muro_Este_Cerramiento").transform;
+            eastGroup.SetParent(root.transform, false);
+            float[] eastZ = { -4f, -2f, 0f, 2f, 4f };
+            for (int i = 0; i < eastZ.Length; i++)
+            {
+                bool useWood = (i == 1 || i == 3);
+                InstantiateWallPrefabOrCube(useWood ? wallWoodPrefab : wallStdPrefab, wallStdPrefab, eastGroup,
+                    $"Pared_Este_0{i + 1}", new Vector3(8.00f, 0f, eastZ[i]), Quaternion.Euler(0f, -90f, 0f), matWallFallback);
+            }
+
+            // 2. Muro Sur completo (Z = -6.00, rotY = 0 -> X cubre [-8 .. +8])
+            Transform southGroup = new GameObject("Muro_Sur_Cerramiento").transform;
+            southGroup.SetParent(root.transform, false);
+            float[] southX = { -6f, -4f, -2f, 0f, 2f, 4f, 6f, 8f };
+            for (int i = 0; i < southX.Length; i++)
+            {
+                // Mantener muro liso detras del Tablero de Sospechosos (X = 0..4)
+                bool useWood = (i == 1 || i == 6);
+                InstantiateWallPrefabOrCube(useWood ? wallWoodPrefab : wallStdPrefab, wallStdPrefab, southGroup,
+                    $"Pared_Sur_0{i + 1}", new Vector3(southX[i], 0f, -6.00f), Quaternion.identity, matWallFallback);
+            }
+
+            // 3. Columnas estructurales en las 4 esquinas exteriores
+            Vector3[] cornerPositions =
+            {
+                new Vector3(-8.00f, 1.50f, -6.00f),
+                new Vector3(8.00f, 1.50f, -6.00f),
+                new Vector3(8.00f, 1.50f, 4.00f),
+                new Vector3(-8.00f, 1.50f, 4.00f)
+            };
+            for (int c = 0; c < cornerPositions.Length; c++)
+            {
+                GameObject col = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                col.name = $"Columna_Esquina_0{c + 1}";
+                col.transform.SetParent(root.transform, false);
+                col.transform.position = cornerPositions[c];
+                col.transform.localScale = new Vector3(0.24f, 3.04f, 0.24f);
+                col.GetComponent<Renderer>().sharedMaterial = matBeamDark;
+            }
+
+            // 4. Cerramiento superior (2.50m .. 3.00m) sobre las paredes medianas del Cubiculo SOC Oeste
+            BuildTransomSegment(root.transform, "Cerramiento_SOC_Norte", new Vector3(-6.00f, 2.75f, 0.00f), new Vector3(4.00f, 0.50f, 0.12f), matClerestory, matBeamDark);
+            BuildTransomSegment(root.transform, "Cerramiento_SOC_Este", new Vector3(-4.00f, 2.75f, -3.00f), new Vector3(0.12f, 0.50f, 6.00f), matClerestory, matBeamDark);
+
+            // 5. Techo Arquitectonico Completo (cara inferior exacta en Y = 3.00m)
+            GameObject slab = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            slab.name = "Techo_Oficina_Losa";
+            slab.transform.SetParent(root.transform, false);
+            slab.transform.position = new Vector3(0.00f, 3.04f, -1.00f);
+            slab.transform.localScale = new Vector3(16.24f, 0.08f, 10.24f);
+            Renderer slabRend = slab.GetComponent<Renderer>();
+            slabRend.sharedMaterial = matCeilingSlab;
+            slabRend.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+
+            // Vigas transversales y molduras perimetrales del techo
+            float[] beamXs = { -4.00f, 0.00f, 4.00f };
+            for (int b = 0; b < beamXs.Length; b++)
+            {
+                GameObject beam = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                beam.name = $"Viga_Techo_0{b + 1}";
+                beam.transform.SetParent(root.transform, false);
+                beam.transform.position = new Vector3(beamXs[b], 2.97f, -1.00f);
+                beam.transform.localScale = new Vector3(0.18f, 0.06f, 9.88f);
+                beam.GetComponent<Renderer>().sharedMaterial = matBeamDark;
+            }
+
+            // Moldura perimetral y linea de luz ambiental (Cove Neon)
+            CreateCeilingCoveTrim(root.transform, "Moldura_Norte", new Vector3(0f, 2.97f, 3.86f), new Vector3(15.76f, 0.06f, 0.14f), new Vector3(15.60f, 0.015f, 0.03f), new Vector3(0f, 2.938f, 3.86f), matBeamDark, matCoveNeon);
+            CreateCeilingCoveTrim(root.transform, "Moldura_Sur", new Vector3(0f, 2.97f, -5.86f), new Vector3(15.76f, 0.06f, 0.14f), new Vector3(15.60f, 0.015f, 0.03f), new Vector3(0f, 2.938f, -5.86f), matBeamDark, matCoveNeon);
+
+            // 6. 8 Luminarias LED empotradas alineadas exactamente con los Point Lights del SOC
+            Vector3[] trofferPositions =
+            {
+                new Vector3(-2.60f, 2.985f, 2.75f),
+                new Vector3(1.40f, 2.985f, 1.80f),
+                new Vector3(-5.80f, 2.985f, 1.60f),
+                new Vector3(-5.60f, 2.985f, -3.20f),
+                new Vector3(5.20f, 2.985f, 1.60f),
+                new Vector3(2.20f, 2.985f, -4.40f),
+                new Vector3(1.37f, 2.985f, -2.07f),
+                new Vector3(5.34f, 2.985f, -1.93f)
+            };
+
+            for (int t = 0; t < trofferPositions.Length; t++)
+            {
+                GameObject fixture = new GameObject($"Luminaria_Techo_LED_0{t + 1}");
+                fixture.transform.SetParent(root.transform, false);
+                fixture.transform.position = trofferPositions[t];
+
+                GameObject bezel = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                bezel.name = "Marco";
+                bezel.transform.SetParent(fixture.transform, false);
+                bezel.transform.localScale = new Vector3(1.06f, 0.035f, 0.62f);
+                Renderer br = bezel.GetComponent<Renderer>();
+                br.sharedMaterial = matTrofferFrame;
+                br.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+
+                GameObject diffuser = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                diffuser.name = "Difusor_LED";
+                diffuser.transform.SetParent(fixture.transform, false);
+                diffuser.transform.localPosition = new Vector3(0f, -0.015f, 0f);
+                diffuser.transform.localScale = new Vector3(0.94f, 0.018f, 0.50f);
+                Renderer dr = diffuser.GetComponent<Renderer>();
+                dr.sharedMaterial = matTrofferGlow;
+                dr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            }
+
+            Debug.Log($"{LogPrefix} <color=#38F28A>Oficina cerrada con muros Este/Sur, techo arquitectonico y 8 luminarias LED.</color>");
+        }
+
+        private static void BuildTransomSegment(Transform parent, string name, Vector3 centerPos, Vector3 size, Material panelMat, Material frameMat)
+        {
+            GameObject group = new GameObject(name);
+            group.transform.SetParent(parent, false);
+
+            GameObject pane = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            pane.name = "Panel";
+            pane.transform.SetParent(group.transform, false);
+            pane.transform.position = centerPos;
+            pane.transform.localScale = new Vector3(size.x, size.y - 0.05f, size.z);
+            pane.GetComponent<Renderer>().sharedMaterial = panelMat;
+
+            GameObject bottomBar = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            bottomBar.name = "Perfil_Inf";
+            bottomBar.transform.SetParent(group.transform, false);
+            bottomBar.transform.position = new Vector3(centerPos.x, 2.515f, centerPos.z);
+            bottomBar.transform.localScale = new Vector3(size.x + 0.02f, 0.035f, size.z + 0.03f);
+            bottomBar.GetComponent<Renderer>().sharedMaterial = frameMat;
+
+            GameObject topBar = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            topBar.name = "Perfil_Sup";
+            topBar.transform.SetParent(group.transform, false);
+            topBar.transform.position = new Vector3(centerPos.x, 2.985f, centerPos.z);
+            topBar.transform.localScale = new Vector3(size.x + 0.02f, 0.035f, size.z + 0.03f);
+            topBar.GetComponent<Renderer>().sharedMaterial = frameMat;
+        }
+
+        private static void CreateCeilingCoveTrim(Transform parent, string name, Vector3 pos, Vector3 scale, Vector3 neonScale, Vector3 neonPos, Material darkMat, Material neonMat)
+        {
+            GameObject trim = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            trim.name = name;
+            trim.transform.SetParent(parent, false);
+            trim.transform.position = pos;
+            trim.transform.localScale = scale;
+            trim.GetComponent<Renderer>().sharedMaterial = darkMat;
+
+            GameObject strip = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            strip.name = name + "_LED";
+            strip.transform.SetParent(parent, false);
+            strip.transform.position = neonPos;
+            strip.transform.localScale = neonScale;
+            Renderer sr = strip.GetComponent<Renderer>();
+            sr.sharedMaterial = neonMat;
+            sr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         }
 
         #endregion

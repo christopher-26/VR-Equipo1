@@ -243,7 +243,7 @@ namespace AndesSim.UI
             // Título en rojo #ff5a4e
             if (outcomeHeaderTitleText != null)
             {
-                outcomeHeaderTitleText.text = "<b><color=#FF5A4E>RESULTADO MODO ATAQUE (2016): RED COMPROMETIDA</color></b>";
+                outcomeHeaderTitleText.text = "<b><color=#FF5A4E>ATAQUE COMPLETADO · RED COMPROMETIDA</color></b>";
             }
 
             if (outcomeHeaderBorder != null)
@@ -253,43 +253,42 @@ namespace AndesSim.UI
 
             if (outcomeSubtitleText != null)
             {
-                outcomeSubtitleText.text = "INTRUSIÓN PERIMETRAL EXITOSA DEL GRUPO LAZARUS · PERSISTENCIA INICIADA";
+                outcomeSubtitleText.text = "EL VIRUS ENTRO POR PC 1 Y TOMO LA RED SWIFT";
                 outcomeSubtitleText.color = ColorWarningAmber;
             }
 
-            // Resumen de hechos oficial según especificación
+            // Resumen de hechos ultra-legible en VR Cardboard
             if (technicalSummaryBodyText != null)
             {
                 technicalSummaryBodyText.text =
-                    "<b>Resumen de Hechos Históricos:</b>\n" +
-                    "16 empleados recibieron el correo de \"Rasel Ahlam\" el 29 de enero de 2015; al menos 3 computadoras " +
-                    "intentaron abrir el archivo; la ausencia de sandbox, el desconocimiento de phishing y las credenciales anotadas " +
-                    "de Carla Mendoza permitieron a Lazarus abrir una puerta trasera hacia la terminal SWIFT " +
-                    "(que culminaría en las 36 órdenes fraudulentas por <b>US$ 951 millones</b>).";
+                    "<b>LO QUE OCURRIO:</b>\n" +
+                    "• <b>Paso 1:</b> Se abrio el archivo falso de <i>Rasel Ahlam</i> en PC 1.\n" +
+                    "• <b>Paso 2:</b> Sin Sandbox ni clave segura (Post-It), el virus salto a 3 PCs.\n" +
+                    "• <b>Paso 3:</b> Puerta trasera lista para robo SWIFT de <b>US$ 951M</b>.";
                 technicalSummaryBodyText.color = ColorLightText;
             }
 
             // Métricas
             if (infectedHostsMetricText != null)
             {
-                infectedHostsMetricText.text = "<b>COMPUTADORAS INFECTADAS:</b> <color=#FF5A4E>3 / 3 (100%)</color>";
+                infectedHostsMetricText.text = "<b>PC INFECTADAS</b>\n<size=24><color=#FF5A4E><b>3 / 3 (100%)</b></color></size>";
             }
 
             if (stolenMoneyMetricText != null)
             {
-                stolenMoneyMetricText.text = "<b>ROBO POTENCIAL SWIFT:</b> <color=#FF5A4E>US$ 951,000,000</color>";
+                stolenMoneyMetricText.text = "<b>RIESGO SWIFT</b>\n<size=24><color=#FF5A4E><b>US$ 951M</b></color></size>";
             }
 
             if (swiftStatusMetricText != null)
             {
-                swiftStatusMetricText.text = "<b>CANAL C2:</b> <color=#FF5A4E>185.130.44.82:443 (Backdoor Activo)</color>";
+                swiftStatusMetricText.text = "<b>ACCESO C2</b>\n<size=20><color=#FF5A4E><b>185.130.44.82</b></color></size>";
             }
 
             // Criterio de tiempo
             if (acceptanceCriterionBadgeText != null)
             {
-                string eval = timeCriterionMet ? "<color=#38F28A>[CRITERIO CUMPLIDO]</color>" : "<color=#FF5A4E>[TIEMPO EXCEDIDO]</color>";
-                acceptanceCriterionBadgeText.text = $"[TIEMPO] Empleado en la misión: <b>{elapsed:F1}s / 180s</b> {eval}";
+                string eval = timeCriterionMet ? "<color=#38F28A>[A TIEMPO]</color>" : "<color=#FF5A4E>[LENTO]</color>";
+                acceptanceCriterionBadgeText.text = $"TIEMPO: <b>{elapsed:F0}s / 180s</b>  {eval}";
             }
 
             // Contenedores de botones
@@ -304,7 +303,7 @@ namespace AndesSim.UI
             // Título en verde #38f28a
             if (outcomeHeaderTitleText != null)
             {
-                outcomeHeaderTitleText.text = "<b><color=#38F28A>RESULTADO MODO DEFENSA: ATAQUE DETENIDO EN EL ESLABÓN 1</color></b>";
+                outcomeHeaderTitleText.text = "<b><color=#38F28A>DEFENSA EXITOSA · BANCO PROTEGIDO</color></b>";
             }
 
             if (outcomeHeaderBorder != null)
@@ -314,42 +313,42 @@ namespace AndesSim.UI
 
             if (outcomeSubtitleText != null)
             {
-                outcomeSubtitleText.text = "PROTECCIÓN EN PROFUNDIDAD SOC · BANCO ANDINO ASEGURADO";
+                outcomeSubtitleText.text = "AMENAZA DETENIDA A TIEMPO · CERO PERDIDAS";
                 outcomeSubtitleText.color = ColorCodeGreen;
             }
 
-            // Resumen de contramedidas oficial según especificación
+            // Resumen de contramedidas ultra-legible en VR Cardboard
             if (technicalSummaryBodyText != null)
             {
                 technicalSummaryBodyText.text =
-                    "<b>Resumen de Mitigación Defensiva:</b>\n" +
-                    "El filtro de correo con sandbox aisló el enlace malicioso en cuarentena, el botón \"Reportar phishing\" " +
-                    "alertó al SOC y el gestor de contraseñas con MFA protegió las credenciales de Carla Mendoza.\n\n" +
-                    "<b><color=#38F28A>• Infecciones: 0</color>   |   <color=#38F28A>• Dinero robado: US$ 0</color>   |   <color=#38F28A>• Red SWIFT: Intacta</color></b>";
+                    "<b>CONTENCION SOC APLICADA:</b>\n" +
+                    "• <b>Correo:</b> Aislado en cuarentena y reportado antes de abrirse.\n" +
+                    "• <b>Red:</b> Sandbox activo bloqueo el avance entre computadoras.\n" +
+                    "• <b>Clave:</b> Token MFA protegio la cuenta SWIFT de Carla.";
                 technicalSummaryBodyText.color = ColorLightText;
             }
 
             // Métricas
             if (infectedHostsMetricText != null)
             {
-                infectedHostsMetricText.text = "<b>COMPUTADORAS INFECTADAS:</b> <color=#38F28A>0 / 3 (0%)</color>";
+                infectedHostsMetricText.text = "<b>PC INFECTADAS</b>\n<size=24><color=#38F28A><b>0 / 3 (0%)</b></color></size>";
             }
 
             if (stolenMoneyMetricText != null)
             {
-                stolenMoneyMetricText.text = "<b>DINERO SUSTRAÍDO:</b> <color=#38F28A>US$ 0 (Protegido)</color>";
+                stolenMoneyMetricText.text = "<b>DINERO ROBADO</b>\n<size=24><color=#38F28A><b>US$ 0</b></color></size>";
             }
 
             if (swiftStatusMetricText != null)
             {
-                swiftStatusMetricText.text = "<b>INTEGRIDAD DE RED:</b> <color=#38F28A>100% Cifrada y Segura (MFA Activo)</color>";
+                swiftStatusMetricText.text = "<b>RED SWIFT</b>\n<size=22><color=#38F28A><b>100% SEGURA</b></color></size>";
             }
 
             // Criterio de tiempo
             if (acceptanceCriterionBadgeText != null)
             {
                 string eval = timeCriterionMet ? "<color=#38F28A>[CRITERIO CUMPLIDO]</color>" : "<color=#FF5A4E>[TIEMPO EXCEDIDO]</color>";
-                acceptanceCriterionBadgeText.text = $"[TIEMPO] Respuesta del equipo: <b>{elapsed:F1}s / 180s</b> {eval}";
+                acceptanceCriterionBadgeText.text = $"TIEMPO: <b>{elapsed:F0}s / 180s</b>  {eval}";
             }
 
             // Contenedores de botones
@@ -367,9 +366,9 @@ namespace AndesSim.UI
             if (forward.sqrMagnitude < 0.01f) forward = Vector3.forward;
             forward.Normalize();
 
-            Vector3 targetPos = cam.position + (forward * spawnDistanceInFront) + (Vector3.up * -0.1f);
+            Vector3 targetPos = cam.position + (forward * Mathf.Max(spawnDistanceInFront, 1.45f)) + (Vector3.up * -0.05f);
             transform.position = targetPos;
-            transform.rotation = Quaternion.LookRotation(transform.position - cam.position);
+            transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
         }
 
         private IEnumerator FadeInPanelRoutine()
@@ -446,59 +445,57 @@ namespace AndesSim.UI
         public void OnViewSuspectsClicked()
         {
             PlaySound(buttonClickClip, GenerateClickTone());
-            Debug.Log($"{LogPrefix} Jugador eligió: <b>'Ver Expediente de los 4 Sospechosos'</b>");
+            Debug.Log($"{LogPrefix} Jugador eligio: Ver Sospechosos");
 
             ClosePanel();
 
-            // Buscar el tablero de sospechosos VR o el punto de teletransporte
-            SuspectBoardVR boardVR = FindAnyObjectByType<SuspectBoardVR>();
-            GameObject suspectMural = boardVR != null ? boardVR.gameObject : GameObject.Find("Mural_Sospechosos_Root");
-            if (suspectMural == null) suspectMural = GameObject.Find("Tablero_Sospechosos_RF02");
-
-            if (suspectMural != null && PlayerTeleportController.I != null)
+            if (PlayerTeleportController.I != null)
             {
-                Vector3 viewPos = suspectMural.transform.position + (suspectMural.transform.forward * 1.8f);
-                viewPos.y = 0f;
-                Vector3 lookDir = (suspectMural.transform.position - new Vector3(viewPos.x, suspectMural.transform.position.y, viewPos.z)).normalized;
-                Quaternion lookRot = Quaternion.LookRotation(lookDir);
-                PlayerTeleportController.I.TeleportTo(viewPos, lookRot);
+                GameObject tpBoardObj = GameObject.Find("Teleport_TableroSospechosos");
+                TeleportPoint tpBoard = tpBoardObj != null ? tpBoardObj.GetComponent<TeleportPoint>() : null;
+                if (tpBoard != null)
+                {
+                    PlayerTeleportController.I.TeleportToPoint(tpBoard);
+                    return;
+                }
+
+                SuspectBoardVR boardVR = FindAnyObjectByType<SuspectBoardVR>();
+                GameObject suspectMural = GameObject.Find("Tablero_Sospechosos_VR")
+                    ?? (boardVR != null ? boardVR.gameObject : GameObject.Find("Tablero_Sospechosos_Tactico_3D"));
+
+                if (suspectMural != null)
+                {
+                    Vector3 viewPos = suspectMural.transform.position - (suspectMural.transform.forward * 1.45f);
+                    viewPos.y = 0f;
+                    Vector3 lookDir = (suspectMural.transform.position - new Vector3(viewPos.x, suspectMural.transform.position.y, viewPos.z)).normalized;
+                    PlayerTeleportController.I.TeleportTo(viewPos, Quaternion.LookRotation(lookDir));
+                }
             }
         }
 
         /// <summary>
-        /// Botón 3 (Modo Defensa): "Ver Créditos y Licencias"
+        /// Botón 3: "Ver Créditos y Licencias"
         /// Despliega el panel modal de autoría institucional y atribución técnica.
         /// </summary>
         public void OnViewCreditsClicked()
         {
             PlaySound(buttonClickClip, GenerateClickTone());
+            ClosePanel();
 
-            if (CreditsAndEthicsModalUI.I != null)
+            CreditsAndEthicsModalUI modal = CreditsAndEthicsModalUI.I;
+            if (modal == null)
             {
-                CreditsAndEthicsModalUI.I.OpenModal();
+                modal = FindFirstObjectByType<CreditsAndEthicsModalUI>(FindObjectsInactive.Include);
+            }
+            if (modal != null)
+            {
+                modal.OpenModal();
                 return;
             }
 
             if (creditsModalPanel != null)
             {
                 creditsModalPanel.SetActive(true);
-            }
-
-            if (creditsBodyText != null)
-            {
-                creditsBodyText.text =
-                    "<b><color=#38F28A>ANDES-SIM · SIMULADOR VR DE CIBERSEGURIDAD BANCARIA</color></b>\n" +
-                    "<b>Escenario 1:</b> Oficina de Pagos · Caso Banco Andino (Equipo 1)\n\n" +
-                    "<b>Desarrollo y Arquitectura Técnica:</b>\n" +
-                    "• Motor: Unity 6 (6000.3.24f1) | Android OpenGLES3\n" +
-                    "• SDK VR: Google Cardboard XR Plugin (Gaze Reticle + Touch Interaction)\n" +
-                    "• Tipografía: TextMeshPro / Roboto Dynamic Font\n\n" +
-                    "<b>Contexto Pedagógico e Histórico:</b>\n" +
-                    "Recreación académica basada en el ciberataque del 29 de enero de 2015 al 5 de febrero de 2016 " +
-                    "(caso histórico Banco Central de Bangladesh / Lazarus Group APT38).\n\n" +
-                    "<b>Licencias de Assets y Software:</b>\n" +
-                    "• Código: Licencia MIT / Banco Andino Educational CyberLab\n" +
-                    "• Audio y Modelado: Procedural Audio Synthesis (Sin dependencias externas)";
             }
         }
 
@@ -512,13 +509,13 @@ namespace AndesSim.UI
         }
 
         /// <summary>
-        /// Botón 4: "Reiniciar Simulación"
-        /// Regresa al vestíbulo / portal inicial para reiniciar la experiencia completa.
+        /// Botón 4: "Menú Inicial / Reiniciar"
+        /// Regresa a la puerta de entrada y vuelve a mostrar el menú inicial.
         /// </summary>
         public void OnRestartSimulationClicked()
         {
             PlaySound(buttonClickClip, GenerateClickTone());
-            Debug.Log($"{LogPrefix} Jugador eligió: <b>'Reiniciar Simulación'</b>");
+            Debug.Log($"{LogPrefix} Jugador eligio: Volver al Menu Inicial");
 
             ClosePanel();
 
@@ -531,8 +528,31 @@ namespace AndesSim.UI
             if (portal != null)
             {
                 portal.ReturnToLobby();
+                return;
             }
-            else if (ScenarioFlowController.I != null)
+
+            if (PlayerTeleportController.I != null)
+            {
+                GameObject tpEntryObj = GameObject.Find("Teleport_PuertaEntrada");
+                TeleportPoint tpEntry = tpEntryObj != null ? tpEntryObj.GetComponent<TeleportPoint>() : null;
+                if (tpEntry != null)
+                {
+                    PlayerTeleportController.I.TeleportToPoint(tpEntry);
+                }
+                else
+                {
+                    PlayerTeleportController.I.TeleportTo(new Vector3(-2.60f, 0.01f, 3.40f), Quaternion.Euler(0f, 180f, 0f));
+                }
+            }
+
+            VrStartMenuController startMenu = VrStartMenuController.I
+                ?? FindFirstObjectByType<VrStartMenuController>(FindObjectsInactive.Include);
+            if (startMenu != null)
+            {
+                startMenu.ShowMenu();
+            }
+
+            if (ScenarioFlowController.I != null)
             {
                 ScenarioFlowController.I.SetStep(ScenarioStep.Step1_PortalEntrada);
             }
@@ -557,19 +577,186 @@ namespace AndesSim.UI
 
         private void EnsurePanelStructure()
         {
-            if (panelRoot == null)
-            {
-                panelRoot = gameObject;
-            }
+            Canvas canvas = GetComponent<Canvas>();
+            if (canvas == null) canvas = gameObject.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.WorldSpace;
+
+            RectTransform rootRect = GetComponent<RectTransform>();
+            rootRect.sizeDelta = new Vector2(960f, 650f);
+            rootRect.localScale = new Vector3(0.0019f, 0.0019f, 0.0019f);
+
+            if (GetComponent<CanvasScaler>() == null) gameObject.AddComponent<CanvasScaler>();
+            if (GetComponent<GraphicRaycaster>() == null) gameObject.AddComponent<GraphicRaycaster>();
 
             if (panelCanvasGroup == null)
             {
-                panelCanvasGroup = panelRoot.GetComponent<CanvasGroup>();
-                if (panelCanvasGroup == null)
-                {
-                    panelCanvasGroup = panelRoot.AddComponent<CanvasGroup>();
-                }
+                panelCanvasGroup = GetComponent<CanvasGroup>();
+                if (panelCanvasGroup == null) panelCanvasGroup = gameObject.AddComponent<CanvasGroup>();
             }
+
+            // Si ya tiene estructura completa asignada en Inspector/Editor, respetar
+            if (panelRoot != null && panelRoot != gameObject && outcomeHeaderTitleText != null && tryDefenseModeButton != null && restartSimulationButton != null)
+            {
+                return;
+            }
+
+            for (int i = transform.childCount - 1; i >= 0; i--)
+            {
+                Destroy(transform.GetChild(i).gameObject);
+            }
+
+            // Contenedor visual interno (mantener root activo para escuchar OnScenarioEnded)
+            panelRoot = CreateEndUiBox("Panel_EndFondo", transform, Vector2.zero, new Vector2(960f, 650f), ColorDarkBg);
+            AddEndOutline(panelRoot, ColorCodeGreen, 2.5f);
+
+            // Cabecera
+            GameObject headerBox = CreateEndUiBox("Header_Outcome", panelRoot.transform, new Vector2(0f, 255f), new Vector2(910f, 100f), new Color(0.03f, 0.09f, 0.07f, 0.96f));
+            AddEndOutline(headerBox, ColorCodeGreen, 2f);
+            outcomeHeaderBorder = CreateEndUiBox("Header_AccentBar", headerBox.transform, new Vector2(0f, 48f), new Vector2(910f, 5f), ColorCodeGreen).GetComponent<Image>();
+
+            outcomeHeaderTitleText = CreateEndTmp("Txt_OutcomeTitle", headerBox.transform, new Vector2(0f, 16f), new Vector2(880f, 44f),
+                "RESULTADO FINAL", 26f, TextAlignmentOptions.Center, ColorCodeGreen);
+            outcomeSubtitleText = CreateEndTmp("Txt_OutcomeSubtitle", headerBox.transform, new Vector2(0f, -22f), new Vector2(880f, 30f),
+                "SIMULACION COMPLETADA", 17f, TextAlignmentOptions.Center, ColorLightText);
+
+            // Fila de 3 Métricas grandes
+            infectedHostsMetricText = BuildMetricCard(panelRoot.transform, "Metric_Hosts", new Vector2(-305f, 130f), new Vector2(285f, 96f));
+            stolenMoneyMetricText   = BuildMetricCard(panelRoot.transform, "Metric_Money", new Vector2(0f, 130f),    new Vector2(285f, 96f));
+            swiftStatusMetricText   = BuildMetricCard(panelRoot.transform, "Metric_Swift", new Vector2(305f, 130f),  new Vector2(285f, 96f));
+
+            // Resumen de hechos corto y claro
+            GameObject bodyBox = CreateEndUiBox("Body_Summary", panelRoot.transform, new Vector2(0f, -15f), new Vector2(910f, 160f), new Color(0.03f, 0.07f, 0.05f, 0.92f));
+            AddEndOutline(bodyBox, new Color(0.22f, 0.95f, 0.54f, 0.35f), 1.5f);
+            technicalSummaryBodyText = CreateEndTmp("Txt_TechnicalSummary", bodyBox.transform, Vector2.zero, new Vector2(860f, 138f),
+                "Cargando resumen...", 19f, TextAlignmentOptions.Left, ColorLightText);
+
+            // Tiempo
+            acceptanceCriterionBadgeText = CreateEndTmp("Txt_TimeBadge", panelRoot.transform, new Vector2(0f, -122f), new Vector2(880f, 34f),
+                "TIEMPO: 0s / 180s", 18f, TextAlignmentOptions.Center, ColorLightText);
+
+            // Contenedor de botones Modo Ataque
+            attackActionContainer = new GameObject("Attack_Actions");
+            attackActionContainer.transform.SetParent(panelRoot.transform, false);
+            RectTransform atkRect = attackActionContainer.AddComponent<RectTransform>();
+            atkRect.anchoredPosition = new Vector2(0f, -215f);
+            atkRect.sizeDelta = new Vector2(910f, 110f);
+
+            GameObject tryDefBtnObj = CreateEndGazeButton("Btn_ProbarDefensa", attackActionContainer.transform,
+                new Vector2(0f, 22f), new Vector2(620f, 60f),
+                "<b>[ > PROBAR MODO DEFENSA AHORA ]</b>",
+                new Color(0.08f, 0.42f, 0.24f, 0.98f), ColorCodeGreen, 21f, Color.white);
+            tryDefenseModeButton = tryDefBtnObj.GetComponent<Button>();
+            tryDefenseButtonText = tryDefBtnObj.GetComponentInChildren<TextMeshProUGUI>();
+
+            GameObject atkSuspectsObj = CreateEndGazeButton("Btn_Ataque_Sospechosos", attackActionContainer.transform,
+                new Vector2(-215f, -44f), new Vector2(360f, 46f),
+                "<b>[ VER SOSPECHOSOS ]</b>",
+                new Color(0.10f, 0.18f, 0.26f, 0.95f), ColorLightText, 17f, ColorLightText);
+            atkSuspectsObj.GetComponent<Button>().onClick.AddListener(OnViewSuspectsClicked);
+
+            GameObject atkMenuObj = CreateEndGazeButton("Btn_Ataque_Menu", attackActionContainer.transform,
+                new Vector2(215f, -44f), new Vector2(360f, 46f),
+                "<b>[ < MENU INICIAL ]</b>",
+                new Color(0.16f, 0.12f, 0.16f, 0.95f), ColorLightText, 17f, ColorLightText);
+            atkMenuObj.GetComponent<Button>().onClick.AddListener(OnRestartSimulationClicked);
+
+            // Contenedor de botones Modo Defensa
+            defenseActionContainer = new GameObject("Defense_Actions");
+            defenseActionContainer.transform.SetParent(panelRoot.transform, false);
+            RectTransform defRect = defenseActionContainer.AddComponent<RectTransform>();
+            defRect.anchoredPosition = new Vector2(0f, -215f);
+            defRect.sizeDelta = new Vector2(910f, 110f);
+
+            GameObject viewSuspObj = CreateEndGazeButton("Btn_Def_Sospechosos", defenseActionContainer.transform,
+                new Vector2(-305f, -5f), new Vector2(285f, 64f),
+                "<b>[ VER\nSOSPECHOSOS ]</b>",
+                new Color(0.08f, 0.34f, 0.22f, 0.96f), ColorCodeGreen, 18f, Color.white);
+            viewSuspectsButton = viewSuspObj.GetComponent<Button>();
+
+            GameObject viewCredObj = CreateEndGazeButton("Btn_Def_Creditos", defenseActionContainer.transform,
+                new Vector2(0f, -5f), new Vector2(285f, 64f),
+                "<b>[ CREDITOS\nY ETICA ]</b>",
+                new Color(0.10f, 0.22f, 0.34f, 0.96f), ColorLightText, 18f, Color.white);
+            viewCreditsButton = viewCredObj.GetComponent<Button>();
+
+            GameObject restartObj = CreateEndGazeButton("Btn_Def_Menu", defenseActionContainer.transform,
+                new Vector2(305f, -5f), new Vector2(285f, 64f),
+                "<b>[ < VOLVER AL\nMENU INICIAL ]</b>",
+                new Color(0.16f, 0.24f, 0.18f, 0.96f), ColorLightText, 18f, Color.white);
+            restartSimulationButton = restartObj.GetComponent<Button>();
+        }
+
+        private TextMeshProUGUI BuildMetricCard(Transform parent, string name, Vector2 pos, Vector2 size)
+        {
+            GameObject card = CreateEndUiBox(name, parent, pos, size, new Color(0.04f, 0.10f, 0.08f, 0.95f));
+            AddEndOutline(card, new Color(0.22f, 0.95f, 0.54f, 0.45f), 1.5f);
+            return CreateEndTmp("Txt_Val", card.transform, Vector2.zero, size - new Vector2(18f, 14f),
+                "--", 16f, TextAlignmentOptions.Center, ColorLightText);
+        }
+
+        private static GameObject CreateEndUiBox(string name, Transform parent, Vector2 pos, Vector2 size, Color bgColor)
+        {
+            GameObject go = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            RectTransform rt = go.AddComponent<RectTransform>();
+            rt.anchoredPosition = pos;
+            rt.sizeDelta = size;
+            Image img = go.AddComponent<Image>();
+            img.color = bgColor;
+            return go;
+        }
+
+        private static Outline AddEndOutline(GameObject go, Color color, float width)
+        {
+            Outline o = go.AddComponent<Outline>();
+            o.effectColor = color;
+            o.effectDistance = new Vector2(width, -width);
+            return o;
+        }
+
+        private static TextMeshProUGUI CreateEndTmp(string name, Transform parent, Vector2 pos, Vector2 size, string text, float fontSize, TextAlignmentOptions align, Color color)
+        {
+            GameObject go = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            RectTransform rt = go.AddComponent<RectTransform>();
+            rt.anchoredPosition = pos;
+            rt.sizeDelta = size;
+            TextMeshProUGUI tmp = go.AddComponent<TextMeshProUGUI>();
+            tmp.text = text;
+            tmp.fontSize = fontSize;
+            tmp.alignment = align;
+            tmp.color = color;
+            tmp.textWrappingMode = TextWrappingModes.Normal;
+            tmp.richText = true;
+            return tmp;
+        }
+
+        private GameObject CreateEndGazeButton(string name, Transform parent, Vector2 pos, Vector2 size, string label, Color bgCol, Color borderCol, float fontSize, Color textCol)
+        {
+            GameObject btnObj = CreateEndUiBox(name, parent, pos, size, bgCol);
+            AddEndOutline(btnObj, borderCol, 2f);
+            btnObj.layer = LayerMask.NameToLayer("Interactive");
+
+            Button btn = btnObj.AddComponent<Button>();
+            ColorBlock cb = btn.colors;
+            cb.normalColor = bgCol;
+            cb.highlightedColor = Color.Lerp(bgCol, borderCol, 0.35f);
+            cb.pressedColor = borderCol;
+            btn.colors = cb;
+
+            CreateEndTmp("Label", btnObj.transform, Vector2.zero, size - new Vector2(14f, 8f), label, fontSize, TextAlignmentOptions.Center, textCol);
+
+            BoxCollider col = btnObj.AddComponent<BoxCollider>();
+            col.size = new Vector3(size.x, size.y, 40f);
+            col.center = new Vector3(0f, 0f, -10f);
+            col.isTrigger = true;
+
+            GazeInteractable gaze = btnObj.AddComponent<GazeInteractable>();
+            gaze.interactableLabel = label.Replace("<b>", "").Replace("</b>", "").Replace("\n", " ");
+            gaze.dwellTime = 1.1f;
+
+            btnObj.AddComponent<WorldSpaceUiGazeButton>();
+            return btnObj;
         }
 
         #endregion

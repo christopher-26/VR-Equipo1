@@ -363,9 +363,41 @@ namespace AndesSim.Environment
             GameObject mon = GameObject.Find(monitorName);
             if (mon != null)
             {
-                return mon.transform.position + new Vector3(0f, 1.80f, -0.45f);
+                return mon.transform.position + new Vector3(0f, 1.65f, -0.40f);
             }
             return fallbackPos;
+        }
+
+        private static void EnsureOverheadZoneLights(Transform parent, bool isVnbOffice, bool updatePositions)
+        {
+            // Luminarias cenitales alineadas con los plafones LED del techo (Y = 2.84m bajo techo 3.00m)
+            EnsureOrUpdatePointLight(
+                parent,
+                "Luz_Cenital_Vestibulo_Spawn",
+                isVnbOffice ? new Vector3(-2.60f, 2.84f, 2.75f) : new Vector3(0f, 2.95f, -4.5f),
+                new Color(1.0f, 0.96f, 0.90f),
+                4.30f,
+                isVnbOffice ? 9.5f : 15.0f,
+                updatePositions
+            );
+
+            EnsureOrUpdatePointLight(
+                parent,
+                "Luz_Cenital_Central_Oficina",
+                isVnbOffice ? new Vector3(1.40f, 2.84f, 1.80f) : new Vector3(0f, 3.10f, 0.0f),
+                new Color(0.98f, 0.98f, 1.0f),
+                4.20f,
+                11.0f,
+                updatePositions
+            );
+
+            if (!isVnbOffice) return;
+
+            EnsureOrUpdatePointLight(parent, "Luz_Techo_Lounge_Oeste", new Vector3(-5.80f, 2.84f, 1.60f), new Color(1.0f, 0.94f, 0.85f), 3.60f, 8.5f, updatePositions);
+            EnsureOrUpdatePointLight(parent, "Luz_Sala_Descanso_Oeste", new Vector3(-5.60f, 2.84f, -3.20f), new Color(0.90f, 0.96f, 1.0f), 3.90f, 9.0f, updatePositions);
+            EnsureOrUpdatePointLight(parent, "Luz_Cocina_Pasillo_Este", new Vector3(5.20f, 2.84f, 1.60f), new Color(1.0f, 0.95f, 0.88f), 3.80f, 9.0f, updatePositions);
+            EnsureOrUpdatePointLight(parent, "Luz_Pasillo_Tablero_Sur", new Vector3(2.20f, 2.82f, -4.40f), new Color(0.97f, 0.99f, 1.0f), 3.80f, 8.5f, updatePositions);
+            BoostVnbOfficeLamps();
         }
 
         private static void BoostVnbOfficeLamps()
@@ -382,7 +414,7 @@ namespace AndesSim.Environment
                 {
                     l.enabled = true;
                     l.color = new Color(1.0f, 0.92f, 0.78f, 1f);
-                    l.intensity = Mathf.Max(l.intensity, 2.20f);
+                    l.intensity = Mathf.Max(l.intensity, 2.40f);
                     l.range = Mathf.Max(l.range, 6.5f);
                     l.shadows = LightShadows.None;
                 }
@@ -390,15 +422,17 @@ namespace AndesSim.Environment
         }
 
         /// <summary>
-        /// Verifica y garantiza que todas las fuentes lumínicas clave (luz direccional, vestíbulo,
-        /// centro de oficina y escritorios) estén activas, con alcance y potencia adecuados.
+        /// Verifica y garantiza que todas las fuentes lumínicas clave (luz direccional, plafones cenitales
+        /// y escritorios) estén activas, con alcance y potencia adecuados.
         /// Se ejecuta en Awake() para asegurar que la escena nunca se vea a oscuras al presionar Play.
         /// </summary>
         public void EnsureCompleteLightingIntegrity()
         {
             bool isVnbOffice = GameObject.Find("Floor 0") != null;
 
-            // 1. Luz Direccional principal (reutiliza Directional Light del escenario VNB si existe)
+            ApplyNocturnalAmbientSettings();
+
+            // 1. Luz Direccional principal (sin sombras para que el techo completo no oscurezca el interior)
             if (moonlightDirectionalLight == null)
             {
                 GameObject existingMoon = GameObject.Find("Luz_Direccional_Luna_Ventanal") ?? GameObject.Find("Directional Light");
@@ -422,8 +456,9 @@ namespace AndesSim.Environment
 
             if (moonlightDirectionalLight != null)
             {
-                moonlightDirectionalLight.intensity = Mathf.Max(moonlightDirectionalLight.intensity, moonlightBaseIntensity);
-                moonlightDirectionalLight.color = new Color(0.96f, 0.98f, 1.0f);
+                moonlightDirectionalLight.intensity = Mathf.Max(moonlightDirectionalLight.intensity, 0.85f);
+                moonlightDirectionalLight.color = new Color(0.94f, 0.97f, 1.0f);
+                moonlightDirectionalLight.shadows = LightShadows.None;
             }
 
             // 2. Luces de escritorio
@@ -445,34 +480,10 @@ namespace AndesSim.Environment
 
             if (desk1PointLight != null) { desk1PointLight.intensity = deskLightBaseIntensity; desk1PointLight.range = deskLightRange; }
             if (desk2PointLight != null) { desk2PointLight.intensity = deskLightBaseIntensity; desk2PointLight.range = deskLightRange; }
-            if (desk3PointLight != null) { desk3PointLight.intensity = Mathf.Max(deskLightBaseIntensity, 4.20f); desk3PointLight.range = Mathf.Max(deskLightRange, 9.5f); }
+            if (desk3PointLight != null) { desk3PointLight.intensity = Mathf.Max(deskLightBaseIntensity, 4.20f); desk3PointLight.range = Mathf.Max(deskLightRange, 9.0f); }
 
-            // 3. Luz Cenital del Vestíbulo (Spawn / Entrada) y Central
-            EnsureOrUpdatePointLight(
-                transform,
-                "Luz_Cenital_Vestibulo_Spawn",
-                isVnbOffice ? new Vector3(-2.60f, 2.95f, 2.85f) : new Vector3(0f, 2.95f, -4.5f),
-                new Color(1.0f, 0.98f, 0.95f),
-                4.20f,
-                isVnbOffice ? 11.0f : 15.0f
-            );
-
-            EnsureOrUpdatePointLight(
-                transform,
-                "Luz_Cenital_Central_Oficina",
-                isVnbOffice ? new Vector3(1.00f, 3.10f, 0.00f) : new Vector3(0f, 3.10f, 0.0f),
-                new Color(0.97f, 0.99f, 1.0f),
-                4.50f,
-                14.0f
-            );
-
-            if (isVnbOffice)
-            {
-                EnsureOrUpdatePointLight(transform, "Luz_Sala_Descanso_Oeste", new Vector3(-3.80f, 2.95f, -1.20f), new Color(1.0f, 0.96f, 0.90f), 3.50f, 10.5f);
-                EnsureOrUpdatePointLight(transform, "Luz_Cocina_Pasillo_Este", new Vector3(5.20f, 2.95f, 1.40f), new Color(1.0f, 0.97f, 0.92f), 3.50f, 10.5f);
-                EnsureOrUpdatePointLight(transform, "Luz_Pasillo_Tablero_Sur", new Vector3(2.20f, 2.85f, -4.40f), new Color(0.96f, 0.98f, 1.0f), 3.20f, 9.5f);
-                BoostVnbOfficeLamps();
-            }
+            // 3. Luces cenitales bajo los plafones del techo
+            EnsureOverheadZoneLights(transform, isVnbOffice, false);
         }
 
         #endregion
@@ -481,9 +492,9 @@ namespace AndesSim.Environment
 
         /// <summary>
         /// Construye y conecta el sistema completo de iluminación SOC en la escena:
-        /// 1. Luz direccional principal balanceada (reutiliza Directional Light de VNB si existe).
+        /// 1. Luz direccional suave balanceada sin bloqueo de techo.
         /// 2. 3 luces puntuales sobre los puestos de trabajo (Monitor 1, 2 y 3).
-        /// 3. Luces cenitales de techo para vestíbulo, centro, descanso oeste, cocina este y tablero sur.
+        /// 3. Luces cenitales bajo cada plafón LED del techo (vestíbulo, lounge, cocina, SOC y tablero sur).
         /// 4. Refuerzo a lámparas decorativas de Floor 0.
         /// 5. 2 balizas de techo para alerta roja (#ff5a4e).
         /// </summary>
@@ -505,7 +516,7 @@ namespace AndesSim.Environment
 
             SocLightingController controller = lightingRoot.AddComponent<SocLightingController>();
 
-            // 1. Luz Direccional Principal (Reutiliza la de VNB para no duplicar direccionales)
+            // 1. Luz Direccional Principal (sin sombras de techo cerrado para mantener claridad interior 60 FPS)
             Light moonLight = null;
             GameObject existingDir = GameObject.Find("Directional Light");
             if (existingDir != null)
@@ -520,53 +531,26 @@ namespace AndesSim.Environment
                 moonLight = moonObj.AddComponent<Light>();
                 moonLight.type = LightType.Directional;
             }
-            moonLight.color = new Color(0.96f, 0.98f, 1.0f, 1f);
-            moonLight.intensity = 1.65f;
-            moonLight.shadows = isVnbOffice ? LightShadows.Soft : LightShadows.None;
-            moonLight.shadowStrength = 0.35f;
+            moonLight.color = new Color(0.94f, 0.97f, 1.0f, 1f);
+            moonLight.intensity = isVnbOffice ? 0.95f : 1.45f;
+            moonLight.shadows = LightShadows.None;
 
             // 2. Luces Puntuales sobre los 3 Escritorios
-            Vector3 p1Pos = isVnbOffice ? ResolveDeskLightPos("Monitor_01", new Vector3(1.37f, 2.75f, -2.07f)) : new Vector3(-3.0f, 2.80f, 1.8f);
-            Vector3 p2Pos = isVnbOffice ? ResolveDeskLightPos("Monitor_02", new Vector3(5.34f, 2.75f, -1.93f)) : new Vector3(0.0f, 2.80f, 1.8f);
-            Vector3 p3Pos = isVnbOffice ? ResolveDeskLightPos("Monitor_03", new Vector3(-6.37f, 2.75f, -4.69f)) : new Vector3(3.0f, 2.80f, 1.8f);
+            Vector3 p1Pos = isVnbOffice ? ResolveDeskLightPos("Monitor_01", new Vector3(1.37f, 2.72f, -2.07f)) : new Vector3(-3.0f, 2.80f, 1.8f);
+            Vector3 p2Pos = isVnbOffice ? ResolveDeskLightPos("Monitor_02", new Vector3(5.34f, 2.72f, -1.93f)) : new Vector3(0.0f, 2.80f, 1.8f);
+            Vector3 p3Pos = isVnbOffice ? ResolveDeskLightPos("Monitor_03", new Vector3(-6.37f, 2.72f, -4.69f)) : new Vector3(3.0f, 2.80f, 1.8f);
 
             Light[] deskLights = new Light[3];
-            deskLights[0] = EnsureOrUpdatePointLight(lightingRoot.transform, "Luz_Escritorio_Puesto1_Carla", p1Pos, DeskCoolWhiteGreenColor, 3.50f, 8.5f, true);
-            deskLights[1] = EnsureOrUpdatePointLight(lightingRoot.transform, "Luz_Escritorio_Puesto2_Analista", p2Pos, DeskCoolWhiteGreenColor, 3.50f, 8.5f, true);
-            deskLights[2] = EnsureOrUpdatePointLight(lightingRoot.transform, "Luz_Escritorio_Puesto3_Siem", p3Pos, DeskCoolWhiteGreenColor, isVnbOffice ? 4.20f : 3.50f, isVnbOffice ? 9.5f : 8.5f, true);
+            deskLights[0] = EnsureOrUpdatePointLight(lightingRoot.transform, "Luz_Escritorio_Puesto1_Carla", p1Pos, DeskCoolWhiteGreenColor, 3.60f, 8.5f, true);
+            deskLights[1] = EnsureOrUpdatePointLight(lightingRoot.transform, "Luz_Escritorio_Puesto2_Analista", p2Pos, DeskCoolWhiteGreenColor, 3.60f, 8.5f, true);
+            deskLights[2] = EnsureOrUpdatePointLight(lightingRoot.transform, "Luz_Escritorio_Puesto3_Siem", p3Pos, DeskCoolWhiteGreenColor, isVnbOffice ? 4.20f : 3.60f, isVnbOffice ? 9.0f : 8.5f, true);
 
-            // 3. Luces Cenitales de Entrada, Centro y Zonas de Oficina
-            EnsureOrUpdatePointLight(
-                lightingRoot.transform,
-                "Luz_Cenital_Vestibulo_Spawn",
-                isVnbOffice ? new Vector3(-2.60f, 2.95f, 2.85f) : new Vector3(0f, 2.95f, -4.5f),
-                new Color(1.0f, 0.98f, 0.95f),
-                4.20f,
-                isVnbOffice ? 11.0f : 15.0f,
-                true
-            );
+            // 3. Luces Cenitales de Entrada, Centro y Zonas de Oficina (alineadas al techo)
+            EnsureOverheadZoneLights(lightingRoot.transform, isVnbOffice, true);
 
-            EnsureOrUpdatePointLight(
-                lightingRoot.transform,
-                "Luz_Cenital_Central_Oficina",
-                isVnbOffice ? new Vector3(1.00f, 3.10f, 0.00f) : new Vector3(0f, 3.10f, 0.0f),
-                new Color(0.97f, 0.99f, 1.0f),
-                4.50f,
-                14.0f,
-                true
-            );
-
-            if (isVnbOffice)
-            {
-                EnsureOrUpdatePointLight(lightingRoot.transform, "Luz_Sala_Descanso_Oeste", new Vector3(-3.80f, 2.95f, -1.20f), new Color(1.0f, 0.96f, 0.90f), 3.50f, 10.5f, true);
-                EnsureOrUpdatePointLight(lightingRoot.transform, "Luz_Cocina_Pasillo_Este", new Vector3(5.20f, 2.95f, 1.40f), new Color(1.0f, 0.97f, 0.92f), 3.50f, 10.5f, true);
-                EnsureOrUpdatePointLight(lightingRoot.transform, "Luz_Pasillo_Tablero_Sur", new Vector3(2.20f, 2.85f, -4.40f), new Color(0.96f, 0.98f, 1.0f), 3.20f, 9.5f, true);
-                BoostVnbOfficeLamps();
-            }
-
-            // 4. Balizas de Alerta Roja (#ff5a4e) en el Techo
+            // 4. Balizas de Alerta Roja (#ff5a4e) fijadas al techo (Y = 2.98m)
             Vector3[] beaconPositions = isVnbOffice
-                ? new[] { new Vector3(1.40f, 2.95f, -1.35f), new Vector3(-6.10f, 2.95f, -4.25f) }
+                ? new[] { new Vector3(1.40f, 2.98f, -0.55f), new Vector3(-6.10f, 2.98f, -4.55f) }
                 : new[] { new Vector3(-1.8f, 3.16f, 1.5f), new Vector3(1.8f, 3.16f, 1.5f) };
 
             Light[] alertLights = new Light[2];

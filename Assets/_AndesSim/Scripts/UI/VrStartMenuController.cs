@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using AndesSim.Audio;
 using AndesSim.Core;
 using AndesSim.Data;
+using AndesSim.UI;
 
 namespace AndesSim.VR
 {
@@ -54,6 +55,13 @@ namespace AndesSim.VR
         [SerializeField] private TextMeshProUGUI txtModoDescripcion;
         [SerializeField] private Button btnIniciarSimulacion;
 
+        [Header("--- Flujo Rápido y Accesos Directos (Cardboard UX) ---")]
+        [SerializeField] private Button btnTogglePasos;
+        [SerializeField] private TextMeshProUGUI txtBtnTogglePasosLabel;
+        [SerializeField] private GameObject panelVistaModos;
+        [SerializeField] private GameObject panelVistaPasos;
+        [SerializeField] private Button btnAbrirCreditos;
+
         [Header("--- Tab 2: Sospechosos ---")]
         [SerializeField] private Button[] suspectCardsButtons;
         [SerializeField] private GameObject[] suspectDetailPanels;
@@ -89,6 +97,11 @@ namespace AndesSim.VR
         public TextMeshProUGUI TxtModoSeleccionadoBadge { get => txtModoSeleccionadoBadge; set => txtModoSeleccionadoBadge = value; }
         public TextMeshProUGUI TxtModoDescripcion { get => txtModoDescripcion; set => txtModoDescripcion = value; }
         public Button BtnIniciarSimulacion { get => btnIniciarSimulacion; set => btnIniciarSimulacion = value; }
+        public Button BtnTogglePasos { get => btnTogglePasos; set => btnTogglePasos = value; }
+        public TextMeshProUGUI TxtBtnTogglePasosLabel { get => txtBtnTogglePasosLabel; set => txtBtnTogglePasosLabel = value; }
+        public GameObject PanelVistaModos { get => panelVistaModos; set => panelVistaModos = value; }
+        public GameObject PanelVistaPasos { get => panelVistaPasos; set => panelVistaPasos = value; }
+        public Button BtnAbrirCreditos { get => btnAbrirCreditos; set => btnAbrirCreditos = value; }
 
         public Button BtnDwellRapido { get => btnDwellRapido; set => btnDwellRapido = value; }
         public Button BtnDwellEstandar { get => btnDwellEstandar; set => btnDwellEstandar = value; }
@@ -175,6 +188,11 @@ namespace AndesSim.VR
 
             // Audio Toggle
             if (btnToggleAudio != null) btnToggleAudio.onClick.AddListener(ToggleAudio);
+
+            if (btnTogglePasos != null) btnTogglePasos.onClick.AddListener(TogglePasosView);
+            if (btnAbrirCreditos != null) btnAbrirCreditos.onClick.AddListener(OpenCreditsModal);
+
+            SetPasosViewVisible(false);
         }
 
         public void SwitchTab(MenuTab tab)
@@ -223,6 +241,8 @@ namespace AndesSim.VR
             UpdateModeDisplay();
         }
 
+        private bool _showingPasosView;
+
         private void UpdateModeDisplay()
         {
             SimMode currentMode = (GameManager.I != null) ? GameManager.I.mode : SimMode.Ataque;
@@ -231,39 +251,64 @@ namespace AndesSim.VR
             {
                 if (txtModoSeleccionadoBadge != null)
                 {
-                    txtModoSeleccionadoBadge.text = "MODO SELECCIONADO: <color=#FF5A4E><b>[MODO ATAQUE 2015 - HISTORICO]</b></color>";
+                    txtModoSeleccionadoBadge.text = "MODO ACTIVO: ATAQUE";
+                    txtModoSeleccionadoBadge.color = AttackRed;
                 }
-
                 if (txtModoDescripcion != null)
                 {
                     txtModoDescripcion.text =
-                        "<b>Objetivo del Modo Ataque:</b> Recrear la cadena de intrusion historica del Grupo Lazarus.\n" +
-                        "[-] <b>Vector:</b> Spear phishing con CV falso remitido a Carla Mendoza (Estacion 01).\n" +
-                        "[-] <b>Detonacion:</b> Ejecucion del dropper .scr.zip y establecimiento de canal C2.\n" +
-                        "[-] <b>Impacto:</b> Red plana sin firewall ni Sandbox. Movimiento lateral hacia el switch SWIFT.";
+                        "1. Revisa el correo en PC 1\n" +
+                        "2. Abre el enlace y mira la infeccion\n" +
+                        "3. Ubica al responsable en el tablero";
                 }
-
                 if (imgModoAtaqueBorder != null) imgModoAtaqueBorder.color = AttackRed;
-                if (imgModoDefensaBorder != null) imgModoDefensaBorder.color = new Color(0.2f, 0.3f, 0.4f, 0.5f);
+                if (imgModoDefensaBorder != null) imgModoDefensaBorder.color = new Color(0.18f, 0.30f, 0.44f, 0.70f);
             }
             else
             {
                 if (txtModoSeleccionadoBadge != null)
                 {
-                    txtModoSeleccionadoBadge.text = "MODO SELECCIONADO: <color=#38F28A><b>[MODO DEFENSA SOC - CONTENCION]</b></color>";
+                    txtModoSeleccionadoBadge.text = "MODO ACTIVO: DEFENSA";
+                    txtModoSeleccionadoBadge.color = DefenseGreen;
                 }
-
                 if (txtModoDescripcion != null)
                 {
                     txtModoDescripcion.text =
-                        "<b>Objetivo del Modo Defensa:</b> Aplicar protocolos de contencion temprana perimetral.\n" +
-                        "[OK] <b>Inspeccion:</b> Identificar las 3 senales criticas de phishing en menos de 3 minutos.\n" +
-                        "[OK] <b>Aislamiento:</b> Enviar el dropper a analisis en Sandbox Cuckoo perimetral.\n" +
-                        "[OK] <b>Mitigacion:</b> Purgar los 16 buzones y desplegar token MFA para bloquear el robo de fondos.";
+                        "1. Marca las 3 pistas del correo (PC 1)\n" +
+                        "2. Reporta, revisa SIEM (PC 3) y Post-It\n" +
+                        "3. Bloquea, activa MFA y evalua en tablero";
                 }
-
+                if (imgModoAtaqueBorder != null) imgModoAtaqueBorder.color = new Color(0.18f, 0.30f, 0.44f, 0.70f);
                 if (imgModoDefensaBorder != null) imgModoDefensaBorder.color = DefenseGreen;
-                if (imgModoAtaqueBorder != null) imgModoAtaqueBorder.color = new Color(0.2f, 0.3f, 0.4f, 0.5f);
+            }
+        }
+
+        public void TogglePasosView()
+        {
+            SetPasosViewVisible(!_showingPasosView);
+        }
+
+        public void SetPasosViewVisible(bool showPasos)
+        {
+            _showingPasosView = showPasos;
+            if (panelVistaModos != null) panelVistaModos.SetActive(!showPasos);
+            if (panelVistaPasos != null) panelVistaPasos.SetActive(showPasos);
+            if (txtBtnTogglePasosLabel != null)
+            {
+                txtBtnTogglePasosLabel.text = showPasos ? "[ VER MODOS ]" : "[ ? COMO FUNCIONA ]";
+            }
+        }
+
+        public void OpenCreditsModal()
+        {
+            var modal = CreditsAndEthicsModalUI.I;
+            if (modal == null)
+            {
+                modal = FindFirstObjectByType<CreditsAndEthicsModalUI>(FindObjectsInactive.Include);
+            }
+            if (modal != null)
+            {
+                modal.OpenModal();
             }
         }
 
@@ -404,6 +449,8 @@ namespace AndesSim.VR
                 menuCanvasGroup.interactable = true;
                 menuCanvasGroup.blocksRaycasts = true;
             }
+            SetPasosViewVisible(false);
+            UpdateModeDisplay();
         }
 
         private void ResolveTeleportDestination()

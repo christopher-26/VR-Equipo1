@@ -318,54 +318,54 @@ namespace AndesSim.Core
             stepConfigurations.Add(new StepGuideInfo
             {
                 step = ScenarioStep.Step1_PortalEntrada,
-                stepTitle = "Paso 1: Portal de entrada",
-                playerObjective = "Lectura del briefing y selección del modo de simulación.",
-                hudGuidanceInstruction = "Bienvenido a ANDES-SIM. Fija tu retícula en el panel de briefing para seleccionar MODO ATAQUE o MODO DEFENSA y cruzar el portal hacia 2015.",
+                stepTitle = "Paso 1: Menu Inicial",
+                playerObjective = "Elige Ataque o Defensa y presiona Iniciar.",
+                hudGuidanceInstruction = "Selecciona un modo y mira el boton Iniciar.",
                 progressLabel = "1/6"
             });
 
             stepConfigurations.Add(new StepGuideInfo
             {
                 step = ScenarioStep.Step2_Oficina3D,
-                stepTitle = "Paso 2: Oficina 3D",
-                playerObjective = "Exploración de la oficina de pagos y recolección de indicios físicos y lógicos.",
-                hudGuidanceInstruction = "Usa el teletransporte por mirada en el suelo para desplazarte. Encuentra las credenciales en post-it (Monitor 01) y revisa el monitor de eventos SIEM (Monitor 03).",
+                stepTitle = "Paso 2: Oficina SOC",
+                playerObjective = "Explora PC 1, Post-It y Consola SIEM.",
+                hudGuidanceInstruction = "Mira la PC 1 o usa el teletransporte del suelo.",
                 progressLabel = "2/6"
             });
 
             stepConfigurations.Add(new StepGuideInfo
             {
                 step = ScenarioStep.Step3_RevisarBandeja,
-                stepTitle = "Paso 3: Revisar bandeja",
-                playerObjective = "Posicionamiento en el puesto de Carla Mendoza y apertura de correo.",
-                hudGuidanceInstruction = "Acércate a la estación 'PC-PAGOS-01' de Carla Mendoza. Fija tu mirada en la pantalla para abrir la bandeja de entrada del Banco Andino.",
+                stepTitle = "Paso 3: Abrir Correo",
+                playerObjective = "Abre el correo en PC 1 (Carla).",
+                hudGuidanceInstruction = "Fija tu mirada en la pantalla de PC 1.",
                 progressLabel = "3/6"
             });
 
             stepConfigurations.Add(new StepGuideInfo
             {
                 step = ScenarioStep.Step4_InspeccionarCorreo,
-                stepTitle = "Paso 4: Inspeccionar correo",
-                playerObjective = "Examen con la retícula de las 3 señales: Remitente, Enlace y Urgencia (RF-03).",
-                hudGuidanceInstruction = "Examen minucioso: Apunta tu retícula directamente hacia: 1) El correo del remitente, 2) El enlace '.scr.zip', 3) El texto de urgencia temporal.",
+                stepTitle = "Paso 4: Ver 3 Pistas",
+                playerObjective = "Marca remitente, urgencia y adjunto .exe.",
+                hudGuidanceInstruction = "Presiona las 3 senales sospechosas del correo.",
                 progressLabel = "4/6"
             });
 
             stepConfigurations.Add(new StepGuideInfo
             {
                 step = ScenarioStep.Step5_ElegirAccion,
-                stepTitle = "Paso 5: Elegir: abrir o reportar",
-                playerObjective = "Respuesta activa ante el vector de ataque.",
-                hudGuidanceInstruction = "Modo Ataque: Haz clic en el enlace para presenciar la infección en tiempo real. / Modo Defensa: Haz clic en el botón 'Reportar Phishing' para aislar la amenaza.",
+                stepTitle = "Paso 5: Decidir Accion",
+                playerObjective = "Ataque: abre adjunto. Defensa: aisla correo.",
+                hudGuidanceInstruction = "Elige la accion final y avanza a los resultados.",
                 progressLabel = "5/6"
             });
 
             stepConfigurations.Add(new StepGuideInfo
             {
                 step = ScenarioStep.Step6_Resultado,
-                stepTitle = "Paso 6: Resultado",
-                playerObjective = "Evaluación técnica final y balance del criterio de aceptación (< 3 min).",
-                hudGuidanceInstruction = "Simulación concluida. Revisa en el panel frontal tu desempeño, evidencias recolectadas y el tiempo de respuesta frente al incidente de 2015.",
+                stepTitle = "Paso 6: Evaluacion",
+                playerObjective = "Revisa tu resultado, tiempo y sospechoso.",
+                hudGuidanceInstruction = "Consulta tus resultados, sospechosos o creditos.",
                 progressLabel = "6/6"
             });
         }

@@ -172,27 +172,23 @@ namespace AndesSim.UI
                 {
                     id = "SUSPECT_SAMUEL_TORRES",
                     fullName = "Ing. Samuel Torres",
-                    roleTitle = "Jefe de Seguridad TI e Infraestructura Bancaria",
-                    threatLevelBadge = "SOSPECHOSO DE NEGLIGENCIA / SABOTAJE ARQUITECTÓNICO",
+                    roleTitle = "Jefe de Seguridad TI",
+                    threatLevelBadge = "NEGLIGENCIA DE RED",
                     threatColorHex = ColorAlertRed,
                     careerAndPsychology =
-                        "• <b>Trayectoria:</b> 12 años en banca comercial e infraestructura de redes. Ingeniero de Sistemas colegiado, especialista certificado en CISCO y CheckPoint.\n" +
-                        "• <b>Perfil Psicológico:</b> Meticuloso, tecnócrata y amargado por la burocracia directiva. Siente desdén por gerentes no técnicos que recortaron su presupuesto. Adopta una actitud de \"cumplimiento pasivo estricto\": si la dirección no aprueba fondos, no implementa salvaguardas compensatorias.",
+                        "• 12 anos en redes bancarias.\n" +
+                        "• Molesto por recortes de presupuesto.",
                     incriminatingPoints =
-                        "• Poseía privilegios de Administrador Supremo (Domain Admin) en todos los switches, servidores de correo Exchange y enrutadores perimetrales.\n" +
-                        "• Omitió configurar reglas elementales de filtrado MIME en Exchange para bloquear ejecutables sospechosos (.scr, .exe, .scr.zip).\n" +
-                        "• No aplicó segmentación VLAN entre las computadoras de la oficina de pagos y el cuarto de servidores SWIFT, manteniendo la red completamente plana.",
+                        "• Administrador total de correo y switches.\n" +
+                        "• No bloqueo archivos .exe ni puso VLANs.",
                     exoneratingPoints =
-                        "• Presentó 3 memorandos formales por escrito (MEMO-TI-2014-089 y 2014-112) advirtiendo sobre la vulnerabilidad crítica de la red bancaria y solicitando un firewall de última generación con sandbox.\n" +
-                        "• Sus credenciales personales no fueron empleadas en la emisión de transferencias fraudulentas de madrugada.",
-                    reason16Recipients =
-                        "Mantuvo abierta la lista de distribución global 'pagos-personal@bancoandino.pe' sin autenticación SPF/DKIM para remitentes externos, permitiendo que un correo spoofing desde career-applicants-bd.com ingresara sin filtro a los 16 buzones del área.",
-                    reasonCarlaPostIt =
-                        "Estableció una política de seguridad draconiana obligando a cambiar contraseñas de 16 caracteres alfanuméricos cada 30 días, pero denegó la adquisición de un gestor de contraseñas corporativo y no proveyó llaves MFA, forzando a los operadores a anotar sus claves.",
-                    reasonNoFirewallSandbox =
-                        "Su solicitud formal de presupuesto para un Appliance Sandbox de detonación de malware fue rechazada por gerencia por considerarla 'costosa'; en represalia pasiva, no implementó reglas locales de software ni scripts perimetrales de contingencia.",
+                        "• Envio 3 informes pidiendo un Sandbox.\n" +
+                        "• No uso su clave en el robo.",
+                    reason16Recipients = "Dejo abierto el grupo de correo al exterior.",
+                    reasonCarlaPostIt = "Exigia claves largas cada mes sin gestor.",
+                    reasonNoFirewallSandbox = "Sin dinero aprobado, no activo filtros.",
                     teamHypothesisArgument =
-                        "<b>HIPÓTESIS DE NEGLIGENCIA ARQUITECTÓNICA Y RESENTIMIENTO INSTITUCIONAL:</b> Samuel no programó el malware de Lazarus, pero facilitó deliberadamente el terreno por omisión pasiva y despecho corporativo, dejando la red desprotegida tras la negativa presupuestaria de la gerencia."
+                        "<b>CONCLUSION:</b> Por pasividad y falta de filtros dejo la red vulnerable."
                 },
 
                 // 2. Lic. Hugo Benavides
@@ -200,27 +196,23 @@ namespace AndesSim.UI
                 {
                     id = "SUSPECT_HUGO_BENAVIDES",
                     fullName = "Lic. Hugo Benavides",
-                    roleTitle = "Gerente de Operaciones y Director Adjunto de Pagos",
-                    threatLevelBadge = "SOSPECHOSO DE ENCUBRIMIENTO Y DESIDIA OPERATIVA",
+                    roleTitle = "Gerente de Operaciones",
+                    threatLevelBadge = "DESIDIA GERENCIAL",
                     threatColorHex = ColorAmberWarning,
                     careerAndPsychology =
-                        "• <b>Trayectoria:</b> 18 años en el Banco Andino escalando puestos comerciales y administrativos. Economista con MBA en Finanzas Internacionales. Supervisa la mesa de dinero y las transferencias de alto valor.\n" +
-                        "• <b>Perfil Psicológico:</b> Orientado obsesivamente al cumplimiento de metas comerciales y volumen de facturación. Considera la seguridad como 'un obstáculo burocrático que frena el negocio'. Autoritario con sus subordinados y reacio a reportar anomalías que puedan manchar sus auditorías.",
+                        "• 18 anos en metas comerciales.\n" +
+                        "• Ve la seguridad como un freno.",
                     incriminatingPoints =
-                        "• El viernes previo al incidente encontró la impresora de auditoría SWIFT apagada y ordenó ignorarla para no frenar la jornada de pagos.\n" +
-                        "• Presionó activamente para desestimar los filtros de seguridad del correo que ralentizaban la recepción de comprobantes de clientes.\n" +
-                        "• Mantuvo un patrón de ocultamiento de incidentes menores en auditorías previas de la SBS.",
+                        "• Ignoro fallas en impresora SWIFT.\n" +
+                        "• Pidio quitar filtros para ir rapido.",
                     exoneratingPoints =
-                        "• Cero competencias informáticas avanzadas; incapaz de interactuar con consolas Linux, compilar scripts o establecer túneles de comando y control (C2).\n" +
-                        "• Registró presencia en un seminario internacional en Lima durante la ejecución de las transferencias.",
-                    reason16Recipients =
-                        "Publicó en portales de empleo y redes corporativas los nombres y correos del personal de pagos para una convocatoria de pasantías, entregando involuntariamente la lista de objetivos a la célula de ingeniería social de Lazarus.",
-                    reasonCarlaPostIt =
-                        "Exigía jornadas con sobretiempo no planificado y relevos acelerados de operadores. Alentaba informalmente que los supervisores conocieran las claves de sus subordinados para 'destrabar pagos urgentes', normalizando el Post-It a la vista pública.",
-                    reasonNoFirewallSandbox =
-                        "En el comité de presupuesto votó activamente en contra del proyecto de Sandbox de TI, argumentando que 'un banco no puede gastar decenas de miles de dólares en analizar correos cuando necesitamos liquidez operativa'.",
+                        "• Sin conocimientos tecnicos de hacking.\n" +
+                        "• Estaba de viaje en otro evento.",
+                    reason16Recipients = "Publico correos del equipo en avisos.",
+                    reasonCarlaPostIt = "Acepto claves en Post-It para ir rapido.",
+                    reasonNoFirewallSandbox = "Voto en contra de comprar el Sandbox.",
                     teamHypothesisArgument =
-                        "<b>HIPÓTESIS DE DESIDIA GERENCIAL Y SABOTAJE PROCEDIMENTAL:</b> Su hostilidad hacia los controles de seguridad y la presión despiadada sobre el personal anularon los procedimientos básicos de custodia, creando el caldo de cultivo que los atacantes explotaron."
+                        "<b>CONCLUSION:</b> Su presion y recortes anularon la seguridad."
                 },
 
                 // 3. Carla Mendoza
@@ -228,26 +220,23 @@ namespace AndesSim.UI
                 {
                     id = "SUSPECT_CARLA_MENDOZA",
                     fullName = "Carla Mendoza",
-                    roleTitle = "Operadora Senior de Pagos Internacionales (SWIFT)",
-                    threatLevelBadge = "PACIENTE CERO / VECTOR INVOLUNTARIO VULNERABLE",
+                    roleTitle = "Operadora Senior SWIFT",
+                    threatLevelBadge = "VICTIMA PHISHING",
                     threatColorHex = ColorGreenCode,
                     careerAndPsychology =
-                        "• <b>Trayectoria:</b> 7 años en la institución, con excelente récord de puntualidad y precisión transaccional. Certificada como Operadora Autorizada de Mensajería Financiera SWIFT Alliance Access.\n" +
-                        "• <b>Perfil Psicológico:</b> Empática, servicial, sumamente perfeccionista pero con altos niveles de estrés y fatiga acumulada. Confiada ante pedidos de ayuda o postulaciones laborales externas. Miedo a cometer errores que deriven en sanciones disciplinarias.",
+                        "• 7 anos con record puntual.\n" +
+                        "• Trabajaba bajo mucho estres.",
                     incriminatingPoints =
-                        "• Su usuario de operador SWIFT ('C_MENDOZA_OP1') fue el utilizado para autorizar las 36 órdenes de transferencia nocturnas por US$ 951 millones.\n" +
-                        "• Registró conexiones y horas extra no autorizadas en su puesto de trabajo días antes del ciberataque.",
+                        "• Su usuario autorizo los giros SWIFT.\n" +
+                        "• Tenia su clave pegada en Post-It.",
                     exoneratingPoints =
-                        "• Fue el objetivo inicial de phishing ('Patient Zero') junto con otros 15 empleados bancarios.\n" +
-                        "• Peritaje forense comprobó que durante las transferencias nocturnas ella se encontraba en su domicilio; el malware operó su sesión de manera remota mediante la puerta trasera instalada.",
-                    reason16Recipients =
-                        "Su cuenta corporativa estaba expuesta en intercambios con bancos corresponsales extranjeros, figurando en la lista de correo de reclutamiento como contacto de referencia para recepción de currículums.",
-                    reasonCarlaPostIt =
-                        "Debido a la imposición de contraseñas de 16 caracteres alfanuméricos cambiadas mensualmente y a la prohibición de gestores digitales, anotaba la clave bajo el teclado para no bloquear la cuenta durante los cierres de pagos a presión.",
-                    reasonNoFirewallSandbox =
-                        "Al carecer de capacitación en ciberseguridad y no contar con un sandbox que examinara el archivo 'Rasel_Ahlam_CV_2015.scr.zip', confió ciegamente en que la red del banco filtraba cualquier archivo peligroso.",
+                        "• Estaba en casa durante el robo nocturno.\n" +
+                        "• Fue enganada por el correo falso.",
+                    reason16Recipients = "Su correo aparecia en contactos externos.",
+                    reasonCarlaPostIt = "Anoto la clave para no bloquear cierres.",
+                    reasonNoFirewallSandbox = "Confio en que el filtro ya bloqueaba virus.",
                     teamHypothesisArgument =
-                        "<b>HIPÓTESIS DE VÍCTIMA DE INGENIERÍA SOCIAL (PACIENTE CERO):</b> Carla no actuó con dolo criminal; fue el eslabón humano más débil explotado por Lazarus debido a la total ausencia de capacitación en phishing y a una higiene de credenciales comprometida por políticas inadecuadas."
+                        "<b>CONCLUSION:</b> Victima sin capacitacion explotada por phishing."
                 },
 
                 // 4. Renzo Aliaga
@@ -255,26 +244,23 @@ namespace AndesSim.UI
                 {
                     id = "SUSPECT_RENZO_ALIAGA",
                     fullName = "Renzo Aliaga",
-                    roleTitle = "Técnico Residente de Soporte y Cableado de Redes (NetSolutions)",
-                    threatLevelBadge = "SOSPECHOSO DE COMPLICIDAD INTERNA / INSIDER THREAT",
+                    roleTitle = "Soporte Redes (Externo)",
+                    threatLevelBadge = "SOSPECHOSO INTERNO",
                     threatColorHex = ColorAlertRed,
                     careerAndPsychology =
-                        "• <b>Trayectoria:</b> Técnico informático contratado por la empresa proveedora de soporte y mantenimiento de cableado estructurado. 4 años realizando servicios periódicos en la sede del Banco Andino.\n" +
-                        "• <b>Perfil Psicológico:</b> Reservado, callado, pasa desapercibido. Reportes financieros indican deudas bancarias considerables en cobranza judicial. Interés documentado en comunidades underground de ciberseguridad ofensiva.",
+                        "• 4 anos viendo cableado de oficina.\n" +
+                        "• Tiene deudas bancarias graves.",
                     incriminatingPoints =
-                        "• Permaneció en la oficina de pagos durante el mantenimiento físico de las terminales 15 días antes del ataque, trabajando directamente debajo de los escritorios de los operadores.\n" +
-                        "• Sus registros de tarjeta de acceso muestran ingresos a la sala de servidores en horarios de cambio de guardia sin supervisor presente.",
+                        "• Trabajo bajo el escritorio de Carla.\n" +
+                        "• Entro de noche a servidores sin guia.",
                     exoneratingPoints =
-                        "• Todas las órdenes de trabajo estaban firmadas y avaladas por la jefatura de TI.\n" +
-                        "• Las cámaras de vigilancia no muestran inserción de memorias USB ni extracción física de componentes de las terminales.",
-                    reason16Recipients =
-                        "Durante el mantenimiento del cableado de red en las computadoras de pagos tuvo acceso visual y físico a las libretas de direcciones locales de Outlook, pudiendo fotografiar o extraer la lista de los 16 destinatarios.",
-                    reasonCarlaPostIt =
-                        "Realizó labores de recableado y fijación de ductos debajo del escritorio de Carla Mendoza; estuvo en posición directa de observar el Post-It con las credenciales anotadas pegado debajo de la bandeja deslizable del teclado.",
-                    reasonNoFirewallSandbox =
-                        "Conocía a la perfección la arquitectura física de los switches del piso y sabía que las terminales de pagos compartían el mismo segmento broadcast sin inspección interna, información de oro para planificar el salto lateral hacia el nodo SWIFT.",
+                        "• Tenia ordenes de trabajo firmadas.\n" +
+                        "• Camaras no muestran uso de USB.",
+                    reason16Recipients = "Pudo ver la lista de correos en PC 1.",
+                    reasonCarlaPostIt = "Cableo justo debajo del Post-It de Carla.",
+                    reasonNoFirewallSandbox = "Sabia que la red no tenia proteccion.",
                     teamHypothesisArgument =
-                        "<b>HIPÓTESIS DE CÓMPLICE INTERNO / RECOLECTOR FÍSICO (INSIDER THREAT):</b> Renzo actuó como facilitador pagado o informante dentro del banco, vendiendo la topología interna, la lista de correos de pagos y las credenciales observadas en el escritorio de Carla al grupo Lazarus."
+                        "<b>CONCLUSION:</b> Posible complice interno que filtro claves y red."
                 }
             };
         }
@@ -392,62 +378,62 @@ namespace AndesSim.UI
             GameObject suspectHeaderObj = CreateUiPanel("Suspect_Profile_Header", dossierObj.transform, new Vector2(0f, 325f), new Vector2(920f, 70f), HexToColor(ColorDarkBg, 0.95f));
             AddUiBorder(suspectHeaderObj, HexToColor(ColorGreenCode, 0.35f), 1f);
 
-            suspectNameText = CreateTmpText("SuspectName", suspectHeaderObj.transform, new Vector2(-170f, 12f), new Vector2(540f, 34f),
-                "<b>Ing. Samuel Torres</b>", 22f, TextAlignmentOptions.Left, HexToColor(ColorTextLight));
+            suspectNameText = CreateTmpText("SuspectName", suspectHeaderObj.transform, new Vector2(-170f, 14f), new Vector2(540f, 36f),
+                "<b>Ing. Samuel Torres</b>", 24f, TextAlignmentOptions.Left, HexToColor(ColorTextLight));
 
-            suspectRoleText = CreateTmpText("SuspectRole", suspectHeaderObj.transform, new Vector2(-170f, -14f), new Vector2(540f, 24f),
-                "Cargo: <b>Jefe de Seguridad TI e Infraestructura</b>", 13f, TextAlignmentOptions.Left, HexToColor(ColorGreenCode));
+            suspectRoleText = CreateTmpText("SuspectRole", suspectHeaderObj.transform, new Vector2(-170f, -15f), new Vector2(540f, 26f),
+                "Cargo: <b>Jefe de Seguridad TI</b>", 15.5f, TextAlignmentOptions.Left, HexToColor(ColorGreenCode));
 
-            threatBadgeText = CreateTmpText("ThreatBadge", suspectHeaderObj.transform, new Vector2(300f, 0f), new Vector2(280f, 40f),
-                "<b>[SOSPECHOSO DE NEGLIGENCIA]</b>", 12f, TextAlignmentOptions.Center, HexToColor(ColorAlertRed));
+            threatBadgeText = CreateTmpText("ThreatBadge", suspectHeaderObj.transform, new Vector2(300f, 0f), new Vector2(280f, 44f),
+                "<b>[SOSPECHOSO]</b>", 15f, TextAlignmentOptions.Center, HexToColor(ColorAlertRed));
 
             // 2. Columna Izquierda: Carrera / Psicología / Indicios
             GameObject colLeftObj = CreateUiPanel("Col_Trayectoria", dossierObj.transform, new Vector2(-235f, 90f), new Vector2(440f, 360f), HexToColor(ColorDarkBg, 0.7f));
             AddUiBorder(colLeftObj, HexToColor(ColorGreenCode, 0.25f), 1f);
 
-            CreateTmpText("ColLeftTitle", colLeftObj.transform, new Vector2(0f, 160f), new Vector2(410f, 26f),
-                "<b>1. TRAYECTORIA & PERFIL PSICOLÓGICO</b>", 13f, TextAlignmentOptions.Left, HexToColor(ColorGreenCode));
+            CreateTmpText("ColLeftTitle", colLeftObj.transform, new Vector2(0f, 158f), new Vector2(410f, 28f),
+                "<b>1. PERFIL</b>", 16f, TextAlignmentOptions.Left, HexToColor(ColorGreenCode));
 
-            careerPsychologyText = CreateTmpText("ColLeftBody", colLeftObj.transform, new Vector2(0f, 15f), new Vector2(410f, 250f),
-                "Cargando antecedentes...", 11f, TextAlignmentOptions.TopLeft, HexToColor(ColorTextLight));
+            careerPsychologyText = CreateTmpText("ColLeftBody", colLeftObj.transform, new Vector2(0f, 10f), new Vector2(410f, 260f),
+                "Cargando perfil...", 15.5f, TextAlignmentOptions.TopLeft, HexToColor(ColorTextLight));
 
             // 3. Columna Derecha: Indicios vs Coartada
             GameObject colRightObj = CreateUiPanel("Col_Indicios", dossierObj.transform, new Vector2(235f, 90f), new Vector2(440f, 360f), HexToColor(ColorDarkBg, 0.7f));
             AddUiBorder(colRightObj, HexToColor(ColorGreenCode, 0.25f), 1f);
 
-            CreateTmpText("ColRightTitle", colRightObj.transform, new Vector2(0f, 160f), new Vector2(410f, 26f),
-                "<b>2. ANÁLISIS FORENSE (INCULPACIÓN / COARTADA)</b>", 13f, TextAlignmentOptions.Left, HexToColor(ColorAmberWarning));
+            CreateTmpText("ColRightTitle", colRightObj.transform, new Vector2(0f, 158f), new Vector2(410f, 28f),
+                "<b>2. PISTAS A FAVOR / EN CONTRA</b>", 16f, TextAlignmentOptions.Left, HexToColor(ColorAmberWarning));
 
-            incriminatingFactsText = CreateTmpText("ColRightIncrim", colRightObj.transform, new Vector2(0f, 70f), new Vector2(410f, 140f),
-                "<b>Indicios en contra:</b>\n...", 10.5f, TextAlignmentOptions.TopLeft, HexToColor(ColorAlertRed));
+            incriminatingFactsText = CreateTmpText("ColRightIncrim", colRightObj.transform, new Vector2(0f, 68f), new Vector2(410f, 145f),
+                "<b>En contra:</b>\n...", 14.5f, TextAlignmentOptions.TopLeft, HexToColor(ColorAlertRed));
 
-            exoneratingFactsText = CreateTmpText("ColRightExon", colRightObj.transform, new Vector2(0f, -75f), new Vector2(410f, 130f),
-                "<b>Puntos a favor / Coartada:</b>\n...", 10.5f, TextAlignmentOptions.TopLeft, HexToColor(ColorGreenCode));
+            exoneratingFactsText = CreateTmpText("ColRightExon", colRightObj.transform, new Vector2(0f, -78f), new Vector2(410f, 135f),
+                "<b>A favor:</b>\n...", 14.5f, TextAlignmentOptions.TopLeft, HexToColor(ColorGreenCode));
 
-            // 4. Panel Inferior: CLAVES DEL ESCENARIO 1 (16 correos, Post-It de Carla, Red sin sandbox)
+            // 4. Panel Inferior: CLAVES DEL ESCENARIO 1
             GameObject scenarioKeysObj = CreateUiPanel("Panel_Claves_Escenario1", dossierObj.transform, new Vector2(0f, -145f), new Vector2(920f, 140f), HexToColor(ColorDarkBg, 0.85f));
             AddUiBorder(scenarioKeysObj, HexToColor(ColorGreenCode, 0.3f), 1f);
 
-            CreateTmpText("ScenarioKeysTitle", scenarioKeysObj.transform, new Vector2(0f, 52f), new Vector2(890f, 24f),
-                "<b>3. CLAVES DEL ESCENARIO 1 (OFICINA DE PAGOS - BANCO ANDINO)</b>", 13f, TextAlignmentOptions.Left, HexToColor(ColorGreenCode));
+            CreateTmpText("ScenarioKeysTitle", scenarioKeysObj.transform, new Vector2(0f, 50f), new Vector2(890f, 26f),
+                "<b>3. RELACION CON LAS PISTAS DEL CASO</b>", 15.5f, TextAlignmentOptions.Left, HexToColor(ColorGreenCode));
 
-            scenario01AnalysisText = CreateTmpText("ScenarioKeysBody", scenarioKeysObj.transform, new Vector2(0f, -12f), new Vector2(890f, 95f),
-                "• <b>16 Destinatarios:</b> ...\n• <b>Post-It de Carla:</b> ...\n• <b>Red sin Sandbox:</b> ...", 10.5f, TextAlignmentOptions.TopLeft, HexToColor(ColorTextLight));
+            scenario01AnalysisText = CreateTmpText("ScenarioKeysBody", scenarioKeysObj.transform, new Vector2(0f, -14f), new Vector2(890f, 98f),
+                "Cargando pistas...", 14.5f, TextAlignmentOptions.TopLeft, HexToColor(ColorTextLight));
 
             // 5. Barra Inferior: Hipótesis Fundamentada y Botón de Marcado
             GameObject hypothesisBarObj = CreateUiPanel("Panel_Hipotesis_Accion", dossierObj.transform, new Vector2(0f, -285f), new Vector2(920f, 115f), HexToColor(ColorDarkBg, 0.95f));
             AddUiBorder(hypothesisBarObj, HexToColor(ColorGreenCode, 0.5f), 1.5f);
 
             hypothesisArgumentText = CreateTmpText("HypothesisSummary", hypothesisBarObj.transform, new Vector2(-155f, 0f), new Vector2(570f, 95f),
-                "<b>HIPÓTESIS DEL EQUIPO:</b> Cargando fundamentación...", 11.5f, TextAlignmentOptions.Left, HexToColor(ColorTextLight));
+                "<b>CONCLUSION:</b> Cargando...", 15f, TextAlignmentOptions.Left, HexToColor(ColorTextLight));
 
             // Botón interactivo de selección de hipótesis
-            GameObject btnSelectObj = CreateUiPanel("Btn_MarcarHipotesis", hypothesisBarObj.transform, new Vector2(300f, 0f), new Vector2(260f, 65f), HexToColor(ColorGreenCode, 0.9f));
+            GameObject btnSelectObj = CreateUiPanel("Btn_MarcarHipotesis", hypothesisBarObj.transform, new Vector2(300f, 0f), new Vector2(260f, 68f), HexToColor(ColorGreenCode, 0.9f));
             AddUiBorder(btnSelectObj, HexToColor(ColorDarkBg, 1f), 2f);
 
             selectHypothesisButton = btnSelectObj.AddComponent<Button>();
-            selectHypothesisBtnText = CreateTmpText("BtnLabel", btnSelectObj.transform, Vector2.zero, new Vector2(250f, 55f),
-                "<b>[*] FIJAR COMO HIPÓTESIS\nOFICIAL DEL EQUIPO [*]</b>", 12f, TextAlignmentOptions.Center, HexToColor(ColorDarkBg));
+            selectHypothesisBtnText = CreateTmpText("BtnLabel", btnSelectObj.transform, Vector2.zero, new Vector2(250f, 58f),
+                "<b>[*] FIJAR COMO\nRESPONSABLE</b>", 15.5f, TextAlignmentOptions.Center, HexToColor(ColorDarkBg));
 
             // Conectar el adaptador de retícula VR
             WorldSpaceUiGazeButton gazeBtn = btnSelectObj.AddComponent<WorldSpaceUiGazeButton>();
@@ -497,18 +483,18 @@ namespace AndesSim.UI
                 WorldSpaceUiGazeButton gazeBtn = tabObj.AddComponent<WorldSpaceUiGazeButton>();
                 gazeBtn.ConfigureAudio(audioSource, switchSuspectSound, null);
 
-                // Etiquetas internas del botón
-                TextMeshProUGUI label = CreateTmpText("Label", tabObj.transform, new Vector2(0f, 25f), new Vector2(230f, 32f),
-                    $"<b>{suspect.fullName}</b>", 14f, TextAlignmentOptions.Center, HexToColor(ColorTextLight));
+                // Etiquetas internas del botón (Fuente grande y limpia para Cardboard)
+                TextMeshProUGUI label = CreateTmpText("Label", tabObj.transform, new Vector2(0f, 22f), new Vector2(230f, 38f),
+                    $"<b>{suspect.fullName}</b>", 17f, TextAlignmentOptions.Center, HexToColor(ColorTextLight));
                 _tabButtonTexts.Add(label);
 
-                CreateTmpText("Role", tabObj.transform, new Vector2(0f, -5f), new Vector2(230f, 24f),
-                    suspect.roleTitle, 10f, TextAlignmentOptions.Center, HexToColor(ColorGreenCode));
+                CreateTmpText("Role", tabObj.transform, new Vector2(0f, -10f), new Vector2(230f, 26f),
+                    suspect.roleTitle, 13f, TextAlignmentOptions.Center, HexToColor(ColorGreenCode));
 
-                GameObject miniStamp = CreateUiPanel("MiniStamp", tabObj.transform, new Vector2(0f, -42f), new Vector2(220f, 24f), HexToColor(ColorCardBg, 0.95f));
+                GameObject miniStamp = CreateUiPanel("MiniStamp", tabObj.transform, new Vector2(0f, -44f), new Vector2(220f, 26f), HexToColor(ColorCardBg, 0.95f));
                 AddUiBorder(miniStamp, HexToColor(ColorGreenCode, 0.5f), 1f);
-                CreateTmpText("StampText", miniStamp.transform, Vector2.zero, new Vector2(210f, 20f),
-                    $"[EXPEDIENTE #{index + 1}]", 9.5f, TextAlignmentOptions.Center, HexToColor(ColorMutedText));
+                CreateTmpText("StampText", miniStamp.transform, Vector2.zero, new Vector2(210f, 22f),
+                    $"[ FICHA #{index + 1} ]", 12.5f, TextAlignmentOptions.Center, HexToColor(ColorMutedText));
             }
         }
 
@@ -527,7 +513,7 @@ namespace AndesSim.UI
 
             // 1. Textos de Identificación
             if (suspectNameText != null) suspectNameText.text = $"<b>{suspect.fullName}</b>";
-            if (suspectRoleText != null) suspectRoleText.text = $"Cargo: <b>{suspect.roleTitle}</b>";
+            if (suspectRoleText != null) suspectRoleText.text = $"<b>{suspect.roleTitle}</b>";
 
             // 2. Distintivo de Amenaza
             if (threatBadgeText != null)
@@ -545,22 +531,22 @@ namespace AndesSim.UI
             // 4. Indicios en Contra
             if (incriminatingFactsText != null)
             {
-                incriminatingFactsText.text = $"<b><color={ColorAlertRed}>Indicios en contra / Negligencia:</color></b>\n{suspect.incriminatingPoints}";
+                incriminatingFactsText.text = $"<b><color={ColorAlertRed}>EN CONTRA:</color></b>\n{suspect.incriminatingPoints}";
             }
 
             // 5. Puntos a Favor / Coartada
             if (exoneratingFactsText != null)
             {
-                exoneratingFactsText.text = $"<b><color={ColorGreenCode}>Puntos a favor / Coartada:</color></b>\n{suspect.exoneratingPoints}";
+                exoneratingFactsText.text = $"<b><color={ColorGreenCode}>A FAVOR:</color></b>\n{suspect.exoneratingPoints}";
             }
 
             // 6. Análisis Clave del Escenario 1
             if (scenario01AnalysisText != null)
             {
                 scenario01AnalysisText.text =
-                    $"• <b>¿Por qué el correo llegó a 16 personas?:</b> {suspect.reason16Recipients}\n" +
-                    $"• <b>¿Por qué la clave de Carla estaba en un Post-It?:</b> {suspect.reasonCarlaPostIt}\n" +
-                    $"• <b>¿Por qué la red carecía de firewall/sandbox?:</b> {suspect.reasonNoFirewallSandbox}";
+                    $"• <b>16 Correos:</b> {suspect.reason16Recipients}\n" +
+                    $"• <b>Post-It:</b> {suspect.reasonCarlaPostIt}\n" +
+                    $"• <b>Sin Sandbox:</b> {suspect.reasonNoFirewallSandbox}";
             }
 
             // 7. Argumento para la Hipótesis del Equipo

@@ -123,38 +123,32 @@ namespace AndesSim.UI
         {
             if (titleText != null)
             {
-                titleText.text = $"<b><color={ColorGreenCode}>ANDES-SIM</color> · CASO BANCO ANDINO</b>\n" +
-                                 $"<size=13><color={ColorTextLight}>Escenario 1: Oficina de Pagos (Simulación VR Inmersiva)</color></size>";
+                titleText.text = $"<b><color={ColorGreenCode}>ANDES-SIM</color> · CREDITOS Y ETICA</b>";
             }
 
             if (teamRolesText != null)
             {
                 teamRolesText.text =
-                    $"<b><color={ColorGreenCode}>EQUIPO 1 · ROLES Y RESPONSABILIDADES:</color></b>\n" +
-                    $"• <b>Líder de Proyecto y Narrativa:</b> {teamLeaderName}\n" +
-                    $"• <b>Desarrollador Unity (C#):</b> {unityDevName}\n" +
-                    $"• <b>Artista 3D, UI y Sonido:</b> {artistName}\n" +
-                    $"• <b>Analista de Ciberseguridad y QA:</b> {cybersecurityQaName}";
+                    $"<b><color={ColorGreenCode}>EQUIPO 1 · INTEGRANTES:</color></b>\n" +
+                    $"• <b>Lider / Guion:</b> {teamLeaderName}\n" +
+                    $"• <b>Unity C# / VR:</b> {unityDevName}  |  <b>3D / UI / Audio:</b> {artistName}\n" +
+                    $"• <b>Ciberseguridad y QA:</b> {cybersecurityQaName}";
             }
 
             if (attributionAiText != null)
             {
                 attributionAiText.text =
-                    $"<b><color={ColorAmberWarning}>ATRIBUCIÓN DE RECURSOS LIBRES & USO DE IA:</color></b>\n" +
-                    $"• <b>Recursos Libres 3D:</b> Modelos base optimizados de <i>Sketchfab</i> y <i>Poly Pizza</i> bajo licencias <b>CC0 (Dominio Público)</b> y <b>CC-BY 4.0</b> (Atribución). Texturas procedurales PBR.\n" +
-                    $"• <b>Audio Procedural:</b> Síntesis de ondas sinusoidales en tiempo real para clics, confirmaciones y tonos telefónicos DTMF sin dependencias externas propietarias.\n" +
-                    $"• <b>Declaración de Herramientas de IA:</b>\n" +
-                    $"  - <b>Google Gemini / Antigravity:</b> Asistencia en arquitectura técnica, desarrollo de scripts C# en Unity 6 y soporte para emulación Cardboard XR.\n" +
-                    $"  - <b>Kling AI:</b> Generación y asistencia audiovisual para la producción del tráiler cinemático del proyecto.";
+                    $"<b><color={ColorAmberWarning}>RECURSOS Y HERRAMIENTAS:</color></b>\n" +
+                    $"• <b>Modelos 3D:</b> Assets CC0 / CC-BY (VNB Office Set, Sketchfab) y texturas propias.\n" +
+                    $"• <b>Audio e IA:</b> Sintesis Web/SFX + apoyo de Google Gemini / Antigravity y Kling AI.";
             }
 
             if (legalEthicsText != null)
             {
                 legalEthicsText.text =
-                    $"<b><color={ColorAlertRed}>DECLARACIÓN ÉTICA & MARCO LEGAL (LEY 30096 Y LEY 29733):</color></b>\n" +
-                    $"• <b>Finalidad Estrictamente Académica:</b> Simulador interactivo desarrollado con fines pedagógicos de concientización y defensa frente a amenazas avanzadas persistentes (APT).\n" +
-                    $"• <b>Cumplimiento de la Ley No. 30096 (Ley de Delitos Informáticos):</b> Este software no enseña técnicas ofensivas de intrusión ni promueve el acceso no autorizado a sistemas informáticos. Su enfoque exclusivo es la detección temprana de phishing y la remediación perimetral.\n" +
-                    $"• <b>Cumplimiento de la Ley No. 29733 (Protección de Datos Personales):</b> No se utilizan ni exponen datos reales. Nombres, correos, dominios y contraseñas (<i>BANCO ANDINO</i>, <i>Rasel Ahlam</i>, <i>Carla Mendoza</i>, <i>career-applicants-bd.com</i>) son <b>ficticios</b> inspirados didácticamente en el caso histórico del Banco Central de Bangladesh (Lazarus Group).";
+                    $"<b><color={ColorAlertRed}>USO EDUCATIVO Y LEYES (30096 / 29733):</color></b>\n" +
+                    $"• <b>Fines Academicos:</b> Simulador solo para concientizacion y defensa (nunca ataque).\n" +
+                    $"• <b>Datos Ficticios:</b> Nombres y correos (<i>Banco Andino</i>, <i>Carla</i>, <i>Rasel</i>) inspirados en el caso Bangladesh 2016.";
             }
         }
 
@@ -169,8 +163,8 @@ namespace AndesSim.UI
             canvas.renderMode = RenderMode.WorldSpace;
 
             RectTransform rootRect = GetComponent<RectTransform>();
-            rootRect.sizeDelta = new Vector2(1050f, 720f);
-            rootRect.localScale = new Vector3(0.0022f, 0.0022f, 0.0022f);
+            rootRect.sizeDelta = new Vector2(960f, 650f);
+            rootRect.localScale = new Vector3(0.0019f, 0.0019f, 0.0019f);
 
             CanvasScaler scaler = GetComponent<CanvasScaler>();
             if (scaler == null) scaler = gameObject.AddComponent<CanvasScaler>();
@@ -179,58 +173,64 @@ namespace AndesSim.UI
             GraphicRaycaster raycaster = GetComponent<GraphicRaycaster>();
             if (raycaster == null) raycaster = gameObject.AddComponent<GraphicRaycaster>();
 
+            // Limpiar hijos previos si hubiera reconstruccion
+            for (int i = transform.childCount - 1; i >= 0; i--)
+            {
+                Destroy(transform.GetChild(i).gameObject);
+            }
+
             // Fondo general del modal
-            GameObject bgObj = CreateUiPanel("Modal_Fondo", transform, Vector2.zero, new Vector2(1050f, 720f), HexToColor(ColorDarkBg, 0.98f));
+            GameObject bgObj = CreateUiPanel("Modal_Fondo", transform, Vector2.zero, new Vector2(960f, 650f), HexToColor(ColorDarkBg, 0.98f));
             AddUiBorder(bgObj, HexToColor(ColorGreenCode, 0.85f), 2.5f);
             modalRootPanel = bgObj;
 
             // Barra de Cabecera
-            GameObject headerObj = CreateUiPanel("Header_Bar", bgObj.transform, new Vector2(0f, 315f), new Vector2(1010f, 70f), HexToColor(ColorCardBg, 0.95f));
-            AddUiBorder(headerObj, HexToColor(ColorGreenCode, 0.4f), 1.5f);
+            GameObject headerObj = CreateUiPanel("Header_Bar", bgObj.transform, new Vector2(0f, 270f), new Vector2(910f, 76f), HexToColor(ColorCardBg, 0.95f));
+            AddUiBorder(headerObj, HexToColor(ColorGreenCode, 0.45f), 1.5f);
 
-            titleText = CreateTmpText("TitleText", headerObj.transform, new Vector2(-60f, 0f), new Vector2(850f, 60f),
-                "Cargando título...", 17f, TextAlignmentOptions.Left, HexToColor(ColorTextLight));
+            titleText = CreateTmpText("TitleText", headerObj.transform, new Vector2(-95f, 0f), new Vector2(680f, 64f),
+                "Cargando titulo...", 26f, TextAlignmentOptions.Left, HexToColor(ColorTextLight));
 
             // Botón de Cerrar [X]
-            GameObject btnCloseObj = CreateUiPanel("Btn_Cerrar_Modal", headerObj.transform, new Vector2(450f, 0f), new Vector2(80f, 44f), HexToColor(ColorAlertRed, 0.85f));
+            GameObject btnCloseObj = CreateUiPanel("Btn_Cerrar_Modal", headerObj.transform, new Vector2(365f, 0f), new Vector2(140f, 52f), HexToColor(ColorAlertRed, 0.90f));
             AddUiBorder(btnCloseObj, HexToColor(ColorTextLight, 0.6f), 1.5f);
             closeButton = btnCloseObj.AddComponent<Button>();
 
-            CreateTmpText("CloseLabel", btnCloseObj.transform, Vector2.zero, new Vector2(70f, 40f),
-                "<b>CERRAR\n[X]</b>", 10.5f, TextAlignmentOptions.Center, HexToColor(ColorTextLight));
+            CreateTmpText("CloseLabel", btnCloseObj.transform, Vector2.zero, new Vector2(130f, 46f),
+                "<b>[ X ] CERRAR</b>", 18f, TextAlignmentOptions.Center, HexToColor(ColorTextLight));
 
             WorldSpaceUiGazeButton gazeClose = btnCloseObj.AddComponent<WorldSpaceUiGazeButton>();
             gazeClose.ConfigureAudio(audioSource, closeModalSound, null);
 
             // Bloque 1: Equipo 1 y Roles
-            GameObject rolesPanel = CreateUiPanel("Panel_Roles", bgObj.transform, new Vector2(0f, 185f), new Vector2(1010f, 150f), HexToColor(ColorCardBg, 0.85f));
-            AddUiBorder(rolesPanel, HexToColor(ColorGreenCode, 0.35f), 1f);
+            GameObject rolesPanel = CreateUiPanel("Panel_Roles", bgObj.transform, new Vector2(0f, 145f), new Vector2(910f, 140f), HexToColor(ColorCardBg, 0.90f));
+            AddUiBorder(rolesPanel, HexToColor(ColorGreenCode, 0.40f), 1.5f);
 
-            teamRolesText = CreateTmpText("TeamRolesText", rolesPanel.transform, Vector2.zero, new Vector2(980f, 135f),
-                "Cargando roles...", 11f, TextAlignmentOptions.TopLeft, HexToColor(ColorTextLight));
+            teamRolesText = CreateTmpText("TeamRolesText", rolesPanel.transform, Vector2.zero, new Vector2(870f, 124f),
+                "Cargando roles...", 18f, TextAlignmentOptions.Left, HexToColor(ColorTextLight));
 
-            // Bloque 2: Atribución de Recursos Libres y Herramientas de IA
-            GameObject aiPanel = CreateUiPanel("Panel_Recursos_IA", bgObj.transform, new Vector2(0f, 10f), new Vector2(1010f, 160f), HexToColor(ColorCardBg, 0.85f));
-            AddUiBorder(aiPanel, HexToColor(ColorAmberWarning, 0.45f), 1f);
+            // Bloque 2: Recursos y Herramientas
+            GameObject aiPanel = CreateUiPanel("Panel_Recursos_IA", bgObj.transform, new Vector2(0f, -5f), new Vector2(910f, 130f), HexToColor(ColorCardBg, 0.90f));
+            AddUiBorder(aiPanel, HexToColor(ColorAmberWarning, 0.45f), 1.5f);
 
-            attributionAiText = CreateTmpText("AttributionAiText", aiPanel.transform, Vector2.zero, new Vector2(980f, 145f),
-                "Cargando atribución...", 10.5f, TextAlignmentOptions.TopLeft, HexToColor(ColorTextLight));
+            attributionAiText = CreateTmpText("AttributionAiText", aiPanel.transform, Vector2.zero, new Vector2(870f, 114f),
+                "Cargando recursos...", 18f, TextAlignmentOptions.Left, HexToColor(ColorTextLight));
 
-            // Bloque 3: Marco Ético y Legal (Ley 30096 y 29733)
-            GameObject ethicsPanel = CreateUiPanel("Panel_Marco_Legal", bgObj.transform, new Vector2(0f, -180f), new Vector2(1010f, 180f), HexToColor(ColorCardBg, 0.85f));
-            AddUiBorder(ethicsPanel, HexToColor(ColorAlertRed, 0.45f), 1f);
+            // Bloque 3: Marco Ético y Legal
+            GameObject ethicsPanel = CreateUiPanel("Panel_Marco_Legal", bgObj.transform, new Vector2(0f, -155f), new Vector2(910f, 136f), HexToColor(ColorCardBg, 0.90f));
+            AddUiBorder(ethicsPanel, HexToColor(ColorAlertRed, 0.45f), 1.5f);
 
-            legalEthicsText = CreateTmpText("LegalEthicsText", ethicsPanel.transform, Vector2.zero, new Vector2(980f, 165f),
-                "Cargando marco legal...", 10.5f, TextAlignmentOptions.TopLeft, HexToColor(ColorTextLight));
+            legalEthicsText = CreateTmpText("LegalEthicsText", ethicsPanel.transform, Vector2.zero, new Vector2(870f, 120f),
+                "Cargando marco legal...", 18f, TextAlignmentOptions.Left, HexToColor(ColorTextLight));
 
             // Botón Inferior de Retorno
-            GameObject btnReturnObj = CreateUiPanel("Btn_Volver_Simulacion", bgObj.transform, new Vector2(0f, -315f), new Vector2(380f, 44f), HexToColor(ColorGreenCode, 0.90f));
+            GameObject btnReturnObj = CreateUiPanel("Btn_Volver_Simulacion", bgObj.transform, new Vector2(0f, -268f), new Vector2(460f, 58f), HexToColor(ColorGreenCode, 0.94f));
             AddUiBorder(btnReturnObj, HexToColor(ColorDarkBg, 1f), 2f);
             Button returnBtn = btnReturnObj.AddComponent<Button>();
             returnBtn.onClick.AddListener(CloseModal);
 
-            CreateTmpText("ReturnLabel", btnReturnObj.transform, Vector2.zero, new Vector2(360f, 38f),
-                "<b>[<] VOLVER A LA SIMULACIÓN</b>", 13f, TextAlignmentOptions.Center, HexToColor(ColorDarkBg));
+            CreateTmpText("ReturnLabel", btnReturnObj.transform, Vector2.zero, new Vector2(440f, 50f),
+                "<b>[ < ] VOLVER A LA SIMULACION</b>", 20f, TextAlignmentOptions.Center, HexToColor(ColorDarkBg));
 
             WorldSpaceUiGazeButton gazeReturn = btnReturnObj.AddComponent<WorldSpaceUiGazeButton>();
             gazeReturn.ConfigureAudio(audioSource, closeModalSound, null);
@@ -245,8 +245,19 @@ namespace AndesSim.UI
         /// </summary>
         public void OpenModal()
         {
-            if (_isOpen) return;
+            if (modalRootPanel == null || titleText == null || closeButton == null)
+            {
+                BuildModalHierarchy();
+                if (closeButton != null)
+                {
+                    closeButton.onClick.RemoveAllListeners();
+                    closeButton.onClick.AddListener(CloseModal);
+                }
+            }
+            PopulateTexts();
+
             _isOpen = true;
+            gameObject.SetActive(true);
 
             PositionModalInFrontOfPlayer();
 
@@ -301,9 +312,9 @@ namespace AndesSim.UI
             if (forward.sqrMagnitude < 0.01f) forward = Vector3.forward;
             forward.Normalize();
 
-            Vector3 targetPos = cam.position + (forward * spawnDistanceInFront) + (Vector3.up * 0.05f);
+            Vector3 targetPos = cam.position + (forward * Mathf.Max(spawnDistanceInFront, 1.45f)) + (Vector3.up * 0.02f);
             transform.position = targetPos;
-            transform.rotation = Quaternion.LookRotation((transform.position - cam.position).normalized);
+            transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
         }
 
         private IEnumerator FadeRoutine(float fromAlpha, float toAlpha, float duration, Action onComplete = null)

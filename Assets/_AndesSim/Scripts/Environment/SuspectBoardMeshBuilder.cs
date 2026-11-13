@@ -239,9 +239,9 @@ namespace AndesSim.Environment
             titleRect.localScale = new Vector3(0.003f, 0.003f, 0.003f);
 
             TextMeshProUGUI titleTmp = titleObj.AddComponent<TextMeshProUGUI>();
-            titleTmp.text = "<color=#38F28A><b>BANCO ANDINO · CASO OPERACIÓN LAZARUS 2015</b></color>\n" +
-                            "<size=12><color=#A6C8B4>TABLERO TÁCTICO FORENSE · MATRIZ DE SOSPECHOSOS E INDICIOS CLAVE</size></color>";
-            titleTmp.fontSize = 17f;
+            titleTmp.text = "<color=#38F28A><b>BANCO ANDINO · CASO LAZARUS 2015</b></color>\n" +
+                            "<size=15><color=#A6C8B4>MIRA UNA FICHA PARA ABRIR SU EXPEDIENTE</size></color>";
+            titleTmp.fontSize = 20f;
             titleTmp.alignment = TextAlignmentOptions.Center;
             titleTmp.textWrappingMode = TextWrappingModes.Normal;
 
@@ -257,40 +257,40 @@ namespace AndesSim.Environment
             // Evidencia 01: Post-it credenciales de Carla Mendoza
             Vector3 evi1Pin = BuildEvidenceCard(boardRoot.transform, "Evidencia_PostIt_Carla",
                 new Vector3(-0.35f, -0.28f, -0.025f), Quaternion.Euler(0f, 0f, 2.5f),
-                "EVIDENCIA #01 (FÍSICA)",
-                "Post-It amarillo fluorescente 'Andino2015*' adherido en monitor SWIFT de Carla Mendoza.",
+                "PISTA #01: POST-IT",
+                "Clave visible bajo monitor de Carla.",
                 mats["PostItYellow"], mats);
             pinPositions["Evi1_PostIt"] = evi1Pin;
 
             // Evidencia 02: 16 Destinatarios de Pagos en Bcc
             Vector3 evi2Pin = BuildEvidenceCard(boardRoot.transform, "Evidencia_16Destinatarios",
                 new Vector3(-0.35f, 0.44f, -0.025f), Quaternion.Euler(0f, 0f, -1.8f),
-                "EVIDENCIA #02 (CORREO)",
-                "Lista de distribución 'pagos-personal@bancoandino.pe' abierta al exterior sin SPF/DKIM.",
+                "PISTA #02: 16 CORREOS",
+                "Correo phishing enviado a todo el equipo.",
                 mats["EvidenceWhite"], mats);
             pinPositions["Evi2_16Buzones"] = evi2Pin;
 
             // Evidencia 03: Payload ejecutable detonado
             Vector3 evi3Pin = BuildEvidenceCard(boardRoot.transform, "Evidencia_Payload_SCR",
                 new Vector3(0f, -0.42f, -0.025f), Quaternion.Euler(0f, 0f, 1.2f),
-                "EVIDENCIA #03 (MALWARE)",
-                "Archivo 'Rasel_Ahlam_CV_2015.scr.zip' con troyano bancario y puerta trasera C2.",
+                "PISTA #03: VIRUS .EXE",
+                "CV falso con puerta trasera oculta.",
                 mats["IncidentFolder"], mats);
             pinPositions["Evi3_Payload"] = evi3Pin;
 
             // Evidencia 04: Red plana sin Sandbox ni VLANs
             Vector3 evi4Pin = BuildEvidenceCard(boardRoot.transform, "Evidencia_Sin_Sandbox",
                 new Vector3(0.35f, 0.44f, -0.025f), Quaternion.Euler(0f, 0f, 2.0f),
-                "EVIDENCIA #04 (ARQUITECTURA)",
-                "Red bancaria plana sin firewall perimetral ni Cuckoo Sandbox; presupuesto rechazado.",
+                "PISTA #04: SIN SANDBOX",
+                "Red abierta sin firewall ni filtro web.",
                 mats["EvidenceWhite"], mats);
             pinPositions["Evi4_Sandbox"] = evi4Pin;
 
             // Evidencia 05: Registros SIEM nocturnos 23:42 hrs
             Vector3 evi5Pin = BuildEvidenceCard(boardRoot.transform, "Evidencia_Logs_SIEM",
                 new Vector3(0.35f, -0.28f, -0.025f), Quaternion.Euler(0f, 0f, -2.2f),
-                "EVIDENCIA #05 (TELEMETRÍA)",
-                "Conexión física nocturna anómala en switch de pagos a las 23:42 sin orden técnica.",
+                "PISTA #05: LOGS SIEM",
+                "Acceso nocturno externo a PC SWIFT.",
                 mats["EvidenceWhite"], mats);
             pinPositions["Evi5_Logs"] = evi5Pin;
 
@@ -299,37 +299,37 @@ namespace AndesSim.Environment
             // -------------------------------------------------------------
             // 1. Samuel Torres (Arriba Izquierda)
             Vector3 pinTorres = BuildSuspectCard3D(boardRoot.transform, 0,
-                "Samuel_Torres", "Ing. Samuel Torres", "Jefe de Seguridad TI",
-                "SOSPECHOSO: NEGLIGENCIA ARQUITECTÓNICA", "#ff5a4e",
-                "• Domain Admin en toda la red.\n• Omitió filtro .scr.zip en Exchange.\n• Red plana sin VLANs hacia SWIFT.",
-                "• 3 memorandos advirtiendo vulnerabilidad.\n• Credenciales no emitieron fraude.",
+                "Samuel_Torres", "Samuel Torres", "Jefe de Seguridad TI",
+                "NEGLIGENCIA DE RED", "#ff5a4e",
+                "• Red sin Sandbox ni bloqueos.",
+                "• Advirtio fallas en informes.",
                 new Vector3(-0.95f, 0.38f, -0.025f), Quaternion.Euler(0f, 0f, 1.8f), mats);
             pinPositions["Torres"] = pinTorres;
 
             // 2. Hugo Benavides (Arriba Derecha)
             Vector3 pinBenavides = BuildSuspectCard3D(boardRoot.transform, 1,
-                "Hugo_Benavides", "Lic. Hugo Benavides", "Gerente de Operaciones",
-                "SOSPECHOSO: DESIDIA GERENCIAL Y ENCUBRIMIENTO", "#ffc24a",
-                "• Votó en contra de adquirir Sandbox.\n• Ignoró impresora de auditoría apagada.\n• Alentaba uso informal de claves.",
-                "• Cero conocimientos técnicos de redes.\n• Fuera de la ciudad durante el ataque.",
+                "Hugo_Benavides", "Hugo Benavides", "Gerente de Operaciones",
+                "DESIDIA GERENCIAL", "#ffc24a",
+                "• Rechazo pagar filtro Sandbox.",
+                "• Estaba fuera del banco.",
                 new Vector3(0.95f, 0.38f, -0.025f), Quaternion.Euler(0f, 0f, -1.6f), mats);
             pinPositions["Benavides"] = pinBenavides;
 
             // 3. Carla Mendoza (Abajo Izquierda)
             Vector3 pinMendoza = BuildSuspectCard3D(boardRoot.transform, 2,
-                "Carla_Mendoza", "Carla Mendoza", "Operadora Senior SWIFT",
-                "VÍCTIMA / PACIENTE CERO (PHISHING)", "#38f28a",
-                "• Su usuario autorizó 36 giros por US$ 951M.\n• Clave pegada en Post-It visible.",
-                "• Estaba en su hogar a medianoche.\n• Engañada por spear phishing de Rasel Ahlam.\n• Récord intachable 7 años.",
+                "Carla_Mendoza", "Carla Mendoza", "Operadora SWIFT",
+                "VICTIMA PHISHING", "#38f28a",
+                "• Abrio CV y uso Post-It.",
+                "• Fue enganada sin capacitacion.",
                 new Vector3(-0.95f, -0.38f, -0.025f), Quaternion.Euler(0f, 0f, -1.2f), mats);
             pinPositions["Mendoza"] = pinMendoza;
 
             // 4. Renzo Aliaga (Abajo Derecha)
             Vector3 pinAliaga = BuildSuspectCard3D(boardRoot.transform, 3,
-                "Renzo_Aliaga", "Renzo Aliaga", "Técnico Soporte NetSolutions",
-                "SOSPECHOSO: CÓMPLICE INTERNO / INSIDER", "#ff5a4e",
-                "• Deudas bancarias en cobranza judicial.\n• Mantenimiento físico bajo escritorios.\n• Ingresos no supervisados a servidores.",
-                "• Órdenes de trabajo formalizadas.\n• Sin inserción visible de memorias USB.",
+                "Renzo_Aliaga", "Renzo Aliaga", "Soporte Redes",
+                "SOSPECHOSO INTERNO", "#ff5a4e",
+                "• Acceso fisico a claves y cables.",
+                "• Sin prueba de USB directo.",
                 new Vector3(0.95f, -0.38f, -0.025f), Quaternion.Euler(0f, 0f, 2.2f), mats);
             pinPositions["Aliaga"] = pinAliaga;
 
@@ -416,21 +416,21 @@ namespace AndesSim.Environment
             tRect.sizeDelta = new Vector2(460f, 560f);
 
             TextMeshProUGUI tmp = textHolder.AddComponent<TextMeshProUGUI>();
-            tmp.fontSize = 13f;
+            tmp.fontSize = 15f;
             tmp.color = new Color(0.12f, 0.14f, 0.16f);
             tmp.alignment = TextAlignmentOptions.TopLeft;
             tmp.textWrappingMode = TextWrappingModes.Normal;
 
             string cardContent =
-                $"<align=right><size=10><color=#556677><b>EXPEDIENTE 0{suspectIndex + 1}</b></color></size></align>\n" +
-                $"<line-height=110%><size=18><b>{fullName}</b></size>\n" +
-                $"<size=12><color=#2C3E50>{roleTitle}</color></size></line-height>\n\n" +
-                $"<size=10><mark={threatHex}44><color={threatHex}><b> {threatBadge} </b></color></mark></size>\n\n" +
-                $"<size=11><color=#A93226><b>[INDICIOS EN CONTRA]:</b></color>\n" +
-                $"<line-height=105%>{againstPoints}</line-height>\n\n" +
-                $"<color=#196F3D><b>[ELEMENTOS A FAVOR]:</b></color>\n" +
-                $"<line-height=105%>{favorPoints}</line-height></size>\n\n" +
-                $"<align=center><size=11><color=#1A5276><b>[>] MIRAR CON RETÍCULA PARA ABRIR DOSSIER</b></color></size></align>";
+                $"<align=right><size=12><color=#556677><b>FICHA 0{suspectIndex + 1}</b></color></size></align>\n" +
+                $"<line-height=110%><size=21><b>{fullName}</b></size>\n" +
+                $"<size=14><color=#2C3E50>{roleTitle}</color></size></line-height>\n\n" +
+                $"<size=12><mark={threatHex}44><color={threatHex}><b> {threatBadge} </b></color></mark></size>\n\n" +
+                $"<size=14><color=#A93226><b>EN CONTRA:</b></color>\n" +
+                $"{againstPoints}\n\n" +
+                $"<color=#196F3D><b>A FAVOR:</b></color>\n" +
+                $"{favorPoints}</size>\n\n" +
+                $"<align=center><size=13><color=#1A5276><b>[ > MIRA PARA ABRIR ]</b></color></size></align>";
 
             tmp.text = cardContent;
 
@@ -476,14 +476,12 @@ namespace AndesSim.Environment
             rect.localScale = new Vector3(0.00105f, 0.00105f, 0.00105f);
 
             TextMeshProUGUI tmp = canvasObj.AddComponent<TextMeshProUGUI>();
-            tmp.text = "<color=#FFFFFF><size=18><b>CASO: INCIDENTE SWIFT 2015</b></size>\n" +
-                       "<size=12><color=#FFC24A>BANCO ANDINO · OFICINA DE PAGOS</color></size>\n\n" +
-                       "<size=11>• Fecha de inicio: <b>29/01/2015 - 09:18 AM</b>\n" +
-                       "• Vector inicial: <b>Spear Phishing (Rasel Ahlam)</b>\n" +
-                       "• Alcance: <b>16 buzones del área comprometidos</b>\n" +
-                       "• Intento de fraude: <b>US$ 951 Millones (36 transferencias)</b>\n" +
-                       "• Atribución forense: <b>Lazarus Group (APT38)</b></size>\n\n" +
-                       "<align=center><color=#FF5A4E><b>[CLASIFICADO - EXPEDIENTE JUDICIAL]</b></color></align></color>";
+            tmp.text = "<color=#FFFFFF><size=21><b>CASO SWIFT 2015</b></size>\n" +
+                       "<size=15><color=#FFC24A>BANCO ANDINO</color></size>\n\n" +
+                       "<size=15>• Correo phishing a 16 personas\n" +
+                       "• Robo objetivo: <b>US$ 951M</b>\n" +
+                       "• Grupo: <b>Lazarus (APT38)</b></size>\n\n" +
+                       "<align=center><color=#FF5A4E><b>[ CLASIFICADO ]</b></color></align></color>";
             tmp.alignment = TextAlignmentOptions.TopLeft;
             tmp.textWrappingMode = TextWrappingModes.Normal;
 
@@ -517,8 +515,8 @@ namespace AndesSim.Environment
             rect.localScale = new Vector3(0.00105f, 0.00105f, 0.00105f);
 
             TextMeshProUGUI tmp = canvasObj.AddComponent<TextMeshProUGUI>();
-            tmp.text = $"<color=#050E09><size=13><b>{title}</b></size>\n\n" +
-                       $"<size=11><line-height=110%>{description}</line-height></size></color>";
+            tmp.text = $"<color=#050E09><size=16><b>{title}</b></size>\n\n" +
+                       $"<size=14>{description}</size></color>";
             tmp.alignment = TextAlignmentOptions.TopLeft;
             tmp.textWrappingMode = TextWrappingModes.Normal;
 

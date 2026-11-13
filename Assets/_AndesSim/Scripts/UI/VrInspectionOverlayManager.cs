@@ -52,7 +52,8 @@ namespace AndesSim.UI
         private static readonly Color DangerRedColor = new Color(1f, 0.35f, 0.31f, 1f);
 
         [Header("--- Anclaje VR ---")]
-        [SerializeField] private float distanceFromCamera = 1.05f;
+        [SerializeField] private float distanceFromCamera = 1.32f;
+        private int _emailSubPart = 0;
 
 
 
@@ -107,7 +108,7 @@ namespace AndesSim.UI
             // Si el jugador gira la cabeza más de 65 grados alejándose del panel, se cierra automáticamente.
             Vector3 dirToPanel = (_overlayRoot.transform.position - _targetCamera.transform.position).normalized;
             float angle = Vector3.Angle(_targetCamera.transform.forward, dirToPanel);
-            if (angle > 65f)
+            if (angle > 82f)
             {
                 CloseOverlay();
             }
@@ -137,7 +138,7 @@ namespace AndesSim.UI
 
             RectTransform canvasRect = _overlayRoot.GetComponent<RectTransform>();
             canvasRect.sizeDelta = new Vector2(1000f, 750f);
-            canvasRect.localScale = Vector3.one * 0.0016f;
+            canvasRect.localScale = Vector3.one * 0.00192f;
 
             // Panel Fondo Principal
             EnsureEventSystemExists();
@@ -170,7 +171,7 @@ namespace AndesSim.UI
             titleRect.anchoredPosition = new Vector2(0f, 320f);
             titleRect.sizeDelta = new Vector2(920f, 45f);
             _headerTitleText = titleGO.AddComponent<TextMeshProUGUI>();
-            _headerTitleText.fontSize = 24f;
+            _headerTitleText.fontSize = 26f;
             _headerTitleText.alignment = TextAlignmentOptions.Center;
             _headerTitleText.color = CyanNeonAccent;
             _headerTitleText.fontStyle = FontStyles.Bold;
@@ -180,9 +181,9 @@ namespace AndesSim.UI
             subGO.transform.SetParent(panelGO.transform, false);
             RectTransform subRect = subGO.AddComponent<RectTransform>();
             subRect.anchoredPosition = new Vector2(0f, 280f);
-            subRect.sizeDelta = new Vector2(920f, 32f);
+            subRect.sizeDelta = new Vector2(920f, 36f);
             _subTitleText = subGO.AddComponent<TextMeshProUGUI>();
-            _subTitleText.fontSize = 15f;
+            _subTitleText.fontSize = 18f;
             _subTitleText.alignment = TextAlignmentOptions.Center;
             _subTitleText.color = new Color(0.8f, 0.88f, 0.95f, 0.9f);
 
@@ -204,13 +205,45 @@ namespace AndesSim.UI
                 CloseOverlay
             );
 
-            // Botón Inferior: CERRAR INSPECCIÓN
-            GameObject closeBtnGO = CreateInspectionButton(
+            // Barra Persistente Guiada (Paso a Paso en VR)
+            CreateInspectionButton(
+                "Btn_NavCorreo", panelGO.transform,
+                new Vector2(-368f, -325f), new Vector2(174f, 52f),
+                "<b>1. CORREO</b>",
+                new Color(0.08f, 0.22f, 0.36f, 0.96f),
+                Color.white,
+                () => OpenEmailInspection(0)
+            );
+            CreateInspectionButton(
+                "Btn_NavPostIt", panelGO.transform,
+                new Vector2(-184f, -325f), new Vector2(174f, 52f),
+                "<b>2. POST-IT</b>",
+                new Color(0.08f, 0.22f, 0.36f, 0.96f),
+                Color.white,
+                OpenCredentialsInspection
+            );
+            CreateInspectionButton(
+                "Btn_NavSiem", panelGO.transform,
+                new Vector2(0f, -325f), new Vector2(174f, 52f),
+                "<b>3. SIEM</b>",
+                new Color(0.08f, 0.22f, 0.36f, 0.96f),
+                Color.white,
+                OpenSiemLogInspection
+            );
+            CreateInspectionButton(
+                "Btn_NavTablero", panelGO.transform,
+                new Vector2(186f, -325f), new Vector2(186f, 52f),
+                "<b>4. TABLERO ></b>",
+                new Color(0.08f, 0.32f, 0.24f, 0.96f),
+                GreenSuccessColor,
+                NavigateToSuspectBoardOrDefense
+            );
+            CreateInspectionButton(
                 "Btn_CerrarInspeccion", panelGO.transform,
-                new Vector2(0f, -325f), new Vector2(380f, 50f),
-                "<b>[ X CERRAR VISTA DE DETALLE ]</b>",
-                new Color(0.18f, 0.22f, 0.32f, 0.96f),
-                new Color(0.9f, 0.95f, 1f, 1f),
+                new Vector2(378f, -325f), new Vector2(160f, 52f),
+                "<b>[ X ] SALIR</b>",
+                new Color(0.35f, 0.14f, 0.16f, 0.96f),
+                Color.white,
                 CloseOverlay
             );
 
@@ -225,11 +258,22 @@ namespace AndesSim.UI
         /// </summary>
         public void OpenEmailInspection()
         {
+            OpenEmailInspection(0);
+        }
+
+        /// <summary>
+        /// RF-02 y RF-03: Vista guiada en 2 partes (1ra Parte: Leer correo, 2da Parte: Marcar 3 pistas y decidir).
+        /// </summary>
+        public void OpenEmailInspection(int subPart)
+        {
+            _emailSubPart = Mathf.Clamp(subPart, 0, 1);
             EnsureOverlayCanvas();
             ClearActiveContent();
 
-            _headerTitleText.text = "<b>BANCO ANDINO · BANDEJA DE CORREO CORPORATIVO</b>";
-            _subTitleText.text = "Inspección Forense de Spear Phishing · Jueves 29 de Enero de 2015 (09:18 AM)";
+            _headerTitleText.text = "<b>PC 1 - CORREO DE PHISHING</b>";
+            _subTitleText.text = _emailSubPart == 0
+                ? "1ra Parte: Lee el correo sospechoso"
+                : "2da Parte: Marca las 3 pistas y decide tu accion";
 
             GameObject emailPanel = new GameObject("EmailContentPanel");
             emailPanel.transform.SetParent(_contentContainer, false);
@@ -238,89 +282,124 @@ namespace AndesSim.UI
             eRect.anchorMax = Vector2.one;
             eRect.sizeDelta = Vector2.zero;
 
-            // Encabezado de correo limpio y de alta visibilidad VR
-            CreateLabel("Lbl_From", emailPanel.transform, new Vector2(0f, 210f), new Vector2(900f, 32f),
-                "<b>De:</b> Rasel Ahlam <color=#FF5A4E>&lt;rasel.ahlam@career-applicants-bd.com&gt;</color>", 16.5f, TextAlignmentOptions.Left, Color.white);
+            // Selector superior: 1ra Parte vs 2da Parte
+            Color part1Bg = _emailSubPart == 0 ? new Color(0.08f, 0.34f, 0.44f, 0.98f) : new Color(0.10f, 0.15f, 0.22f, 0.92f);
+            Color part2Bg = _emailSubPart == 1 ? new Color(0.38f, 0.26f, 0.08f, 0.98f) : new Color(0.10f, 0.15f, 0.22f, 0.92f);
 
-            CreateLabel("Lbl_To", emailPanel.transform, new Vector2(0f, 180f), new Vector2(900f, 28f),
-                "<b>Para:</b> Carla Mendoza &lt;c.mendoza@bancoandino.pe&gt; (Operadora SWIFT)", 15f, TextAlignmentOptions.Left, new Color(0.75f, 0.85f, 0.95f));
-
-            CreateLabel("Lbl_Subject", emailPanel.transform, new Vector2(0f, 145f), new Vector2(900f, 32f),
-                "<b>Asunto:</b> <color=#FF5A4E>URGENTE: Postulación CV Especialista SWIFT</color>", 16.5f, TextAlignmentOptions.Left, Color.white);
-
-            // 3 Señales Forenses Claras con tipografía ampliada
-            CreateSignalButton("Btn_Signal1", emailPanel.transform, new Vector2(-290f, 85f), new Vector2(280f, 65f),
-                "<b>1. REMITENTE FALSO</b>\n<size=12><color=#FFC24A>Dominio Externo no SPF</color></size>",
-                PhishingInspector.SignalRemitenteId);
-
-            CreateSignalButton("Btn_Signal2", emailPanel.transform, new Vector2(0f, 85f), new Vector2(280f, 65f),
-                "<b>2. URGENCIA FALSA</b>\n<size=12><color=#FFC24A>Presión Psicológica</color></size>",
-                PhishingInspector.SignalUrgenciaId);
-
-            CreateSignalButton("Btn_Signal3", emailPanel.transform, new Vector2(290f, 85f), new Vector2(280f, 65f),
-                "<b>3. ADJUNTO MALICIOSO</b>\n<size=12><color=#FFC24A>Doble extensión (.scr.zip)</color></size>",
-                PhishingInspector.SignalEnlaceId);
-
-            // Cuerpo del correo directo y al grano
-            GameObject bodyBox = new GameObject("EmailBodyBox");
-            bodyBox.transform.SetParent(emailPanel.transform, false);
-            RectTransform bbRect = bodyBox.AddComponent<RectTransform>();
-            bbRect.anchoredPosition = new Vector2(0f, -25f);
-            bbRect.sizeDelta = new Vector2(900f, 130f);
-            Image bodyBg = bodyBox.AddComponent<Image>();
-            bodyBg.color = new Color(0.08f, 0.12f, 0.18f, 0.92f);
-
-            CreateLabel("Txt_EmailBody", bodyBox.transform, new Vector2(0f, 25f), new Vector2(870f, 65f),
-                "<i>\"Estimada Carla: Adjunto remito mi CV comprimido para la vacante urgente en el área de pagos internacionales SWIFT.\"</i>",
-                15.5f, TextAlignmentOptions.TopLeft, new Color(0.92f, 0.96f, 1f));
-
-            // Enlace de descarga interactivo
             CreateInspectionButton(
-                "Btn_AttachmentLink", bodyBox.transform,
-                new Vector2(0f, -28f), new Vector2(760f, 44f),
-                "<b><color=#00F2FE>[ADJUNTO] <u>http://185.130.44.82/Rasel_Ahlam_CV_2015.scr.zip</u></color></b>\n<size=11><color=#FFC24A>> Clic con retícula para descargar archivo</color></size>",
-                new Color(0.12f, 0.18f, 0.28f, 0.98f),
-                Color.white,
-                TriggerAttackInfectionSequence
-            );
-
-            // Botones de Decisión Claros y Grandes (Ataque vs Defensa)
-            CreateInspectionButton(
-                "Btn_AttackOpenLink", emailPanel.transform,
-                new Vector2(-220f, -150f), new Vector2(400f, 60f),
-                "<b><size=15><color=#FF5A4E>[ ! ABRIR ENLACE (ATAQUE) ]</color></size></b>\n<size=12>Recrear infección histórica de 2016</size>",
-                new Color(0.5f, 0.12f, 0.12f, 0.98f),
-                new Color(1f, 0.4f, 0.35f, 1f),
-                TriggerAttackInfectionSequence
+                "Btn_TabParte1", emailPanel.transform,
+                new Vector2(-230f, 215f), new Vector2(435f, 48f),
+                "<b>1RA PARTE: LEER CORREO</b>",
+                part1Bg, _emailSubPart == 0 ? CyanNeonAccent : Color.white,
+                () => OpenEmailInspection(0)
             );
 
             CreateInspectionButton(
-                "Btn_DefenseReport", emailPanel.transform,
-                new Vector2(220f, -150f), new Vector2(400f, 60f),
-                "<b><size=15><color=#38F28A>[ + AISLAR EN SANDBOX (DEFENSA) ]</color></size></b>\n<size=12>Contener amenaza y proteger fondos</size>",
-                new Color(0.08f, 0.35f, 0.2f, 0.98f),
-                new Color(0.35f, 1f, 0.6f, 1f),
-                () =>
-                {
-                    if (MailQuarantine.I != null)
+                "Btn_TabParte2", emailPanel.transform,
+                new Vector2(230f, 215f), new Vector2(435f, 48f),
+                "<b>2DA PARTE: PISTAS Y DECIDIR</b>",
+                part2Bg, _emailSubPart == 1 ? WarningAmberColor : Color.white,
+                () => OpenEmailInspection(1)
+            );
+
+            if (_emailSubPart == 0)
+            {
+                GameObject bodyBox = new GameObject("EmailReadCard");
+                bodyBox.transform.SetParent(emailPanel.transform, false);
+                RectTransform bbRect = bodyBox.AddComponent<RectTransform>();
+                bbRect.anchoredPosition = new Vector2(0f, 35f);
+                bbRect.sizeDelta = new Vector2(880f, 260f);
+                Image bodyBg = bodyBox.AddComponent<Image>();
+                bodyBg.color = new Color(0.07f, 0.11f, 0.17f, 0.96f);
+
+                CreateLabel("Txt_MailLines", bodyBox.transform, Vector2.zero, new Vector2(830f, 225f),
+                    "<b>De:</b> rasel.ahlam@<color=#FFC24A>career-applicants-bd.com</color>\n" +
+                    "<b>Asunto:</b> <color=#FF5A4E>URGENTE: CV Especialista SWIFT</color>\n\n" +
+                    "<i>'Carla: adjunto mi CV urgente para pagos.'</i>\n\n" +
+                    "<b>Adjunto:</b> <color=#00F2FE>http://185.130.44.82/CV_2015.scr.zip</color>",
+                    20.5f, TextAlignmentOptions.MidlineLeft, Color.white);
+
+                CreateInspectionButton(
+                    "Btn_NextToPart2", emailPanel.transform,
+                    new Vector2(-225f, -165f), new Vector2(420f, 68f),
+                    "<b>VER 2DA PARTE: 3 PISTAS ></b>",
+                    new Color(0.10f, 0.34f, 0.42f, 0.98f),
+                    CyanNeonAccent,
+                    () => OpenEmailInspection(1)
+                );
+
+                CreateInspectionButton(
+                    "Btn_QuickOpenLink", emailPanel.transform,
+                    new Vector2(225f, -165f), new Vector2(420f, 68f),
+                    "<b><color=#FF5A4E>ABRIR ENLACE (ATAQUE)</color></b>",
+                    new Color(0.48f, 0.12f, 0.12f, 0.98f),
+                    Color.white,
+                    TriggerAttackInfectionSequence
+                );
+            }
+            else
+            {
+                CreateLabel("Lbl_StepHint", emailPanel.transform, new Vector2(0f, 155f), new Vector2(880f, 38f),
+                    "Mira las 3 senales para marcarlas y luego elige:",
+                    19.5f, TextAlignmentOptions.Center, Color.white);
+
+                CreateSignalButton("Btn_Signal1", emailPanel.transform, new Vector2(-300f, 70f), new Vector2(285f, 108f),
+                    "<b>1. DOMINIO FALSO</b>\n<size=15><color=#FFC24A>@career-applicants</color></size>",
+                    PhishingInspector.SignalRemitenteId);
+
+                CreateSignalButton("Btn_Signal2", emailPanel.transform, new Vector2(0f, 70f), new Vector2(285f, 108f),
+                    "<b>2. URGENCIA</b>\n<size=15><color=#FFC24A>Presion inmediata</color></size>",
+                    PhishingInspector.SignalUrgenciaId);
+
+                CreateSignalButton("Btn_Signal3", emailPanel.transform, new Vector2(300f, 70f), new Vector2(285f, 108f),
+                    "<b>3. ARCHIVO .SCR</b>\n<size=15><color=#FFC24A>IP 185.130.44.82</color></size>",
+                    PhishingInspector.SignalEnlaceId);
+
+                CreateInspectionButton(
+                    "Btn_AttackOpenLink", emailPanel.transform,
+                    new Vector2(-225f, -55f), new Vector2(420f, 74f),
+                    "<b><color=#FF5A4E>[ ! ] ABRIR ENLACE (ATAQUE)</color></b>\n<size=14>Ver propagacion del virus</size>",
+                    new Color(0.48f, 0.12f, 0.12f, 0.98f),
+                    Color.white,
+                    TriggerAttackInfectionSequence
+                );
+
+                CreateInspectionButton(
+                    "Btn_DefenseReport", emailPanel.transform,
+                    new Vector2(225f, -55f), new Vector2(420f, 74f),
+                    "<b><color=#38F28A>[ + ] AISLAR SANDBOX (DEFENSA)</color></b>\n<size=14>Bloquear amenaza</size>",
+                    new Color(0.08f, 0.34f, 0.18f, 0.98f),
+                    Color.white,
+                    () =>
                     {
-                        MailQuarantine.I.TriggerQuarantineDefense();
+                        if (MailQuarantine.I != null)
+                        {
+                            MailQuarantine.I.TriggerQuarantineDefense();
+                        }
+                        else if (PhishingInspector.I != null)
+                        {
+                            PhishingInspector.I.ExecuteReportPhishingDefenseSequence();
+                        }
+                        OpenQuarantineInspection();
                     }
-                    else if (PhishingInspector.I != null)
-                    {
-                        PhishingInspector.I.ExecuteReportPhishingDefenseSequence();
-                    }
-                    OpenQuarantineInspection();
-                }
-            );
+                );
+
+                CreateInspectionButton(
+                    "Btn_NextStepPostIt", emailPanel.transform,
+                    new Vector2(0f, -165f), new Vector2(520f, 58f),
+                    "<b>SIGUIENTE PASO: VER POST-IT (PC 1) ></b>",
+                    new Color(0.14f, 0.24f, 0.38f, 0.96f),
+                    CyanNeonAccent,
+                    OpenCredentialsInspection
+                );
+            }
 
             _activeContentPanel = emailPanel;
             ShowOverlay();
         }
 
         /// <summary>
-        /// MODO DEFENSA (RF-04): El correo NUNCA llega a abrirse.
-        /// La bandeja de entrada es reemplazada visualmente por el panel de cuarentena (simulando filtro Sandbox).
+        /// MODO DEFENSA (RF-04): El correo es bloqueado por el filtro Sandbox.
         /// </summary>
         public void OpenQuarantineInspection()
         {
@@ -332,8 +411,8 @@ namespace AndesSim.UI
                 AndesSim.Scenario01.InfectionSpreadVisualizer.I.ShowDefenseContainmentSign();
             }
 
-            _headerTitleText.text = "<b><color=#38F28A>CONSOLA DE CUARENTENA Y FILTRO SANDBOX · BANCO ANDINO</color></b>";
-            _subTitleText.text = "Protección Perimetral del SOC · Correo Malicioso Aislado Preventivamente";
+            _headerTitleText.text = "<b><color=#38F28A>CORREO EN CUARENTENA (SANDBOX)</color></b>";
+            _subTitleText.text = "Amenaza detenida antes de infectar la red";
 
             GameObject qPanel = new GameObject("QuarantineContentPanel");
             qPanel.transform.SetParent(_contentContainer, false);
@@ -346,27 +425,33 @@ namespace AndesSim.UI
             boxGO.transform.SetParent(qPanel.transform, false);
             RectTransform boxRect = boxGO.AddComponent<RectTransform>();
             boxRect.anchoredPosition = new Vector2(0f, 35f);
-            boxRect.sizeDelta = new Vector2(900f, 360f);
+            boxRect.sizeDelta = new Vector2(880f, 300f);
             Image boxBg = boxGO.AddComponent<Image>();
-            boxBg.color = new Color(0.04f, 0.08f, 0.12f, 0.98f);
+            boxBg.color = new Color(0.04f, 0.09f, 0.12f, 0.98f);
 
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("<b><size=17><color=#38F28A>[REPORTE FORENSE DE MITIGACIÓN SOC — BANCO ANDINO]</color></size></b>");
-            sb.AppendLine("----------------------------------------------------------------------------");
-            sb.AppendLine("• <b>FILTRO SANDBOX CUCKOO:</b> Adjunto <i>Rasel_Ahlam_CV.scr</i> detonado y aislado preventivamente.");
-            sb.AppendLine("• <b>ANÁLISIS SPF/DKIM:</b> Dominio atacante <i>career-applicants-bd.com</i> bloqueado por suplantación.");
-            sb.AppendLine("• <b>REGLA FIREWALL:</b> Tráfico hacia Servidor C2 <b>185.130.44.82:443</b> cortado de inmediato.");
-            sb.AppendLine("• <b>SEGMENTACIÓN SWIFT:</b> Terminales aisladas en VLAN 100 con autenticación MFA activa.");
-            sb.AppendLine("----------------------------------------------------------------------------");
-            sb.AppendLine("<size=16><color=#38F28A><b>[OK] CONCLUSIÓN TÉCNICA: Intrusión evitada al 100% · Cero pérdidas financieras.</b></color></size>");
+            sb.AppendLine("<b><color=#38F28A>REPORTE DE CONTENCION:</color></b>\n");
+            sb.AppendLine("- Sandbox: Adjunto .scr.zip aislado sin ejecutarse.");
+            sb.AppendLine("- Remitente: Dominio externo falso bloqueado.");
+            sb.AppendLine("- Firewall: IP atacante 185.130.44.82 cortada.\n");
+            sb.AppendLine("<color=#38F28A><b>[OK] 100% CONTENIDO - CERO PERDIDAS</b></color>");
 
-            CreateLabel("Txt_QuarantineLog", boxGO.transform, Vector2.zero, new Vector2(860f, 340f),
-                sb.ToString(), 15.5f, TextAlignmentOptions.TopLeft, Color.white);
+            CreateLabel("Txt_QuarantineLog", boxGO.transform, Vector2.zero, new Vector2(830f, 260f),
+                sb.ToString(), 20.5f, TextAlignmentOptions.MidlineLeft, Color.white);
+
+            CreateInspectionButton(
+                "Btn_GoDefenseConsole", qPanel.transform,
+                new Vector2(-305f, -175f), new Vector2(280f, 62f),
+                "<b>IR A CONSOLA DEFENSA ></b>",
+                new Color(0.08f, 0.28f, 0.36f, 0.98f),
+                CyanNeonAccent,
+                NavigateToDefenseConsole
+            );
 
             CreateInspectionButton(
                 "Btn_ConfirmDefense", qPanel.transform,
-                new Vector2(-190f, -180f), new Vector2(370f, 54f),
-                "<b><color=#38F28A>[ FINALIZAR CON ÉXITO ]</color></b>\n<size=11>Confirmar contención y terminar</size>",
+                new Vector2(0f, -175f), new Vector2(290f, 62f),
+                "<b><color=#38F28A>FINALIZAR CON EXITO</color></b>",
                 new Color(0.08f, 0.35f, 0.18f, 0.98f),
                 Color.white,
                 () =>
@@ -387,12 +472,12 @@ namespace AndesSim.UI
             );
 
             CreateInspectionButton(
-                "Btn_CloseQuarantine", qPanel.transform,
-                new Vector2(190f, -180f), new Vector2(370f, 54f),
-                "<b>[ X CERRAR VISTA ]</b>\n<size=11>Volver al entorno de la oficina</size>",
-                new Color(0.20f, 0.25f, 0.35f, 0.98f),
+                "Btn_NextSiemDefense", qPanel.transform,
+                new Vector2(305f, -175f), new Vector2(260f, 62f),
+                "<b>VER SIEM (PC 3) ></b>",
+                new Color(0.16f, 0.22f, 0.34f, 0.98f),
                 Color.white,
-                CloseOverlay
+                OpenSiemLogInspection
             );
 
             _activeContentPanel = qPanel;
@@ -400,20 +485,16 @@ namespace AndesSim.UI
         }
 
         /// <summary>
-        /// MODO ATAQUE (RF-04):
-        /// Al hacer clic en el enlace del CV, activa la animación visual de la infección propagándose
-        /// por la pantalla, propaga el ataque a la red y termina mostrando el robo millonario consumado.
+        /// MODO ATAQUE (RF-04): Propaga la infeccion y muestra el resultado.
         /// </summary>
         public void TriggerAttackInfectionSequence()
         {
-            // Reproducir reacción de voz NPC (04. What's That) y música de tensión (The Urge to Kill)
             if (AndesSim.Audio.AudioManager.I != null)
             {
                 AndesSim.Audio.AudioManager.I.PlayInfectionVoiceAlert();
                 AndesSim.Audio.AudioManager.I.PlayMusicTrack(AndesSim.Audio.MusicTheme.AttackTension, 0.3f);
             }
 
-            // Ejecutar la propagación en red (Beams 3D + 3 PCs infectadas)
             if (PhishingInspector.I != null)
             {
                 PhishingInspector.I.ExecuteOpenLinkAttackSequence();
@@ -423,7 +504,6 @@ namespace AndesSim.UI
                 InfectionSpreadVisualizer.I.PlayInfectionSequence();
             }
 
-            // Iniciar animación visual en pantalla completa
             StopCoroutine(nameof(InfectionScreenAnimationRoutine));
             StartCoroutine(nameof(InfectionScreenAnimationRoutine));
         }
@@ -433,8 +513,8 @@ namespace AndesSim.UI
             EnsureOverlayCanvas();
             ClearActiveContent();
 
-            _headerTitleText.text = "<b><color=#FF3834>[ALERTA CRÍTICA: MALWARE LAZARUS EN EJECUCIÓN]</color></b>";
-            _subTitleText.text = "Infección de Red Plana Activa · Dropper .scr Ejecutado en Puesto 1";
+            _headerTitleText.text = "<b><color=#FF3834>[ ! ] MALWARE EN EJECUCION</color></b>";
+            _subTitleText.text = "El dropper .scr se propaga por toda la red";
 
             GameObject infectPanel = new GameObject("InfectionContentPanel");
             infectPanel.transform.SetParent(_contentContainer, false);
@@ -446,54 +526,44 @@ namespace AndesSim.UI
             GameObject terminalBox = new GameObject("InfectionTerminalBox");
             terminalBox.transform.SetParent(infectPanel.transform, false);
             RectTransform tRect = terminalBox.AddComponent<RectTransform>();
-            tRect.anchoredPosition = new Vector2(0f, 30f);
-            tRect.sizeDelta = new Vector2(900f, 350f);
+            tRect.anchoredPosition = new Vector2(0f, 20f);
+            tRect.sizeDelta = new Vector2(880f, 300f);
             Image tBg = terminalBox.AddComponent<Image>();
-            tBg.color = new Color(0.18f, 0.02f, 0.02f, 0.98f);
+            tBg.color = new Color(0.20f, 0.03f, 0.03f, 0.98f);
 
-            CreateLabel("Txt_InfectionTrace", terminalBox.transform, Vector2.zero, new Vector2(860f, 330f), "<color=#FF5A4E><b>[INICIANDO DESCARGA DE EXPLOIT...]</b></color>", 14f, TextAlignmentOptions.TopLeft, Color.white);
+            CreateLabel("Txt_InfectionTrace", terminalBox.transform, Vector2.zero, new Vector2(830f, 260f),
+                "<color=#FF5A4E><b>1/3 Descargando CV_2015.scr...</b></color>",
+                21f, TextAlignmentOptions.MidlineLeft, Color.white);
 
             GameObject textObj = terminalBox.transform.Find("Txt_InfectionTrace")?.gameObject;
             TextMeshProUGUI traceTmp = textObj != null ? textObj.GetComponent<TextMeshProUGUI>() : null;
-            
 
             _activeContentPanel = infectPanel;
             ShowOverlay();
 
-            StringBuilder sb = new StringBuilder();
-
-            // Paso 1 (1.0s): Descarga
-            sb.AppendLine("<b><color=#FF5A4E>[09:18:44] CONEXIÓN SALIENTE ESTABLECIDA:</color></b>");
-            sb.AppendLine("• GET http://185.130.44.82/Rasel_Ahlam_CV_2015.scr.zip -> 200 OK (1.2 MB)");
-            sb.AppendLine("• Descompresión en memoria del ejecutable camuflado: <color=#FF5A4E><b>Rasel_Ahlam_CV_2015.scr</b></color>");
-            traceTmp.text = sb.ToString();
+            yield return new WaitForSeconds(1.1f);
+            if (traceTmp != null)
+            {
+                traceTmp.text =
+                    "<color=#FF5A4E><b>1/3 [OK] Descarga completa (.scr)</b></color>\n\n" +
+                    "<color=#FF3834><b>2/3 Backdoor conectado a IP 185.130.44.82</b></color>";
+            }
+            tBg.color = new Color(0.28f, 0.03f, 0.03f, 0.98f);
             yield return new WaitForSeconds(1.2f);
 
-            // Paso 2 (1.2s): Inyección de backdoor
-            sb.AppendLine("\n<b><color=#FF3834>[09:18:47] INSTALACIÓN DE BACKDOOR LAZARUS (svchost_upd.exe):</color></b>");
-            sb.AppendLine("• Persistencia: HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run");
-            sb.AppendLine("• Bypassing UAC & evasión de defensas locales.");
-            sb.AppendLine("• Conexión C2 establecida con 185.130.44.82:443 (TLS Encrypted).");
-            traceTmp.text = sb.ToString();
-            tBg.color = new Color(0.28f, 0.03f, 0.03f, 0.98f);
+            if (traceTmp != null)
+            {
+                traceTmp.text =
+                    "<color=#FF5A4E><b>1/3 [OK] Descarga completa (.scr)</b></color>\n\n" +
+                    "<color=#FF3834><b>2/3 [OK] Backdoor conectado a C2</b></color>\n\n" +
+                    "<color=#FFC24A><b>3/3 Salto a PC 2 (SWIFT) y PC 3 (SIEM)...</b></color>";
+            }
             yield return new WaitForSeconds(1.4f);
 
-            // Paso 3 (1.4s): Propagación lateral por red plana
-            sb.AppendLine("\n<b><color=#FF2222>[09:18:50] MOVIMIENTO LATERAL - RED PLANA COMPROMETIDA:</color></b>");
-            sb.AppendLine("• Escaneo ARP por segmento 10.0.0.0/24 sin VLANs de aislamiento.");
-            sb.AppendLine("• Salto lateral a Puesto 2: <color=#FF3834>Terminal SWIFT Alliance Access [INFECTADA]</color>");
-            sb.AppendLine("• Salto lateral a Puesto 3: <color=#FF3834>Consola SIEM [REGISTROS ALTERADOS]</color>");
-            sb.AppendLine("• Manipulación de software de impresión SWIFT para ocultar transferencias MT103.");
-            traceTmp.text = sb.ToString();
-            yield return new WaitForSeconds(1.8f);
-
-            // =========================================================
-            // PANTALLA OFICIAL DE ROBO CONSUMADO (US$ 951,000,000.00)
-            // =========================================================
             ClearActiveContent();
 
-            _headerTitleText.text = "<b><color=#FF2222>ROBO CONSUMADO: BANCO ANDINO COMPROMETIDO (ATAQUE 2016)</color></b>";
-            _subTitleText.text = "Recreación Histórica del Fraude Bancario de Lazarus a través de la Red SWIFT";
+            _headerTitleText.text = "<b><color=#FF3834>ROBO CONSUMADO: $81M TRANSFERIDOS</color></b>";
+            _subTitleText.text = "Red plana sin VLAN ni MFA permitio el ataque";
 
             GameObject robPanel = new GameObject("RobberyResultPanel");
             robPanel.transform.SetParent(_contentContainer, false);
@@ -506,29 +576,33 @@ namespace AndesSim.UI
             rBox.transform.SetParent(robPanel.transform, false);
             RectTransform rbRect = rBox.AddComponent<RectTransform>();
             rbRect.anchoredPosition = new Vector2(0f, 35f);
-            rbRect.sizeDelta = new Vector2(900f, 360f);
+            rbRect.sizeDelta = new Vector2(880f, 300f);
             Image rbBg = rBox.AddComponent<Image>();
-            rbBg.color = new Color(0.08f, 0.02f, 0.02f, 0.98f);
+            rbBg.color = new Color(0.10f, 0.02f, 0.02f, 0.98f);
 
             StringBuilder rsb = new StringBuilder();
-            rsb.AppendLine("<b><size=17><color=#FF3834>[INFORME FORENSE: FRAUDE BANCARIO CONSUMADO]</color></size></b>");
-            rsb.AppendLine("----------------------------------------------------------------------------");
-            rsb.AppendLine("• <b>MONTO TRANSFERIDO:</b> <color=#FF3834><size=18><b>US$ 81,000,000.00</b></size></color> (Lavado en Filipinas)");
-            rsb.AppendLine("• <b>MONTO RETENIDO:</b> US$ 870,000,000.00 (Frenado por error ortográfico 'Fandation')");
-            rsb.AppendLine("• <b>VECTOR DE ENTRADA:</b> Spear Phishing a Carla Mendoza (Dropper .scr camuflado).");
-            rsb.AppendLine("• <b>MOVIMIENTO LATERAL:</b> Red plana sin VLANs permitió salto inmediato a Terminal SWIFT.");
-            rsb.AppendLine("• <b>ANÁLISIS DE MALWARE:</b> Backdoor <i>svchost_upd.exe</i> con conexión a IP C2 <b>185.130.44.82</b>.");
-            rsb.AppendLine("----------------------------------------------------------------------------");
-            rsb.AppendLine("<size=15><color=#FFC24A>[!] <b>CAUSA RAÍZ:</b> Ausencia de Sandbox de correo y falta de segmentación VLAN 100.</color></size>");
+            rsb.AppendLine("<color=#FF3834><b>- ROBADO:</b> US$ 81,000,000 (lavado en Filipinas)</color>");
+            rsb.AppendLine("- RETENIDO: US$ 870,000,000 (frenado por error)");
+            rsb.AppendLine("- ENTRADA: Phishing .scr.zip en PC 1");
+            rsb.AppendLine("<color=#FFC24A><b>- CAUSA: Sin Sandbox, sin VLAN, sin MFA</b></color>");
 
-            CreateLabel("Txt_RobberySummary", rBox.transform, Vector2.zero, new Vector2(860f, 340f),
-                rsb.ToString(), 15.5f, TextAlignmentOptions.TopLeft, Color.white);
+            CreateLabel("Txt_RobberySummary", rBox.transform, Vector2.zero, new Vector2(830f, 260f),
+                rsb.ToString(), 20.5f, TextAlignmentOptions.MidlineLeft, Color.white);
+
+            CreateInspectionButton(
+                "Btn_GoBoardAfterAttack", robPanel.transform,
+                new Vector2(-300f, -175f), new Vector2(280f, 62f),
+                "<b>IR AL TABLERO ></b>",
+                new Color(0.10f, 0.30f, 0.40f, 0.98f),
+                CyanNeonAccent,
+                NavigateToSuspectBoardOrDefense
+            );
 
             CreateInspectionButton(
                 "Btn_FinalizeAttack", robPanel.transform,
-                new Vector2(-190f, -180f), new Vector2(370f, 54f),
-                "<b><color=#FF5A4E>[ FINALIZAR EVALUACIÓN ]</color></b>\n<size=11>Completar simulación</size>",
-                new Color(0.5f, 0.12f, 0.12f, 0.98f),
+                new Vector2(0f, -175f), new Vector2(290f, 62f),
+                "<b><color=#FF5A4E>FINALIZAR EVALUACION</color></b>",
+                new Color(0.48f, 0.12f, 0.12f, 0.98f),
                 Color.white,
                 () =>
                 {
@@ -542,8 +616,8 @@ namespace AndesSim.UI
 
             CreateInspectionButton(
                 "Btn_CloseRobbery", robPanel.transform,
-                new Vector2(190f, -180f), new Vector2(370f, 54f),
-                "<b>[ X CERRAR VISTA ]</b>\n<size=11>Volver al entorno de la oficina</size>",
+                new Vector2(300f, -175f), new Vector2(250f, 62f),
+                "<b>CERRAR VISTA</b>",
                 new Color(0.20f, 0.25f, 0.35f, 0.98f),
                 Color.white,
                 CloseOverlay
@@ -554,15 +628,15 @@ namespace AndesSim.UI
         }
 
         /// <summary>
-        /// RF-05: Abre la vista ampliada del Post-It y libreta de credenciales de Carla Mendoza.
+        /// RF-05: Abre la vista ampliada del Post-It de credenciales en PC 1.
         /// </summary>
         public void OpenCredentialsInspection()
         {
             EnsureOverlayCanvas();
             ClearActiveContent();
 
-            _headerTitleText.text = "<b>EVIDENCIA FORENSE #2: CREDENCIALES EXPUESTAS</b>";
-            _subTitleText.text = "Post-It y Libreta de Operaciones en el Puesto 1 (Carla Mendoza)";
+            _headerTitleText.text = "<b>EVIDENCIA #2: POST-IT CON CLAVES</b>";
+            _subTitleText.text = "Puesto 1 - Contrasenas escritas a la vista";
 
             GameObject credPanel = new GameObject("CredentialsContentPanel");
             credPanel.transform.SetParent(_contentContainer, false);
@@ -571,65 +645,62 @@ namespace AndesSim.UI
             cRect.anchorMax = Vector2.one;
             cRect.sizeDelta = Vector2.zero;
 
-            // Simulación visual del Post-It Amarillo
             GameObject postItBox = new GameObject("PostItVisual");
             postItBox.transform.SetParent(credPanel.transform, false);
             RectTransform pRect = postItBox.AddComponent<RectTransform>();
-            pRect.anchoredPosition = new Vector2(-180f, 20f);
-            pRect.sizeDelta = new Vector2(400f, 320f);
+            pRect.anchoredPosition = new Vector2(-210f, 30f);
+            pRect.sizeDelta = new Vector2(410f, 290f);
             Image postItBg = postItBox.AddComponent<Image>();
-            postItBg.color = new Color(0.98f, 0.88f, 0.35f, 0.98f); // Amarillo Post-It
+            postItBg.color = new Color(0.98f, 0.88f, 0.35f, 0.98f);
 
-            CreateLabel("Txt_PostItTitle", postItBox.transform, new Vector2(0f, 110f), new Vector2(360f, 40f),
-                "<b>BANCO ANDINO · SWIFT</b>", 16f, TextAlignmentOptions.Center, new Color(0.1f, 0.1f, 0.1f));
+            CreateLabel("Txt_PostItTitle", postItBox.transform, new Vector2(0f, 100f), new Vector2(370f, 40f),
+                "<b>CLAVES PC-PAGOS-01</b>", 20f, TextAlignmentOptions.Center, new Color(0.1f, 0.1f, 0.1f));
 
-            CreateLabel("Txt_PostItBody", postItBox.transform, new Vector2(0f, -10f), new Vector2(360f, 200f),
-                "<b>Terminal:</b> PC-PAGOS-01\n" +
-                "<b>Usuario:</b> c.mendoza\n" +
-                "<b>Password:</b> <color=#990000>Swift2015$Admin!</color>\n" +
-                "<b>Token Bóveda:</b> 849201\n" +
-                "<b>PIN Respaldo:</b> 9481\n\n" +
-                "<i>(No olvidar actualizar cada 90 días)</i>",
-                14f, TextAlignmentOptions.TopLeft, new Color(0.12f, 0.12f, 0.12f));
+            CreateLabel("Txt_PostItBody", postItBox.transform, new Vector2(0f, -20f), new Vector2(370f, 190f),
+                "<b>User:</b> c.mendoza\n" +
+                "<b>Pass:</b> <color=#990000>Swift2015$Admin!</color>\n" +
+                "<b>Token:</b> 849201\n" +
+                "<b>PIN:</b> 9481",
+                19.5f, TextAlignmentOptions.MidlineLeft, new Color(0.12f, 0.12f, 0.12f));
 
-            // Panel de Diagnóstico Forense
             GameObject diagBox = new GameObject("ForensicDiagBox");
             diagBox.transform.SetParent(credPanel.transform, false);
             RectTransform dRect = diagBox.AddComponent<RectTransform>();
-            dRect.anchoredPosition = new Vector2(230f, 20f);
-            dRect.sizeDelta = new Vector2(380f, 320f);
+            dRect.anchoredPosition = new Vector2(225f, 30f);
+            dRect.sizeDelta = new Vector2(410f, 290f);
             Image diagBg = diagBox.AddComponent<Image>();
-            diagBg.color = new Color(0.08f, 0.12f, 0.18f, 0.9f);
+            diagBg.color = new Color(0.08f, 0.12f, 0.18f, 0.96f);
 
-            CreateLabel("Txt_DiagTitle", diagBox.transform, new Vector2(0f, 110f), new Vector2(350f, 40f),
-                "<b>ANÁLISIS FORENSE ISO 27001</b>", 15f, TextAlignmentOptions.Center, WarningAmberColor);
+            CreateLabel("Txt_DiagTitle", diagBox.transform, new Vector2(0f, 100f), new Vector2(370f, 40f),
+                "<b>FALLA ISO 27001</b>", 20f, TextAlignmentOptions.Center, WarningAmberColor);
 
-            CreateLabel("Txt_DiagBody", diagBox.transform, new Vector2(0f, -15f), new Vector2(350f, 220f),
-                "<b>Falla Crítica Identificada:</b>\n" +
-                "Violación del control A.11.2.9 (Puesto de trabajo despejado).\n\n" +
-                "Las credenciales bancarias estaban escritas a mano y a la vista de cualquier visitante.\n\n" +
-                "<b>Impacto:</b> Permitió al intruso elevar privilegios de inmediato y operar transferencias SWIFT sin requerir cracking de contraseñas.",
-                12.5f, TextAlignmentOptions.TopLeft, new Color(0.85f, 0.92f, 1f));
+            CreateLabel("Txt_DiagBody", diagBox.transform, new Vector2(0f, -20f), new Vector2(370f, 190f),
+                "- Clave visible en papel.\n\n" +
+                "- Cualquiera puede usar la cuenta SWIFT sin descifrar nada.",
+                19f, TextAlignmentOptions.MidlineLeft, new Color(0.90f, 0.95f, 1f));
 
-            // Botón de Registro de Evidencia
+            Action saveEvidence = () =>
+            {
+                if (GameManager.I != null) GameManager.I.RegisterEvidence("Evidencia_PostIt");
+                if (AndesSim.Audio.AudioManager.I != null) AndesSim.Audio.AudioManager.I.PlayEvidenceFound();
+            };
+
+            CreateInspectionButton(
+                "Btn_SaveAndNextSiem", credPanel.transform,
+                new Vector2(-210f, -175f), new Vector2(420f, 62f),
+                "<b>GUARDAR Y VER SIEM (PC 3) ></b>",
+                new Color(0.12f, 0.42f, 0.24f, 0.98f),
+                GreenSuccessColor,
+                () => { saveEvidence(); OpenSiemLogInspection(); }
+            );
+
             CreateInspectionButton(
                 "Btn_LogEvidencePostIt", credPanel.transform,
-                new Vector2(0f, -180f), new Vector2(460f, 54f),
-                "<b>[ REGISTRAR EVIDENCIA #2 EN EL EXPEDIENTE ]</b>",
-                new Color(0.15f, 0.45f, 0.25f, 0.95f),
-                GreenSuccessColor,
-                () =>
-                {
-                    if (GameManager.I != null)
-                    {
-                        GameManager.I.RegisterEvidence("Evidencia_PostIt");
-                    }
-                    if (AndesSim.Audio.AudioManager.I != null)
-                    {
-                        AndesSim.Audio.AudioManager.I.PlayEvidenceFound();
-                    }
-                    CloseOverlay();
-                }
+                new Vector2(225f, -175f), new Vector2(380f, 62f),
+                "<b>SOLO GUARDAR Y CERRAR</b>",
+                new Color(0.16f, 0.26f, 0.36f, 0.98f),
+                Color.white,
+                () => { saveEvidence(); CloseOverlay(); }
             );
 
             _activeContentPanel = credPanel;
@@ -644,8 +715,8 @@ namespace AndesSim.UI
             EnsureOverlayCanvas();
             ClearActiveContent();
 
-            _headerTitleText.text = "<b>TERMINAL SWIFT ALLIANCE ACCESS · PUESTO 2</b>";
-            _subTitleText.text = "Operaciones Internacionales y Auditoría de Red Plana (VLANs Ausentes)";
+            _headerTitleText.text = "<b>PC 2 - TERMINAL SWIFT</b>";
+            _subTitleText.text = "Transferencias internacionales y red sin proteccion";
 
             GameObject swiftPanel = new GameObject("SwiftContentPanel");
             swiftPanel.transform.SetParent(_contentContainer, false);
@@ -657,37 +728,50 @@ namespace AndesSim.UI
             GameObject tableBox = new GameObject("SwiftTableBox");
             tableBox.transform.SetParent(swiftPanel.transform, false);
             RectTransform tbRect = tableBox.AddComponent<RectTransform>();
-            tbRect.anchoredPosition = new Vector2(0f, 30f);
-            tbRect.sizeDelta = new Vector2(880f, 310f);
+            tbRect.anchoredPosition = new Vector2(0f, 35f);
+            tbRect.sizeDelta = new Vector2(880f, 300f);
             Image tbBg = tableBox.AddComponent<Image>();
-            tbBg.color = new Color(0.06f, 0.1f, 0.16f, 0.95f);
+            tbBg.color = new Color(0.06f, 0.1f, 0.16f, 0.96f);
 
-            CreateLabel("Txt_SwiftTable", tableBox.transform, Vector2.zero, new Vector2(850f, 290f),
-                "<b><size=17><color=#00F2FE>SISTEMA SWIFT ALLIANCE ACCESS — MENSAJERÍA MT103</color></size></b>\n" +
-                "----------------------------------------------------------------------------\n" +
-                "• <b>Transacción:</b> MT103-20150129-948192 (Orden de Transferencia Internacional)\n" +
-                "• <b>Banco Emisor:</b> BANCO ANDINO -> Beneficiario: RCBC Filipinas\n" +
-                "• <b>Monto en Riesgo:</b> <color=#FF5A4E><b>US$ 951,000,000.00</b></color>\n" +
-                "• <b>Vulnerabilidad de Red:</b> <color=#FFC24A>RED PLANA (Sin VLAN 100 ni microsegmentación)</color>\n" +
-                "• <b>Falla de Control:</b> Ausencia de segundo factor de autenticación (MFA) en transferencias.\n" +
-                "----------------------------------------------------------------------------\n" +
-                "<b><size=14><color=#FF5A4E>[!] La ausencia de VLANs permitió que el malware de Carla alcanzara este puesto en segundos.</color></size></b>",
-                15.5f, TextAlignmentOptions.TopLeft, new Color(0.88f, 0.95f, 1f));
+            CreateLabel("Txt_SwiftTable", tableBox.transform, Vector2.zero, new Vector2(830f, 260f),
+                "<b><color=#00F2FE>OPERACION SWIFT MT103</color></b>\n\n" +
+                "- Destino sospechoso: RCBC Filipinas\n" +
+                "- En riesgo: <color=#FF5A4E><b>US$ 951,000,000</b></color>\n" +
+                "- Falla: <color=#FFC24A>Red plana sin VLAN ni codigo MFA</color>",
+                20.5f, TextAlignmentOptions.MidlineLeft, Color.white);
+
+            CreateInspectionButton(
+                "Btn_SwiftToMail", swiftPanel.transform,
+                new Vector2(-220f, -175f), new Vector2(410f, 62f),
+                "<b>< VOLVER A CORREO (PC 1)</b>",
+                new Color(0.14f, 0.24f, 0.36f, 0.98f),
+                Color.white,
+                () => OpenEmailInspection(0)
+            );
+
+            CreateInspectionButton(
+                "Btn_SwiftToSiem", swiftPanel.transform,
+                new Vector2(220f, -175f), new Vector2(410f, 62f),
+                "<b>SIGUIENTE: VER SIEM (PC 3) ></b>",
+                new Color(0.10f, 0.34f, 0.26f, 0.98f),
+                GreenSuccessColor,
+                OpenSiemLogInspection
+            );
 
             _activeContentPanel = swiftPanel;
             ShowOverlay();
         }
 
         /// <summary>
-        /// RF-05: Abre la vista ampliada de la Consola SIEM (Puesto 3) con los registros de accesos al C2.
+        /// RF-05: Abre la consola SIEM (Puesto 3) con los registros hacia la IP atacante.
         /// </summary>
         public void OpenSiemLogInspection()
         {
             EnsureOverlayCanvas();
             ClearActiveContent();
 
-            _headerTitleText.text = "<b>CONSOLA SIEM Y REGISTROS DE ACCESO · PUESTO 3</b>";
-            _subTitleText.text = "Auditoría de Tráfico Saliente C2 hacia la IP 185.130.44.82";
+            _headerTitleText.text = "<b>PC 3 - EVIDENCIA #3: CONSOLA SIEM</b>";
+            _subTitleText.text = "Alertas de conexion hacia IP atacante";
 
             GameObject siemPanel = new GameObject("SiemContentPanel");
             siemPanel.transform.SetParent(_contentContainer, false);
@@ -699,41 +783,40 @@ namespace AndesSim.UI
             GameObject logBox = new GameObject("SiemLogBox");
             logBox.transform.SetParent(siemPanel.transform, false);
             RectTransform lRect = logBox.AddComponent<RectTransform>();
-            lRect.anchoredPosition = new Vector2(0f, 40f);
-            lRect.sizeDelta = new Vector2(880f, 290f);
+            lRect.anchoredPosition = new Vector2(0f, 35f);
+            lRect.sizeDelta = new Vector2(880f, 300f);
             Image lBg = logBox.AddComponent<Image>();
-            lBg.color = new Color(0.04f, 0.08f, 0.12f, 0.95f);
+            lBg.color = new Color(0.04f, 0.08f, 0.12f, 0.96f);
 
-            CreateLabel("Txt_SiemLogs", logBox.transform, Vector2.zero, new Vector2(850f, 270f),
-                "<b><size=17><color=#38F28A>CONSOLA SIEM — INDICADORES DE COMPROMISO (IOCs)</color></size></b>\n" +
-                "----------------------------------------------------------------------------\n" +
-                "• <b>[09:18:22] CONEXIÓN C2:</b> <color=#FF5A4E>192.168.1.101 -> 185.130.44.82:443 [ESTABLECIDA]</color>\n" +
-                "• <b>[09:18:25] PROCESO MALICIOSO:</b> svchost_upd.exe (PID 4820) desde AppData\\Local\n" +
-                "• <b>[09:18:29] DOMINIO ATACANTE:</b> career-applicants-bd.com (Dominio Lazarus de 48h)\n" +
-                "• <b>[09:18:35] ALERTA PERIMETRAL:</b> Dropper .scr descargado sin pasar por Sandbox Cuckoo.\n" +
-                "----------------------------------------------------------------------------\n" +
-                "<b><size=15><color=#38F28A>[OK] IOC Identificado: Servidor de Mando y Control 185.130.44.82 (Grupo Lazarus)</color></size></b>",
-                15f, TextAlignmentOptions.TopLeft, new Color(0.88f, 0.95f, 1f));
+            CreateLabel("Txt_SiemLogs", logBox.transform, Vector2.zero, new Vector2(830f, 260f),
+                "<b><color=#38F28A>REGISTROS DE RED (29 ENE 2015)</color></b>\n\n" +
+                "- 09:18 C2: <color=#FF5A4E>192.168.1.101 -> 185.130.44.82:443</color>\n" +
+                "- Proceso: svchost_upd.exe (Malware Lazarus)\n" +
+                "- Alerta: Descarga .scr sin Sandbox",
+                20.5f, TextAlignmentOptions.MidlineLeft, Color.white);
 
-            // Botón de Registro de Evidencia SIEM
+            Action saveSiem = () =>
+            {
+                if (GameManager.I != null) GameManager.I.RegisterEvidence("Evidencia_LogAccesos");
+                if (AndesSim.Audio.AudioManager.I != null) AndesSim.Audio.AudioManager.I.PlayEvidenceFound();
+            };
+
+            CreateInspectionButton(
+                "Btn_LogSiemAndBoard", siemPanel.transform,
+                new Vector2(-220f, -175f), new Vector2(430f, 62f),
+                "<b>GUARDAR LOG Y IR AL TABLERO ></b>",
+                new Color(0.12f, 0.42f, 0.24f, 0.98f),
+                GreenSuccessColor,
+                () => { saveSiem(); NavigateToSuspectBoardOrDefense(); }
+            );
+
             CreateInspectionButton(
                 "Btn_LogEvidenceSiem", siemPanel.transform,
-                new Vector2(0f, -165f), new Vector2(460f, 54f),
-                "<b>[ REGISTRAR EVIDENCIA #3: LOG DE ACCESOS ]</b>",
-                new Color(0.15f, 0.45f, 0.25f, 0.95f),
-                GreenSuccessColor,
-                () =>
-                {
-                    if (GameManager.I != null)
-                    {
-                        GameManager.I.RegisterEvidence("Evidencia_LogAccesos");
-                    }
-                    if (AndesSim.Audio.AudioManager.I != null)
-                    {
-                        AndesSim.Audio.AudioManager.I.PlayEvidenceFound();
-                    }
-                    CloseOverlay();
-                }
+                new Vector2(230f, -175f), new Vector2(370f, 62f),
+                "<b>SOLO GUARDAR Y CERRAR</b>",
+                new Color(0.16f, 0.26f, 0.36f, 0.98f),
+                Color.white,
+                () => { saveSiem(); CloseOverlay(); }
             );
 
             _activeContentPanel = siemPanel;
@@ -741,7 +824,7 @@ namespace AndesSim.UI
         }
 
         /// <summary>
-        /// RF-05: Abre la vista ampliada del expediente del sospechoso seleccionado en el Tablero Táctico.
+        /// RF-05: Abre el expediente resumido del sospechoso con navegacion Anterior / Siguiente.
         /// </summary>
         public void OpenSuspectDossierInspection(int suspectIndex)
         {
@@ -751,76 +834,75 @@ namespace AndesSim.UI
             GameObject dossierPanel = new GameObject("SuspectDossierModalPanel");
             dossierPanel.transform.SetParent(_contentContainer, false);
             RectTransform dr = dossierPanel.AddComponent<RectTransform>();
-            dr.sizeDelta = new Vector2(1020f, 580f);
+            dr.sizeDelta = new Vector2(920f, 520f);
 
             SuspectBoardVR board = SuspectBoardVR.I != null ? SuspectBoardVR.I : FindFirstObjectByType<SuspectBoardVR>();
-            SuspectDossierScenario01 suspect = null;
-            if (board != null && board.Suspects != null && suspectIndex >= 0 && suspectIndex < board.Suspects.Count)
-            {
-                suspect = board.Suspects[suspectIndex];
-            }
+            int total = (board != null && board.Suspects != null && board.Suspects.Count > 0) ? board.Suspects.Count : 1;
+            int safeIndex = ((suspectIndex % total) + total) % total;
+
+            SuspectDossierScenario01 suspect = (board != null && board.Suspects != null && safeIndex < board.Suspects.Count)
+                ? board.Suspects[safeIndex]
+                : null;
 
             string name = suspect != null ? suspect.fullName : "Sospechoso";
             string role = suspect != null ? suspect.roleTitle : "Personal Banco Andino";
-            string badge = suspect != null ? suspect.threatLevelBadge : "EN INVESTIGACIÓN";
-            string incrim = suspect != null ? suspect.incriminatingPoints : "Sin indicios registrados.";
-            string exon = suspect != null ? suspect.exoneratingPoints : "Sin descargos registrados.";
+            string badge = suspect != null ? suspect.threatLevelBadge : "INVESTIGACION";
+            string incrim = suspect != null ? suspect.incriminatingPoints : "Sin indicios.";
+            string exon = suspect != null ? suspect.exoneratingPoints : "Sin descargos.";
 
-            // Encabezado
-            CreateLabel("Txt_Header", dossierPanel.transform, new Vector2(0f, 245f), new Vector2(960f, 35f),
-                $"<b><color=#38F28A>CASO BANCO ANDINO · AUDITORÍA INTERNA 2015</color></b> | EXPEDIENTE #{suspectIndex + 1}",
-                15f, TextAlignmentOptions.Center, Color.cyan);
+            _headerTitleText.text = $"<b>SOSPECHOSO #{safeIndex + 1} DE {total}</b>";
+            _subTitleText.text = $"<b>{name}</b> - {role}  <color=#FF5A4E>[{badge}]</color>";
 
-            CreateLabel("Txt_SuspectTitle", dossierPanel.transform, new Vector2(0f, 210f), new Vector2(960f, 35f),
-                $"<b>{name}</b> — <color=#E2E8F0>{role}</color> | <color=#FF5A4E>[{badge}]</color>",
-                13.5f, TextAlignmentOptions.Center, Color.white);
-
-            // Caja Izquierda: Puntos en Contra / Incriminatorios
             GameObject leftBox = new GameObject("LeftBox");
             leftBox.transform.SetParent(dossierPanel.transform, false);
             RectTransform lbRect = leftBox.AddComponent<RectTransform>();
-            lbRect.anchoredPosition = new Vector2(-240f, 30f);
-            lbRect.sizeDelta = new Vector2(470f, 310f);
+            lbRect.anchoredPosition = new Vector2(-225f, 35f);
+            lbRect.sizeDelta = new Vector2(430f, 290f);
             Image lbBg = leftBox.AddComponent<Image>();
-            lbBg.color = new Color(0.12f, 0.08f, 0.08f, 0.94f);
+            lbBg.color = new Color(0.14f, 0.06f, 0.06f, 0.96f);
 
-            CreateLabel("Txt_LeftTitle", leftBox.transform, new Vector2(0f, 130f), new Vector2(440f, 30f),
-                "<b><color=#FF5A4E>[!] PUNTOS EN CONTRA / INCRIMINATORIOS</color></b>",
-                12.5f, TextAlignmentOptions.TopLeft, WarningAmberColor);
+            CreateLabel("Txt_LeftTitle", leftBox.transform, new Vector2(0f, 115f), new Vector2(390f, 36f),
+                "<b><color=#FF5A4E>EN CONTRA</color></b>",
+                19f, TextAlignmentOptions.MidlineLeft, WarningAmberColor);
 
-            CreateLabel("Txt_LeftContent", leftBox.transform, new Vector2(0f, -10f), new Vector2(440f, 240f),
-                $"<size=11>{incrim}</size>",
-                11f, TextAlignmentOptions.TopLeft, new Color(0.95f, 0.90f, 0.90f));
+            CreateLabel("Txt_LeftContent", leftBox.transform, new Vector2(0f, -15f), new Vector2(390f, 210f),
+                incrim, 17.5f, TextAlignmentOptions.TopLeft, new Color(0.96f, 0.92f, 0.92f));
 
-            // Caja Derecha: Elementos a Favor / Descargo
             GameObject rightBox = new GameObject("RightBox");
             rightBox.transform.SetParent(dossierPanel.transform, false);
             RectTransform rbRect = rightBox.AddComponent<RectTransform>();
-            rbRect.anchoredPosition = new Vector2(240f, 30f);
-            rbRect.sizeDelta = new Vector2(470f, 310f);
+            rbRect.anchoredPosition = new Vector2(225f, 35f);
+            rbRect.sizeDelta = new Vector2(430f, 290f);
             Image rbBg = rightBox.AddComponent<Image>();
-            rbBg.color = new Color(0.08f, 0.14f, 0.10f, 0.94f);
+            rbBg.color = new Color(0.06f, 0.14f, 0.09f, 0.96f);
 
-            CreateLabel("Txt_RightTitle", rightBox.transform, new Vector2(0f, 130f), new Vector2(440f, 30f),
-                "<b><color=#38F28A>[OK] ELEMENTOS A FAVOR / DESCARGO</color></b>",
-                12.5f, TextAlignmentOptions.TopLeft, GreenSuccessColor);
+            CreateLabel("Txt_RightTitle", rightBox.transform, new Vector2(0f, 115f), new Vector2(390f, 36f),
+                "<b><color=#38F28A>A FAVOR</color></b>",
+                19f, TextAlignmentOptions.MidlineLeft, GreenSuccessColor);
 
-            CreateLabel("Txt_RightContent", rightBox.transform, new Vector2(0f, -10f), new Vector2(440f, 240f),
-                $"<size=11>{exon}</size>",
-                11f, TextAlignmentOptions.TopLeft, new Color(0.90f, 0.98f, 0.92f));
+            CreateLabel("Txt_RightContent", rightBox.transform, new Vector2(0f, -15f), new Vector2(390f, 210f),
+                exon, 17.5f, TextAlignmentOptions.TopLeft, new Color(0.90f, 0.98f, 0.92f));
 
-            // Botón Fijar Hipótesis
+            CreateInspectionButton(
+                "Btn_PrevSuspect", dossierPanel.transform,
+                new Vector2(-345f, -175f), new Vector2(180f, 60f),
+                "<b>< ANTERIOR</b>",
+                new Color(0.16f, 0.22f, 0.34f, 0.96f),
+                Color.white,
+                () => OpenSuspectDossierInspection((safeIndex + total - 1) % total)
+            );
+
             CreateInspectionButton(
                 "Btn_SelectHypothesis", dossierPanel.transform,
-                new Vector2(-150f, -190f), new Vector2(430f, 50f),
-                $"<b>[ REGISTRAR A {name.ToUpper()} COMO HIPÓTESIS ]</b>",
-                new Color(0.12f, 0.38f, 0.22f, 0.96f),
+                new Vector2(0f, -175f), new Vector2(470f, 60f),
+                $"<b>ELEGIR: {name.ToUpper()}</b>",
+                new Color(0.12f, 0.38f, 0.22f, 0.98f),
                 GreenSuccessColor,
                 () =>
                 {
                     if (board != null)
                     {
-                        board.DisplaySuspect(suspectIndex);
+                        board.DisplaySuspect(safeIndex);
                         board.OnSelectHypothesisClicked();
                     }
                     if (AndesSim.Audio.AudioManager.I != null)
@@ -831,18 +913,43 @@ namespace AndesSim.UI
                 }
             );
 
-            // Botón Cerrar
             CreateInspectionButton(
-                "Btn_CloseDossier", dossierPanel.transform,
-                new Vector2(290f, -190f), new Vector2(220f, 50f),
-                "<b>[ CERRAR DOSSIER ]</b>",
-                new Color(0.25f, 0.28f, 0.32f, 0.96f),
+                "Btn_NextSuspect", dossierPanel.transform,
+                new Vector2(345f, -175f), new Vector2(180f, 60f),
+                "<b>SIGUIENTE ></b>",
+                new Color(0.16f, 0.22f, 0.34f, 0.96f),
                 Color.white,
-                () => CloseOverlay()
+                () => OpenSuspectDossierInspection((safeIndex + 1) % total)
             );
 
             _activeContentPanel = dossierPanel;
             ShowOverlay();
+        }
+
+        private void NavigateToSuspectBoardOrDefense()
+        {
+            GameObject tpObj = GameObject.Find("Teleport_TableroSospechosos");
+            TeleportPoint tp = tpObj != null ? tpObj.GetComponent<TeleportPoint>() : null;
+            if (PlayerTeleportController.I != null && tp != null)
+            {
+                CloseOverlay();
+                PlayerTeleportController.I.TeleportToPoint(tp);
+                return;
+            }
+            OpenSuspectDossierInspection(0);
+        }
+
+        private void NavigateToDefenseConsole()
+        {
+            GameObject tpObj = GameObject.Find("Teleport_ConsolaDefensa");
+            TeleportPoint tp = tpObj != null ? tpObj.GetComponent<TeleportPoint>() : null;
+            if (PlayerTeleportController.I != null && tp != null)
+            {
+                CloseOverlay();
+                PlayerTeleportController.I.TeleportToPoint(tp);
+                return;
+            }
+            NavigateToSuspectBoardOrDefense();
         }
 
         #endregion
@@ -979,7 +1086,8 @@ namespace AndesSim.UI
 
             TextMeshProUGUI tmp = txtGO.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
-            tmp.fontSize = 13.5f;
+            tmp.fontSize = 16.5f;
+            tmp.fontStyle = FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.color = textColor;
 
@@ -1020,12 +1128,16 @@ namespace AndesSim.UI
 
             TextMeshProUGUI tmp = txtGO.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
-            tmp.fontSize = 12f;
+            tmp.fontSize = 18f;
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.color = WarningAmberColor;
 
+            int lastMarkedFrame = -1;
             Action markAction = () =>
             {
+                if (lastMarkedFrame == Time.frameCount) return;
+                lastMarkedFrame = Time.frameCount;
+
                 if (ScenarioFlowController.I != null)
                 {
                     ScenarioFlowController.I.NotifyPhishingSignalInspected(signalId);
@@ -1039,7 +1151,7 @@ namespace AndesSim.UI
                     AndesSim.Audio.AudioManager.I.PlayEvidenceFound();
                 }
                 bg.color = new Color(0.08f, 0.35f, 0.18f, 0.95f);
-                tmp.text = $"<b>[OK IDENTIFICADA]</b>\n<size=10>{signalId}</size>";
+                tmp.text = "<b>[OK] PISTA LISTA</b>";
                 tmp.color = GreenSuccessColor;
             };
 
