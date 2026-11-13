@@ -10,6 +10,7 @@ TagManager:
   - Monitor
   - PlayerRig
   - Interactive
+  - TeleportPoint
   layers:
   - Default
   - TransparentFX

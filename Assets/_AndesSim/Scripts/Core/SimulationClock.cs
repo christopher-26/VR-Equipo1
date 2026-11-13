@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Globalization;
 using TMPro;
 using UnityEngine;
@@ -225,7 +225,7 @@ namespace AndesSim.Core
             if (_timeRemaining <= 60f && !_alert60Triggered)
             {
                 _alert60Triggered = true;
-                Debug.LogWarning($"{LogPrefix} <color=#FFC66D><b>ALERTA DE TIEMPO: Quedan 60 segundos para finalizar la simulación.</b></color>");
+                Debug.Log($"{LogPrefix} <color=#FFC66D><b>ALERTA DE TIEMPO: Quedan 60 segundos para finalizar la simulación.</b></color>");
                 PlayAlertSound(alert60SecondsClip);
                 OnTimeAlertTriggered?.Invoke(60);
                 OnTimerCriticalWarning?.Invoke(60f);
@@ -234,7 +234,7 @@ namespace AndesSim.Core
             if (_timeRemaining <= 30f && !_alert30Triggered)
             {
                 _alert30Triggered = true;
-                Debug.LogWarning($"{LogPrefix} <color=#FF6B68><b>ALERTA CRÍTICA: ¡Quedan sólo 30 segundos!</b></color>");
+                Debug.Log($"{LogPrefix} <color=#FF6B68><b>ALERTA CRÍTICA: ¡Quedan sólo 30 segundos!</b></color>");
                 PlayAlertSound(alert30SecondsClip);
                 OnTimeAlertTriggered?.Invoke(30);
                 OnTimerCriticalWarning?.Invoke(30f);
@@ -249,7 +249,7 @@ namespace AndesSim.Core
             _timeExpired = true;
             _isTimerRunning = false;
 
-            Debug.LogError($"{LogPrefix} <color=#FF4444><b>TIEMPO EXPIRADO: Se agotaron los 180 segundos reglamentarios.</b></color>");
+            Debug.Log($"{LogPrefix} <color=#FFC66D><b>TIEMPO EXPIRADO: Se agotaron los 180 segundos reglamentarios.</b></color>");
             PlayAlertSound(timeExpiredClip);
 
             OnTimeExpired?.Invoke();

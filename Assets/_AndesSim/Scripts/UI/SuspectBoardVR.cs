@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using AndesSim.Core;
+using AndesSim.Environment;
 using AndesSim.VR;
 
 namespace AndesSim.UI
@@ -313,6 +314,7 @@ namespace AndesSim.UI
             }
 
             DisplaySuspect(initialIndex);
+            AndesTypographyTheme.ApplyTypographyToTree(transform, true, false);
             Debug.Log($"{LogPrefix} <color=#38F28A><b>Tablero Táctico de Sospechosos inicializado con 4 expedientes oficiales.</b></color>");
         }
 
@@ -438,6 +440,7 @@ namespace AndesSim.UI
             // Conectar el adaptador de retícula VR
             WorldSpaceUiGazeButton gazeBtn = btnSelectObj.AddComponent<WorldSpaceUiGazeButton>();
             gazeBtn.ConfigureAudio(audioSource, stampHypothesisSound, null);
+            btnSelectObj.AddComponent<HolographicCardHover>().Configure(1.045f, 14f);
         }
 
         #endregion
@@ -482,6 +485,7 @@ namespace AndesSim.UI
                 // Enlazar WorldSpaceUiGazeButton para la retícula de Cardboard
                 WorldSpaceUiGazeButton gazeBtn = tabObj.AddComponent<WorldSpaceUiGazeButton>();
                 gazeBtn.ConfigureAudio(audioSource, switchSuspectSound, null);
+                tabObj.AddComponent<HolographicCardHover>().Configure(1.04f, 14f);
 
                 // Etiquetas internas del botón (Fuente grande y limpia para Cardboard)
                 TextMeshProUGUI label = CreateTmpText("Label", tabObj.transform, new Vector2(0f, 22f), new Vector2(230f, 38f),

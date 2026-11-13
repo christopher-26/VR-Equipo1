@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -534,7 +534,7 @@ namespace AndesSim.Scenario01
             if (_decisionExecuted) return;
             _decisionExecuted = true;
 
-            Debug.LogWarning($"{LogPrefix} <b>¡ENLACE DE CV EJECUTADO!</b> Iniciando recreación del ataque de 2016.");
+            Debug.Log($"{LogPrefix} <b>¡ENLACE DE CV EJECUTADO!</b> Iniciando recreación del ataque de 2016.");
 
             // Desactivar botones de interacción
             if (openLinkCvButton != null) openLinkCvButton.interactable = false;
@@ -609,7 +609,7 @@ namespace AndesSim.Scenario01
 
             // 3. Propagación hacia puesto 3: Terminal de Registros / SIEM (PC-PAGOS-09)
             Debug.Log($"{LogPrefix} <color=#FF5A4E>[09:25:03]</color> HTTP GET: PC-PAGOS-09 intenta abrir 'Rasel_Ahlam_CV_2015.scr.zip'");
-            Debug.LogWarning($"{LogPrefix} <color=#FF5A4E>[09:25:09] ALERTA SILENCIADA:</color> Proceso backdoor iniciado en red plana hacia nodo SWIFT");
+            Debug.Log($"{LogPrefix} <color=#FF5A4E>[09:25:09] ALERTA SILENCIADA:</color> Proceso backdoor iniciado en red plana hacia nodo SWIFT");
             PlaySound(infectionSpreadClip, GenerateInfectionAlertTone());
             if (monitor03Controller != null)
             {

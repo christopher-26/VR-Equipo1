@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using AndesSim.Core;
 using AndesSim.Data;
+using AndesSim.Environment;
 using AndesSim.VR;
 
 namespace AndesSim.UI
@@ -214,6 +215,8 @@ namespace AndesSim.UI
             if (panelRoot != null)
             {
                 panelRoot.SetActive(true);
+                HolographicPanelEntrance ent = panelRoot.GetComponent<HolographicPanelEntrance>();
+                ent?.PlayEntrance();
             }
 
             SimMode currentMode = GameManager.I != null ? GameManager.I.mode : SimMode.Ataque;
@@ -599,6 +602,7 @@ namespace AndesSim.UI
             // Si ya tiene estructura completa asignada en Inspector/Editor, respetar
             if (panelRoot != null && panelRoot != gameObject && outcomeHeaderTitleText != null && tryDefenseModeButton != null && restartSimulationButton != null)
             {
+                AndesTypographyTheme.ApplyTypographyToTree(panelRoot.transform, true, true);
                 return;
             }
 
@@ -608,8 +612,13 @@ namespace AndesSim.UI
             }
 
             // Contenedor visual interno (mantener root activo para escuchar OnScenarioEnded)
-            panelRoot = CreateEndUiBox("Panel_EndFondo", transform, Vector2.zero, new Vector2(960f, 650f), ColorDarkBg);
+            panelRoot = CreateEndUiBox("Panel_EndFondo", transform, Vector2.zero, new Vector2(960f, 650f), AndesTypographyTheme.BgVoidNavy);
             AddEndOutline(panelRoot, ColorCodeGreen, 2.5f);
+            CanvasGroup innerCg = panelRoot.GetComponent<CanvasGroup>() ?? panelRoot.AddComponent<CanvasGroup>();
+            HolographicPanelEntrance ent = panelRoot.GetComponent<HolographicPanelEntrance>() ?? panelRoot.AddComponent<HolographicPanelEntrance>();
+            ent.Configure(0.32f, 0.86f, 24f, innerCg);
+            HolographicFloatMotion fl = panelRoot.GetComponent<HolographicFloatMotion>() ?? panelRoot.AddComponent<HolographicFloatMotion>();
+            fl.Configure(10f, 0.78f, new Vector3(0.55f, 0.85f, 0.35f), 0f, 0f, true);
 
             // Cabecera
             GameObject headerBox = CreateEndUiBox("Header_Outcome", panelRoot.transform, new Vector2(0f, 255f), new Vector2(910f, 100f), new Color(0.03f, 0.09f, 0.07f, 0.96f));
@@ -686,6 +695,8 @@ namespace AndesSim.UI
                 "<b>[ < VOLVER AL\nMENU INICIAL ]</b>",
                 new Color(0.16f, 0.24f, 0.18f, 0.96f), ColorLightText, 18f, Color.white);
             restartSimulationButton = restartObj.GetComponent<Button>();
+
+            AndesTypographyTheme.ApplyTypographyToTree(panelRoot.transform, true, true);
         }
 
         private TextMeshProUGUI BuildMetricCard(Transform parent, string name, Vector2 pos, Vector2 size)
@@ -758,6 +769,7 @@ namespace AndesSim.UI
             gaze.dwellTime = 1.1f;
 
             btnObj.AddComponent<WorldSpaceUiGazeButton>();
+            btnObj.AddComponent<HolographicCardHover>().Configure(1.045f, 14f);
             return btnObj;
         }
 

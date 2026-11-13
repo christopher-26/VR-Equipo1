@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using TMPro;
@@ -89,8 +89,9 @@ namespace AndesSim.Editor
             // -------------------------------------------------------------------------
             // PASO 1: Configurar Capa Interactive (Layer 8), Tags y Assets de Datos
             // -------------------------------------------------------------------------
-            Debug.Log($"{LogPrefix} [1/8] Verificando capas, tags y ScriptableObjects de datos...");
+            Debug.Log($"{LogPrefix} [1/8] Verificando capas, tags, fuentes modernas y ScriptableObjects de datos...");
             LayerAndTagConfigurator.ConfigureLayersAndTags();
+            AndesFontSetupUtility.EnsureModernFontsInstalled();
             ScenarioDataAssetCreator.ExecuteDataAssetGeneration(showDialog: false);
 
             ScenarioData scenarioData = Resources.Load<ScenarioData>("Data/Scenario01_Data");
@@ -417,6 +418,8 @@ namespace AndesSim.Editor
             sTp.FindProperty("ringColor").colorValue = new Color(0.22f, 0.95f, 0.54f, 1.0f);
             sTp.ApplyModifiedProperties();
 
+            OficinaPagosMenuAndFxBuilder.EnhanceTeleportPointHalo(tpObj, new Color(0.22f, 0.95f, 0.54f, 1.0f));
+
             return tpObj;
         }
 
@@ -560,6 +563,13 @@ namespace AndesSim.Editor
 
             // Componente cinemático oficial de propagación de infección en red (InfectionSpreadVisualizer)
             BuildInfectionSpreadVisualizer(parent, monitor01, monitor02, monitor03);
+
+            // Balizas holográficas flotantes sobre los puestos y consola de defensa
+            OficinaPagosMenuAndFxBuilder.AttachWorkstationHoloBeacon(parent, "Holo_Baliza_Monitor_01", monitor01.transform.position + new Vector3(0f, 0.72f, 0f), AndesTypographyTheme.AccentCyan, "PUESTO 01 · SWIFT");
+            OficinaPagosMenuAndFxBuilder.AttachWorkstationHoloBeacon(parent, "Holo_Baliza_Monitor_02", monitor02.transform.position + new Vector3(0f, 0.72f, 0f), AndesTypographyTheme.AccentCyan, "PUESTO 02 · COMEX");
+            OficinaPagosMenuAndFxBuilder.AttachWorkstationHoloBeacon(parent, "Holo_Baliza_Monitor_03", monitor03.transform.position + new Vector3(0f, 0.72f, 0f), AndesTypographyTheme.AccentCyan, "PUESTO 03 · SIEM");
+            OficinaPagosMenuAndFxBuilder.AttachWorkstationHoloBeacon(parent, "Holo_Baliza_Defensas", defSwitchesObj.transform.position + new Vector3(0f, 0.50f, 0f), AndesTypographyTheme.AccentEmerald, "CONTRA-MEDIDAS");
+            AndesTypographyTheme.ApplyTypographyToTree(parent, true, false);
 
             // TeleportPoint de retorno a la Puerta de Entrada (Acceso Principal)
             CreateTeleportPoint(parent, "Teleport_PuertaEntrada",
@@ -859,6 +869,7 @@ namespace AndesSim.Editor
             // Anclado sólidamente a la pared sur de la oficina (z = -5.92f) con soporte estructural al piso (RF-05 / QA)
             GameObject boardObj = SuspectBoardMeshBuilder.BuildTacticalCorkBoard(parent, new Vector3(2.20f, 1.55f, -5.82f), Quaternion.Euler(0f, 180f, 0f));
             boardObj.name = "Tablero_Sospechosos_VR";
+            AndesTypographyTheme.ApplyTypographyToTree(boardObj.transform, true, false);
 
             // TeleportPoint específico frente al tablero de sospechosos, mirando hacia el sur
             CreateTeleportPoint(parent, "Teleport_TableroSospechosos", new Vector3(2.20f, 0.01f, -4.40f),
@@ -1019,9 +1030,7 @@ namespace AndesSim.Editor
 
             TextMeshProUGUI tmp = txtObj.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
-            tmp.fontSize = fontSize;
-            tmp.alignment = TextAlignmentOptions.Center;
-            tmp.color = textColor ?? Color.white;
+            AndesTypographyTheme.StyleButtonLabel(tmp, textColor ?? Color.white, fontSize);
 
             BoxCollider col = btnObj.AddComponent<BoxCollider>();
             col.size = new Vector3(size.x, size.y, 45f);
@@ -1032,256 +1041,17 @@ namespace AndesSim.Editor
             gaze.interactableLabel = text.Replace("<b>", "").Replace("</b>", "").Split('\n')[0];
             gaze.dwellTime = 1.1f;
 
-            WorldSpaceUiGazeButton wsBtn = btnObj.AddComponent<WorldSpaceUiGazeButton>();
+            btnObj.AddComponent<WorldSpaceUiGazeButton>();
+            btnObj.AddComponent<HolographicCardHover>().Configure(1.045f, 14f);
 
             return btnObj;
         }
 
-        #region Menú de Inicio VR Simple y Flotante (Sin muro ni arco intrusivo)
-
-        private static void AddUiEdgeBar(string name, Transform parent, Vector2 anchoredPos, Vector2 sizeDelta, Color color)
-        {
-            GameObject bar = new GameObject(name);
-            bar.transform.SetParent(parent, false);
-            RectTransform r = bar.AddComponent<RectTransform>();
-            r.anchoredPosition = anchoredPos;
-            r.sizeDelta = sizeDelta;
-            Image img = bar.AddComponent<Image>();
-            img.color = color;
-            img.raycastTarget = false;
-        }
+        #region Menú Holográfico Flotante de 5 Pestañas
 
         private static GameObject BuildSimpleVrStartMenu(Transform parent)
         {
-            GameObject menuRoot = new GameObject("MenuInicio_Simple_VR");
-            menuRoot.transform.SetParent(parent, false);
-            menuRoot.transform.position = new Vector3(-2.60f, 1.45f, 2.35f);
-            menuRoot.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
-            menuRoot.layer = LayerMask.NameToLayer("Interactive");
-
-            Material matKioskBase = CreateColorMaterial("Mat_Kiosk_MetalDark", new Color(0.06f, 0.09f, 0.14f));
-            Material matKioskNeon = CreateColorMaterial("Mat_Kiosk_NeonCyan", new Color(0f, 0.85f, 1f));
-            matKioskNeon.EnableKeyword("_EMISSION");
-            matKioskNeon.SetColor("_EmissionColor", new Color(0f, 0.85f, 1f) * 1.2f);
-
-            GameObject kioskBaseObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            kioskBaseObj.name = "Quiosco_Base_Piso";
-            kioskBaseObj.transform.SetParent(menuRoot.transform, false);
-            kioskBaseObj.transform.localPosition = new Vector3(0f, -1.42f, 0f);
-            kioskBaseObj.transform.localScale = new Vector3(0.85f, 0.06f, 0.45f);
-            kioskBaseObj.GetComponent<Renderer>().sharedMaterial = matKioskBase;
-
-            GameObject kioskTrimObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            kioskTrimObj.name = "Quiosco_Trim_Neon";
-            kioskTrimObj.transform.SetParent(menuRoot.transform, false);
-            kioskTrimObj.transform.localPosition = new Vector3(0f, -1.385f, 0f);
-            kioskTrimObj.transform.localScale = new Vector3(0.88f, 0.015f, 0.48f);
-            kioskTrimObj.GetComponent<Renderer>().sharedMaterial = matKioskNeon;
-
-            GameObject kioskColObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            kioskColObj.name = "Quiosco_Columna_Soporte";
-            kioskColObj.transform.SetParent(menuRoot.transform, false);
-            kioskColObj.transform.localPosition = new Vector3(0f, -0.92f, 0f);
-            kioskColObj.transform.localScale = new Vector3(0.18f, 0.96f, 0.10f);
-            kioskColObj.GetComponent<Renderer>().sharedMaterial = matKioskBase;
-
-            GameObject kioskStripeObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            kioskStripeObj.name = "Quiosco_Franja_Luminosa";
-            kioskStripeObj.transform.SetParent(menuRoot.transform, false);
-            kioskStripeObj.transform.localPosition = new Vector3(0f, -0.92f, -0.055f);
-            kioskStripeObj.transform.localScale = new Vector3(0.04f, 0.94f, 0.015f);
-            kioskStripeObj.GetComponent<Renderer>().sharedMaterial = matKioskNeon;
-
-            // Canvas World Space amplio y de alta legibilidad VR
-            GameObject canvasObj = new GameObject("Canvas_MenuInicio_Simple");
-            canvasObj.transform.SetParent(menuRoot.transform, false);
-            Canvas canvas = canvasObj.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.WorldSpace;
-            RectTransform cRect = canvasObj.GetComponent<RectTransform>();
-            cRect.sizeDelta = new Vector2(860f, 520f);
-            cRect.localScale = new Vector3(0.0019f, 0.0019f, 0.0019f);
-            canvasObj.AddComponent<CanvasScaler>();
-            canvasObj.AddComponent<GraphicRaycaster>();
-
-            CanvasGroup canvasGroup = canvasObj.AddComponent<CanvasGroup>();
-
-            // Fondo Dark Glass
-            GameObject bgObj = new GameObject("Panel_Background");
-            bgObj.transform.SetParent(canvasObj.transform, false);
-            RectTransform bgRect = bgObj.AddComponent<RectTransform>();
-            bgRect.anchorMin = Vector2.zero;
-            bgRect.anchorMax = Vector2.one;
-            bgRect.sizeDelta = Vector2.zero;
-            Image bgImg = bgObj.AddComponent<Image>();
-            bgImg.color = new Color(0.03f, 0.06f, 0.11f, 0.96f);
-
-            // Borde perimetral real con 4 barras cian (sin tapar el fondo ni el texto)
-            Color frameCyan = new Color(0f, 0.88f, 1f, 0.85f);
-            AddUiEdgeBar("Border_Top", bgObj.transform, new Vector2(0f, 258f), new Vector2(860f, 4f), frameCyan);
-            AddUiEdgeBar("Border_Bottom", bgObj.transform, new Vector2(0f, -258f), new Vector2(860f, 4f), frameCyan);
-            AddUiEdgeBar("Border_Left", bgObj.transform, new Vector2(-428f, 0f), new Vector2(4f, 520f), frameCyan);
-            AddUiEdgeBar("Border_Right", bgObj.transform, new Vector2(428f, 0f), new Vector2(4f, 520f), frameCyan);
-
-            // Título y Subtítulo
-            GameObject titleObj = new GameObject("Title");
-            titleObj.transform.SetParent(canvasObj.transform, false);
-            RectTransform tRect = titleObj.AddComponent<RectTransform>();
-            tRect.anchoredPosition = new Vector2(0f, 206f);
-            tRect.sizeDelta = new Vector2(810f, 44f);
-            TextMeshProUGUI tTmp = titleObj.AddComponent<TextMeshProUGUI>();
-            tTmp.text = "<b><color=#00F2FE>BANCO ANDINO</color> | SIMULADOR VR</b>";
-            tTmp.fontSize = 26f;
-            tTmp.alignment = TextAlignmentOptions.Center;
-            tTmp.color = Color.white;
-
-            GameObject subObj = new GameObject("SubTitle");
-            subObj.transform.SetParent(canvasObj.transform, false);
-            RectTransform sRect = subObj.AddComponent<RectTransform>();
-            sRect.anchoredPosition = new Vector2(0f, 164f);
-            sRect.sizeDelta = new Vector2(810f, 30f);
-            TextMeshProUGUI sTmp = subObj.AddComponent<TextMeshProUGUI>();
-            sTmp.text = "Elige el modo para empezar:";
-            sTmp.fontSize = 18f;
-            sTmp.alignment = TextAlignmentOptions.Center;
-            sTmp.color = new Color(0.75f, 0.84f, 0.94f, 1f);
-
-            // Vista 1: Selección de Modos
-            GameObject panelModos = new GameObject("Panel_VistaModos");
-            panelModos.transform.SetParent(canvasObj.transform, false);
-            RectTransform pmRect = panelModos.AddComponent<RectTransform>();
-            pmRect.anchorMin = Vector2.zero;
-            pmRect.anchorMax = Vector2.one;
-            pmRect.sizeDelta = Vector2.zero;
-
-            // Marco exterior Ataque (evita teñir todo el fondo del botón)
-            GameObject frameAtkObj = new GameObject("Frame_ModoAtaque");
-            frameAtkObj.transform.SetParent(panelModos.transform, false);
-            RectTransform faRect = frameAtkObj.AddComponent<RectTransform>();
-            faRect.anchoredPosition = new Vector2(-205f, 55f);
-            faRect.sizeDelta = new Vector2(380f, 150f);
-            Image imgAtkBorder = frameAtkObj.AddComponent<Image>();
-            imgAtkBorder.color = new Color(1f, 0.35f, 0.31f, 1f);
-
-            GameObject btnAtkObj = CreateWorldGazeButton("Btn_SelectAtaque", frameAtkObj.transform,
-                Vector2.zero, new Vector2(368f, 138f),
-                "<b><size=19><color=#FF5A4E>MODO ATAQUE</color></size></b>\n<size=15><color=#E2E8F0>Mira el phishing y el robo\n($81M en vivo)</color></size>",
-                new Color(0.16f, 0.05f, 0.07f, 0.98f), new Color(1f, 0.35f, 0.31f, 1f), 16f);
-            Button btnAtk = btnAtkObj.GetComponent<Button>();
-
-            // Marco exterior Defensa
-            GameObject frameDefObj = new GameObject("Frame_ModoDefensa");
-            frameDefObj.transform.SetParent(panelModos.transform, false);
-            RectTransform fdRect = frameDefObj.AddComponent<RectTransform>();
-            fdRect.anchoredPosition = new Vector2(205f, 55f);
-            fdRect.sizeDelta = new Vector2(380f, 150f);
-            Image imgDefBorder = frameDefObj.AddComponent<Image>();
-            imgDefBorder.color = new Color(0.18f, 0.30f, 0.44f, 0.70f);
-
-            GameObject btnDefObj = CreateWorldGazeButton("Btn_SelectDefensa", frameDefObj.transform,
-                Vector2.zero, new Vector2(368f, 138f),
-                "<b><size=19><color=#38F28A>MODO DEFENSA</color></size></b>\n<size=15><color=#E2E8F0>Detecta pistas, bloquea\ny activa MFA</color></size>",
-                new Color(0.05f, 0.16f, 0.10f, 0.98f), new Color(0.22f, 0.95f, 0.54f, 1f), 16f);
-            Button btnDef = btnDefObj.GetComponent<Button>();
-
-            GameObject badgeObj = new GameObject("Txt_ModoBadge");
-            badgeObj.transform.SetParent(panelModos.transform, false);
-            RectTransform bRect = badgeObj.AddComponent<RectTransform>();
-            bRect.anchoredPosition = new Vector2(0f, -42f);
-            bRect.sizeDelta = new Vector2(790f, 34f);
-            TextMeshProUGUI bTmp = badgeObj.AddComponent<TextMeshProUGUI>();
-            bTmp.text = "MODO ACTIVO: ATAQUE";
-            bTmp.fontSize = 19f;
-            bTmp.fontStyle = FontStyles.Bold;
-            bTmp.alignment = TextAlignmentOptions.Center;
-            bTmp.color = new Color(1f, 0.35f, 0.31f, 1f);
-
-            GameObject descObj = new GameObject("Txt_ModoDescripcion");
-            descObj.transform.SetParent(panelModos.transform, false);
-            RectTransform dRect = descObj.AddComponent<RectTransform>();
-            dRect.anchoredPosition = new Vector2(0f, -92f);
-            dRect.sizeDelta = new Vector2(790f, 68f);
-            TextMeshProUGUI dTmp = descObj.AddComponent<TextMeshProUGUI>();
-            dTmp.text = "1. Revisa el correo en PC 1\n2. Abre el enlace y mira la infeccion\n3. Ubica al responsable en el tablero";
-            dTmp.fontSize = 15.5f;
-            dTmp.alignment = TextAlignmentOptions.Center;
-            dTmp.color = new Color(0.88f, 0.94f, 1f, 1f);
-
-            // Vista 2: Guía Visual de 3 Pasos (Oculta al inicio)
-            GameObject panelPasos = new GameObject("Panel_VistaPasos");
-            panelPasos.transform.SetParent(canvasObj.transform, false);
-            RectTransform ppRect = panelPasos.AddComponent<RectTransform>();
-            ppRect.anchorMin = Vector2.zero;
-            ppRect.anchorMax = Vector2.one;
-            ppRect.sizeDelta = Vector2.zero;
-
-            GameObject pasosCard = new GameObject("Card_GuiaPasos");
-            pasosCard.transform.SetParent(panelPasos.transform, false);
-            RectTransform pcRect = pasosCard.AddComponent<RectTransform>();
-            pcRect.anchoredPosition = new Vector2(0f, 14f);
-            pcRect.sizeDelta = new Vector2(780f, 236f);
-            Image pcBg = pasosCard.AddComponent<Image>();
-            pcBg.color = new Color(0.06f, 0.11f, 0.18f, 0.96f);
-
-            GameObject pasosTxtObj = new GameObject("Txt_GuiaPasos");
-            pasosTxtObj.transform.SetParent(pasosCard.transform, false);
-            RectTransform ptRect = pasosTxtObj.AddComponent<RectTransform>();
-            ptRect.sizeDelta = new Vector2(740f, 210f);
-            TextMeshProUGUI pTmp = pasosTxtObj.AddComponent<TextMeshProUGUI>();
-            pTmp.text =
-                "<b><color=#00F2FE>COMO FUNCIONA EL SIMULADOR (3 PASOS)</color></b>\n\n" +
-                "<b>1. ENTRA Y MIRA PC 1:</b> Se abrira el correo sospechoso y el Post-It.\n" +
-                "<b>2. PRESIONA LAS PISTAS:</b> Revisa 1ra parte, marca pistas o ve a PC 3 (SIEM).\n" +
-                "<b>3. TABLERO / DEFENSA:</b> Elige sospechoso o activa MFA y Sandbox.";
-            pTmp.fontSize = 18f;
-            pTmp.alignment = TextAlignmentOptions.MidlineLeft;
-            pTmp.color = Color.white;
-            panelPasos.SetActive(false);
-
-            // Botón Principal: Iniciar Simulación
-            GameObject btnStartObj = CreateWorldGazeButton("Btn_IniciarSimulacion", canvasObj.transform,
-                new Vector2(0f, -166f), new Vector2(540f, 60f),
-                "<b>[ > INICIAR SIMULACION ]</b>",
-                new Color(0.08f, 0.45f, 0.55f, 0.98f), new Color(0f, 0.95f, 1f, 1f), 20f);
-            Button btnStart = btnStartObj.GetComponent<Button>();
-
-            // Fila Inferior de Utilidades (Cómo Funciona + Créditos)
-            GameObject btnPasosObj = CreateWorldGazeButton("Btn_TogglePasos", canvasObj.transform,
-                new Vector2(-210f, -226f), new Vector2(360f, 44f),
-                "[ ? COMO FUNCIONA ]",
-                new Color(0.10f, 0.20f, 0.34f, 0.95f), new Color(0f, 0.90f, 1f, 1f), 16f);
-            Button btnPasos = btnPasosObj.GetComponent<Button>();
-            TextMeshProUGUI txtPasosLabel = btnPasosObj.GetComponentInChildren<TextMeshProUGUI>();
-
-            GameObject btnCreditosObj = CreateWorldGazeButton("Btn_AbrirCreditos", canvasObj.transform,
-                new Vector2(210f, -226f), new Vector2(360f, 44f),
-                "[ CREDITOS Y ETICA ]",
-                new Color(0.14f, 0.16f, 0.28f, 0.95f), new Color(0.35f, 0.85f, 1f, 1f), 16f);
-            Button btnCreditos = btnCreditosObj.GetComponent<Button>();
-
-            // Configurar VrStartMenuController
-            VrStartMenuController startController = menuRoot.AddComponent<VrStartMenuController>();
-            startController.BtnModoAtaque = btnAtk;
-            startController.BtnModoDefensa = btnDef;
-            startController.ImgModoAtaqueBorder = imgAtkBorder;
-            startController.ImgModoDefensaBorder = imgDefBorder;
-            startController.TxtModoSeleccionadoBadge = bTmp;
-            startController.TxtModoDescripcion = dTmp;
-            startController.BtnIniciarSimulacion = btnStart;
-            startController.MenuCanvasGroup = canvasGroup;
-            startController.BtnTogglePasos = btnPasos;
-            startController.TxtBtnTogglePasosLabel = txtPasosLabel;
-            startController.PanelVistaModos = panelModos;
-            startController.PanelVistaPasos = panelPasos;
-            startController.BtnAbrirCreditos = btnCreditos;
-
-            GameObject tp1Obj = GameObject.Find("Teleport_Puesto1_Carla");
-            if (tp1Obj != null)
-            {
-                startController.TeleportDestination = tp1Obj.GetComponent<TeleportPoint>();
-            }
-
-            Debug.Log($"{LogPrefix} <color=#38F28A>Menú de Inicio VR Simple y Flotante creado exitosamente.</color>");
-            return menuRoot;
+            return OficinaPagosMenuAndFxBuilder.BuildFloatingHoloCommandHub(parent);
         }
 
         private static void InstantiateWallPrefabOrCube(GameObject prefab, GameObject fallbackPrefab, Transform parent,
@@ -1401,29 +1171,36 @@ namespace AndesSim.Editor
             CreateCeilingCoveTrim(root.transform, "Moldura_Norte", new Vector3(0f, 2.97f, 3.86f), new Vector3(15.76f, 0.06f, 0.14f), new Vector3(15.60f, 0.015f, 0.03f), new Vector3(0f, 2.938f, 3.86f), matBeamDark, matCoveNeon);
             CreateCeilingCoveTrim(root.transform, "Moldura_Sur", new Vector3(0f, 2.97f, -5.86f), new Vector3(15.76f, 0.06f, 0.14f), new Vector3(15.60f, 0.015f, 0.03f), new Vector3(0f, 2.938f, -5.86f), matBeamDark, matCoveNeon);
 
-            // 6. 8 Luminarias LED empotradas alineadas exactamente con los Point Lights del SOC
+            // 6. 12 Luminarias LED empotradas (cuadricula 3x4) alineadas con las luces cenitales del SOC
             Vector3[] trofferPositions =
             {
-                new Vector3(-2.60f, 2.985f, 2.75f),
-                new Vector3(1.40f, 2.985f, 1.80f),
-                new Vector3(-5.80f, 2.985f, 1.60f),
-                new Vector3(-5.60f, 2.985f, -3.20f),
-                new Vector3(5.20f, 2.985f, 1.60f),
-                new Vector3(2.20f, 2.985f, -4.40f),
-                new Vector3(1.37f, 2.985f, -2.07f),
-                new Vector3(5.34f, 2.985f, -1.93f)
+                // Fila Norte (Lounge NO, Vestibulo Puerta, Centro-Norte, Cocina/Esquina NE)
+                new Vector3(-5.80f, 2.985f,  2.20f),
+                new Vector3(-2.40f, 2.985f,  2.60f),
+                new Vector3( 1.80f, 2.985f,  2.25f),
+                new Vector3( 5.80f, 2.985f,  2.20f),
+                // Fila Central (Oeste, Nave Central, Puesto 1, Oficina Este/Puesto 2)
+                new Vector3(-5.90f, 2.985f, -1.25f),
+                new Vector3(-1.90f, 2.985f, -1.00f),
+                new Vector3( 1.65f, 2.985f, -1.35f),
+                new Vector3( 5.75f, 2.985f, -1.35f),
+                // Fila Sur (Puesto 3/Descanso SW, Pasillo Sur-Oeste, Tablero Sur, Esquina SE)
+                new Vector3(-5.95f, 2.985f, -4.15f),
+                new Vector3(-1.90f, 2.985f, -4.30f),
+                new Vector3( 2.20f, 2.985f, -4.35f),
+                new Vector3( 5.95f, 2.985f, -4.35f)
             };
 
             for (int t = 0; t < trofferPositions.Length; t++)
             {
-                GameObject fixture = new GameObject($"Luminaria_Techo_LED_0{t + 1}");
+                GameObject fixture = new GameObject($"Luminaria_Techo_LED_{t + 1:D2}");
                 fixture.transform.SetParent(root.transform, false);
                 fixture.transform.position = trofferPositions[t];
 
                 GameObject bezel = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 bezel.name = "Marco";
                 bezel.transform.SetParent(fixture.transform, false);
-                bezel.transform.localScale = new Vector3(1.06f, 0.035f, 0.62f);
+                bezel.transform.localScale = new Vector3(1.12f, 0.035f, 0.64f);
                 Renderer br = bezel.GetComponent<Renderer>();
                 br.sharedMaterial = matTrofferFrame;
                 br.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
@@ -1432,13 +1209,48 @@ namespace AndesSim.Editor
                 diffuser.name = "Difusor_LED";
                 diffuser.transform.SetParent(fixture.transform, false);
                 diffuser.transform.localPosition = new Vector3(0f, -0.015f, 0f);
-                diffuser.transform.localScale = new Vector3(0.94f, 0.018f, 0.50f);
+                diffuser.transform.localScale = new Vector3(1.00f, 0.018f, 0.52f);
                 Renderer dr = diffuser.GetComponent<Renderer>();
                 dr.sharedMaterial = matTrofferGlow;
                 dr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             }
 
-            Debug.Log($"{LogPrefix} <color=#38F28A>Oficina cerrada con muros Este/Sur, techo arquitectonico y 8 luminarias LED.</color>");
+            // 7. Apliques LED arquitectonicos en muros perimetrales (Muros Este, Sur, Oeste y Puerta)
+            (string name, Vector3 pos, Quaternion rot)[] wallSconces =
+            {
+                ("Aplique_Puerta_Izq",      new Vector3(-3.45f, 2.15f,  3.82f), Quaternion.identity),
+                ("Aplique_Puerta_Der",      new Vector3(-1.75f, 2.15f,  3.82f), Quaternion.identity),
+                ("Aplique_Muro_Este_Norte", new Vector3( 7.82f, 2.15f,  1.20f), Quaternion.Euler(0f, -90f, 0f)),
+                ("Aplique_Muro_Este_Sur",   new Vector3( 7.82f, 2.15f, -3.40f), Quaternion.Euler(0f, -90f, 0f)),
+                ("Aplique_Muro_Sur_Este",   new Vector3( 5.80f, 2.15f, -5.82f), Quaternion.Euler(0f, 180f, 0f)),
+                ("Aplique_Muro_Oeste",      new Vector3(-7.82f, 2.15f,  0.40f), Quaternion.Euler(0f,  90f, 0f))
+            };
+
+            for (int w = 0; w < wallSconces.Length; w++)
+            {
+                var sc = wallSconces[w];
+                GameObject sconce = new GameObject(sc.name);
+                sconce.transform.SetParent(root.transform, false);
+                sconce.transform.position = sc.pos;
+                sconce.transform.rotation = sc.rot;
+
+                GameObject body = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                body.name = "Carcasa";
+                body.transform.SetParent(sconce.transform, false);
+                body.transform.localScale = new Vector3(0.46f, 0.08f, 0.08f);
+                body.GetComponent<Renderer>().sharedMaterial = matTrofferFrame;
+
+                GameObject strip = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                strip.name = "Tira_LED";
+                strip.transform.SetParent(sconce.transform, false);
+                strip.transform.localPosition = new Vector3(0f, -0.042f, -0.01f);
+                strip.transform.localScale = new Vector3(0.42f, 0.018f, 0.06f);
+                Renderer sr = strip.GetComponent<Renderer>();
+                sr.sharedMaterial = matTrofferGlow;
+                sr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            }
+
+            Debug.Log($"{LogPrefix} <color=#38F28A>Oficina cerrada con muros Este/Sur, techo arquitectonico, 12 luminarias LED y 6 apliques murales.</color>");
         }
 
         private static void BuildTransomSegment(Transform parent, string name, Vector3 centerPos, Vector3 size, Material panelMat, Material frameMat)
@@ -2158,7 +1970,13 @@ namespace AndesSim.Editor
             vel.z = new ParticleSystem.MinMaxCurve(0.01f);
 
             ParticleSystemRenderer rend = obj.GetComponent<ParticleSystemRenderer>();
-            rend.sharedMaterial = CreateColorMaterial("Mat_CyberMoteParticle", new Color(0.4f, 0.9f, 1f, 0.35f));
+            Shader moteShader = Shader.Find("Universal Render Pipeline/Particles/Unlit") ?? Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Standard");
+            Material moteMat = new Material(moteShader) { name = "Mat_CyberMoteParticle" };
+            Color moteCol = new Color(0.32f, 0.88f, 1f, 0.42f);
+            if (moteMat.HasProperty("_BaseColor")) moteMat.SetColor("_BaseColor", moteCol);
+            if (moteMat.HasProperty("_Color")) moteMat.SetColor("_Color", moteCol);
+            if (moteMat.HasProperty("_EmissionColor")) { moteMat.EnableKeyword("_EMISSION"); moteMat.SetColor("_EmissionColor", moteCol * 1.4f); }
+            rend.sharedMaterial = moteMat;
         }
 
         private static Material CreateColorMaterial(string name, Color color)

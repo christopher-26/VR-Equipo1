@@ -3,6 +3,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using AndesSim.Environment;
 using AndesSim.VR;
 
 namespace AndesSim.UI
@@ -180,8 +181,10 @@ namespace AndesSim.UI
             }
 
             // Fondo general del modal
-            GameObject bgObj = CreateUiPanel("Modal_Fondo", transform, Vector2.zero, new Vector2(960f, 650f), HexToColor(ColorDarkBg, 0.98f));
+            GameObject bgObj = CreateUiPanel("Modal_Fondo", transform, Vector2.zero, new Vector2(960f, 650f), AndesTypographyTheme.BgVoidNavy);
             AddUiBorder(bgObj, HexToColor(ColorGreenCode, 0.85f), 2.5f);
+            bgObj.AddComponent<HolographicPanelEntrance>().Configure(0.28f, 0.88f, 22f, null);
+            bgObj.AddComponent<HolographicFloatMotion>().Configure(9f, 0.78f, new Vector3(0.45f, 0.70f, 0.30f), 0f, 0f, true);
             modalRootPanel = bgObj;
 
             // Barra de Cabecera
@@ -201,6 +204,7 @@ namespace AndesSim.UI
 
             WorldSpaceUiGazeButton gazeClose = btnCloseObj.AddComponent<WorldSpaceUiGazeButton>();
             gazeClose.ConfigureAudio(audioSource, closeModalSound, null);
+            btnCloseObj.AddComponent<HolographicCardHover>().Configure(1.045f, 14f);
 
             // Bloque 1: Equipo 1 y Roles
             GameObject rolesPanel = CreateUiPanel("Panel_Roles", bgObj.transform, new Vector2(0f, 145f), new Vector2(910f, 140f), HexToColor(ColorCardBg, 0.90f));
@@ -234,6 +238,9 @@ namespace AndesSim.UI
 
             WorldSpaceUiGazeButton gazeReturn = btnReturnObj.AddComponent<WorldSpaceUiGazeButton>();
             gazeReturn.ConfigureAudio(audioSource, closeModalSound, null);
+            btnReturnObj.AddComponent<HolographicCardHover>().Configure(1.045f, 14f);
+
+            AndesTypographyTheme.ApplyTypographyToTree(transform, true, true);
         }
 
         #endregion
@@ -261,9 +268,13 @@ namespace AndesSim.UI
 
             PositionModalInFrontOfPlayer();
 
+            AndesTypographyTheme.ApplyTypographyToTree(transform, true, true);
+
             if (modalRootPanel != null)
             {
                 modalRootPanel.SetActive(true);
+                HolographicPanelEntrance ent = modalRootPanel.GetComponent<HolographicPanelEntrance>();
+                if (ent != null) ent.PlayEntrance();
             }
 
             PlaySound(openModalSound, GenerateOpenTone());

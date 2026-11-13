@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -237,7 +237,7 @@ namespace AndesSim.Scenario01
             // 1. Si el simulador está en Modo Ataque, cambiar automáticamente a Modo Defensa
             if (GameManager.I != null && GameManager.I.mode == SimMode.Ataque)
             {
-                Debug.LogWarning($"{LogPrefix} Activando contramedida en Modo Ataque -> Cambiando automáticamente a <b>SimMode.Defensa</b>.");
+                Debug.Log($"{LogPrefix} Activando contramedida en Modo Ataque -> Cambiando automáticamente a <b>SimMode.Defensa</b>.");
                 GameManager.I.SetMode(SimMode.Defensa);
             }
 

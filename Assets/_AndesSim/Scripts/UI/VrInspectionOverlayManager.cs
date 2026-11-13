@@ -1,11 +1,11 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using AndesSim.Core;
+using AndesSim.Environment;
 using AndesSim.Scenario01;
 using AndesSim.VR;
 
@@ -14,12 +14,8 @@ namespace AndesSim.UI
     /// <summary>
     /// Administrador del Sistema de Inspección y Zoom VR (RF-01 a RF-05).
     /// Simulación VR ANDES-SIM (BANCO ANDINO) - Escenario 1: "Oficina de pagos".
-    /// 
-    /// Permite al jugador ampliar a pantalla completa en World Space:
-    /// 1. El correo de Rasel Ahlam con sus 3 señales de phishing interactivas.
-    /// 2. El Post-It y libreta de credenciales bancarias de Carla Mendoza.
-    /// 3. La terminal de transferencias internacionales SWIFT ($951M).
-    /// 4. La consola SIEM con los logs de conexión hacia la IP 185.130.44.82.
+    /// Incluye entradas holográficas EaseOutBack, levitación sutil, tipografía centrada elegante (Inter + Roboto Bold),
+    /// barra animada de propagación del malware y navegación paso a paso con acceso directo al Menú VR.
     /// </summary>
     public class VrInspectionOverlayManager : MonoBehaviour
     {
@@ -45,22 +41,22 @@ namespace AndesSim.UI
 
         private const string LogPrefix = "[ANDES-SIM - InspectionOverlay]";
 
-        private static readonly Color DarkGlassBgColor = new Color(0.02f, 0.05f, 0.09f, 1.0f);
-        private static readonly Color CyanNeonAccent = new Color(0f, 0.95f, 1f, 1f);
-        private static readonly Color GreenSuccessColor = new Color(0.22f, 0.95f, 0.54f, 1f);
-        private static readonly Color WarningAmberColor = new Color(1f, 0.76f, 0.29f, 1f);
-        private static readonly Color DangerRedColor = new Color(1f, 0.35f, 0.31f, 1f);
+        private static readonly Color CyanNeonAccent = AndesTypographyTheme.AccentCyan;
+        private static readonly Color GreenSuccessColor = AndesTypographyTheme.AccentEmerald;
+        private static readonly Color WarningAmberColor = AndesTypographyTheme.AccentAmber;
+        private static readonly Color DangerRedColor = AndesTypographyTheme.AccentRed;
 
         [Header("--- Anclaje VR ---")]
         [SerializeField] private float distanceFromCamera = 1.32f;
         private int _emailSubPart = 0;
 
-
-
         // Raíz del Canvas de Inspección
         private GameObject _overlayRoot;
         private Canvas _overlayCanvas;
+        private CanvasGroup _overlayCanvasGroup;
         private RectTransform _mainPanelRect;
+        private HolographicPanelEntrance _panelEntrance;
+        private Image _topGlowBarImg;
         private Camera _targetCamera;
         private bool _isOpen = false;
 
@@ -103,9 +99,7 @@ namespace AndesSim.UI
                 if (_targetCamera == null) return;
             }
 
-            // El panel de inspección se mantiene ESTACIONARIO en el espacio 3D para permitir apuntar
-            // libremente la retícula VR hacia los botones sin que el panel se desplace con la cabeza.
-            // Si el jugador gira la cabeza más de 65 grados alejándose del panel, se cierra automáticamente.
+            // Si el usuario gira la cabeza completamente fuera del panel, cerrarlo automáticamente.
             Vector3 dirToPanel = (_overlayRoot.transform.position - _targetCamera.transform.position).normalized;
             float angle = Vector3.Angle(_targetCamera.transform.forward, dirToPanel);
             if (angle > 82f)
@@ -115,14 +109,14 @@ namespace AndesSim.UI
         }
 
         /// <summary>
-        /// Crea de forma procedural el Canvas World Space de inspección con estética de vidrio holográfico.
+        /// Crea de forma procedural el Canvas World Space de inspección con estética holográfica flotante.
         /// </summary>
         private void EnsureOverlayCanvas()
         {
             if (_overlayRoot != null) return;
 
             _overlayRoot = new GameObject("VrInspectionOverlayCanvas");
-            _overlayRoot.transform.SetParent(null); // Canvas independiente en World Space
+            _overlayRoot.transform.SetParent(null);
             _overlayRoot.layer = LayerMask.NameToLayer("Interactive");
 
             _overlayCanvas = _overlayRoot.AddComponent<Canvas>();
@@ -137,10 +131,9 @@ namespace AndesSim.UI
             _overlayRoot.AddComponent<GraphicRaycaster>();
 
             RectTransform canvasRect = _overlayRoot.GetComponent<RectTransform>();
-            canvasRect.sizeDelta = new Vector2(1000f, 750f);
+            canvasRect.sizeDelta = new Vector2(1020f, 760f);
             canvasRect.localScale = Vector3.one * 0.00192f;
 
-            // Panel Fondo Principal
             EnsureEventSystemExists();
 
             GameObject panelGO = new GameObject("InspectionFrame");
@@ -150,57 +143,69 @@ namespace AndesSim.UI
             _mainPanelRect.anchorMax = Vector2.one;
             _mainPanelRect.sizeDelta = Vector2.zero;
 
-            Image bgImage = panelGO.AddComponent<Image>();
-            bgImage.color = DarkGlassBgColor;
+            _overlayCanvasGroup = panelGO.AddComponent<CanvasGroup>();
+            _panelEntrance = panelGO.AddComponent<HolographicPanelEntrance>();
+            _panelEntrance.Configure(0.28f, 0.87f, 24f, _overlayCanvasGroup);
 
-            // Borde estético superior
+            HolographicFloatMotion panelFloat = panelGO.AddComponent<HolographicFloatMotion>();
+            panelFloat.Configure(11f, 0.85f, new Vector3(0.55f, 0.85f, 0.35f), 0f, 0f, true);
+
+            Image bgImage = panelGO.AddComponent<Image>();
+            bgImage.color = AndesTypographyTheme.BgVoidNavy;
+
+            // Barra luminosa superior e inferior
             GameObject topBar = new GameObject("TopGlowBar");
             topBar.transform.SetParent(panelGO.transform, false);
             RectTransform topBarRect = topBar.AddComponent<RectTransform>();
             topBarRect.anchorMin = new Vector2(0f, 1f);
             topBarRect.anchorMax = new Vector2(1f, 1f);
             topBarRect.anchoredPosition = new Vector2(0f, -4f);
-            topBarRect.sizeDelta = new Vector2(0f, 6f);
-            Image topBarImg = topBar.AddComponent<Image>();
-            topBarImg.color = CyanNeonAccent;
+            topBarRect.sizeDelta = new Vector2(0f, 7f);
+            _topGlowBarImg = topBar.AddComponent<Image>();
+            _topGlowBarImg.color = CyanNeonAccent;
 
-            // Título Principal
+            // Botón Superior Izquierdo: VOLVER AL MENÚ VR
+            CreateInspectionButton(
+                "Btn_ReturnMenuTopLeft", panelGO.transform,
+                new Vector2(-416f, 326f), new Vector2(138f, 40f),
+                "MENU VR",
+                new Color(0.09f, 0.21f, 0.34f, 0.96f),
+                CyanNeonAccent,
+                NavigateToMainMenu
+            );
+
+            // Título Principal Centrado
             GameObject titleGO = new GameObject("HeaderTitle");
             titleGO.transform.SetParent(panelGO.transform, false);
             RectTransform titleRect = titleGO.AddComponent<RectTransform>();
-            titleRect.anchoredPosition = new Vector2(0f, 320f);
-            titleRect.sizeDelta = new Vector2(920f, 45f);
+            titleRect.anchoredPosition = new Vector2(0f, 322f);
+            titleRect.sizeDelta = new Vector2(670f, 44f);
             _headerTitleText = titleGO.AddComponent<TextMeshProUGUI>();
-            _headerTitleText.fontSize = 26f;
-            _headerTitleText.alignment = TextAlignmentOptions.Center;
-            _headerTitleText.color = CyanNeonAccent;
-            _headerTitleText.fontStyle = FontStyles.Bold;
+            AndesTypographyTheme.StyleDisplayTitle(_headerTitleText, CyanNeonAccent, 25f);
 
-            // Subtítulo
+            // Subtítulo Centrado
             GameObject subGO = new GameObject("SubTitle");
             subGO.transform.SetParent(panelGO.transform, false);
             RectTransform subRect = subGO.AddComponent<RectTransform>();
-            subRect.anchoredPosition = new Vector2(0f, 280f);
-            subRect.sizeDelta = new Vector2(920f, 36f);
+            subRect.anchoredPosition = new Vector2(0f, 282f);
+            subRect.sizeDelta = new Vector2(880f, 36f);
             _subTitleText = subGO.AddComponent<TextMeshProUGUI>();
-            _subTitleText.fontSize = 18f;
-            _subTitleText.alignment = TextAlignmentOptions.Center;
-            _subTitleText.color = new Color(0.8f, 0.88f, 0.95f, 0.9f);
+            AndesTypographyTheme.StyleBodyCentered(_subTitleText, AndesTypographyTheme.TextMuted, 17.5f, 6f);
 
-            // Contenedor de Contenido
+            // Contenedor Dinámico Central
             GameObject contentGO = new GameObject("DynamicContentContainer");
             contentGO.transform.SetParent(panelGO.transform, false);
             RectTransform contentRect = contentGO.AddComponent<RectTransform>();
-            contentRect.anchoredPosition = new Vector2(0f, -10f);
-            contentRect.sizeDelta = new Vector2(920f, 520f);
+            contentRect.anchoredPosition = new Vector2(0f, -8f);
+            contentRect.sizeDelta = new Vector2(930f, 520f);
             _contentContainer = contentGO.transform;
 
-            // Botón Superior Derecho: CERRAR INMEDIATO (X)
+            // Botón Superior Derecho: CERRAR INMEDIATO
             CreateInspectionButton(
                 "Btn_CerrarTopRight", panelGO.transform,
-                new Vector2(430f, 325f), new Vector2(90f, 36f),
-                "<b>[ X ]</b>",
-                new Color(0.35f, 0.12f, 0.15f, 0.95f),
+                new Vector2(436f, 326f), new Vector2(98f, 40f),
+                "X",
+                new Color(0.36f, 0.12f, 0.15f, 0.96f),
                 Color.white,
                 CloseOverlay
             );
@@ -208,41 +213,41 @@ namespace AndesSim.UI
             // Barra Persistente Guiada (Paso a Paso en VR)
             CreateInspectionButton(
                 "Btn_NavCorreo", panelGO.transform,
-                new Vector2(-368f, -325f), new Vector2(174f, 52f),
-                "<b>1. CORREO</b>",
+                new Vector2(-374f, -328f), new Vector2(174f, 52f),
+                "1. CORREO",
                 new Color(0.08f, 0.22f, 0.36f, 0.96f),
                 Color.white,
                 () => OpenEmailInspection(0)
             );
             CreateInspectionButton(
                 "Btn_NavPostIt", panelGO.transform,
-                new Vector2(-184f, -325f), new Vector2(174f, 52f),
-                "<b>2. POST-IT</b>",
+                new Vector2(-187f, -328f), new Vector2(174f, 52f),
+                "2. POST-IT",
                 new Color(0.08f, 0.22f, 0.36f, 0.96f),
                 Color.white,
                 OpenCredentialsInspection
             );
             CreateInspectionButton(
                 "Btn_NavSiem", panelGO.transform,
-                new Vector2(0f, -325f), new Vector2(174f, 52f),
-                "<b>3. SIEM</b>",
+                new Vector2(0f, -328f), new Vector2(174f, 52f),
+                "3. SIEM",
                 new Color(0.08f, 0.22f, 0.36f, 0.96f),
                 Color.white,
                 OpenSiemLogInspection
             );
             CreateInspectionButton(
                 "Btn_NavTablero", panelGO.transform,
-                new Vector2(186f, -325f), new Vector2(186f, 52f),
-                "<b>4. TABLERO ></b>",
+                new Vector2(190f, -328f), new Vector2(188f, 52f),
+                "4. TABLERO >",
                 new Color(0.08f, 0.32f, 0.24f, 0.96f),
                 GreenSuccessColor,
                 NavigateToSuspectBoardOrDefense
             );
             CreateInspectionButton(
                 "Btn_CerrarInspeccion", panelGO.transform,
-                new Vector2(378f, -325f), new Vector2(160f, 52f),
-                "<b>[ X ] SALIR</b>",
-                new Color(0.35f, 0.14f, 0.16f, 0.96f),
+                new Vector2(382f, -328f), new Vector2(162f, 52f),
+                "X SALIR",
+                new Color(0.36f, 0.14f, 0.16f, 0.96f),
                 Color.white,
                 CloseOverlay
             );
@@ -251,29 +256,41 @@ namespace AndesSim.UI
             Debug.Log($"{LogPrefix} Canvas de Inspección VR inicializado con éxito.");
         }
 
+        private void SetHeaderTheme(Color accentColor, string title, string subtitle)
+        {
+            if (_topGlowBarImg != null) _topGlowBarImg.color = accentColor;
+            if (_headerTitleText != null)
+            {
+                _headerTitleText.text = title;
+                AndesTypographyTheme.StyleDisplayTitle(_headerTitleText, accentColor, 25f);
+            }
+            if (_subTitleText != null)
+            {
+                _subTitleText.text = subtitle;
+                AndesTypographyTheme.StyleBodyCentered(_subTitleText, AndesTypographyTheme.TextMuted, 17.5f, 6f);
+            }
+        }
+
         #region Vistas de Inspección Oficiales
 
-        /// <summary>
-        /// RF-02 y RF-03: Abre el correo de Rasel Ahlam en vista ampliada con las 3 señales resaltadas.
-        /// </summary>
         public void OpenEmailInspection()
         {
             OpenEmailInspection(0);
         }
 
-        /// <summary>
-        /// RF-02 y RF-03: Vista guiada en 2 partes (1ra Parte: Leer correo, 2da Parte: Marcar 3 pistas y decidir).
-        /// </summary>
         public void OpenEmailInspection(int subPart)
         {
             _emailSubPart = Mathf.Clamp(subPart, 0, 1);
             EnsureOverlayCanvas();
             ClearActiveContent();
 
-            _headerTitleText.text = "<b>PC 1 - CORREO DE PHISHING</b>";
-            _subTitleText.text = _emailSubPart == 0
-                ? "1ra Parte: Lee el correo sospechoso"
-                : "2da Parte: Marca las 3 pistas y decide tu accion";
+            SetHeaderTheme(
+                _emailSubPart == 0 ? CyanNeonAccent : WarningAmberColor,
+                "PC 1 · CORREO DE PHISHING",
+                _emailSubPart == 0
+                    ? "1ra Parte: Analiza el mensaje recibido por Carla Mendoza"
+                    : "2da Parte: Marca las 3 señales y decide tu acción"
+            );
 
             GameObject emailPanel = new GameObject("EmailContentPanel");
             emailPanel.transform.SetParent(_contentContainer, false);
@@ -282,14 +299,13 @@ namespace AndesSim.UI
             eRect.anchorMax = Vector2.one;
             eRect.sizeDelta = Vector2.zero;
 
-            // Selector superior: 1ra Parte vs 2da Parte
-            Color part1Bg = _emailSubPart == 0 ? new Color(0.08f, 0.34f, 0.44f, 0.98f) : new Color(0.10f, 0.15f, 0.22f, 0.92f);
-            Color part2Bg = _emailSubPart == 1 ? new Color(0.38f, 0.26f, 0.08f, 0.98f) : new Color(0.10f, 0.15f, 0.22f, 0.92f);
+            Color part1Bg = _emailSubPart == 0 ? new Color(0.08f, 0.34f, 0.45f, 0.98f) : AndesTypographyTheme.BgCardGlass;
+            Color part2Bg = _emailSubPart == 1 ? new Color(0.38f, 0.25f, 0.08f, 0.98f) : AndesTypographyTheme.BgCardGlass;
 
             CreateInspectionButton(
                 "Btn_TabParte1", emailPanel.transform,
                 new Vector2(-230f, 215f), new Vector2(435f, 48f),
-                "<b>1RA PARTE: LEER CORREO</b>",
+                "1RA PARTE: LEER CORREO",
                 part1Bg, _emailSubPart == 0 ? CyanNeonAccent : Color.white,
                 () => OpenEmailInspection(0)
             );
@@ -297,33 +313,27 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_TabParte2", emailPanel.transform,
                 new Vector2(230f, 215f), new Vector2(435f, 48f),
-                "<b>2DA PARTE: PISTAS Y DECIDIR</b>",
+                "2DA PARTE: PISTAS Y DECIDIR",
                 part2Bg, _emailSubPart == 1 ? WarningAmberColor : Color.white,
                 () => OpenEmailInspection(1)
             );
 
             if (_emailSubPart == 0)
             {
-                GameObject bodyBox = new GameObject("EmailReadCard");
-                bodyBox.transform.SetParent(emailPanel.transform, false);
-                RectTransform bbRect = bodyBox.AddComponent<RectTransform>();
-                bbRect.anchoredPosition = new Vector2(0f, 35f);
-                bbRect.sizeDelta = new Vector2(880f, 260f);
-                Image bodyBg = bodyBox.AddComponent<Image>();
-                bodyBg.color = new Color(0.07f, 0.11f, 0.17f, 0.96f);
+                GameObject bodyBox = CreateStyledCard("EmailReadCard", emailPanel.transform, new Vector2(0f, 35f), new Vector2(880f, 260f), AndesTypographyTheme.BgCardGlass, CyanNeonAccent);
 
-                CreateLabel("Txt_MailLines", bodyBox.transform, Vector2.zero, new Vector2(830f, 225f),
-                    "<b>De:</b> rasel.ahlam@<color=#FFC24A>career-applicants-bd.com</color>\n" +
-                    "<b>Asunto:</b> <color=#FF5A4E>URGENTE: CV Especialista SWIFT</color>\n\n" +
-                    "<i>'Carla: adjunto mi CV urgente para pagos.'</i>\n\n" +
-                    "<b>Adjunto:</b> <color=#00F2FE>http://185.130.44.82/CV_2015.scr.zip</color>",
-                    20.5f, TextAlignmentOptions.MidlineLeft, Color.white);
+                CreateLabel("Txt_MailLines", bodyBox.transform, Vector2.zero, new Vector2(820f, 220f),
+                    "<b>De:</b> rasel.ahlam@<color=#FFA940>career-applicants-bd.com</color>\n" +
+                    "<b>Asunto:</b> <color=#FF5A4E>URGENTE · CV Especialista SWIFT</color>\n\n" +
+                    "<i>\"Carla: adjunto mi CV urgente para el área de pagos.\"</i>\n\n" +
+                    "<b>Adjunto:</b> <color=#00E5FF>http://185.130.44.82/CV_2015.scr.zip</color>",
+                    20f, TextAlignmentOptions.Center, AndesTypographyTheme.TextPrimary);
 
                 CreateInspectionButton(
                     "Btn_NextToPart2", emailPanel.transform,
                     new Vector2(-225f, -165f), new Vector2(420f, 68f),
-                    "<b>VER 2DA PARTE: 3 PISTAS ></b>",
-                    new Color(0.10f, 0.34f, 0.42f, 0.98f),
+                    "VER 2DA PARTE: 3 PISTAS >",
+                    new Color(0.10f, 0.34f, 0.44f, 0.98f),
                     CyanNeonAccent,
                     () => OpenEmailInspection(1)
                 );
@@ -331,8 +341,8 @@ namespace AndesSim.UI
                 CreateInspectionButton(
                     "Btn_QuickOpenLink", emailPanel.transform,
                     new Vector2(225f, -165f), new Vector2(420f, 68f),
-                    "<b><color=#FF5A4E>ABRIR ENLACE (ATAQUE)</color></b>",
-                    new Color(0.48f, 0.12f, 0.12f, 0.98f),
+                    "ABRIR ENLACE (ATAQUE)",
+                    new Color(0.48f, 0.12f, 0.14f, 0.98f),
                     Color.white,
                     TriggerAttackInfectionSequence
                 );
@@ -340,26 +350,26 @@ namespace AndesSim.UI
             else
             {
                 CreateLabel("Lbl_StepHint", emailPanel.transform, new Vector2(0f, 155f), new Vector2(880f, 38f),
-                    "Mira las 3 senales para marcarlas y luego elige:",
-                    19.5f, TextAlignmentOptions.Center, Color.white);
+                    "Apunta a cada señal sospechosa y elige qué hacer con el correo:",
+                    19f, TextAlignmentOptions.Center, AndesTypographyTheme.TextPrimary);
 
                 CreateSignalButton("Btn_Signal1", emailPanel.transform, new Vector2(-300f, 70f), new Vector2(285f, 108f),
-                    "<b>1. DOMINIO FALSO</b>\n<size=15><color=#FFC24A>@career-applicants</color></size>",
+                    "<b>1. DOMINIO FALSO</b>\n<size=15><color=#FFA940>@career-applicants</color></size>",
                     PhishingInspector.SignalRemitenteId);
 
                 CreateSignalButton("Btn_Signal2", emailPanel.transform, new Vector2(0f, 70f), new Vector2(285f, 108f),
-                    "<b>2. URGENCIA</b>\n<size=15><color=#FFC24A>Presion inmediata</color></size>",
+                    "<b>2. URGENCIA</b>\n<size=15><color=#FFA940>Presión inmediata</color></size>",
                     PhishingInspector.SignalUrgenciaId);
 
                 CreateSignalButton("Btn_Signal3", emailPanel.transform, new Vector2(300f, 70f), new Vector2(285f, 108f),
-                    "<b>3. ARCHIVO .SCR</b>\n<size=15><color=#FFC24A>IP 185.130.44.82</color></size>",
+                    "<b>3. ARCHIVO .SCR</b>\n<size=15><color=#FFA940>IP 185.130.44.82</color></size>",
                     PhishingInspector.SignalEnlaceId);
 
                 CreateInspectionButton(
                     "Btn_AttackOpenLink", emailPanel.transform,
                     new Vector2(-225f, -55f), new Vector2(420f, 74f),
-                    "<b><color=#FF5A4E>[ ! ] ABRIR ENLACE (ATAQUE)</color></b>\n<size=14>Ver propagacion del virus</size>",
-                    new Color(0.48f, 0.12f, 0.12f, 0.98f),
+                    "<color=#FF5A4E>[ ! ] ABRIR ENLACE (ATAQUE)</color>\n<size=14><color=#F4F9FF>Ver propagación 3D del virus</color></size>",
+                    new Color(0.48f, 0.12f, 0.14f, 0.98f),
                     Color.white,
                     TriggerAttackInfectionSequence
                 );
@@ -367,8 +377,8 @@ namespace AndesSim.UI
                 CreateInspectionButton(
                     "Btn_DefenseReport", emailPanel.transform,
                     new Vector2(225f, -55f), new Vector2(420f, 74f),
-                    "<b><color=#38F28A>[ + ] AISLAR SANDBOX (DEFENSA)</color></b>\n<size=14>Bloquear amenaza</size>",
-                    new Color(0.08f, 0.34f, 0.18f, 0.98f),
+                    "<color=#38F28A>[ + ] AISLAR SANDBOX (DEFENSA)</color>\n<size=14><color=#F4F9FF>Bloquear y activar escudos</color></size>",
+                    new Color(0.08f, 0.34f, 0.20f, 0.98f),
                     Color.white,
                     () =>
                     {
@@ -387,8 +397,8 @@ namespace AndesSim.UI
                 CreateInspectionButton(
                     "Btn_NextStepPostIt", emailPanel.transform,
                     new Vector2(0f, -165f), new Vector2(520f, 58f),
-                    "<b>SIGUIENTE PASO: VER POST-IT (PC 1) ></b>",
-                    new Color(0.14f, 0.24f, 0.38f, 0.96f),
+                    "SIGUIENTE PASO: VER POST-IT (PC 1) >",
+                    new Color(0.13f, 0.25f, 0.40f, 0.96f),
                     CyanNeonAccent,
                     OpenCredentialsInspection
                 );
@@ -399,21 +409,21 @@ namespace AndesSim.UI
             AndesSim.Audio.AudioManager.I?.PlayNarration(_emailSubPart == 0 ? "Voice_06_CorreoParte1" : "Voice_07_CorreoParte2", true, 2.0f);
         }
 
-        /// <summary>
-        /// MODO DEFENSA (RF-04): El correo es bloqueado por el filtro Sandbox.
-        /// </summary>
         public void OpenQuarantineInspection()
         {
             EnsureOverlayCanvas();
             ClearActiveContent();
 
-            if (AndesSim.Scenario01.InfectionSpreadVisualizer.I != null)
+            if (InfectionSpreadVisualizer.I != null)
             {
-                AndesSim.Scenario01.InfectionSpreadVisualizer.I.ShowDefenseContainmentSign();
+                InfectionSpreadVisualizer.I.ShowDefenseContainmentSign();
             }
 
-            _headerTitleText.text = "<b><color=#38F28A>CORREO EN CUARENTENA (SANDBOX)</color></b>";
-            _subTitleText.text = "Amenaza detenida antes de infectar la red";
+            SetHeaderTheme(
+                GreenSuccessColor,
+                "CORREO EN CUARENTENA · SANDBOX",
+                "Amenaza detenida antes de infectar la red bancaria"
+            );
 
             GameObject qPanel = new GameObject("QuarantineContentPanel");
             qPanel.transform.SetParent(_contentContainer, false);
@@ -422,28 +432,23 @@ namespace AndesSim.UI
             qRect.anchorMax = Vector2.one;
             qRect.sizeDelta = Vector2.zero;
 
-            GameObject boxGO = new GameObject("SandboxLogBox");
-            boxGO.transform.SetParent(qPanel.transform, false);
-            RectTransform boxRect = boxGO.AddComponent<RectTransform>();
-            boxRect.anchoredPosition = new Vector2(0f, 35f);
-            boxRect.sizeDelta = new Vector2(880f, 300f);
-            Image boxBg = boxGO.AddComponent<Image>();
-            boxBg.color = new Color(0.04f, 0.09f, 0.12f, 0.98f);
+            GameObject boxGO = CreateStyledCard("SandboxLogBox", qPanel.transform, new Vector2(0f, 35f), new Vector2(880f, 300f),
+                new Color(0.03f, 0.11f, 0.11f, 0.98f), GreenSuccessColor);
 
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("<b><color=#38F28A>REPORTE DE CONTENCION:</color></b>\n");
-            sb.AppendLine("- Sandbox: Adjunto .scr.zip aislado sin ejecutarse.");
-            sb.AppendLine("- Remitente: Dominio externo falso bloqueado.");
-            sb.AppendLine("- Firewall: IP atacante 185.130.44.82 cortada.\n");
-            sb.AppendLine("<color=#38F28A><b>[OK] 100% CONTENIDO - CERO PERDIDAS</b></color>");
+            sb.AppendLine("<b><color=#38F28A>REPORTE DE CONTENCIÓN EN TIEMPO REAL</color></b>\n");
+            sb.AppendLine("· <b>Sandbox Cuckoo:</b> Adjunto <i>.scr.zip</i> aislado sin ejecución.");
+            sb.AppendLine("· <b>Filtro Correo:</b> Dominio falso externo bloqueado.");
+            sb.AppendLine("· <b>Firewall SOC:</b> Salida hacia IP 185.130.44.82 cerrada.\n");
+            sb.AppendLine("<color=#38F28A><b>[OK] 100% CONTENIDO · US$ 0 ROBADOS</b></color>");
 
-            CreateLabel("Txt_QuarantineLog", boxGO.transform, Vector2.zero, new Vector2(830f, 260f),
-                sb.ToString(), 20.5f, TextAlignmentOptions.MidlineLeft, Color.white);
+            CreateLabel("Txt_QuarantineLog", boxGO.transform, Vector2.zero, new Vector2(820f, 260f),
+                sb.ToString(), 20f, TextAlignmentOptions.Center, Color.white);
 
             CreateInspectionButton(
                 "Btn_GoDefenseConsole", qPanel.transform,
                 new Vector2(-305f, -175f), new Vector2(280f, 62f),
-                "<b>IR A CONSOLA DEFENSA ></b>",
+                "IR A CONSOLA DEFENSA >",
                 new Color(0.08f, 0.28f, 0.36f, 0.98f),
                 CyanNeonAccent,
                 NavigateToDefenseConsole
@@ -452,9 +457,9 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_ConfirmDefense", qPanel.transform,
                 new Vector2(0f, -175f), new Vector2(290f, 62f),
-                "<b><color=#38F28A>FINALIZAR CON EXITO</color></b>",
-                new Color(0.08f, 0.35f, 0.18f, 0.98f),
-                Color.white,
+                "FINALIZAR CON EXITO",
+                new Color(0.08f, 0.35f, 0.19f, 0.98f),
+                GreenSuccessColor,
                 () =>
                 {
                     CloseOverlay();
@@ -475,8 +480,8 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_NextSiemDefense", qPanel.transform,
                 new Vector2(305f, -175f), new Vector2(260f, 62f),
-                "<b>VER SIEM (PC 3) ></b>",
-                new Color(0.16f, 0.22f, 0.34f, 0.98f),
+                "VER SIEM (PC 3) >",
+                new Color(0.15f, 0.22f, 0.35f, 0.98f),
                 Color.white,
                 OpenSiemLogInspection
             );
@@ -486,9 +491,6 @@ namespace AndesSim.UI
             AndesSim.Audio.AudioManager.I?.PlayNarration("Voice_12_CuarentenaSandbox", true, 2.0f);
         }
 
-        /// <summary>
-        /// MODO ATAQUE (RF-04): Propaga la infeccion y muestra el resultado.
-        /// </summary>
         public void TriggerAttackInfectionSequence()
         {
             if (AndesSim.Audio.AudioManager.I != null)
@@ -516,8 +518,11 @@ namespace AndesSim.UI
             EnsureOverlayCanvas();
             ClearActiveContent();
 
-            _headerTitleText.text = "<b><color=#FF3834>[ ! ] MALWARE EN EJECUCION</color></b>";
-            _subTitleText.text = "El dropper .scr se propaga por toda la red";
+            SetHeaderTheme(
+                DangerRedColor,
+                "[ ! ] MALWARE LAZARUS EN EJECUCION",
+                "Propagación en vivo por la red corporativa del banco"
+            );
 
             GameObject infectPanel = new GameObject("InfectionContentPanel");
             infectPanel.transform.SetParent(_contentContainer, false);
@@ -526,47 +531,109 @@ namespace AndesSim.UI
             iRect.anchorMax = Vector2.one;
             iRect.sizeDelta = Vector2.zero;
 
-            GameObject terminalBox = new GameObject("InfectionTerminalBox");
-            terminalBox.transform.SetParent(infectPanel.transform, false);
-            RectTransform tRect = terminalBox.AddComponent<RectTransform>();
-            tRect.anchoredPosition = new Vector2(0f, 20f);
-            tRect.sizeDelta = new Vector2(880f, 300f);
-            Image tBg = terminalBox.AddComponent<Image>();
-            tBg.color = new Color(0.20f, 0.03f, 0.03f, 0.98f);
+            GameObject terminalBox = CreateStyledCard("InfectionTerminalBox", infectPanel.transform, new Vector2(0f, 38f), new Vector2(880f, 270f),
+                new Color(0.16f, 0.03f, 0.04f, 0.98f), DangerRedColor);
+            Image tBg = terminalBox.GetComponent<Image>();
 
-            CreateLabel("Txt_InfectionTrace", terminalBox.transform, Vector2.zero, new Vector2(830f, 260f),
-                "<color=#FF5A4E><b>1/3 Descargando CV_2015.scr...</b></color>",
-                21f, TextAlignmentOptions.MidlineLeft, Color.white);
+            CreateLabel("Txt_InfectionTrace", terminalBox.transform, new Vector2(0f, 24f), new Vector2(820f, 175f),
+                "<color=#FF5A4E><b>FASE 1/3 · DESCARGA EN CURSO</b></color>\n<size=17>Ejecutando Rasel_Ahlam_CV_2015.scr en PC-PAGOS-01...</size>",
+                22f, TextAlignmentOptions.Center, Color.white);
+            TextMeshProUGUI traceTmp = terminalBox.transform.Find("Txt_InfectionTrace")?.GetComponent<TextMeshProUGUI>();
 
-            GameObject textObj = terminalBox.transform.Find("Txt_InfectionTrace")?.gameObject;
-            TextMeshProUGUI traceTmp = textObj != null ? textObj.GetComponent<TextMeshProUGUI>() : null;
+            // Barra animada de infección
+            GameObject barBgObj = new GameObject("InfectionProgressBg");
+            barBgObj.transform.SetParent(terminalBox.transform, false);
+            RectTransform barBgRect = barBgObj.AddComponent<RectTransform>();
+            barBgRect.anchoredPosition = new Vector2(0f, -88f);
+            barBgRect.sizeDelta = new Vector2(760f, 24f);
+            Image barBgImg = barBgObj.AddComponent<Image>();
+            barBgImg.color = new Color(0.06f, 0.02f, 0.02f, 0.96f);
+
+            GameObject barFillObj = new GameObject("InfectionProgressFill");
+            barFillObj.transform.SetParent(barBgObj.transform, false);
+            RectTransform fillRect = barFillObj.AddComponent<RectTransform>();
+            fillRect.anchorMin = new Vector2(0f, 0f);
+            fillRect.anchorMax = new Vector2(0f, 1f);
+            fillRect.pivot = new Vector2(0f, 0.5f);
+            fillRect.anchoredPosition = Vector2.zero;
+            fillRect.sizeDelta = new Vector2(0f, 0f);
+            Image fillImg = barFillObj.AddComponent<Image>();
+            fillImg.color = DangerRedColor;
+
+            // 3 Pills inferiores de estado por PC
+            GameObject pill1 = CreateStyledCard("Pill_PC1", infectPanel.transform, new Vector2(-285f, -155f), new Vector2(268f, 64f), AndesTypographyTheme.BgCardGlass, WarningAmberColor);
+            CreateLabel("Txt_Pill1", pill1.transform, Vector2.zero, new Vector2(246f, 52f), "<b>PC-1 CARLA</b>\n<color=#FF5A4E>Infectando...</color>", 15.5f, TextAlignmentOptions.Center, Color.white);
+
+            GameObject pill2 = CreateStyledCard("Pill_PC2", infectPanel.transform, new Vector2(0f, -155f), new Vector2(268f, 64f), AndesTypographyTheme.BgCardGlass, AndesTypographyTheme.TextMuted);
+            CreateLabel("Txt_Pill2", pill2.transform, Vector2.zero, new Vector2(246f, 52f), "<b>PC-2 SWIFT</b>\nEn espera", 15.5f, TextAlignmentOptions.Center, AndesTypographyTheme.TextMuted);
+
+            GameObject pill3 = CreateStyledCard("Pill_PC3", infectPanel.transform, new Vector2(285f, -155f), new Vector2(268f, 64f), AndesTypographyTheme.BgCardGlass, AndesTypographyTheme.TextMuted);
+            CreateLabel("Txt_Pill3", pill3.transform, Vector2.zero, new Vector2(246f, 52f), "<b>PC-3 SIEM</b>\nEn espera", 15.5f, TextAlignmentOptions.Center, AndesTypographyTheme.TextMuted);
+
+            TextMeshProUGUI p1Tmp = pill1.transform.Find("Txt_Pill1")?.GetComponent<TextMeshProUGUI>();
+            TextMeshProUGUI p2Tmp = pill2.transform.Find("Txt_Pill2")?.GetComponent<TextMeshProUGUI>();
+            TextMeshProUGUI p3Tmp = pill3.transform.Find("Txt_Pill3")?.GetComponent<TextMeshProUGUI>();
 
             _activeContentPanel = infectPanel;
             ShowOverlay();
 
-            yield return new WaitForSeconds(1.1f);
-            if (traceTmp != null)
-            {
-                traceTmp.text =
-                    "<color=#FF5A4E><b>1/3 [OK] Descarga completa (.scr)</b></color>\n\n" +
-                    "<color=#FF3834><b>2/3 Backdoor conectado a IP 185.130.44.82</b></color>";
-            }
-            tBg.color = new Color(0.28f, 0.03f, 0.03f, 0.98f);
-            yield return new WaitForSeconds(1.2f);
+            const float animDuration = 3.7f;
+            float elapsed = 0f;
+            int stage = 0;
 
-            if (traceTmp != null)
+            while (elapsed < animDuration)
             {
-                traceTmp.text =
-                    "<color=#FF5A4E><b>1/3 [OK] Descarga completa (.scr)</b></color>\n\n" +
-                    "<color=#FF3834><b>2/3 [OK] Backdoor conectado a C2</b></color>\n\n" +
-                    "<color=#FFC24A><b>3/3 Salto a PC 2 (SWIFT) y PC 3 (SIEM)...</b></color>";
+                elapsed += Time.unscaledDeltaTime;
+                float u = Mathf.Clamp01(elapsed / animDuration);
+                fillRect.sizeDelta = new Vector2(760f * u, 0f);
+                fillImg.color = Color.Lerp(WarningAmberColor, DangerRedColor, u);
+
+                float pulse = 0.85f + 0.15f * Mathf.Sin(Time.unscaledTime * 10f);
+                tBg.color = new Color(0.20f * pulse, 0.03f, 0.04f, 0.98f);
+
+                if (stage == 0 && u >= 0.30f)
+                {
+                    stage = 1;
+                    if (traceTmp != null)
+                    {
+                        traceTmp.text =
+                            "<color=#38F28A>1/3 [LISTO] Dropper svchost_upd.exe oculto</color>\n\n" +
+                            "<color=#FF5A4E><b>2/3 CONECTANDO CON C2 185.130.44.82...</b></color>";
+                    }
+                    if (p1Tmp != null) p1Tmp.text = "<b>PC-1 CARLA</b>\n<color=#FF3834><b>COMPROMETIDA</b></color>";
+                    if (p2Tmp != null)
+                    {
+                        p2Tmp.color = Color.white;
+                        p2Tmp.text = "<b>PC-2 SWIFT</b>\n<color=#FFA940>Recibiendo salto...</color>";
+                    }
+                }
+                else if (stage == 1 && u >= 0.65f)
+                {
+                    stage = 2;
+                    if (traceTmp != null)
+                    {
+                        traceTmp.text =
+                            "<color=#38F28A>1/3 [LISTO] Dropper activo</color>  |  <color=#38F28A>2/3 [LISTO] Túnel C2</color>\n\n" +
+                            "<color=#FFA940><b>3/3 EXFILTRANDO HACIA MÓDULO SWIFT Y SIEM...</b></color>";
+                    }
+                    if (p2Tmp != null) p2Tmp.text = "<b>PC-2 SWIFT</b>\n<color=#FF3834><b>COMPROMETIDA</b></color>";
+                    if (p3Tmp != null)
+                    {
+                        p3Tmp.color = Color.white;
+                        p3Tmp.text = "<b>PC-3 SIEM</b>\n<color=#FF3834><b>ALERTA SILENCIADA</b></color>";
+                    }
+                }
+
+                yield return null;
             }
-            yield return new WaitForSeconds(1.4f);
 
             ClearActiveContent();
 
-            _headerTitleText.text = "<b><color=#FF3834>ROBO CONSUMADO: $81M TRANSFERIDOS</color></b>";
-            _subTitleText.text = "Red plana sin VLAN ni MFA permitio el ataque";
+            SetHeaderTheme(
+                DangerRedColor,
+                "ROBO CONSUMADO · US$ 81M TRANSFERIDOS",
+                "Red plana sin segmentación ni MFA permitió el ataque"
+            );
 
             GameObject robPanel = new GameObject("RobberyResultPanel");
             robPanel.transform.SetParent(_contentContainer, false);
@@ -575,28 +642,23 @@ namespace AndesSim.UI
             rRect.anchorMax = Vector2.one;
             rRect.sizeDelta = Vector2.zero;
 
-            GameObject rBox = new GameObject("RobberyBox");
-            rBox.transform.SetParent(robPanel.transform, false);
-            RectTransform rbRect = rBox.AddComponent<RectTransform>();
-            rbRect.anchoredPosition = new Vector2(0f, 35f);
-            rbRect.sizeDelta = new Vector2(880f, 300f);
-            Image rbBg = rBox.AddComponent<Image>();
-            rbBg.color = new Color(0.10f, 0.02f, 0.02f, 0.98f);
+            GameObject rBox = CreateStyledCard("RobberyBox", robPanel.transform, new Vector2(0f, 35f), new Vector2(880f, 300f),
+                new Color(0.11f, 0.02f, 0.03f, 0.98f), DangerRedColor);
 
             StringBuilder rsb = new StringBuilder();
-            rsb.AppendLine("<color=#FF3834><b>- ROBADO:</b> US$ 81,000,000 (lavado en Filipinas)</color>");
-            rsb.AppendLine("- RETENIDO: US$ 870,000,000 (frenado por error)");
-            rsb.AppendLine("- ENTRADA: Phishing .scr.zip en PC 1");
-            rsb.AppendLine("<color=#FFC24A><b>- CAUSA: Sin Sandbox, sin VLAN, sin MFA</b></color>");
+            rsb.AppendLine("<color=#FF3834><b>· ROBADO: US$ 81,000,000</b></color> (desviados a Filipinas)");
+            rsb.AppendLine("· <b>RETENIDO:</b> US$ 870,000,000 (bloqueados por error tipográfico)");
+            rsb.AppendLine("· <b>ENTRADA:</b> Phishing <i>.scr.zip</i> ejecutado en PC 1");
+            rsb.AppendLine("<color=#FFA940><b>· CAUSA RAÍZ:</b> Sin Sandbox, sin VLAN, sin MFA</color>");
 
-            CreateLabel("Txt_RobberySummary", rBox.transform, Vector2.zero, new Vector2(830f, 260f),
-                rsb.ToString(), 20.5f, TextAlignmentOptions.MidlineLeft, Color.white);
+            CreateLabel("Txt_RobberySummary", rBox.transform, Vector2.zero, new Vector2(820f, 250f),
+                rsb.ToString(), 20f, TextAlignmentOptions.Center, Color.white);
 
             CreateInspectionButton(
                 "Btn_GoBoardAfterAttack", robPanel.transform,
                 new Vector2(-300f, -175f), new Vector2(280f, 62f),
-                "<b>IR AL TABLERO ></b>",
-                new Color(0.10f, 0.30f, 0.40f, 0.98f),
+                "IR AL TABLERO >",
+                new Color(0.10f, 0.30f, 0.42f, 0.98f),
                 CyanNeonAccent,
                 NavigateToSuspectBoardOrDefense
             );
@@ -604,8 +666,8 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_FinalizeAttack", robPanel.transform,
                 new Vector2(0f, -175f), new Vector2(290f, 62f),
-                "<b><color=#FF5A4E>FINALIZAR EVALUACION</color></b>",
-                new Color(0.48f, 0.12f, 0.12f, 0.98f),
+                "FINALIZAR EVALUACION",
+                new Color(0.48f, 0.12f, 0.14f, 0.98f),
                 Color.white,
                 () =>
                 {
@@ -620,8 +682,8 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_CloseRobbery", robPanel.transform,
                 new Vector2(300f, -175f), new Vector2(250f, 62f),
-                "<b>CERRAR VISTA</b>",
-                new Color(0.20f, 0.25f, 0.35f, 0.98f),
+                "CERRAR VISTA",
+                new Color(0.18f, 0.25f, 0.36f, 0.98f),
                 Color.white,
                 CloseOverlay
             );
@@ -631,16 +693,16 @@ namespace AndesSim.UI
             AndesSim.Audio.AudioManager.I?.PlayNarration("Voice_11_RoboConsumado", true, 2.0f);
         }
 
-        /// <summary>
-        /// RF-05: Abre la vista ampliada del Post-It de credenciales en PC 1.
-        /// </summary>
         public void OpenCredentialsInspection()
         {
             EnsureOverlayCanvas();
             ClearActiveContent();
 
-            _headerTitleText.text = "<b>EVIDENCIA #2: POST-IT CON CLAVES</b>";
-            _subTitleText.text = "Puesto 1 - Contrasenas escritas a la vista";
+            SetHeaderTheme(
+                WarningAmberColor,
+                "EVIDENCIA #2 · POST-IT CON CLAVES",
+                "Puesto 1 · Credenciales críticas expuestas a simple vista"
+            );
 
             GameObject credPanel = new GameObject("CredentialsContentPanel");
             credPanel.transform.SetParent(_contentContainer, false);
@@ -649,39 +711,29 @@ namespace AndesSim.UI
             cRect.anchorMax = Vector2.one;
             cRect.sizeDelta = Vector2.zero;
 
-            GameObject postItBox = new GameObject("PostItVisual");
-            postItBox.transform.SetParent(credPanel.transform, false);
-            RectTransform pRect = postItBox.AddComponent<RectTransform>();
-            pRect.anchoredPosition = new Vector2(-210f, 30f);
-            pRect.sizeDelta = new Vector2(410f, 290f);
-            Image postItBg = postItBox.AddComponent<Image>();
-            postItBg.color = new Color(0.98f, 0.88f, 0.35f, 0.98f);
+            GameObject postItBox = CreateStyledCard("PostItVisual", credPanel.transform, new Vector2(-215f, 30f), new Vector2(415f, 290f),
+                new Color(0.98f, 0.88f, 0.35f, 0.98f), WarningAmberColor);
 
-            CreateLabel("Txt_PostItTitle", postItBox.transform, new Vector2(0f, 100f), new Vector2(370f, 40f),
-                "<b>CLAVES PC-PAGOS-01</b>", 20f, TextAlignmentOptions.Center, new Color(0.1f, 0.1f, 0.1f));
+            CreateLabel("Txt_PostItTitle", postItBox.transform, new Vector2(0f, 96f), new Vector2(370f, 40f),
+                "<b>CLAVES PC-PAGOS-01</b>", 20f, TextAlignmentOptions.Center, new Color(0.10f, 0.10f, 0.10f));
 
             CreateLabel("Txt_PostItBody", postItBox.transform, new Vector2(0f, -20f), new Vector2(370f, 190f),
-                "<b>User:</b> c.mendoza\n" +
-                "<b>Pass:</b> <color=#990000>Swift2015$Admin!</color>\n" +
+                "<b>Usuario:</b> c.mendoza\n" +
+                "<b>Clave:</b> <color=#990000>Swift2015$Admin!</color>\n" +
                 "<b>Token:</b> 849201\n" +
                 "<b>PIN:</b> 9481",
-                19.5f, TextAlignmentOptions.MidlineLeft, new Color(0.12f, 0.12f, 0.12f));
+                19.5f, TextAlignmentOptions.Center, new Color(0.12f, 0.12f, 0.12f));
 
-            GameObject diagBox = new GameObject("ForensicDiagBox");
-            diagBox.transform.SetParent(credPanel.transform, false);
-            RectTransform dRect = diagBox.AddComponent<RectTransform>();
-            dRect.anchoredPosition = new Vector2(225f, 30f);
-            dRect.sizeDelta = new Vector2(410f, 290f);
-            Image diagBg = diagBox.AddComponent<Image>();
-            diagBg.color = new Color(0.08f, 0.12f, 0.18f, 0.96f);
+            GameObject diagBox = CreateStyledCard("ForensicDiagBox", credPanel.transform, new Vector2(225f, 30f), new Vector2(415f, 290f),
+                AndesTypographyTheme.BgCardGlass, WarningAmberColor);
 
-            CreateLabel("Txt_DiagTitle", diagBox.transform, new Vector2(0f, 100f), new Vector2(370f, 40f),
+            CreateLabel("Txt_DiagTitle", diagBox.transform, new Vector2(0f, 96f), new Vector2(370f, 40f),
                 "<b>FALLA ISO 27001</b>", 20f, TextAlignmentOptions.Center, WarningAmberColor);
 
             CreateLabel("Txt_DiagBody", diagBox.transform, new Vector2(0f, -20f), new Vector2(370f, 190f),
-                "- Clave visible en papel.\n\n" +
-                "- Cualquiera puede usar la cuenta SWIFT sin descifrar nada.",
-                19f, TextAlignmentOptions.MidlineLeft, new Color(0.90f, 0.95f, 1f));
+                "· Clave escrita en papel visible.\n\n" +
+                "· Sin bloqueo físico ni gestor seguro, cualquiera accede al módulo SWIFT.",
+                18.5f, TextAlignmentOptions.Center, AndesTypographyTheme.TextPrimary);
 
             Action saveEvidence = () =>
             {
@@ -691,18 +743,18 @@ namespace AndesSim.UI
 
             CreateInspectionButton(
                 "Btn_SaveAndNextSiem", credPanel.transform,
-                new Vector2(-210f, -175f), new Vector2(420f, 62f),
-                "<b>GUARDAR Y VER SIEM (PC 3) ></b>",
-                new Color(0.12f, 0.42f, 0.24f, 0.98f),
+                new Vector2(-215f, -175f), new Vector2(420f, 62f),
+                "GUARDAR Y VER SIEM (PC 3) >",
+                new Color(0.10f, 0.38f, 0.22f, 0.98f),
                 GreenSuccessColor,
                 () => { saveEvidence(); OpenSiemLogInspection(); }
             );
 
             CreateInspectionButton(
                 "Btn_LogEvidencePostIt", credPanel.transform,
-                new Vector2(225f, -175f), new Vector2(380f, 62f),
-                "<b>SOLO GUARDAR Y CERRAR</b>",
-                new Color(0.16f, 0.26f, 0.36f, 0.98f),
+                new Vector2(225f, -175f), new Vector2(390f, 62f),
+                "SOLO GUARDAR Y CERRAR",
+                new Color(0.14f, 0.24f, 0.36f, 0.98f),
                 Color.white,
                 () => { saveEvidence(); CloseOverlay(); }
             );
@@ -712,16 +764,16 @@ namespace AndesSim.UI
             AndesSim.Audio.AudioManager.I?.PlayNarration("Voice_13_PostItEvidencia", true, 2.0f);
         }
 
-        /// <summary>
-        /// RF-01 / RF-04: Abre la vista ampliada de la Terminal SWIFT (Puesto 2).
-        /// </summary>
         public void OpenSwiftInspection()
         {
             EnsureOverlayCanvas();
             ClearActiveContent();
 
-            _headerTitleText.text = "<b>PC 2 - TERMINAL SWIFT</b>";
-            _subTitleText.text = "Transferencias internacionales y red sin proteccion";
+            SetHeaderTheme(
+                CyanNeonAccent,
+                "PC 2 · TERMINAL SWIFT",
+                "Transferencias internacionales de alto valor sin aislamiento"
+            );
 
             GameObject swiftPanel = new GameObject("SwiftContentPanel");
             swiftPanel.transform.SetParent(_contentContainer, false);
@@ -730,25 +782,20 @@ namespace AndesSim.UI
             sRect.anchorMax = Vector2.one;
             sRect.sizeDelta = Vector2.zero;
 
-            GameObject tableBox = new GameObject("SwiftTableBox");
-            tableBox.transform.SetParent(swiftPanel.transform, false);
-            RectTransform tbRect = tableBox.AddComponent<RectTransform>();
-            tbRect.anchoredPosition = new Vector2(0f, 35f);
-            tbRect.sizeDelta = new Vector2(880f, 300f);
-            Image tbBg = tableBox.AddComponent<Image>();
-            tbBg.color = new Color(0.06f, 0.1f, 0.16f, 0.96f);
+            GameObject tableBox = CreateStyledCard("SwiftTableBox", swiftPanel.transform, new Vector2(0f, 35f), new Vector2(880f, 300f),
+                AndesTypographyTheme.BgCardGlass, CyanNeonAccent);
 
-            CreateLabel("Txt_SwiftTable", tableBox.transform, Vector2.zero, new Vector2(830f, 260f),
-                "<b><color=#00F2FE>OPERACION SWIFT MT103</color></b>\n\n" +
-                "- Destino sospechoso: RCBC Filipinas\n" +
-                "- En riesgo: <color=#FF5A4E><b>US$ 951,000,000</b></color>\n" +
-                "- Falla: <color=#FFC24A>Red plana sin VLAN ni codigo MFA</color>",
-                20.5f, TextAlignmentOptions.MidlineLeft, Color.white);
+            CreateLabel("Txt_SwiftTable", tableBox.transform, Vector2.zero, new Vector2(820f, 250f),
+                "<b><color=#00E5FF>OPERACIÓN SWIFT MT103</color></b>\n\n" +
+                "· <b>Destino sospechoso:</b> RCBC Filipinas\n" +
+                "· <b>Monto en riesgo:</b> <color=#FF5A4E><b>US$ 951,000,000</b></color>\n" +
+                "· <b>Vulnerabilidad:</b> <color=#FFA940>Red plana sin VLAN ni autenticación MFA</color>",
+                20f, TextAlignmentOptions.Center, Color.white);
 
             CreateInspectionButton(
                 "Btn_SwiftToMail", swiftPanel.transform,
                 new Vector2(-220f, -175f), new Vector2(410f, 62f),
-                "<b>< VOLVER A CORREO (PC 1)</b>",
+                "< VOLVER A CORREO (PC 1)",
                 new Color(0.14f, 0.24f, 0.36f, 0.98f),
                 Color.white,
                 () => OpenEmailInspection(0)
@@ -757,7 +804,7 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_SwiftToSiem", swiftPanel.transform,
                 new Vector2(220f, -175f), new Vector2(410f, 62f),
-                "<b>SIGUIENTE: VER SIEM (PC 3) ></b>",
+                "SIGUIENTE: VER SIEM (PC 3) >",
                 new Color(0.10f, 0.34f, 0.26f, 0.98f),
                 GreenSuccessColor,
                 OpenSiemLogInspection
@@ -768,16 +815,16 @@ namespace AndesSim.UI
             AndesSim.Audio.AudioManager.I?.PlayNarration("Voice_14_TerminalSwift", true, 2.0f);
         }
 
-        /// <summary>
-        /// RF-05: Abre la consola SIEM (Puesto 3) con los registros hacia la IP atacante.
-        /// </summary>
         public void OpenSiemLogInspection()
         {
             EnsureOverlayCanvas();
             ClearActiveContent();
 
-            _headerTitleText.text = "<b>PC 3 - EVIDENCIA #3: CONSOLA SIEM</b>";
-            _subTitleText.text = "Alertas de conexion hacia IP atacante";
+            SetHeaderTheme(
+                GreenSuccessColor,
+                "PC 3 · EVIDENCIA #3: CONSOLA SIEM",
+                "Alertas de red saliente hacia la IP atacante"
+            );
 
             GameObject siemPanel = new GameObject("SiemContentPanel");
             siemPanel.transform.SetParent(_contentContainer, false);
@@ -786,20 +833,15 @@ namespace AndesSim.UI
             smRect.anchorMax = Vector2.one;
             smRect.sizeDelta = Vector2.zero;
 
-            GameObject logBox = new GameObject("SiemLogBox");
-            logBox.transform.SetParent(siemPanel.transform, false);
-            RectTransform lRect = logBox.AddComponent<RectTransform>();
-            lRect.anchoredPosition = new Vector2(0f, 35f);
-            lRect.sizeDelta = new Vector2(880f, 300f);
-            Image lBg = logBox.AddComponent<Image>();
-            lBg.color = new Color(0.04f, 0.08f, 0.12f, 0.96f);
+            GameObject logBox = CreateStyledCard("SiemLogBox", siemPanel.transform, new Vector2(0f, 35f), new Vector2(880f, 300f),
+                AndesTypographyTheme.BgCardGlass, GreenSuccessColor);
 
-            CreateLabel("Txt_SiemLogs", logBox.transform, Vector2.zero, new Vector2(830f, 260f),
-                "<b><color=#38F28A>REGISTROS DE RED (29 ENE 2015)</color></b>\n\n" +
-                "- 09:18 C2: <color=#FF5A4E>192.168.1.101 -> 185.130.44.82:443</color>\n" +
-                "- Proceso: svchost_upd.exe (Malware Lazarus)\n" +
-                "- Alerta: Descarga .scr sin Sandbox",
-                20.5f, TextAlignmentOptions.MidlineLeft, Color.white);
+            CreateLabel("Txt_SiemLogs", logBox.transform, Vector2.zero, new Vector2(820f, 250f),
+                "<b><color=#38F28A>REGISTROS FORENSES SIEM (29 ENE 2015)</color></b>\n\n" +
+                "· <b>09:18 C2 Saliente:</b> <color=#FF5A4E>192.168.1.101 -> 185.130.44.82:443</color>\n" +
+                "· <b>Proceso oculto:</b> svchost_upd.exe (Grupo Lazarus)\n" +
+                "· <b>Causa raíz:</b> Descarga .scr ejecutada sin Sandbox",
+                20f, TextAlignmentOptions.Center, Color.white);
 
             Action saveSiem = () =>
             {
@@ -810,8 +852,8 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_LogSiemAndBoard", siemPanel.transform,
                 new Vector2(-220f, -175f), new Vector2(430f, 62f),
-                "<b>GUARDAR LOG Y IR AL TABLERO ></b>",
-                new Color(0.12f, 0.42f, 0.24f, 0.98f),
+                "GUARDAR LOG E IR AL TABLERO >",
+                new Color(0.10f, 0.38f, 0.22f, 0.98f),
                 GreenSuccessColor,
                 () => { saveSiem(); NavigateToSuspectBoardOrDefense(); }
             );
@@ -819,8 +861,8 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_LogEvidenceSiem", siemPanel.transform,
                 new Vector2(230f, -175f), new Vector2(370f, 62f),
-                "<b>SOLO GUARDAR Y CERRAR</b>",
-                new Color(0.16f, 0.26f, 0.36f, 0.98f),
+                "SOLO GUARDAR Y CERRAR",
+                new Color(0.14f, 0.24f, 0.36f, 0.98f),
                 Color.white,
                 () => { saveSiem(); CloseOverlay(); }
             );
@@ -830,9 +872,6 @@ namespace AndesSim.UI
             AndesSim.Audio.AudioManager.I?.PlayNarration("Voice_15_ConsolaSiem", true, 2.0f);
         }
 
-        /// <summary>
-        /// RF-05: Abre el expediente resumido del sospechoso con navegacion Anterior / Siguiente.
-        /// </summary>
         public void OpenSuspectDossierInspection(int suspectIndex)
         {
             EnsureOverlayCanvas();
@@ -853,48 +892,41 @@ namespace AndesSim.UI
 
             string name = suspect != null ? suspect.fullName : "Sospechoso";
             string role = suspect != null ? suspect.roleTitle : "Personal Banco Andino";
-            string badge = suspect != null ? suspect.threatLevelBadge : "INVESTIGACION";
+            string badge = suspect != null ? suspect.threatLevelBadge : "INVESTIGACIÓN";
             string incrim = suspect != null ? suspect.incriminatingPoints : "Sin indicios.";
             string exon = suspect != null ? suspect.exoneratingPoints : "Sin descargos.";
 
-            _headerTitleText.text = $"<b>SOSPECHOSO #{safeIndex + 1} DE {total}</b>";
-            _subTitleText.text = $"<b>{name}</b> - {role}  <color=#FF5A4E>[{badge}]</color>";
+            SetHeaderTheme(
+                CyanNeonAccent,
+                $"SOSPECHOSO #{safeIndex + 1} DE {total} · {name.ToUpper()}",
+                $"{role}  ·  <color=#FFA940>[{badge}]</color>"
+            );
 
-            GameObject leftBox = new GameObject("LeftBox");
-            leftBox.transform.SetParent(dossierPanel.transform, false);
-            RectTransform lbRect = leftBox.AddComponent<RectTransform>();
-            lbRect.anchoredPosition = new Vector2(-225f, 35f);
-            lbRect.sizeDelta = new Vector2(430f, 290f);
-            Image lbBg = leftBox.AddComponent<Image>();
-            lbBg.color = new Color(0.14f, 0.06f, 0.06f, 0.96f);
+            GameObject leftBox = CreateStyledCard("LeftBox", dossierPanel.transform, new Vector2(-225f, 35f), new Vector2(430f, 290f),
+                new Color(0.14f, 0.05f, 0.06f, 0.96f), DangerRedColor);
 
-            CreateLabel("Txt_LeftTitle", leftBox.transform, new Vector2(0f, 115f), new Vector2(390f, 36f),
-                "<b><color=#FF5A4E>EN CONTRA</color></b>",
-                19f, TextAlignmentOptions.MidlineLeft, WarningAmberColor);
+            CreateLabel("Txt_LeftTitle", leftBox.transform, new Vector2(0f, 112f), new Vector2(390f, 36f),
+                "<b><color=#FF5A4E>INDICIOS EN CONTRA</color></b>",
+                18.5f, TextAlignmentOptions.Center, DangerRedColor);
 
-            CreateLabel("Txt_LeftContent", leftBox.transform, new Vector2(0f, -15f), new Vector2(390f, 210f),
-                incrim, 17.5f, TextAlignmentOptions.TopLeft, new Color(0.96f, 0.92f, 0.92f));
+            CreateLabel("Txt_LeftContent", leftBox.transform, new Vector2(0f, -15f), new Vector2(380f, 210f),
+                incrim, 17f, TextAlignmentOptions.Center, new Color(0.96f, 0.92f, 0.92f));
 
-            GameObject rightBox = new GameObject("RightBox");
-            rightBox.transform.SetParent(dossierPanel.transform, false);
-            RectTransform rbRect = rightBox.AddComponent<RectTransform>();
-            rbRect.anchoredPosition = new Vector2(225f, 35f);
-            rbRect.sizeDelta = new Vector2(430f, 290f);
-            Image rbBg = rightBox.AddComponent<Image>();
-            rbBg.color = new Color(0.06f, 0.14f, 0.09f, 0.96f);
+            GameObject rightBox = CreateStyledCard("RightBox", dossierPanel.transform, new Vector2(225f, 35f), new Vector2(430f, 290f),
+                new Color(0.05f, 0.14f, 0.09f, 0.96f), GreenSuccessColor);
 
-            CreateLabel("Txt_RightTitle", rightBox.transform, new Vector2(0f, 115f), new Vector2(390f, 36f),
-                "<b><color=#38F28A>A FAVOR</color></b>",
-                19f, TextAlignmentOptions.MidlineLeft, GreenSuccessColor);
+            CreateLabel("Txt_RightTitle", rightBox.transform, new Vector2(0f, 112f), new Vector2(390f, 36f),
+                "<b><color=#38F28A>DESCARGOS A FAVOR</color></b>",
+                18.5f, TextAlignmentOptions.Center, GreenSuccessColor);
 
-            CreateLabel("Txt_RightContent", rightBox.transform, new Vector2(0f, -15f), new Vector2(390f, 210f),
-                exon, 17.5f, TextAlignmentOptions.TopLeft, new Color(0.90f, 0.98f, 0.92f));
+            CreateLabel("Txt_RightContent", rightBox.transform, new Vector2(0f, -15f), new Vector2(380f, 210f),
+                exon, 17f, TextAlignmentOptions.Center, new Color(0.90f, 0.98f, 0.92f));
 
             CreateInspectionButton(
                 "Btn_PrevSuspect", dossierPanel.transform,
                 new Vector2(-345f, -175f), new Vector2(180f, 60f),
-                "<b>< ANTERIOR</b>",
-                new Color(0.16f, 0.22f, 0.34f, 0.96f),
+                "< ANTERIOR",
+                new Color(0.14f, 0.22f, 0.35f, 0.96f),
                 Color.white,
                 () => OpenSuspectDossierInspection((safeIndex + total - 1) % total)
             );
@@ -902,8 +934,8 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_SelectHypothesis", dossierPanel.transform,
                 new Vector2(0f, -175f), new Vector2(470f, 60f),
-                $"<b>ELEGIR: {name.ToUpper()}</b>",
-                new Color(0.12f, 0.38f, 0.22f, 0.98f),
+                $"ELEGIR: {name.ToUpper()}",
+                new Color(0.10f, 0.38f, 0.22f, 0.98f),
                 GreenSuccessColor,
                 () =>
                 {
@@ -923,8 +955,8 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_NextSuspect", dossierPanel.transform,
                 new Vector2(345f, -175f), new Vector2(180f, 60f),
-                "<b>SIGUIENTE ></b>",
-                new Color(0.16f, 0.22f, 0.34f, 0.96f),
+                "SIGUIENTE >",
+                new Color(0.14f, 0.22f, 0.35f, 0.96f),
                 Color.white,
                 () => OpenSuspectDossierInspection((safeIndex + 1) % total)
             );
@@ -960,6 +992,21 @@ namespace AndesSim.UI
             NavigateToSuspectBoardOrDefense();
         }
 
+        private void NavigateToMainMenu()
+        {
+            CloseOverlay();
+            if (VrStartMenuController.I != null)
+            {
+                VrStartMenuController.I.ShowMenu();
+                GameObject lobbyTpObj = GameObject.Find("Teleport_PuertaEntrada");
+                TeleportPoint lobbyTp = lobbyTpObj != null ? lobbyTpObj.GetComponent<TeleportPoint>() : null;
+                if (PlayerTeleportController.I != null && lobbyTp != null)
+                {
+                    PlayerTeleportController.I.TeleportToPoint(lobbyTp);
+                }
+            }
+        }
+
         #endregion
 
         #region Control de Ventana y Ayudantes de UI
@@ -980,12 +1027,13 @@ namespace AndesSim.UI
                     forward.Normalize();
 
                     Vector3 spawnPos = _targetCamera.transform.position + (forward * distanceFromCamera);
-                    spawnPos.y = _targetCamera.transform.position.y - 0.05f;
+                    spawnPos.y = _targetCamera.transform.position.y - 0.04f;
 
                     _overlayRoot.transform.position = spawnPos;
                     _overlayRoot.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
                 }
                 _overlayRoot.SetActive(true);
+                _panelEntrance?.PlayEntrance();
             }
 
             if (AndesSim.Audio.AudioManager.I != null)
@@ -1019,30 +1067,41 @@ namespace AndesSim.UI
                     Transform child = _contentContainer.GetChild(i);
                     child.gameObject.SetActive(false);
                     child.SetParent(null);
-                    if (Application.isPlaying)
-                    {
-                        Destroy(child.gameObject);
-                    }
-                    else
-                    {
-                        DestroyImmediate(child.gameObject);
-                    }
+                    if (Application.isPlaying) Destroy(child.gameObject);
+                    else DestroyImmediate(child.gameObject);
                 }
             }
             if (_activeContentPanel != null)
             {
                 _activeContentPanel.SetActive(false);
                 _activeContentPanel.transform.SetParent(null);
-                if (Application.isPlaying)
-                {
-                    Destroy(_activeContentPanel);
-                }
-                else
-                {
-                    DestroyImmediate(_activeContentPanel);
-                }
+                if (Application.isPlaying) Destroy(_activeContentPanel);
+                else DestroyImmediate(_activeContentPanel);
                 _activeContentPanel = null;
             }
+        }
+
+        private GameObject CreateStyledCard(string name, Transform parent, Vector2 pos, Vector2 size, Color bgColor, Color topAccentColor)
+        {
+            GameObject cardGO = new GameObject(name);
+            cardGO.transform.SetParent(parent, false);
+            RectTransform rect = cardGO.AddComponent<RectTransform>();
+            rect.anchoredPosition = pos;
+            rect.sizeDelta = size;
+            Image bg = cardGO.AddComponent<Image>();
+            bg.color = bgColor;
+
+            GameObject bar = new GameObject("TopAccent");
+            bar.transform.SetParent(cardGO.transform, false);
+            RectTransform barR = bar.AddComponent<RectTransform>();
+            barR.anchorMin = new Vector2(0f, 1f);
+            barR.anchorMax = new Vector2(1f, 1f);
+            barR.anchoredPosition = new Vector2(0f, -3f);
+            barR.sizeDelta = new Vector2(0f, 5f);
+            Image barImg = bar.AddComponent<Image>();
+            barImg.color = topAccentColor;
+
+            return cardGO;
         }
 
         private GameObject CreateInspectionButton(string name, Transform parent, Vector2 pos, Vector2 size, string text, Color bgColor, Color textColor, Action onClick)
@@ -1073,31 +1132,29 @@ namespace AndesSim.UI
             };
             if (onClick != null) btn.onClick.AddListener(() => invokeOncePerFrame());
 
-            // Colisionador BoxCollider para detección precisa con retícula VR
             BoxCollider boxCol = btnGO.AddComponent<BoxCollider>();
             boxCol.size = new Vector3(size.x, size.y, 45f);
             boxCol.center = new Vector3(0f, 0f, -15f);
             boxCol.isTrigger = true;
 
-            // Añadir soporte de retícula VR
             GazeInteractable gaze = btnGO.AddComponent<GazeInteractable>();
             gaze.interactableLabel = text.Replace("<b>", "").Replace("</b>", "").Split('\n')[0];
             gaze.dwellTime = 1.1f;
             if (onClick != null) gaze.onClick.AddListener(() => invokeOncePerFrame());
+
+            HolographicCardHover hover = btnGO.AddComponent<HolographicCardHover>();
+            hover.Configure(1.045f, 14f);
 
             GameObject txtGO = new GameObject("Text");
             txtGO.transform.SetParent(btnGO.transform, false);
             RectTransform tRect = txtGO.AddComponent<RectTransform>();
             tRect.anchorMin = Vector2.zero;
             tRect.anchorMax = Vector2.one;
-            tRect.sizeDelta = Vector2.zero;
+            tRect.sizeDelta = new Vector2(-14f, -6f);
 
             TextMeshProUGUI tmp = txtGO.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
-            tmp.fontSize = 16.5f;
-            tmp.fontStyle = FontStyles.Bold;
-            tmp.alignment = TextAlignmentOptions.Center;
-            tmp.color = textColor;
+            AndesTypographyTheme.StyleButtonLabel(tmp, textColor, 16.5f);
 
             return btnGO;
         }
@@ -1113,11 +1170,10 @@ namespace AndesSim.UI
             rect.sizeDelta = size;
 
             Image bg = btnGO.AddComponent<Image>();
-            bg.color = new Color(0.18f, 0.14f, 0.08f, 0.95f);
+            bg.color = new Color(0.16f, 0.13f, 0.08f, 0.96f);
 
             Button btn = btnGO.AddComponent<Button>();
 
-            // Colisionador BoxCollider calibrado para el raycast de retícula VR
             BoxCollider boxCol = btnGO.AddComponent<BoxCollider>();
             boxCol.size = new Vector3(size.x, size.y, 25f);
             boxCol.center = new Vector3(0f, 0f, -5f);
@@ -1127,18 +1183,19 @@ namespace AndesSim.UI
             gaze.interactableLabel = $"Inspeccionar {signalId}";
             gaze.dwellTime = 1.0f;
 
+            HolographicCardHover hover = btnGO.AddComponent<HolographicCardHover>();
+            hover.Configure(1.055f, 14f);
+
             GameObject txtGO = new GameObject("Text");
             txtGO.transform.SetParent(btnGO.transform, false);
             RectTransform tRect = txtGO.AddComponent<RectTransform>();
             tRect.anchorMin = Vector2.zero;
             tRect.anchorMax = Vector2.one;
-            tRect.sizeDelta = Vector2.zero;
+            tRect.sizeDelta = new Vector2(-14f, -8f);
 
             TextMeshProUGUI tmp = txtGO.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
-            tmp.fontSize = 18f;
-            tmp.alignment = TextAlignmentOptions.Center;
-            tmp.color = WarningAmberColor;
+            AndesTypographyTheme.StyleButtonLabel(tmp, WarningAmberColor, 17.5f);
 
             int lastMarkedFrame = -1;
             Action markAction = () =>
@@ -1158,9 +1215,9 @@ namespace AndesSim.UI
                 {
                     AndesSim.Audio.AudioManager.I.PlayEvidenceFound();
                 }
-                bg.color = new Color(0.08f, 0.35f, 0.18f, 0.95f);
+                bg.color = new Color(0.08f, 0.35f, 0.19f, 0.96f);
                 tmp.text = "<b>[OK] PISTA LISTA</b>";
-                tmp.color = GreenSuccessColor;
+                AndesTypographyTheme.StyleBadge(tmp, GreenSuccessColor, 18f);
             };
 
             btn.onClick.AddListener(() => markAction.Invoke());
@@ -1177,9 +1234,7 @@ namespace AndesSim.UI
 
             TextMeshProUGUI tmp = go.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
-            tmp.fontSize = fontSize;
-            tmp.alignment = alignment;
-            tmp.color = color;
+            AndesTypographyTheme.StyleBodyReadable(tmp, alignment, color, fontSize, 10f);
         }
 
         private void EnsureEventSystemExists()

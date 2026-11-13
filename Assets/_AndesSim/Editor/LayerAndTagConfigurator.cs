@@ -26,7 +26,8 @@ namespace AndesSim.EditorTools
             "DefenseControl",
             "Monitor",
             "PlayerRig",
-            "Interactive"
+            "Interactive",
+            "TeleportPoint"
         };
 
         [MenuItem(MenuPath, priority = 1)]

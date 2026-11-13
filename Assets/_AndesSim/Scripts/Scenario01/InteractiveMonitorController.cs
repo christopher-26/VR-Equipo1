@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -250,7 +250,7 @@ namespace AndesSim.Scenario01
 
         private void ApplyInfectionActiveState()
         {
-            Debug.LogWarning($"{LogPrefix} <b>[{monitorId}] Estado: Infección Activa (#ff5a4e)</b>. Ejecutando trazas de Lazarus.");
+            Debug.Log($"{LogPrefix} <b>[{monitorId}] Estado: Infección Activa (#ff5a4e)</b>. Ejecutando trazas de Lazarus.");
 
             if (screenTitleText != null)
             {

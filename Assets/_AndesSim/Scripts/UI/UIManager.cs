@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -482,6 +482,9 @@ namespace AndesSim.UI
         private IEnumerator ProcessToastQueueRoutine()
         {
             _isToastActive = true;
+            Vector3 toastBaseScale = notificationToastPanel != null && notificationToastPanel.transform.localScale.sqrMagnitude > 0.000001f
+                ? notificationToastPanel.transform.localScale
+                : new Vector3(0.0035f, 0.0035f, 0.0035f);
 
             while (_toastQueue.Count > 0)
             {
@@ -511,12 +514,14 @@ namespace AndesSim.UI
 
                 if (toastBackground != null)
                 {
-                    toastBackground.color = ColorDarkBg;
+                    toastBackground.color = AndesTypographyTheme.BgVoidNavy;
                 }
 
                 if (notificationToastPanel != null)
                 {
                     notificationToastPanel.SetActive(true);
+                    notificationToastPanel.transform.localScale = toastBaseScale * 0.86f;
+                    AndesTypographyTheme.ApplyTypographyToTree(notificationToastPanel.transform, true, true);
                 }
 
                 PlaySound(toastClip, GenerateToastTone());
@@ -527,14 +532,21 @@ namespace AndesSim.UI
                 while (elapsed < fadeInDuration)
                 {
                     elapsed += Time.deltaTime;
+                    float u = Mathf.Clamp01(elapsed / fadeInDuration);
                     if (toastCanvasGroup != null)
                     {
-                        toastCanvasGroup.alpha = Mathf.Clamp01(elapsed / fadeInDuration);
+                        toastCanvasGroup.alpha = u;
+                    }
+                    if (notificationToastPanel != null)
+                    {
+                        float pop = 1f - Mathf.Pow(1f - u, 3f);
+                        notificationToastPanel.transform.localScale = Vector3.Lerp(toastBaseScale * 0.86f, toastBaseScale, pop);
                     }
                     yield return null;
                 }
 
                 if (toastCanvasGroup != null) toastCanvasGroup.alpha = 1f;
+                if (notificationToastPanel != null) notificationToastPanel.transform.localScale = toastBaseScale;
 
                 // 4. Mantener en pantalla orientándose suavemente hacia el jugador
                 float displayTimer = 0f;
@@ -576,7 +588,8 @@ namespace AndesSim.UI
 
             // 2.0 metros exactamente frente a la vista del usuario con leve inclinación ergonómica
             Vector3 forwardFlat = cam.forward;
-            Vector3 targetPos = cam.position + (forwardFlat * toastDistanceInFront) + (Vector3.up * 0.15f);
+            float floatY = Mathf.Sin(Time.unscaledTime * 2.4f) * 0.018f;
+            Vector3 targetPos = cam.position + (forwardFlat * toastDistanceInFront) + (Vector3.up * (0.15f + floatY));
 
             notificationToastPanel.transform.position = Vector3.Lerp(notificationToastPanel.transform.position, targetPos, Time.deltaTime * 10f);
             notificationToastPanel.transform.rotation = Quaternion.LookRotation(notificationToastPanel.transform.position - cam.position);
@@ -633,6 +646,7 @@ namespace AndesSim.UI
                 toastMessageText = tMsgObj.GetComponent<TextMeshProUGUI>();
                 toastMessageText.fontSize = 7.2f;
 
+                AndesTypographyTheme.ApplyTypographyToTree(notificationToastPanel.transform, true, true);
                 notificationToastPanel.SetActive(false);
             }
         }
