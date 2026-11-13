@@ -212,17 +212,17 @@ namespace AndesSim.Environment
             CreateBox("Soporte_Der", lampFixture.transform,
                 new Vector3(0.9f, -0.08f, 0.14f), new Vector3(0.03f, 0.03f, 0.28f), mats["MetalTrim"]);
 
-            // Luz suave focalizada sobre el corcho (OpenGLES3 60 FPS)
+            // Luz focalizada clara sobre el tablero de sospechosos (OpenGLES3 60 FPS)
             GameObject spotObj = new GameObject("Luz_Focal_Tablero");
             spotObj.transform.SetParent(lampFixture.transform, false);
-            spotObj.transform.localPosition = new Vector3(0f, 0f, 0f);
-            spotObj.transform.localRotation = Quaternion.Euler(45f, 0f, 0f);
+            spotObj.transform.localPosition = new Vector3(0f, 0.08f, -0.10f);
+            spotObj.transform.localRotation = Quaternion.Euler(42f, 0f, 0f);
             Light spotLight = spotObj.AddComponent<Light>();
             spotLight.type = LightType.Spot;
-            spotLight.range = 3.6f;
-            spotLight.spotAngle = 80f;
-            spotLight.intensity = 1.25f;
-            spotLight.color = new Color(0.92f, 0.97f, 0.94f);
+            spotLight.range = 4.8f;
+            spotLight.spotAngle = 100f;
+            spotLight.intensity = 9.5f;
+            spotLight.color = new Color(1.0f, 0.98f, 0.95f);
             spotLight.shadows = LightShadows.None;
 
             // -------------------------------------------------------------

@@ -1,27 +1,19 @@
 using System;
 using System.Collections;
-using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using AndesSim.Core;
-using AndesSim.VR;
+using AndesSim.Environment;
+using AndesSim.UI;
 
 namespace AndesSim.Scenario01
 {
     /// <summary>
-    /// Visualizador cinemático en tiempo real de la propagación del malware e infección en red (~8 segundos).
+    /// Visualizador cinemático en tiempo real de la propagación del malware e infección en red (~8 segundos)
+    /// y de la barrera holográfica de contención en Modo Defensa.
     /// Simulación VR ANDES-SIM (BANCO ANDINO) - Escenario 1: "Oficina de pagos".
-    /// 
-    /// Línea de tiempo de la cinemática en tiempo real:
-    /// • Segundo 0–2: Monitor_01 (Carla Mendoza) descarga 'Rasel_Ahlam_CV_2015.scr.zip' y la pantalla se tiñe de alerta roja
-    ///   mostrando la instalación silenciosa del backdoor de Lazarus (svchost_upd.exe).
-    /// • Segundo 2–5: Líneas de energía roja (LineRenderer animados con pulsos entre los escritorios) viajan desde Monitor_01
-    ///   hacia Monitor_02 y Monitor_03, representando que al menos 3 computadoras intentan abrir el archivo y que la red plana
-    ///   permite abrir una puerta trasera hacia el resto del BANCO ANDINO.
-    /// • Segundo 5–8: Un letrero holográfico sobre la oficina muestra:
-    ///   "29 ENE 2015: PUERTA TRASERA ABIERTA EN LA RED DEL BANCO ANDINO. El grupo Lazarus inicia 1 año de espionaje silencioso."
-    /// • Segundo 8: Invoca GameManager.I.EndScenario() para desplegar el balance forense del Modo Ataque.
+    /// Optimizado para OpenGLES3 móvil (objetos pre-agrupados sin asignaciones por cuadro y uso de MaterialPropertyBlock).
     /// </summary>
     public class InfectionSpreadVisualizer : MonoBehaviour
     {
@@ -31,8 +23,17 @@ namespace AndesSim.Scenario01
 
         public const string HologramMessage = "29 ENE 2015: PUERTA TRASERA ABIERTA EN LA RED DEL BANCO ANDINO. El grupo Lazarus inicia 1 año de espionaje silencioso.";
 
-        private static readonly Color InfectionRedColor = new Color(1.0f, 0.22f, 0.20f, 1.0f); // #ff3834
-        private static readonly Color BeamPulseGlow = new Color(1.0f, 0.35f, 0.31f, 0.95f);
+        private static readonly Color InfectionRedColor = new Color(1.0f, 0.22f, 0.20f, 1.0f);    // #ff3834
+        private static readonly Color BeamPulseGlow = new Color(1.0f, 0.42f, 0.24f, 0.96f);        // Naranja-Rojo neón
+        private static readonly Color ExfilGoldRed = new Color(1.0f, 0.72f, 0.22f, 0.98f);         // Exfiltración SWIFT
+        private static readonly Color DefenseEmerald = new Color(0.22f, 0.95f, 0.54f, 0.95f);      // #38f28a
+        private static readonly Color DefenseCyan = new Color(0.00f, 0.90f, 1.00f, 0.92f);         // #00e5ff
+
+        private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
+        private static readonly int ColorId = Shader.PropertyToID("_Color");
+        private static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
+
+        private const int PacketsPerRoute = 6;
 
         [Header("--- Monitores de la Oficina (Puntos de Propagación) ---")]
         [Tooltip("Controlador de Monitor_01 (Carla Mendoza - PC-PAGOS-01).")]
@@ -58,7 +59,7 @@ namespace AndesSim.Scenario01
 
         [SerializeField] private Material energyLineMaterial;
         [SerializeField] private float defaultLineWidth = 0.045f;
-        [SerializeField] private int curveResolution = 16;
+        [SerializeField] private int curveResolution = 18;
 
         [Header("--- Letrero Holográfico Superior ---")]
         [Tooltip("Contenedor raíz del letrero flotante sobre la oficina.")]
@@ -75,9 +76,27 @@ namespace AndesSim.Scenario01
         [SerializeField] private AudioClip backdoorBreachStingClip;
 
         // Estado interno
-        private bool _isPlaying = false;
-        private bool _hasPlayed = false;
+        private bool _isPlaying;
+        private bool _hasPlayed;
         private Coroutine _cinematicCoroutine;
+
+        // Rig holográfico pre-construido (0 GC en Update/corrutina)
+        private Transform _fxRigRoot;
+        private LineRenderer _lineDesk2ToC2;
+        private Transform _c2NodeRoot;
+        private Transform[] _packetsRoute12;
+        private Transform[] _packetsRoute13;
+        private Transform[] _packetsRoute2C2;
+        private GameObject[] _stationNodes = new GameObject[3];
+        private HolographicOrbitRing[] _stationOuterRings = new HolographicOrbitRing[3];
+        private HolographicOrbitRing[] _stationInnerRings = new HolographicOrbitRing[3];
+        private Renderer[] _stationCoreRenderers = new Renderer[3];
+        private GameObject[] _shockwaveRings = new GameObject[3];
+        private Renderer[] _shockwaveRenderers = new Renderer[3];
+        private GameObject _defenseCanopyRing;
+        private Material _sharedHoloMat;
+        private MaterialPropertyBlock _mpb;
+        private HolographicDataBeacon[] _sceneBeacons;
 
         public bool IsPlaying => _isPlaying;
         public bool HasPlayed => _hasPlayed;
@@ -104,6 +123,8 @@ namespace AndesSim.Scenario01
                     audioSource.spatialBlend = 0.35f;
                 }
             }
+
+            _mpb = new MaterialPropertyBlock();
         }
 
         private void Start()
@@ -111,14 +132,14 @@ namespace AndesSim.Scenario01
             AutoResolveReferences();
             InitializeLineRenderers();
             InitializeHolographicSign();
+            InitializeHolographicFxRig();
+            _sceneBeacons = FindObjectsByType<HolographicDataBeacon>(FindObjectsSortMode.None);
 
-            // Suscribirse al cambio de paso del escenario
             if (ScenarioFlowController.I != null)
             {
                 ScenarioFlowController.I.OnStepChanged += HandleStepChanged;
             }
 
-            // Suscribirse a cambios de modo (Ataque vs Defensa) para actualizar dinámicamente el letrero superior
             if (GameManager.I != null)
             {
                 GameManager.I.OnModeChanged += HandleModeChanged;
@@ -144,27 +165,18 @@ namespace AndesSim.Scenario01
             }
         }
 
-        /// <summary>
-        /// Actualiza los visualizadores y el letrero superior cuando el usuario alterna entre Modo Ataque y Modo Defensa.
-        /// </summary>
         private void HandleModeChanged(SimMode newMode)
         {
             if (newMode == SimMode.Defensa)
             {
                 ShowDefenseContainmentSign();
             }
-            else
+            else if (!_isPlaying)
             {
-                if (!_isPlaying)
-                {
-                    ResetToCleanState();
-                }
+                ResetToCleanState();
             }
         }
 
-        /// <summary>
-        /// Escucha la transición de pasos desde ScenarioFlowController.
-        /// </summary>
         private void HandleStepChanged(ScenarioStep newStep, StepGuideInfo info)
         {
             if (newStep == ScenarioStep.Step6_Resultado)
@@ -177,9 +189,8 @@ namespace AndesSim.Scenario01
             }
         }
 
-        /// <summary>
-        /// Localiza automáticamente los monitores y puntos de los escritorios si no fueron cableados en el Inspector.
-        /// </summary>
+        #region Resolución e Inicialización de Activos 3D
+
         private void AutoResolveReferences()
         {
             if (monitor01Controller == null || monitor02Controller == null || monitor03Controller == null)
@@ -207,38 +218,26 @@ namespace AndesSim.Scenario01
             if (monitor02Point == null && monitor02Controller != null) monitor02Point = monitor02Controller.transform;
             if (monitor03Point == null && monitor03Controller != null) monitor03Point = monitor03Controller.transform;
 
-            // Fallback de posiciones si no se encuentran en la escena
-            if (monitor01Point == null)
-            {
-                GameObject dummy1 = new GameObject("Anchor_Monitor01_Fallback");
-                dummy1.transform.position = new Vector3(-3.0f, 1.1f, 2.1f);
-                monitor01Point = dummy1.transform;
-            }
-            if (monitor02Point == null)
-            {
-                GameObject dummy2 = new GameObject("Anchor_Monitor02_Fallback");
-                dummy2.transform.position = new Vector3(0.0f, 1.1f, 2.1f);
-                monitor02Point = dummy2.transform;
-            }
-            if (monitor03Point == null)
-            {
-                GameObject dummy3 = new GameObject("Anchor_Monitor03_Fallback");
-                dummy3.transform.position = new Vector3(3.0f, 1.1f, 2.1f);
-                monitor03Point = dummy3.transform;
-            }
+            if (monitor01Point == null) monitor01Point = CreateFallbackAnchor("Anchor_Monitor01_Fallback", new Vector3(1.37f, 1.15f, -2.07f));
+            if (monitor02Point == null) monitor02Point = CreateFallbackAnchor("Anchor_Monitor02_Fallback", new Vector3(5.34f, 1.15f, -1.93f));
+            if (monitor03Point == null) monitor03Point = CreateFallbackAnchor("Anchor_Monitor03_Fallback", new Vector3(-6.37f, 1.15f, -4.69f));
         }
 
-        /// <summary>
-        /// Inicializa o construye proceduralmente los LineRenderer de red plana.
-        /// </summary>
+        private Transform CreateFallbackAnchor(string objName, Vector3 pos)
+        {
+            GameObject dummy = new GameObject(objName);
+            dummy.transform.SetParent(transform, false);
+            dummy.transform.position = pos;
+            return dummy.transform;
+        }
+
         private void InitializeLineRenderers()
         {
             if (energyLineMaterial == null)
             {
-                Shader unlitShader = Shader.Find("Universal Render Pipeline/Unlit");
-                if (unlitShader == null) unlitShader = Shader.Find("Sprites/Default");
-                if (unlitShader == null) unlitShader = Shader.Find("Standard");
-
+                Shader unlitShader = Shader.Find("Universal Render Pipeline/Unlit")
+                                  ?? Shader.Find("Sprites/Default")
+                                  ?? Shader.Find("Standard");
                 energyLineMaterial = new Material(unlitShader);
                 energyLineMaterial.name = "Mat_Procedural_InfectionBeam";
                 energyLineMaterial.color = InfectionRedColor;
@@ -247,67 +246,66 @@ namespace AndesSim.Scenario01
             if (lineDesk1ToDesk2 == null)
             {
                 GameObject lineObj1 = new GameObject("Line_RedPlana_Desk1_Desk2");
-                lineObj1.transform.SetParent(transform);
+                lineObj1.transform.SetParent(transform, false);
                 lineDesk1ToDesk2 = lineObj1.AddComponent<LineRenderer>();
-                ConfigureLineRenderer(lineDesk1ToDesk2);
             }
-            else
-            {
-                ConfigureLineRenderer(lineDesk1ToDesk2);
-            }
+            ConfigureLineRenderer(lineDesk1ToDesk2, BeamPulseGlow, InfectionRedColor);
 
             if (lineDesk1ToDesk3 == null)
             {
                 GameObject lineObj2 = new GameObject("Line_RedPlana_Desk1_Desk3");
-                lineObj2.transform.SetParent(transform);
+                lineObj2.transform.SetParent(transform, false);
                 lineDesk1ToDesk3 = lineObj2.AddComponent<LineRenderer>();
-                ConfigureLineRenderer(lineDesk1ToDesk3);
             }
-            else
+            ConfigureLineRenderer(lineDesk1ToDesk3, BeamPulseGlow, InfectionRedColor);
+
+            if (_lineDesk2ToC2 == null)
             {
-                ConfigureLineRenderer(lineDesk1ToDesk3);
+                GameObject lineObj3 = new GameObject("Line_Exfiltracion_C2_Lazarus");
+                lineObj3.transform.SetParent(transform, false);
+                _lineDesk2ToC2 = lineObj3.AddComponent<LineRenderer>();
             }
+            ConfigureLineRenderer(_lineDesk2ToC2, ExfilGoldRed, InfectionRedColor);
 
             lineDesk1ToDesk2.enabled = false;
             lineDesk1ToDesk3.enabled = false;
+            _lineDesk2ToC2.enabled = false;
         }
 
-        private void ConfigureLineRenderer(LineRenderer lr)
+        private void ConfigureLineRenderer(LineRenderer lr, Color startCol, Color endCol)
         {
             lr.sharedMaterial = energyLineMaterial;
             lr.startWidth = defaultLineWidth;
-            lr.endWidth = defaultLineWidth;
+            lr.endWidth = defaultLineWidth * 0.85f;
             lr.useWorldSpace = true;
-            lr.startColor = BeamPulseGlow;
-            lr.endColor = InfectionRedColor;
+            lr.startColor = startCol;
+            lr.endColor = endCol;
             lr.positionCount = curveResolution;
+            lr.numCapVertices = 4;
             lr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             lr.receiveShadows = false;
         }
 
-        /// <summary>
-        /// Inicializa o construye proceduralmente el letrero holográfico superior en World Space.
-        /// </summary>
         private void InitializeHolographicSign()
         {
+            Vector3 centerPos = ComputeOptimalBannerPosition();
+
             if (holographicSignPanel == null)
             {
-                // Construir Canvas flotante sobre la oficina central
                 GameObject canvasObj = new GameObject("Canvas_LetreroHolografico_Infeccion");
-                canvasObj.transform.SetParent(transform);
-                canvasObj.transform.position = new Vector3(0f, 2.3f, 1.8f);
-                canvasObj.transform.rotation = Quaternion.Euler(15f, 0f, 0f); // Inclinación ergonómica hacia el jugador
+                canvasObj.transform.SetParent(transform, false);
+                canvasObj.transform.position = centerPos;
+                canvasObj.transform.rotation = Quaternion.Euler(10f, 180f, 0f);
 
                 Canvas canvas = canvasObj.AddComponent<Canvas>();
                 canvas.renderMode = RenderMode.WorldSpace;
                 RectTransform canvasRect = canvasObj.GetComponent<RectTransform>();
-                canvasRect.sizeDelta = new Vector2(500f, 140f);
-                canvasRect.localScale = new Vector3(0.005f, 0.005f, 0.005f);
+                canvasRect.sizeDelta = new Vector2(560f, 154f);
+                canvasRect.localScale = new Vector3(0.0052f, 0.0052f, 0.0052f);
 
                 canvasObj.AddComponent<CanvasScaler>();
                 holographicSignCanvasGroup = canvasObj.AddComponent<CanvasGroup>();
 
-                // Fondo traslúcido
                 GameObject bgObj = new GameObject("Panel_Fondo");
                 bgObj.transform.SetParent(canvasObj.transform, false);
                 RectTransform bgRect = bgObj.AddComponent<RectTransform>();
@@ -315,56 +313,274 @@ namespace AndesSim.Scenario01
                 bgRect.anchorMax = Vector2.one;
                 bgRect.sizeDelta = Vector2.zero;
                 Image bgImage = bgObj.AddComponent<Image>();
-                bgImage.color = new Color(0.07f, 0.02f, 0.02f, 0.94f);
+                bgImage.color = new Color(0.07f, 0.02f, 0.03f, 0.95f);
                 holographicSignBorder = bgImage;
 
-                // Título de Alerta
+                // Barra decorativa luminosa superior
+                GameObject accentObj = new GameObject("TopAccentStrip");
+                accentObj.transform.SetParent(bgObj.transform, false);
+                RectTransform accentRect = accentObj.AddComponent<RectTransform>();
+                accentRect.anchorMin = new Vector2(0f, 1f);
+                accentRect.anchorMax = new Vector2(1f, 1f);
+                accentRect.anchoredPosition = new Vector2(0f, -3f);
+                accentRect.sizeDelta = new Vector2(0f, 6f);
+                Image accentImg = accentObj.AddComponent<Image>();
+                accentImg.color = InfectionRedColor;
+
                 GameObject titleObj = new GameObject("Txt_AlertaTitulo");
                 titleObj.transform.SetParent(bgObj.transform, false);
                 RectTransform titleRect = titleObj.AddComponent<RectTransform>();
-                titleRect.anchoredPosition = new Vector2(0f, 42f);
-                titleRect.sizeDelta = new Vector2(470f, 32f);
+                titleRect.anchoredPosition = new Vector2(0f, 44f);
+                titleRect.sizeDelta = new Vector2(520f, 34f);
                 holographicSignTitle = titleObj.AddComponent<TextMeshProUGUI>();
-                holographicSignTitle.text = "<color=#FF5A4E><b>[ALERTA DE SEGURIDAD CRITICA - RED PLANA COMPROMETIDA]</b></color>";
-                holographicSignTitle.fontSize = 17;
-                holographicSignTitle.alignment = TextAlignmentOptions.Center;
+                holographicSignTitle.text = "ALERTA CRITICA · RED PLANA COMPROMETIDA";
+                AndesTypographyTheme.StyleDisplayTitle(holographicSignTitle, AndesTypographyTheme.AccentRed, 18f);
 
-                // Cuerpo oficial requerido por la especificación
                 GameObject bodyObj = new GameObject("Txt_MensajeOficial");
                 bodyObj.transform.SetParent(bgObj.transform, false);
                 RectTransform bodyRect = bodyObj.AddComponent<RectTransform>();
-                bodyRect.anchoredPosition = new Vector2(0f, -8f);
-                bodyRect.sizeDelta = new Vector2(460f, 60f);
+                bodyRect.anchoredPosition = new Vector2(0f, -12f);
+                bodyRect.sizeDelta = new Vector2(510f, 76f);
                 holographicSignBody = bodyObj.AddComponent<TextMeshProUGUI>();
                 holographicSignBody.text =
-                    $"<b><color=#FFFFFF>{HologramMessage}</color></b>\n" +
-                    $"<size=75%><color=#FFC66D>Topología plana sin segmentación interna facilitó la intrusión masiva.</color></size>";
-                holographicSignBody.fontSize = 15;
-                holographicSignBody.alignment = TextAlignmentOptions.Center;
+                    $"<b>{HologramMessage}</b>\n" +
+                    "<size=78%><color=#FFC66D>Topología sin segmentación VLAN permitió la intrusión masiva.</color></size>";
+                AndesTypographyTheme.StyleBodyCentered(holographicSignBody, Color.white, 15.5f, 8f);
 
                 holographicSignPanel = canvasObj;
+            }
+            else
+            {
+                holographicSignPanel.transform.position = centerPos;
+                AndesTypographyTheme.ApplyTypographyToTree(holographicSignPanel.transform, true, true);
             }
 
             if (holographicSignCanvasGroup == null && holographicSignPanel != null)
             {
                 holographicSignCanvasGroup = holographicSignPanel.GetComponent<CanvasGroup>();
-                if (holographicSignCanvasGroup == null)
-                {
-                    holographicSignCanvasGroup = holographicSignPanel.AddComponent<CanvasGroup>();
-                }
+                if (holographicSignCanvasGroup == null) holographicSignCanvasGroup = holographicSignPanel.AddComponent<CanvasGroup>();
             }
 
             if (holographicSignPanel != null)
             {
+                HolographicPanelEntrance entrance = holographicSignPanel.GetComponent<HolographicPanelEntrance>()
+                    ?? holographicSignPanel.AddComponent<HolographicPanelEntrance>();
+                entrance.Configure(0.32f, 0.84f, 0.06f, holographicSignCanvasGroup);
+
+                HolographicFloatMotion floatMotion = holographicSignPanel.GetComponent<HolographicFloatMotion>()
+                    ?? holographicSignPanel.AddComponent<HolographicFloatMotion>();
+                floatMotion.Configure(0.040f, 0.85f, new Vector3(0.9f, 1.5f, 0.5f), 0f, 0f, true);
+
                 holographicSignPanel.SetActive(false);
             }
         }
 
-        #region Cinemática en Tiempo Real (~8 Segundos)
+        private Vector3 ComputeOptimalBannerPosition()
+        {
+            Vector3 p1 = monitor01Point != null ? monitor01Point.position : new Vector3(1.37f, 1.15f, -2.07f);
+            Vector3 p2 = monitor02Point != null ? monitor02Point.position : new Vector3(5.34f, 1.15f, -1.93f);
+            Vector3 p3 = monitor03Point != null ? monitor03Point.position : new Vector3(-6.37f, 1.15f, -4.69f);
+            Vector3 mid = (p1 + p2 + p3) / 3f;
+            // Centrado dentro de la nave principal a altura cómoda de lectura sin tocar el techo (Y <= 2.30m)
+            return new Vector3(Mathf.Clamp(mid.x, -2.5f, 2.5f), 2.18f, Mathf.Clamp(mid.z + 0.8f, -2.6f, 0.4f));
+        }
 
-        /// <summary>
-        /// Inicia la secuencia cinemática en tiempo real de propagación del ataque de 2016.
-        /// </summary>
+        private void InitializeHolographicFxRig()
+        {
+            if (_fxRigRoot != null) return;
+
+            GameObject rigObj = new GameObject("Infection_Holo_FX_Rig");
+            rigObj.transform.SetParent(transform, false);
+            _fxRigRoot = rigObj.transform;
+
+            Shader holoShader = Shader.Find("Universal Render Pipeline/Unlit")
+                             ?? Shader.Find("Sprites/Default")
+                             ?? Shader.Find("Standard");
+            _sharedHoloMat = new Material(holoShader);
+            _sharedHoloMat.name = "Mat_Virus_Holo_Shared";
+            _sharedHoloMat.color = InfectionRedColor;
+
+            // 1. Paquetes animados 3D a lo largo de las 3 rutas
+            _packetsRoute12 = CreatePacketPool("MalwarePacket_1to2", PacketsPerRoute, 0.055f, BeamPulseGlow);
+            _packetsRoute13 = CreatePacketPool("MalwarePacket_1to3", PacketsPerRoute, 0.055f, InfectionRedColor);
+            _packetsRoute2C2 = CreatePacketPool("ExfilPacket_2toC2", PacketsPerRoute, 0.050f, ExfilGoldRed);
+
+            // 2. Nodo C2 Flotante de Lazarus (185.130.44.82)
+            _c2NodeRoot = BuildC2FloatingNode();
+
+            // 3. Nodos de Virus / Escudo y Ondas de Choque sobre cada estación
+            Transform[] anchors = { monitor01Point, monitor02Point, monitor03Point };
+            for (int i = 0; i < 3; i++)
+            {
+                BuildStationCluster(i, anchors[i]);
+            }
+
+            // 4. Aro protector superior de contención para Modo Defensa
+            _defenseCanopyRing = BuildFlatRing("Canopy_DefenseShieldRing", _fxRigRoot, 1.15f, 0.032f, DefenseEmerald);
+            _defenseCanopyRing.transform.position = ComputeOptimalBannerPosition() + new Vector3(0f, -0.38f, 0f);
+            HolographicOrbitRing canopySpin = _defenseCanopyRing.AddComponent<HolographicOrbitRing>();
+            canopySpin.Configure(new Vector3(0f, 38f, 0f), _defenseCanopyRing.GetComponent<Renderer>(), DefenseEmerald, 1.0f, 2.3f, 1.8f);
+            _defenseCanopyRing.SetActive(false);
+        }
+
+        private Transform[] CreatePacketPool(string prefix, int count, float size, Color tint)
+        {
+            Transform[] pool = new Transform[count];
+            for (int i = 0; i < count; i++)
+            {
+                GameObject pod = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                pod.name = $"{prefix}_{i}";
+                pod.transform.SetParent(_fxRigRoot, false);
+                pod.transform.localScale = new Vector3(size, size, size * 1.45f);
+                DestroySafeCollider(pod);
+
+                Renderer r = pod.GetComponent<Renderer>();
+                r.sharedMaterial = _sharedHoloMat;
+                r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                ApplyColorToRenderer(r, tint, 2.4f);
+
+                pod.SetActive(false);
+                pool[i] = pod.transform;
+            }
+            return pool;
+        }
+
+        private Transform BuildC2FloatingNode()
+        {
+            Vector3 c2Pos = ComputeOptimalBannerPosition() + new Vector3(0.4f, 0.36f, -1.1f);
+            c2Pos.y = Mathf.Clamp(c2Pos.y, 2.20f, 2.46f);
+
+            GameObject root = new GameObject("Nodo_C2_Lazarus_185_130");
+            root.transform.SetParent(_fxRigRoot, false);
+            root.transform.position = c2Pos;
+
+            HolographicFloatMotion fl = root.AddComponent<HolographicFloatMotion>();
+            fl.Configure(0.035f, 1.15f, new Vector3(1.5f, 2.0f, 1.5f), 22f, 0.04f, true);
+
+            GameObject core = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            core.name = "C2_Core";
+            core.transform.SetParent(root.transform, false);
+            core.transform.localRotation = Quaternion.Euler(35f, 45f, 20f);
+            core.transform.localScale = new Vector3(0.18f, 0.18f, 0.18f);
+            DestroySafeCollider(core);
+            Renderer coreRend = core.GetComponent<Renderer>();
+            coreRend.sharedMaterial = _sharedHoloMat;
+            ApplyColorToRenderer(coreRend, InfectionRedColor, 2.6f);
+
+            GameObject r1 = BuildFlatRing("C2_RingA", root.transform, 0.32f, 0.018f, BeamPulseGlow);
+            r1.transform.localRotation = Quaternion.Euler(28f, 0f, 18f);
+            r1.AddComponent<HolographicOrbitRing>().Configure(new Vector3(45f, 75f, 20f), r1.GetComponent<Renderer>(), BeamPulseGlow, 1.2f, 2.8f, 3.0f);
+
+            GameObject r2 = BuildFlatRing("C2_RingB", root.transform, 0.42f, 0.014f, ExfilGoldRed);
+            r2.transform.localRotation = Quaternion.Euler(-35f, 20f, -22f);
+            r2.AddComponent<HolographicOrbitRing>().Configure(new Vector3(-35f, -65f, 30f), r2.GetComponent<Renderer>(), ExfilGoldRed, 1.0f, 2.5f, 2.4f);
+
+            // Mini etiqueta Canvas World Space sobre el nodo C2
+            GameObject lblCanvasObj = new GameObject("Canvas_C2_Label");
+            lblCanvasObj.transform.SetParent(root.transform, false);
+            lblCanvasObj.transform.localPosition = new Vector3(0f, 0.28f, 0f);
+            lblCanvasObj.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
+            Canvas c = lblCanvasObj.AddComponent<Canvas>();
+            c.renderMode = RenderMode.WorldSpace;
+            RectTransform cr = lblCanvasObj.GetComponent<RectTransform>();
+            cr.sizeDelta = new Vector2(280f, 54f);
+            cr.localScale = Vector3.one * 0.0028f;
+            Image bg = lblCanvasObj.AddComponent<Image>();
+            bg.color = new Color(0.14f, 0.02f, 0.03f, 0.92f);
+
+            GameObject tObj = new GameObject("Txt_C2");
+            tObj.transform.SetParent(lblCanvasObj.transform, false);
+            RectTransform tr = tObj.AddComponent<RectTransform>();
+            tr.anchorMin = Vector2.zero;
+            tr.anchorMax = Vector2.one;
+            tr.sizeDelta = Vector2.zero;
+            TextMeshProUGUI tmp = tObj.AddComponent<TextMeshProUGUI>();
+            tmp.text = "SERVIDOR C2 LAZARUS\n185.130.44.82 : 443";
+            AndesTypographyTheme.StyleBadge(tmp, ExfilGoldRed, 14.5f);
+
+            root.SetActive(false);
+            return root.transform;
+        }
+
+        private void BuildStationCluster(int index, Transform anchor)
+        {
+            Vector3 pos = (anchor != null ? anchor.position : Vector3.zero) + Vector3.up * 0.56f;
+
+            GameObject cluster = new GameObject($"Holo_StationCluster_0{index + 1}");
+            cluster.transform.SetParent(_fxRigRoot, false);
+            cluster.transform.position = pos;
+            HolographicFloatMotion fl = cluster.AddComponent<HolographicFloatMotion>();
+            fl.Configure(0.032f, 1.25f, new Vector3(1.2f, 2.2f, 1.0f), 0f, 0.03f, true);
+
+            GameObject core = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            core.name = "CoreSphere";
+            core.transform.SetParent(cluster.transform, false);
+            core.transform.localScale = Vector3.one * 0.11f;
+            DestroySafeCollider(core);
+            Renderer coreR = core.GetComponent<Renderer>();
+            coreR.sharedMaterial = _sharedHoloMat;
+            _stationCoreRenderers[index] = coreR;
+
+            GameObject outer = BuildFlatRing("OuterOrbitRing", cluster.transform, 0.25f, 0.015f, InfectionRedColor);
+            outer.transform.localRotation = Quaternion.Euler(24f, 0f, 15f);
+            HolographicOrbitRing outerSpin = outer.AddComponent<HolographicOrbitRing>();
+            _stationOuterRings[index] = outerSpin;
+
+            GameObject inner = BuildFlatRing("InnerOrbitRing", cluster.transform, 0.18f, 0.013f, BeamPulseGlow);
+            inner.transform.localRotation = Quaternion.Euler(-38f, 30f, -15f);
+            HolographicOrbitRing innerSpin = inner.AddComponent<HolographicOrbitRing>();
+            _stationInnerRings[index] = innerSpin;
+
+            cluster.SetActive(false);
+            _stationNodes[index] = cluster;
+
+            // Onda de choque expansiva sobre la mesa (Y = pos - 0.35m)
+            GameObject shock = BuildFlatRing($"Shockwave_0{index + 1}", _fxRigRoot, 0.50f, 0.022f, InfectionRedColor);
+            shock.transform.position = (anchor != null ? anchor.position : Vector3.zero) + Vector3.up * 0.08f;
+            shock.SetActive(false);
+            _shockwaveRings[index] = shock;
+            _shockwaveRenderers[index] = shock.GetComponent<Renderer>();
+        }
+
+        private GameObject BuildFlatRing(string name, Transform parent, float radius, float thickness, Color color)
+        {
+            GameObject ring = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            ring.name = name;
+            ring.transform.SetParent(parent, false);
+            ring.transform.localScale = new Vector3(radius * 2f, thickness * 0.5f, radius * 2f);
+            DestroySafeCollider(ring);
+            Renderer r = ring.GetComponent<Renderer>();
+            r.sharedMaterial = _sharedHoloMat;
+            r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            ApplyColorToRenderer(r, color, 2.2f);
+            return ring;
+        }
+
+        private static void DestroySafeCollider(GameObject go)
+        {
+            Collider col = go.GetComponent<Collider>();
+            if (col != null)
+            {
+                if (Application.isPlaying) Destroy(col);
+                else DestroyImmediate(col);
+            }
+        }
+
+        private void ApplyColorToRenderer(Renderer r, Color c, float glowMult)
+        {
+            if (r == null) return;
+            if (_mpb == null) _mpb = new MaterialPropertyBlock();
+            r.GetPropertyBlock(_mpb);
+            _mpb.SetColor(BaseColorId, c);
+            _mpb.SetColor(ColorId, c);
+            _mpb.SetColor(EmissionColorId, c * glowMult);
+            r.SetPropertyBlock(_mpb);
+        }
+
+        #endregion
+
+        #region Cinemática en Tiempo Real (~8 Segundos) y Vista Previa
+
         [ContextMenu("Test Infection Sequence (Play Mode)")]
         public void PlayInfectionSequence()
         {
@@ -372,28 +588,43 @@ namespace AndesSim.Scenario01
             _isPlaying = true;
             _hasPlayed = true;
 
-            Debug.LogWarning($"{LogPrefix} <b>INICIANDO CINEMÁTICA EN TIEMPO REAL (~8s) DE PROPAGACIÓN DE MALWARE LAZARUS.</b>");
+            Debug.Log($"{LogPrefix} <b>INICIANDO CINEMÁTICA EN TIEMPO REAL (~8s) DE PROPAGACIÓN DE MALWARE LAZARUS.</b>");
 
-            if (_cinematicCoroutine != null)
-            {
-                StopCoroutine(_cinematicCoroutine);
-            }
-            _cinematicCoroutine = StartCoroutine(RealTimeInfectionTimelineCoroutine());
+            if (_cinematicCoroutine != null) StopCoroutine(_cinematicCoroutine);
+            _cinematicCoroutine = StartCoroutine(RealTimeInfectionTimelineCoroutine(endScenarioOnComplete: true));
         }
 
         /// <summary>
-        /// Corrutina orquestadora de los 8 segundos de la cinemática oficial.
+        /// Ejecuta una demostración visual segura de propagación y contención desde el Menú sin finalizar el escenario.
         /// </summary>
-        private IEnumerator RealTimeInfectionTimelineCoroutine()
+        public void PlayPreviewDemoSequence()
         {
-            Vector3 pos1 = monitor01Point.position + Vector3.up * 0.15f;
-            Vector3 pos2 = monitor02Point.position + Vector3.up * 0.15f;
-            Vector3 pos3 = monitor03Point.position + Vector3.up * 0.15f;
+            if (_cinematicCoroutine != null) StopCoroutine(_cinematicCoroutine);
+            ResetToCleanState();
+            _isPlaying = true;
+            _cinematicCoroutine = StartCoroutine(PreviewDemoCoroutine());
+        }
+
+        private IEnumerator PreviewDemoCoroutine()
+        {
+            yield return StartCoroutine(RealTimeInfectionTimelineCoroutine(endScenarioOnComplete: false));
+            yield return new WaitForSecondsRealtime(2.0f);
+            ShowDefenseContainmentSign();
+            yield return new WaitForSecondsRealtime(3.0f);
+            ResetToCleanState();
+        }
+
+        private IEnumerator RealTimeInfectionTimelineCoroutine(bool endScenarioOnComplete)
+        {
+            Vector3 pos1 = (monitor01Point != null ? monitor01Point.position : new Vector3(1.37f, 1.15f, -2.07f)) + Vector3.up * 0.22f;
+            Vector3 pos2 = (monitor02Point != null ? monitor02Point.position : new Vector3(5.34f, 1.15f, -1.93f)) + Vector3.up * 0.22f;
+            Vector3 pos3 = (monitor03Point != null ? monitor03Point.position : new Vector3(-6.37f, 1.15f, -4.69f)) + Vector3.up * 0.22f;
+            Vector3 posC2 = _c2NodeRoot != null ? _c2NodeRoot.position : ComputeOptimalBannerPosition() + Vector3.up * 0.35f;
 
             // =========================================================================
-            // SEGUNDO 0–2: Monitor_01 (Carla Mendoza) descarga el CV y tiñe la pantalla en rojo
+            // FASE 1 (0 - 2s): Monitor_01 comprometido + anillo viral + onda de choque
             // =========================================================================
-            Debug.Log($"{LogPrefix} <color=#FF5A4E>[Seg 0–2]</color> Monitor_01 descarga 'Rasel_Ahlam_CV_2015.scr.zip'. Backdoor svchost_upd.exe en ejecución silenciosa.");
+            Debug.Log($"{LogPrefix} <color=#FF5A4E>[Seg 0–2]</color> Monitor_01 ejecuta 'Rasel_Ahlam_CV_2015.scr.zip'. Backdoor svchost_upd.exe activo.");
             PlaySound(downloadExploitClip, GenerateDownloadExploitTone());
 
             if (monitor01Controller != null)
@@ -401,10 +632,13 @@ namespace AndesSim.Scenario01
                 monitor01Controller.SetState(InteractiveMonitorController.MonitorState.InfeccionActiva);
             }
 
-            // Activar pulso de emergencia en la iluminación cibernética ambiental
-            if (AndesSim.Environment.AmbientCyberGridEffect.I != null)
+            SetStationClusterMode(0, isAttack: true);
+            StartCoroutine(AnimateShockwaveCoroutine(0));
+            SyncSceneBeacons(HoloBeaconState.AlertRed);
+
+            if (AmbientCyberGridEffect.I != null)
             {
-                AndesSim.Environment.AmbientCyberGridEffect.I.TriggerEmergencyAttackPulse();
+                AmbientCyberGridEffect.I.TriggerEmergencyAttackPulse();
             }
 
             float timer = 0f;
@@ -415,148 +649,264 @@ namespace AndesSim.Scenario01
             }
 
             // =========================================================================
-            // SEGUNDO 2–5: Líneas de energía roja viajan desde Monitor_01 hacia Monitor_02 y Monitor_03
+            // FASE 2 (2 - 5s): Haces curvos, paquetes 3D en vuelo e infección lateral + C2
             // =========================================================================
-            Debug.Log($"{LogPrefix} <color=#FF5A4E>[Seg 2–5]</color> Red plana comprometida: haces de energía roja propagándose hacia Monitor_02 y Monitor_03.");
+            Debug.Log($"{LogPrefix} <color=#FF5A4E>[Seg 2–5]</color> Red plana comprometida: propagación lateral hacia Monitor_02 (SWIFT) y Monitor_03 (SIEM).");
             PlaySound(networkLaserPulseClip, GenerateLaserPulseTone());
 
             lineDesk1ToDesk2.enabled = true;
             lineDesk1ToDesk3.enabled = true;
+            SetPacketPoolActive(_packetsRoute12, true);
+            SetPacketPoolActive(_packetsRoute13, true);
 
             bool monitor02Infected = false;
             bool monitor03Infected = false;
+            bool c2UplinkStarted = false;
 
             timer = 0f;
-            float durationPhase2 = 3.0f; // 2s a 5s
+            const float durationPhase2 = 3.0f;
 
             while (timer < durationPhase2)
             {
                 timer += Time.deltaTime;
                 float progress = Mathf.Clamp01(timer / durationPhase2);
 
-                // 1. Progresión del rayo 1: Monitor_01 -> Monitor_02 (más rápido: se completa al 50% de la fase, ~1.5s)
-                float t1 = Mathf.Clamp01(progress / 0.5f);
-                UpdateCurvedBeam(lineDesk1ToDesk2, pos1, Vector3.Lerp(pos1, pos2, t1), 0.25f * Mathf.Sin(t1 * Mathf.PI));
+                // Haz 1 -> 2
+                float t1 = Mathf.Clamp01(progress / 0.48f);
+                Vector3 end12 = Vector3.Lerp(pos1, pos2, t1);
+                float arc12 = 0.42f;
+                UpdateCurvedBeam(lineDesk1ToDesk2, pos1, end12, arc12 * t1);
+                AnimatePacketsAlongArc(_packetsRoute12, pos1, pos2, arc12, t1, 1.35f);
 
                 if (t1 >= 1.0f && !monitor02Infected)
                 {
                     monitor02Infected = true;
-                    Debug.Log($"{LogPrefix} <color=#FF5A4E>[09:21:10]</color> HTTP GET: PC-PAGOS-02 intenta abrir Rasel_Ahlam_CV_2015.scr.zip (Infección lateral).");
+                    Debug.Log($"{LogPrefix} <color=#FF5A4E>[09:21:10]</color> PC-PAGOS-02 comprometido (Salto lateral hacia módulo SWIFT).");
                     PlaySound(networkLaserPulseClip, GenerateLaserPulseTone());
-                    if (monitor02Controller != null)
-                    {
-                        monitor02Controller.SetState(InteractiveMonitorController.MonitorState.InfeccionActiva);
-                    }
+                    if (monitor02Controller != null) monitor02Controller.SetState(InteractiveMonitorController.MonitorState.InfeccionActiva);
+                    SetStationClusterMode(1, isAttack: true);
+                    StartCoroutine(AnimateShockwaveCoroutine(1));
+
+                    // Encender nodo C2 flotante y enlace de exfiltración
+                    c2UplinkStarted = true;
+                    if (_c2NodeRoot != null) _c2NodeRoot.gameObject.SetActive(true);
+                    if (_lineDesk2ToC2 != null) _lineDesk2ToC2.enabled = true;
+                    SetPacketPoolActive(_packetsRoute2C2, true);
                 }
 
-                // 2. Progresión del rayo 2: Monitor_01 -> Monitor_03 (recorre 6 metros, se completa al 90% de la fase)
-                float t2 = Mathf.Clamp01(progress / 0.9f);
-                UpdateCurvedBeam(lineDesk1ToDesk3, pos1, Vector3.Lerp(pos1, pos3, t2), 0.40f * Mathf.Sin(t2 * Mathf.PI));
+                // Haz 1 -> 3
+                float t2 = Mathf.Clamp01(progress / 0.88f);
+                Vector3 end13 = Vector3.Lerp(pos1, pos3, t2);
+                float arc13 = 0.65f;
+                UpdateCurvedBeam(lineDesk1ToDesk3, pos1, end13, arc13 * t2);
+                AnimatePacketsAlongArc(_packetsRoute13, pos1, pos3, arc13, t2, 1.10f);
 
                 if (t2 >= 1.0f && !monitor03Infected)
                 {
                     monitor03Infected = true;
-                    Debug.LogWarning($"{LogPrefix} <color=#FF5A4E>[09:25:03]</color> HTTP GET: PC-PAGOS-09 abre Rasel_Ahlam_CV_2015.scr.zip");
-                    Debug.LogWarning($"{LogPrefix} <color=#FF5A4E>[09:25:09] ALERTA SILENCIADA:</color> Puerta trasera activa hacia nodo SWIFT.");
+                    Debug.Log($"{LogPrefix} <color=#FF5A4E>[09:25:03]</color> PC-PAGOS-09 (SIEM) alcanzado · Puerta trasera hacia C2 185.130.44.82.");
                     PlaySound(networkLaserPulseClip, GenerateLaserPulseTone());
-                    if (monitor03Controller != null)
-                    {
-                        monitor03Controller.SetState(InteractiveMonitorController.MonitorState.InfeccionActiva);
-                    }
+                    if (monitor03Controller != null) monitor03Controller.SetState(InteractiveMonitorController.MonitorState.InfeccionActiva);
+                    SetStationClusterMode(2, isAttack: true);
+                    StartCoroutine(AnimateShockwaveCoroutine(2));
                 }
 
-                // Pulsación visual de grosor en las líneas de energía activa
-                float pulse = defaultLineWidth * (1.0f + 0.35f * Mathf.Sin(Time.time * 15f));
-                lineDesk1ToDesk2.startWidth = pulse;
-                lineDesk1ToDesk2.endWidth = pulse;
-                lineDesk1ToDesk3.startWidth = pulse * 1.15f;
-                lineDesk1ToDesk3.endWidth = pulse * 1.15f;
+                if (c2UplinkStarted && _lineDesk2ToC2 != null)
+                {
+                    float tC2 = Mathf.Clamp01((progress - 0.48f) / 0.42f);
+                    UpdateCurvedBeam(_lineDesk2ToC2, pos2, Vector3.Lerp(pos2, posC2, tC2), 0.35f * tC2);
+                    AnimatePacketsAlongArc(_packetsRoute2C2, pos2, posC2, 0.35f, tC2, 1.65f);
+                }
 
+                PulseBeams(15f, 0.35f);
                 yield return null;
             }
 
             // =========================================================================
-            // SEGUNDO 5–8: Letrero holográfico superior con el texto oficial del incidente
+            // FASE 3 (5 - 8s): Letrero holográfico flotante + flujo continuo hacia C2
             // =========================================================================
-            Debug.Log($"{LogPrefix} <color=#FF5A4E>[Seg 5–8]</color> Desplegando letrero holográfico: '{HologramMessage}'");
+            Debug.Log($"{LogPrefix} <color=#FF5A4E>[Seg 5–8]</color> Desplegando letrero holográfico de intrusión: '{HologramMessage}'");
             PlaySound(backdoorBreachStingClip, GenerateDramaticBreachSting());
+
+            ConfigureBannerForAttack();
 
             if (holographicSignPanel != null)
             {
+                holographicSignPanel.transform.position = ComputeOptimalBannerPosition();
                 holographicSignPanel.SetActive(true);
             }
 
             timer = 0f;
-            float durationPhase3 = 3.0f; // 5s a 8s
+            const float durationPhase3 = 3.0f;
 
             while (timer < durationPhase3)
             {
                 timer += Time.deltaTime;
-                float alphaProgress = Mathf.Clamp01(timer / 0.6f);
+                float alphaProgress = Mathf.Clamp01(timer / 0.55f);
 
                 if (holographicSignCanvasGroup != null)
                 {
                     holographicSignCanvasGroup.alpha = alphaProgress;
                 }
 
-                // Efecto de pulso en el contorno del letrero
                 if (holographicSignBorder != null)
                 {
                     float glow = 0.85f + 0.15f * Mathf.Sin(Time.time * 8f);
-                    holographicSignBorder.color = new Color(0.08f * glow, 0.02f, 0.02f, 0.95f);
+                    holographicSignBorder.color = new Color(0.11f * glow, 0.02f, 0.03f, 0.95f);
                 }
 
-                // Continuar manteniendo las líneas activas pulsando
-                float pulse = defaultLineWidth * (1.0f + 0.25f * Mathf.Sin(Time.time * 12f));
-                lineDesk1ToDesk2.startWidth = pulse;
-                lineDesk1ToDesk2.endWidth = pulse;
-                lineDesk1ToDesk3.startWidth = pulse;
-                lineDesk1ToDesk3.endWidth = pulse;
+                AnimatePacketsAlongArc(_packetsRoute12, pos1, pos2, 0.42f, 1f, 1.35f);
+                AnimatePacketsAlongArc(_packetsRoute13, pos1, pos3, 0.65f, 1f, 1.10f);
+                AnimatePacketsAlongArc(_packetsRoute2C2, pos2, posC2, 0.35f, 1f, 1.65f);
+                PulseBeams(12f, 0.25f);
 
                 yield return null;
             }
 
-            // =========================================================================
-            // SEGUNDO 8: Concluir la cinemática e invocar GameManager.I.EndScenario()
-            // =========================================================================
-            Debug.Log($"{LogPrefix} <color=#38F28A><b>Cinemática de 8s concluida. Invocando GameManager.I.EndScenario().</b></color>");
-
             _isPlaying = false;
 
-            // Desplegar el resumen del Modo Ataque
-            if (GameManager.I != null)
+            if (endScenarioOnComplete)
             {
-                GameManager.I.EndScenario();
-            }
-
-            // Actualizar paso de flujo
-            if (ScenarioFlowController.I != null)
-            {
-                ScenarioFlowController.I.SetStep(ScenarioStep.Step6_Resultado);
+                Debug.Log($"{LogPrefix} <color=#38F28A><b>Cinemática de 8s concluida. Invocando GameManager.I.EndScenario().</b></color>");
+                if (GameManager.I != null) GameManager.I.EndScenario();
+                if (ScenarioFlowController.I != null) ScenarioFlowController.I.SetStep(ScenarioStep.Step6_Resultado);
             }
         }
 
-        /// <summary>
-        /// Traza una curva parabólica en el LineRenderer entre dos puntos espaciales.
-        /// </summary>
+        private void PulseBeams(float freq, float amp)
+        {
+            float pulse = defaultLineWidth * (1.0f + amp * Mathf.Sin(Time.time * freq));
+            if (lineDesk1ToDesk2 != null) { lineDesk1ToDesk2.startWidth = pulse; lineDesk1ToDesk2.endWidth = pulse * 0.85f; }
+            if (lineDesk1ToDesk3 != null) { lineDesk1ToDesk3.startWidth = pulse * 1.12f; lineDesk1ToDesk3.endWidth = pulse * 0.95f; }
+            if (_lineDesk2ToC2 != null) { _lineDesk2ToC2.startWidth = pulse * 0.9f; _lineDesk2ToC2.endWidth = pulse * 0.7f; }
+        }
+
         private void UpdateCurvedBeam(LineRenderer line, Vector3 start, Vector3 end, float arcHeight)
         {
             if (line == null) return;
-
             line.positionCount = curveResolution;
             for (int i = 0; i < curveResolution; i++)
             {
                 float t = (float)i / (curveResolution - 1);
                 Vector3 pos = Vector3.Lerp(start, end, t);
-                // Arco parabólico en Y
                 pos.y += 4f * arcHeight * t * (1f - t);
                 line.SetPosition(i, pos);
             }
         }
 
+        private void AnimatePacketsAlongArc(Transform[] pool, Vector3 start, Vector3 end, float arcHeight, float beamReach, float speed)
+        {
+            if (pool == null) return;
+            for (int i = 0; i < pool.Length; i++)
+            {
+                Transform pkt = pool[i];
+                if (pkt == null) continue;
+
+                float phase = ((Time.time * speed) + ((float)i / pool.Length)) % 1f;
+                if (phase > beamReach)
+                {
+                    pkt.gameObject.SetActive(false);
+                    continue;
+                }
+
+                pkt.gameObject.SetActive(true);
+                Vector3 pos = Vector3.Lerp(start, end, phase);
+                pos.y += 4f * arcHeight * phase * (1f - phase);
+
+                float nextT = Mathf.Min(1f, phase + 0.03f);
+                Vector3 nextPos = Vector3.Lerp(start, end, nextT);
+                nextPos.y += 4f * arcHeight * nextT * (1f - nextT);
+
+                pkt.position = pos;
+                Vector3 dir = nextPos - pos;
+                if (dir.sqrMagnitude > 0.00001f) pkt.rotation = Quaternion.LookRotation(dir);
+            }
+        }
+
+        private IEnumerator AnimateShockwaveCoroutine(int index)
+        {
+            if (index < 0 || index >= _shockwaveRings.Length || _shockwaveRings[index] == null) yield break;
+
+            GameObject ring = _shockwaveRings[index];
+            Renderer r = _shockwaveRenderers[index];
+            ring.SetActive(true);
+
+            const float duration = 0.85f;
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float u = Mathf.Clamp01(elapsed / duration);
+                float ease = 1f - Mathf.Pow(1f - u, 3f);
+                float diameter = Mathf.Lerp(0.28f, 1.75f, ease);
+                ring.transform.localScale = new Vector3(diameter, 0.01f, diameter);
+
+                Color col = Color.Lerp(BeamPulseGlow, new Color(InfectionRedColor.r, InfectionRedColor.g, InfectionRedColor.b, 0f), u);
+                ApplyColorToRenderer(r, col, Mathf.Lerp(3.0f, 0.1f, u));
+                yield return null;
+            }
+
+            ring.SetActive(false);
+        }
+
+        private void SetStationClusterMode(int index, bool isAttack)
+        {
+            if (index < 0 || index >= _stationNodes.Length || _stationNodes[index] == null) return;
+            _stationNodes[index].SetActive(true);
+
+            Color primary = isAttack ? InfectionRedColor : DefenseEmerald;
+            Color secondary = isAttack ? BeamPulseGlow : DefenseCyan;
+            float mult = isAttack ? 2.4f : 1.15f;
+
+            ApplyColorToRenderer(_stationCoreRenderers[index], primary, isAttack ? 2.8f : 1.9f);
+            if (_stationOuterRings[index] != null)
+            {
+                _stationOuterRings[index].Configure(
+                    new Vector3(24f * mult, 68f * mult, 16f * mult),
+                    _stationOuterRings[index].GetComponent<Renderer>(),
+                    primary, 1.2f, 2.8f, 2.6f * mult);
+            }
+            if (_stationInnerRings[index] != null)
+            {
+                _stationInnerRings[index].Configure(
+                    new Vector3(-32f * mult, -76f * mult, 22f * mult),
+                    _stationInnerRings[index].GetComponent<Renderer>(),
+                    secondary, 1.0f, 2.4f, 2.1f * mult);
+            }
+        }
+
+        private void SetPacketPoolActive(Transform[] pool, bool active)
+        {
+            if (pool == null) return;
+            for (int i = 0; i < pool.Length; i++)
+            {
+                if (pool[i] != null) pool[i].gameObject.SetActive(active);
+            }
+        }
+
+        private void ConfigureBannerForAttack()
+        {
+            if (holographicSignBorder != null)
+            {
+                holographicSignBorder.color = new Color(0.08f, 0.02f, 0.03f, 0.95f);
+            }
+            if (holographicSignTitle != null)
+            {
+                holographicSignTitle.text = "ALERTA CRITICA · RED PLANA COMPROMETIDA";
+                AndesTypographyTheme.StyleDisplayTitle(holographicSignTitle, AndesTypographyTheme.AccentRed, 18f);
+            }
+            if (holographicSignBody != null)
+            {
+                holographicSignBody.text =
+                    $"<b>{HologramMessage}</b>\n" +
+                    "<size=78%><color=#FFC66D>Topología sin segmentación VLAN permitió la intrusión masiva.</color></size>";
+                AndesTypographyTheme.StyleBodyCentered(holographicSignBody, Color.white, 15.5f, 8f);
+            }
+        }
+
         /// <summary>
         /// RF-04: Transforma el letrero superior y la red al modo de Contención Exitosa / Defensa.
-        /// Desactiva de inmediato los haces rojos de ataque y enciende el letrero verde esmeralda del SOC.
+        /// Desactiva los haces rojos y enciende halos de protección verde esmeralda y cian sobre cada puesto.
         /// </summary>
         public void ShowDefenseContainmentSign()
         {
@@ -568,13 +918,28 @@ namespace AndesSim.Scenario01
 
             _isPlaying = false;
 
-            // 1. Apagar haces rojos de ataque
             if (lineDesk1ToDesk2 != null) lineDesk1ToDesk2.enabled = false;
             if (lineDesk1ToDesk3 != null) lineDesk1ToDesk3.enabled = false;
+            if (_lineDesk2ToC2 != null) _lineDesk2ToC2.enabled = false;
 
-            // 2. Activar y desplegar el letrero superior
+            SetPacketPoolActive(_packetsRoute12, false);
+            SetPacketPoolActive(_packetsRoute13, false);
+            SetPacketPoolActive(_packetsRoute2C2, false);
+
+            if (_c2NodeRoot != null) _c2NodeRoot.gameObject.SetActive(false);
+            if (_defenseCanopyRing != null) _defenseCanopyRing.SetActive(true);
+
+            for (int i = 0; i < 3; i++)
+            {
+                SetStationClusterMode(i, isAttack: false);
+                if (_shockwaveRings[i] != null) _shockwaveRings[i].SetActive(false);
+            }
+
+            SyncSceneBeacons(HoloBeaconState.DefenseEmerald);
+
             if (holographicSignPanel != null)
             {
+                holographicSignPanel.transform.position = ComputeOptimalBannerPosition();
                 holographicSignPanel.SetActive(true);
             }
 
@@ -583,27 +948,25 @@ namespace AndesSim.Scenario01
                 holographicSignCanvasGroup.alpha = 1.0f;
             }
 
-            // 3. Fondo y contorno verde esmeralda / cian cibernético de seguridad
             if (holographicSignBorder != null)
             {
-                holographicSignBorder.color = new Color(0.02f, 0.08f, 0.04f, 0.95f);
+                holographicSignBorder.color = new Color(0.02f, 0.09f, 0.05f, 0.95f);
             }
 
-            // 4. Título de Contención Exitosa
             if (holographicSignTitle != null)
             {
-                holographicSignTitle.text = "<b><color=#38F28A>¡CONTENCIÓN EXITOSA: SALVAGUARDAS DEL SOC ACTIVAS!</color></b>";
+                holographicSignTitle.text = "CONTENCION EXITOSA · ESCUDOS SOC ACTIVOS";
+                AndesTypographyTheme.StyleDisplayTitle(holographicSignTitle, DefenseEmerald, 18f);
             }
 
-            // 5. Cuerpo oficial del mensaje de mitigación
             if (holographicSignBody != null)
             {
                 holographicSignBody.text =
                     "<b>AMENAZA AISLADA EN SANDBOX CUCKOO: INFECCIÓN EVITADA AL 100%.</b>\n" +
-                    "<size=75%><color=#A0E8B8>Dropper neutralizado en perímetro. Red plana protegida y fondos SWIFT intactos (US$ 0 robados).</color></size>";
+                    "<size=78%><color=#A0F5C4>Dropper neutralizado en perímetro · Fondos SWIFT intactos (US$ 0 robados).</color></size>";
+                AndesTypographyTheme.StyleBodyCentered(holographicSignBody, Color.white, 15.5f, 8f);
             }
 
-            // 6. Actualizar monitores a estado protegido
             if (monitor01Controller != null) monitor01Controller.SetState(InteractiveMonitorController.MonitorState.ProtegidoCuarentena);
             if (monitor02Controller != null) monitor02Controller.SetState(InteractiveMonitorController.MonitorState.ProtegidoCuarentena);
             if (monitor03Controller != null) monitor03Controller.SetState(InteractiveMonitorController.MonitorState.ProtegidoCuarentena);
@@ -612,7 +975,7 @@ namespace AndesSim.Scenario01
         }
 
         /// <summary>
-        /// Restablece los visualizadores a su estado inicial limpio (sin alerta roja ni rayos activos).
+        /// Restablece los visualizadores y efectos 3D a su estado inicial limpio.
         /// </summary>
         public void ResetToCleanState()
         {
@@ -627,6 +990,22 @@ namespace AndesSim.Scenario01
 
             if (lineDesk1ToDesk2 != null) lineDesk1ToDesk2.enabled = false;
             if (lineDesk1ToDesk3 != null) lineDesk1ToDesk3.enabled = false;
+            if (_lineDesk2ToC2 != null) _lineDesk2ToC2.enabled = false;
+
+            SetPacketPoolActive(_packetsRoute12, false);
+            SetPacketPoolActive(_packetsRoute13, false);
+            SetPacketPoolActive(_packetsRoute2C2, false);
+
+            if (_c2NodeRoot != null) _c2NodeRoot.gameObject.SetActive(false);
+            if (_defenseCanopyRing != null) _defenseCanopyRing.SetActive(false);
+
+            for (int i = 0; i < 3; i++)
+            {
+                if (_stationNodes[i] != null) _stationNodes[i].SetActive(false);
+                if (_shockwaveRings[i] != null) _shockwaveRings[i].SetActive(false);
+            }
+
+            SyncSceneBeacons(HoloBeaconState.NormalCyan);
 
             if (holographicSignCanvasGroup != null)
             {
@@ -635,6 +1014,18 @@ namespace AndesSim.Scenario01
             if (holographicSignPanel != null)
             {
                 holographicSignPanel.SetActive(false);
+            }
+        }
+
+        private void SyncSceneBeacons(HoloBeaconState state)
+        {
+            if (_sceneBeacons == null || _sceneBeacons.Length == 0)
+            {
+                _sceneBeacons = FindObjectsByType<HolographicDataBeacon>(FindObjectsSortMode.None);
+            }
+            for (int i = 0; i < _sceneBeacons.Length; i++)
+            {
+                if (_sceneBeacons[i] != null) _sceneBeacons[i].SetVisualState(state);
             }
         }
 
@@ -662,10 +1053,9 @@ namespace AndesSim.Scenario01
             {
                 float t = (float)i / sampleRate;
                 float env = Mathf.Clamp01(1f - (t / duration));
-                // Chirp descendente con glitch digital
                 float freq = Mathf.Lerp(1200f, 320f, t / duration);
                 float wave = Mathf.Sin(2f * Mathf.PI * freq * t);
-                if ((int)(t * 40f) % 2 == 0) wave *= 0.5f; // Ruido modulado
+                if ((int)(t * 40f) % 2 == 0) wave *= 0.5f;
                 samples[i] = wave * 0.3f * env;
             }
 
@@ -706,7 +1096,6 @@ namespace AndesSim.Scenario01
             {
                 float t = (float)i / sampleRate;
                 float env = Mathf.Clamp01(1f - (t / duration));
-                // Acorde menor disonante y bajo profundo (C2=65.4Hz, Eb2=77.8Hz, Gb2=92.5Hz)
                 float wave = Mathf.Sin(2f * Mathf.PI * 65.4f * t) * 0.4f
                            + Mathf.Sin(2f * Mathf.PI * 77.8f * t) * 0.3f
                            + Mathf.Sin(2f * Mathf.PI * 92.5f * t) * 0.25f;

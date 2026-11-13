@@ -48,7 +48,7 @@ namespace AndesSim.Environment
 
         [Header("--- 4. Paleta de Colores por Estado ---")]
         [ColorUsage(true, true)]
-        [SerializeField] private Color normalColor = new Color(0.14f, 0.65f, 0.45f, 1f); // Verde/azul tenue
+        [SerializeField] private Color normalColor = new Color(0.18f, 0.80f, 0.96f, 1f); // Cian claro elegante
 
         [ColorUsage(true, true)]
         [SerializeField] private Color emergencyRedColor = new Color(1.0f, 0.22f, 0.20f, 1f); // Rojo #ff3834
@@ -141,7 +141,7 @@ namespace AndesSim.Environment
                 {
                     GameObject dummyWin = new GameObject("Anchor_Ventanal_Cyber");
                     dummyWin.transform.SetParent(transform, false);
-                    dummyWin.transform.position = new Vector3(0f, 1.8f, 5.3f);
+                    dummyWin.transform.position = new Vector3(1.8f, 2.0f, 3.60f);
                     windowAnchor = dummyWin.transform;
                 }
             }
@@ -154,7 +154,7 @@ namespace AndesSim.Environment
                 {
                     GameObject dummyPortal = new GameObject("Anchor_Portal_Cyber");
                     dummyPortal.transform.SetParent(transform, false);
-                    dummyPortal.transform.position = new Vector3(0f, 1.4f, -4.5f);
+                    dummyPortal.transform.position = new Vector3(-2.60f, 1.60f, 3.45f);
                     portalAnchor = dummyPortal.transform;
                 }
             }
@@ -306,21 +306,21 @@ namespace AndesSim.Environment
                     _targetLightColor = normalColor;
                     _targetBaseIntensity = 0.85f;
                     SetParticleColor(normalColor);
-                    SetRenderSettingsAmbient(new Color(0.12f, 0.22f, 0.18f), new Color(0.08f, 0.14f, 0.12f));
+                    ApplyCoordinatedAmbient(newState, new Color(0.82f, 0.88f, 0.95f), new Color(0.70f, 0.75f, 0.81f));
                     break;
 
                 case CyberAmbientState.EmergencyAttackInfection:
                     _targetLightColor = emergencyRedColor;
                     _targetBaseIntensity = 1.10f;
                     SetParticleColor(emergencyRedColor);
-                    SetRenderSettingsAmbient(new Color(0.38f, 0.10f, 0.08f), new Color(0.22f, 0.06f, 0.05f));
+                    ApplyCoordinatedAmbient(newState, new Color(0.75f, 0.30f, 0.28f), new Color(0.55f, 0.22f, 0.20f));
                     break;
 
                 case CyberAmbientState.QuarantineDefenseShield:
                     _targetLightColor = defenseCyanColor;
                     _targetBaseIntensity = 0.95f;
                     SetParticleColor(defenseCyanColor);
-                    SetRenderSettingsAmbient(new Color(0.10f, 0.32f, 0.26f), new Color(0.06f, 0.20f, 0.16f));
+                    ApplyCoordinatedAmbient(newState, new Color(0.48f, 0.90f, 0.72f), new Color(0.36f, 0.75f, 0.58f));
                     break;
             }
 
@@ -403,10 +403,16 @@ namespace AndesSim.Environment
             }
         }
 
-        private static void SetRenderSettingsAmbient(Color sky, Color equator)
+        private static void ApplyCoordinatedAmbient(CyberAmbientState state, Color fallbackSky, Color fallbackEquator)
         {
-            RenderSettings.ambientSkyColor = sky;
-            RenderSettings.ambientEquatorColor = equator;
+            if (SocLightingController.I != null)
+            {
+                SocLightingController.I.ApplyCyberAmbientTint(state);
+                return;
+            }
+
+            RenderSettings.ambientSkyColor = fallbackSky;
+            RenderSettings.ambientEquatorColor = fallbackEquator;
         }
 
         #endregion

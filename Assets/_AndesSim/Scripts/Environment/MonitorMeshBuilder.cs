@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using AndesSim.Core;
 using AndesSim.Scenario01;
+using AndesSim.UI;
 using AndesSim.VR;
 
 #if UNITY_EDITOR
@@ -679,10 +680,7 @@ namespace AndesSim.Environment
 
             TextMeshProUGUI tmp = txtObj.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
-            tmp.fontSize = 19f;
-            tmp.fontStyle = FontStyles.Bold;
-            tmp.alignment = TextAlignmentOptions.Center;
-            tmp.color = Color.white;
+            AndesTypographyTheme.StyleButtonLabel(tmp, Color.white, 19f);
 
             // BoxCollider en unidades locales de Canvas para retícula Cardboard VR
             BoxCollider col = btnObj.AddComponent<BoxCollider>();
@@ -692,6 +690,7 @@ namespace AndesSim.Environment
             gaze.interactableLabel = text;
 
             btnObj.AddComponent<WorldSpaceUiGazeButton>();
+            btnObj.AddComponent<HolographicCardHover>().Configure(1.045f, 14f);
 
             return btnObj;
         }
