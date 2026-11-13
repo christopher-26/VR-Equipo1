@@ -396,6 +396,7 @@ namespace AndesSim.UI
 
             _activeContentPanel = emailPanel;
             ShowOverlay();
+            AndesSim.Audio.AudioManager.I?.PlayNarration(_emailSubPart == 0 ? "Voice_06_CorreoParte1" : "Voice_07_CorreoParte2", true, 2.0f);
         }
 
         /// <summary>
@@ -482,6 +483,7 @@ namespace AndesSim.UI
 
             _activeContentPanel = qPanel;
             ShowOverlay();
+            AndesSim.Audio.AudioManager.I?.PlayNarration("Voice_12_CuarentenaSandbox", true, 2.0f);
         }
 
         /// <summary>
@@ -504,6 +506,7 @@ namespace AndesSim.UI
                 InfectionSpreadVisualizer.I.PlayInfectionSequence();
             }
 
+            AndesSim.Audio.AudioManager.I?.PlayNarration("Voice_10_AtaqueDetonado", true, 2.0f);
             StopCoroutine(nameof(InfectionScreenAnimationRoutine));
             StartCoroutine(nameof(InfectionScreenAnimationRoutine));
         }
@@ -625,6 +628,7 @@ namespace AndesSim.UI
 
             _activeContentPanel = robPanel;
             ShowOverlay();
+            AndesSim.Audio.AudioManager.I?.PlayNarration("Voice_11_RoboConsumado", true, 2.0f);
         }
 
         /// <summary>
@@ -705,6 +709,7 @@ namespace AndesSim.UI
 
             _activeContentPanel = credPanel;
             ShowOverlay();
+            AndesSim.Audio.AudioManager.I?.PlayNarration("Voice_13_PostItEvidencia", true, 2.0f);
         }
 
         /// <summary>
@@ -760,6 +765,7 @@ namespace AndesSim.UI
 
             _activeContentPanel = swiftPanel;
             ShowOverlay();
+            AndesSim.Audio.AudioManager.I?.PlayNarration("Voice_14_TerminalSwift", true, 2.0f);
         }
 
         /// <summary>
@@ -821,6 +827,7 @@ namespace AndesSim.UI
 
             _activeContentPanel = siemPanel;
             ShowOverlay();
+            AndesSim.Audio.AudioManager.I?.PlayNarration("Voice_15_ConsolaSiem", true, 2.0f);
         }
 
         /// <summary>
@@ -924,6 +931,7 @@ namespace AndesSim.UI
 
             _activeContentPanel = dossierPanel;
             ShowOverlay();
+            AndesSim.Audio.AudioManager.I?.PlayNarration("Voice_19_TableroSospechosos", false, 12.0f);
         }
 
         private void NavigateToSuspectBoardOrDefense()

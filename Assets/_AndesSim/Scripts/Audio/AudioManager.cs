@@ -95,6 +95,7 @@ namespace AndesSim.Audio
         [SerializeField] private AudioSource ambientSource;
         [SerializeField] private AudioSource sfxSource;
         [SerializeField] private AudioSource alarmSource;
+        [SerializeField] private AudioSource voiceSource;
 
         [Header("--- 3. Controles de Volumen ---")]
         [Range(0f, 1f)] [SerializeField] private float masterVolume = 0.85f;
@@ -102,17 +103,24 @@ namespace AndesSim.Audio
         [Range(0f, 1f)] [SerializeField] private float ambientVolume = 0.35f;
         [Range(0f, 1f)] [SerializeField] private float sfxVolume = 0.85f;
         [Range(0f, 1f)] [SerializeField] private float alarmVolume = 0.80f;
+        [Range(0f, 1f)] [SerializeField] private float voiceVolume = 1.00f;
 
         [Header("--- 4. Configuración Automática ---")]
         [Tooltip("Si está activo, inicia el loop musical y ambiental de la oficina al cargar.")]
         [SerializeField] private bool autoStartMusic = true;
         [SerializeField] private bool autoStartAmbientLoop = true;
+        [SerializeField] private bool enableVoiceNarration = true;
 
         [Tooltip("Si está activo, escucha los eventos de GameManager para detonar sonidos y conmutar música automáticamente.")]
         [SerializeField] private bool listenGameManagerEvents = true;
 
         private Coroutine _musicCrossfadeCoroutine;
+        private Coroutine _voiceDuckCoroutine;
         private MusicTheme _currentMusicTheme = MusicTheme.None;
+        private readonly System.Collections.Generic.Dictionary<string, AudioClip> _narrationCache =
+            new System.Collections.Generic.Dictionary<string, AudioClip>(StringComparer.OrdinalIgnoreCase);
+        private string _lastNarrationKey;
+        private float _lastNarrationRealtime = -999f;
 
         #region Propiedades Públicas
 
@@ -179,6 +187,22 @@ namespace AndesSim.Audio
                 GameManager.I.OnPhishingSignalRegistered += HandlePhishingSignalDiscovered;
                 GameManager.I.OnModeChanged += HandleModeChanged;
             }
+
+            if (enableVoiceNarration)
+            {
+                StartCoroutine(PlayWelcomeNarrationDelayed());
+            }
+        }
+
+        private IEnumerator PlayWelcomeNarrationDelayed()
+        {
+            yield return new WaitForSecondsRealtime(0.75f);
+            if (!enableVoiceNarration) yield break;
+            if (GameManager.I != null && GameManager.I.IsScenarioEnded) yield break;
+            if (voiceSource != null && !voiceSource.isPlaying && string.IsNullOrEmpty(_lastNarrationKey))
+            {
+                PlayNarration("Voice_01_Bienvenida", false, 5.0f);
+            }
         }
 
         private void OnDestroy()
@@ -241,6 +265,18 @@ namespace AndesSim.Audio
             alarmSource.loop = true;
             alarmSource.spatialBlend = 0.35f;
             alarmSource.volume = alarmVolume * masterVolume;
+
+            // 4. Canal de Narración por Voz en Español (2D Claro en Auriculares)
+            if (voiceSource == null)
+            {
+                GameObject voiceObj = new GameObject("AudioChannel_Voice");
+                voiceObj.transform.SetParent(transform, false);
+                voiceSource = voiceObj.AddComponent<AudioSource>();
+            }
+            voiceSource.playOnAwake = false;
+            voiceSource.loop = false;
+            voiceSource.spatialBlend = 0f;
+            voiceSource.volume = voiceVolume * masterVolume;
         }
 
         #endregion
@@ -424,6 +460,82 @@ namespace AndesSim.Audio
             if (ambientSource != null) ambientSource.volume = ambientVolume * masterVolume;
             if (sfxSource != null) sfxSource.volume = sfxVolume * masterVolume;
             if (alarmSource != null) alarmSource.volume = alarmVolume * masterVolume;
+            if (voiceSource != null) voiceSource.volume = voiceVolume * masterVolume;
+        }
+
+        public void PlayNarration(string clipKey, bool interruptCurrent = true, float minRepeatCooldown = 3.0f)
+        {
+            if (!enableVoiceNarration || string.IsNullOrEmpty(clipKey) || voiceSource == null) return;
+            if (!interruptCurrent && voiceSource.isPlaying) return;
+
+            if (string.Equals(_lastNarrationKey, clipKey, StringComparison.OrdinalIgnoreCase) &&
+                (Time.realtimeSinceStartup - _lastNarrationRealtime) < minRepeatCooldown)
+            {
+                return;
+            }
+
+            if (!_narrationCache.TryGetValue(clipKey, out AudioClip clip) || clip == null)
+            {
+                clip = Resources.Load<AudioClip>("Audio/Narration/" + clipKey);
+                _narrationCache[clipKey] = clip;
+            }
+
+            if (clip == null) return;
+
+            _lastNarrationKey = clipKey;
+            _lastNarrationRealtime = Time.realtimeSinceStartup;
+
+            voiceSource.Stop();
+            voiceSource.clip = clip;
+            voiceSource.volume = voiceVolume * masterVolume;
+            voiceSource.Play();
+
+            if (_voiceDuckCoroutine != null) StopCoroutine(_voiceDuckCoroutine);
+            _voiceDuckCoroutine = StartCoroutine(DuckMusicWhileSpeakingRoutine(clip.length));
+        }
+
+        public void StopNarration()
+        {
+            if (_voiceDuckCoroutine != null)
+            {
+                StopCoroutine(_voiceDuckCoroutine);
+                _voiceDuckCoroutine = null;
+            }
+            if (voiceSource != null && voiceSource.isPlaying)
+            {
+                voiceSource.Stop();
+            }
+            if (musicSource != null)
+            {
+                musicSource.volume = musicVolume * masterVolume;
+            }
+        }
+
+        private IEnumerator DuckMusicWhileSpeakingRoutine(float clipLength)
+        {
+            float deadline = Time.realtimeSinceStartup + clipLength + 0.15f;
+            while (Time.realtimeSinceStartup < deadline && voiceSource != null && voiceSource.isPlaying)
+            {
+                if (musicSource != null && musicSource.isPlaying)
+                {
+                    musicSource.volume = Mathf.Min(musicSource.volume, musicVolume * masterVolume * 0.30f);
+                }
+                yield return null;
+            }
+
+            if (musicSource != null)
+            {
+                float startVol = musicSource.volume;
+                float elapsed = 0f;
+                while (elapsed < 0.45f)
+                {
+                    elapsed += Time.deltaTime;
+                    musicSource.volume = Mathf.Lerp(startVol, musicVolume * masterVolume, elapsed / 0.45f);
+                    yield return null;
+                }
+                musicSource.volume = musicVolume * masterVolume;
+            }
+            _voiceDuckCoroutine = null;
         }
 
         #endregion
@@ -573,11 +685,29 @@ namespace AndesSim.Audio
         private void HandleDefenseApplied(string defenseId)
         {
             PlayQuarantineSuccess();
+            if (GameManager.I != null && GameManager.I.IsScenarioEnded) return;
+
+            int defCount = GameManager.I != null ? GameManager.I.AppliedDefenses.Count : 0;
+            if (defCount >= 3)
+            {
+                PlayNarration("Voice_17_TodasDefensasActivas", true, 4.0f);
+            }
+            else
+            {
+                bool isQuarantineVoiceActive = voiceSource != null && voiceSource.isPlaying &&
+                    string.Equals(_lastNarrationKey, "Voice_12_CuarentenaSandbox", StringComparison.OrdinalIgnoreCase);
+                if (!isQuarantineVoiceActive)
+                {
+                    PlayNarration("Voice_16_DefensaActivada", true, 2.5f);
+                }
+            }
         }
 
         private void HandlePhishingSignalDiscovered(string signalId)
         {
             PlayPhishingSignal();
+            int count = GameManager.I != null ? GameManager.I.DiscoveredPhishingSignals.Count : 0;
+            PlayNarration(count >= 3 ? "Voice_09_TresSenalesCompletas" : "Voice_08_SenalDetectada", true, 1.5f);
         }
 
         private void HandleModeChanged(SimMode newMode)

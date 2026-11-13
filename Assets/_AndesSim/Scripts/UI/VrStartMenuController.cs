@@ -233,6 +233,11 @@ namespace AndesSim.VR
                 GameManager.I.SetMode(mode);
             }
 
+            if (AudioManager.I != null)
+            {
+                AudioManager.I.PlayNarration(mode == SimMode.Ataque ? "Voice_02_ModoAtaqueElegido" : "Voice_03_ModoDefensaElegido", true, 1.5f);
+            }
+
             UpdateModeDisplay();
         }
 
@@ -296,6 +301,10 @@ namespace AndesSim.VR
             if (txtBtnTogglePasosLabel != null)
             {
                 txtBtnTogglePasosLabel.text = showPasos ? "[ VER MODOS ]" : "[ ? COMO FUNCIONA ]";
+            }
+            if (showPasos && AudioManager.I != null)
+            {
+                AudioManager.I.PlayNarration("Voice_04_GuiaPasosMenu", true, 2.0f);
             }
         }
 
@@ -415,10 +424,14 @@ namespace AndesSim.VR
                 }
             }
 
-            // 5. Avanzar flujo del escenario a Oficina 3D
+            // 5. Avanzar flujo del escenario a Oficina 3D y narrar primer puesto
             if (ScenarioFlowController.I != null)
             {
                 ScenarioFlowController.I.SetStep(ScenarioStep.Step2_Oficina3D);
+            }
+            if (AudioManager.I != null)
+            {
+                AudioManager.I.PlayNarration("Voice_05_InicioOficina", true, 2.0f);
             }
 
             yield return new WaitForSeconds(0.3f);
@@ -451,6 +464,10 @@ namespace AndesSim.VR
             }
             SetPasosViewVisible(false);
             UpdateModeDisplay();
+            if (AudioManager.I != null)
+            {
+                AudioManager.I.PlayNarration("Voice_01_Bienvenida", true, 3.0f);
+            }
         }
 
         private void ResolveTeleportDestination()

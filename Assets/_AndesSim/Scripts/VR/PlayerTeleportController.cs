@@ -181,7 +181,30 @@ namespace AndesSim.VR
 
             _isTeleporting = false;
             OnPlayerTeleported?.Invoke(targetFloorPos, targetRot);
+            NotifyArrivalNarration(targetPoint);
             Debug.Log($"{LogPrefix} <color=#4EC9B0>Teletransporte completado con éxito. Ojos a {eyeHeight}m sobre el suelo.</color>");
+        }
+
+        private void NotifyArrivalNarration(TeleportPoint targetPoint)
+        {
+            if (targetPoint == null || AndesSim.Audio.AudioManager.I == null) return;
+            string n = targetPoint.gameObject.name;
+            if (n.IndexOf("Tablero", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                AndesSim.Audio.AudioManager.I.PlayNarration("Voice_19_TableroSospechosos", true, 6.0f);
+            }
+            else if (n.IndexOf("ConsolaDefensa", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                AndesSim.Audio.AudioManager.I.PlayNarration("Voice_18_ConsolaDefensaZona", true, 6.0f);
+            }
+            else if (n.IndexOf("Puesto2", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                AndesSim.Audio.AudioManager.I.PlayNarration("Voice_14_TerminalSwift", false, 8.0f);
+            }
+            else if (n.IndexOf("Puesto3", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                AndesSim.Audio.AudioManager.I.PlayNarration("Voice_15_ConsolaSiem", false, 8.0f);
+            }
         }
 
         /// <summary>

@@ -223,10 +223,12 @@ namespace AndesSim.UI
             if (currentMode == SimMode.Ataque)
             {
                 ConfigureAttackModeOutcome(timeCriterionMet, elapsed);
+                AndesSim.Audio.AudioManager.I?.PlayNarration("Voice_20_FinalAtaque", true, 2.0f);
             }
             else
             {
                 ConfigureDefenseModeOutcome(timeCriterionMet, elapsed);
+                AndesSim.Audio.AudioManager.I?.PlayNarration("Voice_21_FinalDefensa", true, 2.0f);
             }
 
             // 3. Animación de fade in suave

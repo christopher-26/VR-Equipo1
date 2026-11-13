@@ -2,7 +2,7 @@
 **Proyecto:** ANDES-SIM · Caso BANCO ANDINO — Escenario 1: Oficina de pagos (VR)
 **Equipo:** Equipo 1 (VR)
 **Escena Auditada:** `Oficina_Pagos.unity`
-**Fecha y Hora:** `2026-11-12 23:24:58`
+**Fecha y Hora:** `2026-11-12 23:44:35`
 **Calificación Obtenida:** **`18.3 / 20.0 PUNTOS`** (91%)
 
 ---
