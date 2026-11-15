@@ -4,6 +4,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 using AndesSim.Core;
 using AndesSim.UI;
 using AndesSim.VR;
@@ -124,6 +127,54 @@ namespace AndesSim.Scenario01
                         Mathf.Max(currentSize.x, 0.40f),
                         Mathf.Max(currentSize.y, 0.36f),
                         Mathf.Max(currentSize.z, 0.12f));
+                }
+            }
+        }
+
+
+        private Camera _mainCamCached;
+
+        private void Update()
+        {
+            // Atajo de interacción frontal: si el jugador está frente al monitor y presiona 'E', 'Espacio' o 'Enter'
+            if (_mainCamCached == null) _mainCamCached = Camera.main;
+            if (_mainCamCached == null) return;
+
+            float dist = Vector3.Distance(_mainCamCached.transform.position, transform.position);
+            if (dist > distanceTeleportThreshold + 0.6f) return;
+
+            // Verificar si la cámara mira hacia este monitor
+            Vector3 toMonitor = (transform.position - _mainCamCached.transform.position).normalized;
+            float lookDot = Vector3.Dot(_mainCamCached.transform.forward, toMonitor);
+
+            bool isLookingAtMe = lookDot > 0.62f || (GazeInteractable.CurrentHovered != null && GazeInteractable.CurrentHovered.gameObject == gameObject);
+
+            if (isLookingAtMe)
+            {
+                bool interactKey = false;
+#if ENABLE_INPUT_SYSTEM
+                if (Keyboard.current != null)
+                {
+                    if (Keyboard.current.eKey.wasPressedThisFrame || Keyboard.current.spaceKey.wasPressedThisFrame || Keyboard.current.enterKey.wasPressedThisFrame)
+                        interactKey = true;
+                }
+#endif
+#if ENABLE_LEGACY_INPUT_MANAGER
+                if (!interactKey)
+                {
+                    try
+                    {
+                        if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return))
+                            interactKey = true;
+                    }
+                    catch { }
+                }
+#endif
+
+                if (interactKey)
+                {
+                    Debug.Log($"{LogPrefix} Tecla de interacción pulsada frente a {monitorId}.");
+                    ToggleInspectionModal();
                 }
             }
         }
@@ -405,13 +456,26 @@ namespace AndesSim.Scenario01
             }
             else
             {
-                OpenInspectionZoomModal();
+                ToggleInspectionModal();
             }
         }
 
         private IEnumerator OpenInspectionAfterTeleport()
         {
             yield return new WaitForSeconds(0.2f);
+            OpenInspectionZoomModal();
+        }
+
+        public void ToggleInspectionModal()
+        {
+            if (VrInspectionOverlayManager.I != null && VrInspectionOverlayManager.I.IsOpen)
+            {
+                Debug.Log($"{LogPrefix} Minimizando panel de inspección para {monitorId}.");
+                VrInspectionOverlayManager.I.CloseOverlay();
+                PlaySound(zoomInspectClip);
+                return;
+            }
+
             OpenInspectionZoomModal();
         }
 
@@ -422,6 +486,13 @@ namespace AndesSim.Scenario01
             // Priorizar VrInspectionOverlayManager para visualización inmersiva en primer plano
             if (VrInspectionOverlayManager.I != null)
             {
+                // Si ya está abierto, minimizarlo
+                if (VrInspectionOverlayManager.I.IsOpen)
+                {
+                    VrInspectionOverlayManager.I.CloseOverlay();
+                    return;
+                }
+
                 string id = (monitorId + " " + gameObject.name).ToLowerInvariant();
                 if (id.Contains("01") || id.Contains("carla"))
                 {

@@ -562,11 +562,11 @@ namespace AndesSim.Editor
             // Componente cinemático oficial de propagación de infección en red (InfectionSpreadVisualizer)
             BuildInfectionSpreadVisualizer(parent, monitor01, monitor02, monitor03);
 
-            // Balizas holográficas flotantes sobre los puestos y consola de defensa
-            OficinaPagosMenuAndFxBuilder.AttachWorkstationHoloBeacon(parent, "Holo_Baliza_Monitor_01", monitor01.transform.position + new Vector3(0f, 0.72f, 0f), AndesTypographyTheme.AccentCyan, "PC 1 · CORREO");
-            OficinaPagosMenuAndFxBuilder.AttachWorkstationHoloBeacon(parent, "Holo_Baliza_Monitor_02", monitor02.transform.position + new Vector3(0f, 0.72f, 0f), AndesTypographyTheme.AccentCyan, "PC 2 · SWIFT");
-            OficinaPagosMenuAndFxBuilder.AttachWorkstationHoloBeacon(parent, "Holo_Baliza_Monitor_03", monitor03.transform.position + new Vector3(0f, 0.72f, 0f), AndesTypographyTheme.AccentCyan, "PC 3 · SIEM");
-            OficinaPagosMenuAndFxBuilder.AttachWorkstationHoloBeacon(parent, "Holo_Baliza_Defensas", defSwitchesObj.transform.position + new Vector3(0f, 0.50f, 0f), AndesTypographyTheme.AccentEmerald, "DEFENSAS");
+            // Balizas holográficas flotantes sobre los puestos y consola de defensa (elevadas a 0.95m para alinearse al borde superior del cubículo)
+            OficinaPagosMenuAndFxBuilder.AttachWorkstationHoloBeacon(parent, "Holo_Baliza_Monitor_01", monitor01.transform.position + new Vector3(0f, 0.95f, 0f), AndesTypographyTheme.AccentCyan, "PC 1 · CORREO");
+            OficinaPagosMenuAndFxBuilder.AttachWorkstationHoloBeacon(parent, "Holo_Baliza_Monitor_02", monitor02.transform.position + new Vector3(0f, 0.95f, 0f), AndesTypographyTheme.AccentCyan, "PC 2 · SWIFT");
+            OficinaPagosMenuAndFxBuilder.AttachWorkstationHoloBeacon(parent, "Holo_Baliza_Monitor_03", monitor03.transform.position + new Vector3(0f, 0.95f, 0f), AndesTypographyTheme.AccentCyan, "PC 3 · SIEM");
+            OficinaPagosMenuAndFxBuilder.AttachWorkstationHoloBeacon(parent, "Holo_Baliza_Defensas", defSwitchesObj.transform.position + new Vector3(0f, 0.65f, 0f), AndesTypographyTheme.AccentEmerald, "DEFENSAS");
             AndesTypographyTheme.ApplyTypographyToTree(parent, true, false);
 
             // TeleportPoint de retorno a la Puerta de Entrada (Acceso Principal)

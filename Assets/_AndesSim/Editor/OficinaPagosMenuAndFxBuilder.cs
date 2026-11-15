@@ -476,56 +476,66 @@ namespace AndesSim.Editor
             root.transform.position = worldPos;
 
             HolographicFloatMotion fl = root.AddComponent<HolographicFloatMotion>();
-            fl.Configure(0.030f, 1.05f, new Vector3(1.1f, 1.8f, 0.9f), 0f, 0.025f, true);
+            fl.Configure(0.018f, 0.85f, new Vector3(0.8f, 1.2f, 0.6f), 0f, 0.015f, true);
 
-            Material mat = CreateUnlitGlowMaterial("Mat_" + name, initialColor, initialColor * 2.1f);
+            Material mat = CreateUnlitGlowMaterial("Mat_" + name, initialColor, initialColor * 2.2f);
 
+            // Micro-gema central compacta y discreta
             GameObject core = GameObject.CreatePrimitive(PrimitiveType.Cube);
             core.name = "Holo_Core";
             core.transform.SetParent(root.transform, false);
-            core.transform.localRotation = Quaternion.Euler(35f, 45f, 15f);
-            core.transform.localScale = new Vector3(0.07f, 0.07f, 0.07f);
+            core.transform.localPosition = new Vector3(0f, 0.075f, 0f);
+            core.transform.localRotation = Quaternion.Euler(45f, 45f, 45f);
+            core.transform.localScale = Vector3.one * 0.032f;
             RemoveCollider(core);
             Renderer coreR = core.GetComponent<Renderer>();
             coreR.sharedMaterial = mat;
-            core.AddComponent<HolographicOrbitRing>().Configure(new Vector3(18f, 52f, 14f), coreR, initialColor, 1.1f, 2.4f, 1.9f);
+            core.AddComponent<HolographicOrbitRing>().Configure(new Vector3(12f, 36f, 8f), coreR, initialColor, 0.9f, 2.0f, 1.5f);
 
+            // Anillo orbital delgado y compacto (14cm de diámetro, no obstruye la pantalla)
             GameObject ringA = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             ringA.name = "Holo_RingA";
             ringA.transform.SetParent(root.transform, false);
-            ringA.transform.localRotation = Quaternion.Euler(22f, 0f, 14f);
-            ringA.transform.localScale = new Vector3(0.22f, 0.005f, 0.22f);
+            ringA.transform.localPosition = new Vector3(0f, 0.075f, 0f);
+            ringA.transform.localRotation = Quaternion.Euler(15f, 0f, 10f);
+            ringA.transform.localScale = new Vector3(0.09f, 0.0018f, 0.09f);
             RemoveCollider(ringA);
             Renderer rA = ringA.GetComponent<Renderer>();
             rA.sharedMaterial = mat;
             HolographicOrbitRing spinA = ringA.AddComponent<HolographicOrbitRing>();
-            spinA.Configure(new Vector3(16f, 44f, 8f), rA, initialColor, 0.9f, 2.2f, 1.7f);
+            spinA.Configure(new Vector3(10f, 32f, 6f), rA, initialColor, 0.8f, 1.8f, 1.4f);
 
+            // Segundo micro-anillo sutil en contra-rotación
             GameObject ringB = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             ringB.name = "Holo_RingB";
             ringB.transform.SetParent(root.transform, false);
-            ringB.transform.localRotation = Quaternion.Euler(-28f, 35f, -18f);
-            ringB.transform.localScale = new Vector3(0.17f, 0.004f, 0.17f);
+            ringB.transform.localPosition = new Vector3(0f, 0.075f, 0f);
+            ringB.transform.localRotation = Quaternion.Euler(-20f, 25f, -12f);
+            ringB.transform.localScale = new Vector3(0.068f, 0.0014f, 0.068f);
             RemoveCollider(ringB);
             Renderer rB = ringB.GetComponent<Renderer>();
             rB.sharedMaterial = mat;
             HolographicOrbitRing spinB = ringB.AddComponent<HolographicOrbitRing>();
-            spinB.Configure(new Vector3(-18f, -54f, -12f), rB, initialColor, 0.9f, 2.2f, 2.1f);
+            spinB.Configure(new Vector3(-12f, -38f, -8f), rB, initialColor, 0.8f, 1.8f, 1.6f);
 
-            // Mini etiqueta flotante (orientada de frente legible sin inversion especular)
+            // Rótulo identificador flotante estilizado con fondo opaco y borde neón
             GameObject lblCanvas = new GameObject("Canvas_Tag");
             lblCanvas.transform.SetParent(root.transform, false);
-            lblCanvas.transform.localPosition = new Vector3(0f, 0.14f, 0f);
+            lblCanvas.transform.localPosition = Vector3.zero;
             lblCanvas.transform.localRotation = Quaternion.identity;
             Canvas c = lblCanvas.AddComponent<Canvas>();
             c.renderMode = RenderMode.WorldSpace;
             RectTransform cr = lblCanvas.GetComponent<RectTransform>();
-            cr.sizeDelta = new Vector2(210f, 40f);
-            cr.localScale = Vector3.one * 0.0022f;
+            cr.sizeDelta = new Vector2(230f, 42f);
+            cr.localScale = Vector3.one * 0.0020f;
             Image bg = lblCanvas.AddComponent<Image>();
-            bg.color = AndesTypographyTheme.BgVoidNavy;
+            bg.color = new Color(0.012f, 0.030f, 0.055f, 0.98f);
 
-            TextMeshProUGUI txt = CreateCenteredText("Txt_StationTag", lblCanvas.transform, Vector2.zero, new Vector2(198f, 34f),
+            Outline ol = lblCanvas.AddComponent<Outline>();
+            ol.effectColor = new Color(initialColor.r, initialColor.g, initialColor.b, 0.65f);
+            ol.effectDistance = new Vector2(1.5f, -1.5f);
+
+            TextMeshProUGUI txt = CreateCenteredText("Txt_StationTag", lblCanvas.transform, Vector2.zero, new Vector2(216f, 36f),
                 tagLine, 14.5f, initialColor);
             AndesTypographyTheme.StyleBadge(txt, initialColor, 14.5f);
 

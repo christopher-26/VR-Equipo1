@@ -606,20 +606,20 @@ namespace AndesSim.Environment
                        "OP #9482 LON   $0.48M   <color=#38F28A><b>OK</b></color>\n" +
                        "<color=#FFC24A><b>OP #9483 MKT  $81.0M   ESPERA</b></color>";
 
-            GameObject alertPill = CreateUiLine("Pill_AlertaSwift", panel.transform,
-                new Vector2(0f, -242f), new Vector2(660f, 92f), new Color(0.30f, 0.19f, 0.04f, 0.92f));
-            CreateUiLine("Pill_AlertaSwift_Borde", alertPill.transform,
-                new Vector2(0f, 44f), new Vector2(660f, 4f), new Color(1f, 0.76f, 0.29f, 0.85f));
+            GameObject btnOpenSwift = CreateWorldGazeButton(
+                "Btn_AbrirSwiftModal", panel.transform,
+                new Vector2(0f, -242f), new Vector2(660f, 92f),
+                "🔍 PANTALLA COMPLETA (E / CLIC)",
+                new Color(0.08f, 0.28f, 0.42f, 0.98f), TerminalBorderGreen);
 
-            GameObject alertTxtObj = new GameObject("Txt_AlertaDestino");
-            alertTxtObj.transform.SetParent(alertPill.transform, false);
-            RectTransform aRect = alertTxtObj.AddComponent<RectTransform>();
-            aRect.sizeDelta = new Vector2(620f, 70f);
-            TextMeshProUGUI alertTmp = alertTxtObj.AddComponent<TextMeshProUGUI>();
-            alertTmp.fontSize = 21f;
-            alertTmp.alignment = TextAlignmentOptions.Center;
-            alertTmp.color = new Color(1f, 0.88f, 0.56f, 1f);
-            alertTmp.text = "<b>Destino anomalo: RCBC Makati (IP .10.16)</b>";
+            var mon2Ctrl = monitor02.GetComponent<InteractiveMonitorController>();
+            if (mon2Ctrl != null)
+            {
+                Button b = btnOpenSwift.GetComponent<Button>();
+                if (b != null) b.onClick.AddListener(mon2Ctrl.OnMonitorClicked);
+                GazeInteractable g = btnOpenSwift.GetComponent<GazeInteractable>();
+                if (g != null) g.onClick.AddListener(mon2Ctrl.OnMonitorClicked);
+            }
         }
 
         /// <summary>
@@ -662,7 +662,16 @@ namespace AndesSim.Environment
             GameObject logBtnObj = CreateWorldGazeButton(
                 "Btn_RegistrarLogEvidencia", panel.transform,
                 new Vector2(0f, -238f), new Vector2(660f, 108f),
-                "REGISTRAR LOG SIEM", new Color(0.10f, 0.28f, 0.44f, 0.96f), TerminalBorderGreen);
+                "🔍 ABRIR PANTALLA SIEM (E / CLIC)", new Color(0.10f, 0.28f, 0.44f, 0.96f), TerminalBorderGreen);
+
+            var mon3Ctrl = monitor03.GetComponent<InteractiveMonitorController>();
+            if (mon3Ctrl != null)
+            {
+                Button b3 = logBtnObj.GetComponent<Button>();
+                if (b3 != null) b3.onClick.AddListener(mon3Ctrl.OnMonitorClicked);
+                GazeInteractable g3 = logBtnObj.GetComponent<GazeInteractable>();
+                if (g3 != null) g3.onClick.AddListener(mon3Ctrl.OnMonitorClicked);
+            }
 
             if (siemTerminal != null)
             {

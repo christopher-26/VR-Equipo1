@@ -69,6 +69,7 @@ namespace AndesSim.VR
             HandleEditorCameraRotation();
             HandleEditorModeSwitchShortcut();
             HandleEditorZoomShortcut();
+            HandleEditorInteractShortcut();
 #elif UNITY_ANDROID && !UNITY_EDITOR
             HandleAndroidGyroFallback();
 #endif
@@ -254,6 +255,61 @@ namespace AndesSim.VR
                 _cachedCam.fieldOfView = Mathf.Lerp(_cachedCam.fieldOfView, _targetFov, Time.deltaTime * 12f);
             }
         }
+
+        /// <summary>
+        /// Atajo [E] / [Espacio]: Abre la pantalla grande del monitor frontal o la minimiza si ya está abierta.
+        /// </summary>
+        private void HandleEditorInteractShortcut()
+        {
+            bool ePressed = false;
+#if ENABLE_INPUT_SYSTEM
+            if (Keyboard.current != null && (Keyboard.current.eKey.wasPressedThisFrame || Keyboard.current.spaceKey.wasPressedThisFrame)) ePressed = true;
+#endif
+#if ENABLE_LEGACY_INPUT_MANAGER
+            if (!ePressed)
+            {
+                try { if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.Space)) ePressed = true; } catch { }
+            }
+#endif
+
+            if (ePressed)
+            {
+                // Si el panel de inspección VR ya está abierto, cerrarlo / minimizarlo
+                if (AndesSim.UI.VrInspectionOverlayManager.I != null && AndesSim.UI.VrInspectionOverlayManager.I.IsOpen)
+                {
+                    AndesSim.UI.VrInspectionOverlayManager.I.CloseOverlay();
+                    return;
+                }
+
+                // Si está cerrado, buscar el monitor al que el jugador está mirando y abrirlo
+                if (_cachedCam == null) _cachedCam = GetComponent<Camera>() ?? GetComponentInChildren<Camera>();
+                if (_cachedCam != null)
+                {
+                    var monitors = FindObjectsByType<AndesSim.Scenario01.InteractiveMonitorController>(FindObjectsSortMode.None);
+                    AndesSim.Scenario01.InteractiveMonitorController bestMon = null;
+                    float bestScore = 0.50f;
+
+                    for (int i = 0; i < monitors.Length; i++)
+                    {
+                        Vector3 toMon = (monitors[i].transform.position - _cachedCam.transform.position).normalized;
+                        float dot = Vector3.Dot(_cachedCam.transform.forward, toMon);
+                        float dist = Vector3.Distance(_cachedCam.transform.position, monitors[i].transform.position);
+
+                        if (dist < 3.5f && dot > bestScore)
+                        {
+                            bestScore = dot;
+                            bestMon = monitors[i];
+                        }
+                    }
+
+                    if (bestMon != null)
+                    {
+                        bestMon.ToggleInspectionModal();
+                    }
+                }
+            }
+        }
+
 #endif
 
 #if UNITY_ANDROID && !UNITY_EDITOR

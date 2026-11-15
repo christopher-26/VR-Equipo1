@@ -176,8 +176,10 @@ namespace AndesSim.Scenario01
 
             if (isDetected)
             {
-                // Si ya fue detectada, alternar tooltip explicativo
-                ToggleTooltip();
+                // Si ya fue detectada, abrir modal completo en primer plano para ver detalles cómodamente
+                InteractiveMonitorController monCtrl = GetComponentInParent<InteractiveMonitorController>();
+                if (monCtrl != null) monCtrl.OpenInspectionZoomModal();
+                else ToggleTooltip();
                 return;
             }
 
@@ -210,6 +212,13 @@ namespace AndesSim.Scenario01
             if (ScenarioFlowController.I != null)
             {
                 ScenarioFlowController.I.NotifyPhishingSignalInspected(signalId);
+            }
+
+            // Desplegar pantalla ampliada en primer plano para que el usuario pueda leerla cómodamente
+            InteractiveMonitorController parentMon = GetComponentInParent<InteractiveMonitorController>();
+            if (parentMon != null)
+            {
+                parentMon.OpenInspectionZoomModal();
             }
         }
 

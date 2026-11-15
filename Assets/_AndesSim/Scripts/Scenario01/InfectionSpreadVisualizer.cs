@@ -300,8 +300,8 @@ namespace AndesSim.Scenario01
                 Canvas canvas = canvasObj.AddComponent<Canvas>();
                 canvas.renderMode = RenderMode.WorldSpace;
                 RectTransform canvasRect = canvasObj.GetComponent<RectTransform>();
-                canvasRect.sizeDelta = new Vector2(560f, 154f);
-                canvasRect.localScale = new Vector3(0.0052f, 0.0052f, 0.0052f);
+                canvasRect.sizeDelta = new Vector2(500f, 136f);
+                canvasRect.localScale = new Vector3(0.0033f, 0.0033f, 0.0033f);
 
                 canvasObj.AddComponent<CanvasScaler>();
                 holographicSignCanvasGroup = canvasObj.AddComponent<CanvasGroup>();
@@ -375,12 +375,10 @@ namespace AndesSim.Scenario01
 
         private Vector3 ComputeOptimalBannerPosition()
         {
-            Vector3 p1 = monitor01Point != null ? monitor01Point.position : new Vector3(1.37f, 1.15f, -2.07f);
-            Vector3 p2 = monitor02Point != null ? monitor02Point.position : new Vector3(5.34f, 1.15f, -1.93f);
-            Vector3 p3 = monitor03Point != null ? monitor03Point.position : new Vector3(-6.37f, 1.15f, -4.69f);
-            Vector3 mid = (p1 + p2 + p3) / 3f;
-            // Centrado dentro de la nave principal a altura cómoda de lectura sin tocar el techo (Y <= 2.30m)
-            return new Vector3(Mathf.Clamp(mid.x, -2.5f, 2.5f), 2.18f, Mathf.Clamp(mid.z + 0.8f, -2.6f, 0.4f));
+            // Centrado directamente sobre el puesto activo del jugador (Monitor 1)
+            // Elevado sobre el cubículo (Y = 2.38m) para ser perfectamente visible de frente sin obstruir
+            Vector3 basePos = monitor01Point != null ? monitor01Point.position : new Vector3(1.37f, 1.15f, -2.07f);
+            return new Vector3(basePos.x, 2.38f, basePos.z + 0.52f);
         }
 
         private void InitializeHolographicFxRig()
@@ -502,30 +500,32 @@ namespace AndesSim.Scenario01
 
         private void BuildStationCluster(int index, Transform anchor)
         {
-            Vector3 pos = (anchor != null ? anchor.position : Vector3.zero) + Vector3.up * 0.56f;
+            // Elevado a 0.95m para alinearse al borde superior del cubículo y no estorbar la pantalla
+            Vector3 pos = (anchor != null ? anchor.position : Vector3.zero) + Vector3.up * 0.95f;
 
             GameObject cluster = new GameObject($"Holo_StationCluster_0{index + 1}");
             cluster.transform.SetParent(_fxRigRoot, false);
             cluster.transform.position = pos;
             HolographicFloatMotion fl = cluster.AddComponent<HolographicFloatMotion>();
-            fl.Configure(0.032f, 1.25f, new Vector3(1.2f, 2.2f, 1.0f), 0f, 0.03f, true);
+            fl.Configure(0.018f, 0.95f, new Vector3(0.8f, 1.4f, 0.6f), 0f, 0.015f, true);
 
             GameObject core = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             core.name = "CoreSphere";
             core.transform.SetParent(cluster.transform, false);
-            core.transform.localScale = Vector3.one * 0.11f;
+            core.transform.localScale = Vector3.one * 0.036f;
             DestroySafeCollider(core);
             Renderer coreR = core.GetComponent<Renderer>();
             coreR.sharedMaterial = _sharedHoloMat;
             _stationCoreRenderers[index] = coreR;
 
-            GameObject outer = BuildFlatRing("OuterOrbitRing", cluster.transform, 0.25f, 0.015f, InfectionRedColor);
-            outer.transform.localRotation = Quaternion.Euler(24f, 0f, 15f);
+            // Anillos compactos (8cm y 6cm de radio)
+            GameObject outer = BuildFlatRing("OuterOrbitRing", cluster.transform, 0.085f, 0.0022f, InfectionRedColor);
+            outer.transform.localRotation = Quaternion.Euler(20f, 0f, 12f);
             HolographicOrbitRing outerSpin = outer.AddComponent<HolographicOrbitRing>();
             _stationOuterRings[index] = outerSpin;
 
-            GameObject inner = BuildFlatRing("InnerOrbitRing", cluster.transform, 0.18f, 0.013f, BeamPulseGlow);
-            inner.transform.localRotation = Quaternion.Euler(-38f, 30f, -15f);
+            GameObject inner = BuildFlatRing("InnerOrbitRing", cluster.transform, 0.062f, 0.0018f, BeamPulseGlow);
+            inner.transform.localRotation = Quaternion.Euler(-25f, 25f, -10f);
             HolographicOrbitRing innerSpin = inner.AddComponent<HolographicOrbitRing>();
             _stationInnerRings[index] = innerSpin;
 
@@ -620,9 +620,9 @@ namespace AndesSim.Scenario01
             Vector3 posC2 = _c2NodeRoot != null ? _c2NodeRoot.position : ComputeOptimalBannerPosition() + Vector3.up * 0.35f;
 
             // =========================================================================
-            // FASE 1 (0 - 2s): Monitor_01 comprometido + anillo viral + onda de choque
+            // FASE 1 (0 - 2.5s): Carga del virus visual en pantalla y letrero flotante
             // =========================================================================
-            Debug.Log($"{LogPrefix} <color=#FF5A4E>[Seg 0–2]</color> Monitor_01 ejecuta 'Rasel_Ahlam_CV_2015.scr.zip'. Backdoor svchost_upd.exe activo.");
+            Debug.Log($"{LogPrefix} <color=#FF5A4E>[Seg 0–2.5]</color> Monitor_01 ejecuta 'Rasel_Ahlam_CV_2015.scr.zip'. Cargando backdoor svchost_upd.exe.");
             PlaySound(downloadExploitClip, GenerateDownloadExploitTone());
 
             if (monitor01Controller != null)
@@ -639,10 +639,35 @@ namespace AndesSim.Scenario01
                 AmbientCyberGridEffect.I.TriggerEmergencyAttackPulse();
             }
 
+            // Encender de inmediato el letrero superior mostrando la barra de carga del virus
+            if (holographicSignPanel != null)
+            {
+                holographicSignPanel.transform.position = ComputeOptimalBannerPosition();
+                holographicSignPanel.SetActive(true);
+            }
+            if (holographicSignCanvasGroup != null) holographicSignCanvasGroup.alpha = 1.0f;
+            if (holographicSignBorder != null) holographicSignBorder.color = new Color(0.12f, 0.02f, 0.03f, 0.98f);
+
             float timer = 0f;
-            while (timer < 2.0f)
+            const float durationPhase1 = 2.5f;
+            while (timer < durationPhase1)
             {
                 timer += Time.deltaTime;
+                float pct = Mathf.Clamp01(timer / durationPhase1) * 100f;
+
+                if (holographicSignTitle != null)
+                {
+                    holographicSignTitle.text = "⚠️ INFECCIÓN: CARGANDO VIRUS...";
+                    AndesTypographyTheme.StyleDisplayTitle(holographicSignTitle, AndesTypographyTheme.AccentRed, 18f);
+                }
+
+                if (holographicSignBody != null)
+                {
+                    int barCount = Mathf.RoundToInt(pct / 10f);
+                    string bar = new string('█', barCount) + new string('░', 10 - barCount);
+                    holographicSignBody.text = $"<b>CARGANDO PAYLOAD LAZARUS: <color=#FFA940>{pct:F0}%</color> [{bar}]</b>\n<size=14>Inyectando svchost_upd.exe (PID 4820) · C2 185.130.44.82</size>";
+                }
+
                 yield return null;
             }
 
@@ -717,6 +742,19 @@ namespace AndesSim.Scenario01
                 }
 
                 PulseBeams(15f, 0.35f);
+
+                // Ticker visual de robo de fondos SWIFT en vivo
+                float stolenNow = Mathf.Lerp(0f, 81000000f, progress);
+                if (holographicSignTitle != null)
+                {
+                    holographicSignTitle.text = "🚨 ALERTA: EXFILTRACIÓN Y ROBO SWIFT";
+                    AndesTypographyTheme.StyleDisplayTitle(holographicSignTitle, AndesTypographyTheme.AccentRed, 18f);
+                }
+                if (holographicSignBody != null)
+                {
+                    holographicSignBody.text = $"<b>ROBANDO FONDOS SWIFT: <color=#FF3834>US$ {stolenNow:N0}</color></b>\n<size=14>Salto lateral a PC 2 · Tráfico C2 hacia Filipinas</size>";
+                }
+
                 yield return null;
             }
 
@@ -960,7 +998,7 @@ namespace AndesSim.Scenario01
             if (holographicSignBody != null)
             {
                 holographicSignBody.text =
-                    "<b>Sandbox aislo el dropper .scr · US$ 0 robados.</b>";
+                    "<b><color=#38F28A>FONDOS PROTEGIDOS: US$ 81M (US$ 0 ROBADOS)</color></b>\n<size=14>Sandbox aisló el archivo .scr · Salida C2 185.130.44.82 bloqueada</size>";
                 AndesTypographyTheme.StyleBodyCentered(holographicSignBody, Color.white, 16.5f, 8f);
             }
 
