@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -200,6 +200,58 @@ namespace AndesSim.VR
                 {
                     Debug.LogWarning($"{LogPrefix} No se encontró instancia de GameManager para alternar el modo.");
                 }
+            }
+        }
+
+        private Camera _cachedCam;
+        private float _targetFov = 60f;
+        private float _normalFov = 60f;
+        private bool _isCameraZoomed = false;
+
+        /// <summary>
+        /// Atajo [Q]: Aumenta el tamaño / zoom para leer texto pequeño y detallado.
+        /// Si hay un panel de inspección abierto, amplía el panel; si no, aplica zoom óptico a la cámara.
+        /// </summary>
+        private void HandleEditorZoomShortcut()
+        {
+            bool qPressed = false;
+#if ENABLE_INPUT_SYSTEM
+            if (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame) qPressed = true;
+#endif
+#if ENABLE_LEGACY_INPUT_MANAGER
+            if (!qPressed)
+            {
+                try { if (Input.GetKeyDown(KeyCode.Q)) qPressed = true; } catch { }
+            }
+#endif
+
+            if (qPressed)
+            {
+                // 1. Si el overlay de inspección VR está abierto, delegar a la ampliación del canvas
+                if (AndesSim.UI.VrInspectionOverlayManager.I != null && AndesSim.UI.VrInspectionOverlayManager.I.IsOpen)
+                {
+                    AndesSim.UI.VrInspectionOverlayManager.I.ToggleEnlargeZoom();
+                    return;
+                }
+
+                // 2. Si no hay overlay, aplicar zoom óptico de cámara para leer monitores físicos en el escritorio
+                if (_cachedCam == null)
+                {
+                    _cachedCam = GetComponent<Camera>() ?? GetComponentInChildren<Camera>();
+                    if (_cachedCam != null) _normalFov = _cachedCam.fieldOfView;
+                }
+
+                if (_cachedCam != null)
+                {
+                    _isCameraZoomed = !_isCameraZoomed;
+                    _targetFov = _isCameraZoomed ? 28f : _normalFov;
+                    Debug.Log($"{LogPrefix} <color=#38BDF8>Atajo [Q] pulsado: Zoom óptico {(_isCameraZoomed ? "ACTIVADO (28° FOV)" : "DESACTIVADO")}</color>");
+                }
+            }
+
+            if (_cachedCam != null && Mathf.Abs(_cachedCam.fieldOfView - _targetFov) > 0.05f)
+            {
+                _cachedCam.fieldOfView = Mathf.Lerp(_cachedCam.fieldOfView, _targetFov, Time.deltaTime * 12f);
             }
         }
 #endif

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Text;
 using TMPro;
@@ -46,9 +46,16 @@ namespace AndesSim.UI
         private static readonly Color WarningAmberColor = AndesTypographyTheme.AccentAmber;
         private static readonly Color DangerRedColor = AndesTypographyTheme.AccentRed;
 
-        [Header("--- Anclaje VR ---")]
-        [SerializeField] private float distanceFromCamera = 1.32f;
+        [Header("--- Anclaje VR y Zoom ---")]
+        [SerializeField] private float distanceFromCamera = 0.95f;
+        public const float NormalScale = 0.00192f;
+        public const float EnlargedScale = 0.00285f; // +48% más grande para lectura cómoda
+        public const float NormalDistance = 0.95f;
+        public const float EnlargedDistance = 0.78f;
+
         private int _emailSubPart = 0;
+        private bool _isEnlarged = false;
+        private Coroutine _zoomRoutine;
 
         // Raíz del Canvas de Inspección
         private GameObject _overlayRoot;
@@ -59,6 +66,9 @@ namespace AndesSim.UI
         private Image _topGlowBarImg;
         private Camera _targetCamera;
         private bool _isOpen = false;
+
+        public bool IsOpen => _isOpen;
+        public bool IsEnlarged => _isEnlarged;
 
         // Contenedores dinámicos
         private TextMeshProUGUI _headerTitleText;
@@ -91,6 +101,22 @@ namespace AndesSim.UI
 
         private void Update()
         {
+            // Atajo de teclado 'Q': Agrandar / Reducir panel
+            bool qPressed = false;
+#if ENABLE_INPUT_SYSTEM
+            if (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame) qPressed = true;
+#endif
+            try
+            {
+                if (Input.GetKeyDown(KeyCode.Q)) qPressed = true;
+            }
+            catch { }
+
+            if (qPressed && _isOpen)
+            {
+                ToggleEnlargeZoom();
+            }
+
             if (!_isOpen || _overlayRoot == null) return;
 
             if (_targetCamera == null)
@@ -151,7 +177,11 @@ namespace AndesSim.UI
             panelFloat.Configure(11f, 0.85f, new Vector3(0.55f, 0.85f, 0.35f), 0f, 0f, true);
 
             Image bgImage = panelGO.AddComponent<Image>();
-            bgImage.color = AndesTypographyTheme.BgVoidNavy;
+            bgImage.color = new Color(0.012f, 0.030f, 0.055f, 0.995f); // Fondo opaco para evitar transparencias
+
+            Outline panelOutline = panelGO.AddComponent<Outline>();
+            panelOutline.effectColor = new Color(0.000f, 0.898f, 1.000f, 0.50f);
+            panelOutline.effectDistance = new Vector2(2f, -2f);
 
             // Barra luminosa superior e inferior
             GameObject topBar = new GameObject("TopGlowBar");
@@ -200,10 +230,20 @@ namespace AndesSim.UI
             contentRect.sizeDelta = new Vector2(930f, 520f);
             _contentContainer = contentGO.transform;
 
+            // Botón de Zoom / Agrandar con atajo [Q]
+            CreateInspectionButton(
+                "Btn_ToggleZoom", panelGO.transform,
+                new Vector2(285f, 326f), new Vector2(170f, 40f),
+                "[Q] 🔍 AGRANDAR",
+                new Color(0.08f, 0.35f, 0.42f, 0.98f),
+                CyanNeonAccent,
+                ToggleEnlargeZoom
+            );
+
             // Botón Superior Derecho: CERRAR INMEDIATO
             CreateInspectionButton(
                 "Btn_CerrarTopRight", panelGO.transform,
-                new Vector2(436f, 326f), new Vector2(98f, 40f),
+                new Vector2(436f, 326f), new Vector2(80f, 40f),
                 "X",
                 new Color(0.36f, 0.12f, 0.15f, 0.96f),
                 Color.white,
@@ -432,17 +472,17 @@ namespace AndesSim.UI
             qRect.anchorMax = Vector2.one;
             qRect.sizeDelta = Vector2.zero;
 
-            GameObject boxGO = CreateStyledCard("SandboxLogBox", qPanel.transform, new Vector2(0f, 35f), new Vector2(880f, 300f),
-                new Color(0.03f, 0.11f, 0.11f, 0.98f), GreenSuccessColor);
+            GameObject boxGO = CreateStyledCard("SandboxLogBox", qPanel.transform, new Vector2(0f, 35f), new Vector2(880f, 290f),
+                new Color(0.015f, 0.055f, 0.055f, 0.995f), GreenSuccessColor);
 
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("<b><color=#38F28A>CONTENCION EN SANDBOX</color></b>\n");
-            sb.AppendLine("· <b>Sandbox:</b> Adjunto <i>.scr.zip</i> bloqueado sin ejecucion.");
-            sb.AppendLine("· <b>Firewall:</b> Salida hacia 185.130.44.82 cerrada.\n");
-            sb.AppendLine("<color=#38F28A><b>[OK] 16 BUZONES LIMPIOS · US$ 0 ROBADOS</b></color>");
+            sb.AppendLine("<size=24><b><color=#38F28A>✓ CONTENCIÓN EXITOSA EN SANDBOX</color></b></size>\n");
+            sb.AppendLine("<size=21>• <b>Sandbox:</b> Adjunto <i>.scr.zip</i> bloqueado y detonado en aislamiento.</size>");
+            sb.AppendLine("<size=21>• <b>Firewall:</b> Salida hacia <i>185.130.44.82</i> clausurada preventivamente.</size>\n");
+            sb.AppendLine("<size=22><color=#38F28A><b>[OK] 16 BUZONES PROTEGIDOS · US$ 0 ROBADOS</b></color></size>");
 
-            CreateLabel("Txt_QuarantineLog", boxGO.transform, Vector2.zero, new Vector2(820f, 260f),
-                sb.ToString(), 20f, TextAlignmentOptions.Center, Color.white);
+            CreateLabel("Txt_QuarantineLog", boxGO.transform, Vector2.zero, new Vector2(840f, 250f),
+                sb.ToString(), 21f, TextAlignmentOptions.Center, Color.white);
 
             CreateInspectionButton(
                 "Btn_GoDefenseConsole", qPanel.transform,
@@ -1026,24 +1066,28 @@ namespace AndesSim.UI
         public void ShowOverlay()
         {
             _isOpen = true;
+
+            // Suprimir visuales 3D del entorno para que nunca se sobrepongan al panel
+            InfectionSpreadVisualizer.I?.SetVisualsSuppressedForInspection(true);
+
             if (_overlayRoot != null)
             {
                 if (_targetCamera == null) _targetCamera = Camera.main;
-                if (_targetCamera != null)
+                if (_targetCamera != null && _overlayCanvas != null)
                 {
-                    if (_overlayCanvas != null) _overlayCanvas.worldCamera = _targetCamera;
-
-                    Vector3 forward = _targetCamera.transform.forward;
-                    forward.y = 0f;
-                    if (forward.sqrMagnitude < 0.001f) forward = _targetCamera.transform.forward;
-                    forward.Normalize();
-
-                    Vector3 spawnPos = _targetCamera.transform.position + (forward * distanceFromCamera);
-                    spawnPos.y = _targetCamera.transform.position.y - 0.04f;
-
-                    _overlayRoot.transform.position = spawnPos;
-                    _overlayRoot.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
+                    _overlayCanvas.worldCamera = _targetCamera;
                 }
+
+                distanceFromCamera = _isEnlarged ? EnlargedDistance : NormalDistance;
+                RectTransform canvasRect = _overlayRoot.GetComponent<RectTransform>();
+                if (canvasRect != null)
+                {
+                    canvasRect.localScale = Vector3.one * (_isEnlarged ? EnlargedScale : NormalScale);
+                }
+
+                RepositionOverlay();
+                UpdateZoomButtonLabel();
+
                 _overlayRoot.SetActive(true);
                 _panelEntrance?.PlayEntrance();
             }
@@ -1056,10 +1100,21 @@ namespace AndesSim.UI
 
         public void CloseOverlay()
         {
-            StopAllCoroutines();
+            if (_zoomRoutine != null)
+            {
+                StopCoroutine(_zoomRoutine);
+                _zoomRoutine = null;
+            }
             _isOpen = false;
+            _isEnlarged = false;
+
+            // Restaurar visuales 3D del entorno
+            InfectionSpreadVisualizer.I?.SetVisualsSuppressedForInspection(false);
+
             if (_overlayRoot != null)
             {
+                RectTransform canvasRect = _overlayRoot.GetComponent<RectTransform>();
+                if (canvasRect != null) canvasRect.localScale = Vector3.one * NormalScale;
                 _overlayRoot.SetActive(false);
             }
             ClearActiveContent();
@@ -1068,6 +1123,110 @@ namespace AndesSim.UI
             {
                 AndesSim.Audio.AudioManager.I.PlayGazeClick();
             }
+        }
+
+        public void ToggleEnlargeZoom()
+        {
+            SetEnlargeZoom(!_isEnlarged);
+        }
+
+        public void SetEnlargeZoom(bool enlarged)
+        {
+            _isEnlarged = enlarged;
+            if (_zoomRoutine != null) StopCoroutine(_zoomRoutine);
+            if (gameObject.activeInHierarchy)
+            {
+                _zoomRoutine = StartCoroutine(AnimateZoomRoutine(_isEnlarged));
+            }
+            else
+            {
+                ApplyZoomImmediate(_isEnlarged);
+            }
+
+            UpdateZoomButtonLabel();
+
+            if (AndesSim.Audio.AudioManager.I != null)
+            {
+                AndesSim.Audio.AudioManager.I.PlayUiClick();
+            }
+        }
+
+        private void UpdateZoomButtonLabel()
+        {
+            if (_overlayRoot == null) return;
+            Transform btnTr = _overlayRoot.transform.Find("InspectionFrame/Btn_ToggleZoom/Text_Btn_ToggleZoom");
+            if (btnTr != null)
+            {
+                var tmp = btnTr.GetComponent<TextMeshProUGUI>();
+                if (tmp != null)
+                {
+                    tmp.text = _isEnlarged ? "<b>[Q] 🔍 REDUCIR</b>" : "<b>[Q] 🔍 AGRANDAR</b>";
+                }
+            }
+        }
+
+        private void ApplyZoomImmediate(bool enlarged)
+        {
+            if (_overlayRoot == null) return;
+            RectTransform canvasRect = _overlayRoot.GetComponent<RectTransform>();
+            if (canvasRect != null)
+            {
+                canvasRect.localScale = Vector3.one * (enlarged ? EnlargedScale : NormalScale);
+            }
+            distanceFromCamera = enlarged ? EnlargedDistance : NormalDistance;
+            RepositionOverlay();
+        }
+
+        private System.Collections.IEnumerator AnimateZoomRoutine(bool enlarged)
+        {
+            if (_overlayRoot == null) yield break;
+
+            RectTransform canvasRect = _overlayRoot.GetComponent<RectTransform>();
+            float startScale = canvasRect != null ? canvasRect.localScale.x : NormalScale;
+            float targetScale = enlarged ? EnlargedScale : NormalScale;
+
+            float startDist = distanceFromCamera;
+            float targetDist = enlarged ? EnlargedDistance : NormalDistance;
+
+            float elapsed = 0f;
+            float duration = 0.20f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
+
+                if (canvasRect != null)
+                {
+                    canvasRect.localScale = Vector3.one * Mathf.Lerp(startScale, targetScale, t);
+                }
+
+                distanceFromCamera = Mathf.Lerp(startDist, targetDist, t);
+                RepositionOverlay();
+                yield return null;
+            }
+
+            if (canvasRect != null) canvasRect.localScale = Vector3.one * targetScale;
+            distanceFromCamera = targetDist;
+            RepositionOverlay();
+            _zoomRoutine = null;
+        }
+
+        private void RepositionOverlay()
+        {
+            if (_overlayRoot == null) return;
+            if (_targetCamera == null) _targetCamera = Camera.main;
+            if (_targetCamera == null) return;
+
+            Vector3 forward = _targetCamera.transform.forward;
+            forward.y = 0f;
+            if (forward.sqrMagnitude < 0.001f) forward = _targetCamera.transform.forward;
+            forward.Normalize();
+
+            Vector3 newPos = _targetCamera.transform.position + (forward * distanceFromCamera);
+            newPos.y = _targetCamera.transform.position.y - 0.02f;
+            _overlayRoot.transform.position = newPos;
+            _overlayRoot.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
         }
 
         private void ClearActiveContent()
@@ -1101,7 +1260,11 @@ namespace AndesSim.UI
             rect.anchoredPosition = pos;
             rect.sizeDelta = size;
             Image bg = cardGO.AddComponent<Image>();
-            bg.color = bgColor;
+            bg.color = new Color(bgColor.r, bgColor.g, bgColor.b, 0.995f); // Fondo opaco para evitar transparencias
+
+            var outline = cardGO.AddComponent<Outline>();
+            outline.effectColor = new Color(topAccentColor.r, topAccentColor.g, topAccentColor.b, 0.50f);
+            outline.effectDistance = new Vector2(2f, -2f);
 
             GameObject bar = new GameObject("TopAccent");
             bar.transform.SetParent(cardGO.transform, false);
