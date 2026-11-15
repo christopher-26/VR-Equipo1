@@ -398,13 +398,16 @@ namespace AndesSim.Editor
             disc.transform.localPosition = Vector3.zero;
             disc.transform.localScale = new Vector3(0.75f, 0.015f, 0.75f);
 
+            Collider discCol = disc.GetComponent<Collider>();
+            if (discCol != null) UnityEngine.Object.DestroyImmediate(discCol);
+
             Material ringMat = CreateColorMaterial("Mat_TeleportRing_" + name, new Color(0.22f, 0.95f, 0.54f));
             disc.GetComponent<Renderer>().sharedMaterial = ringMat;
 
             // Collider de mirada
             BoxCollider col = tpObj.AddComponent<BoxCollider>();
-            col.center = new Vector3(0f, 0.1f, 0f);
-            col.size = new Vector3(0.9f, 0.3f, 0.9f);
+            col.center = new Vector3(0f, 0.10f, 0f);
+            col.size = new Vector3(0.95f, 0.28f, 0.95f);
 
             GazeInteractable gaze = tpObj.AddComponent<GazeInteractable>();
             gaze.interactableLabel = "Teletransportarse a: " + label;
@@ -569,6 +572,26 @@ namespace AndesSim.Editor
             // TeleportPoint de retorno a la Puerta de Entrada (Acceso Principal)
             CreateTeleportPoint(parent, "Teleport_PuertaEntrada",
                 new Vector3(-2.60f, 0.01f, 3.40f), "Puerta de Entrada (Acceso Principal)", "", Quaternion.Euler(0f, 180f, 0f));
+
+            // Red de TeleportPoints de pasillo para recorrer libremente la oficina y ver las otras PCs
+            CreateTeleportPoint(parent, "Teleport_Pasillo_Norte",
+                new Vector3(-1.60f, 0.01f, 1.25f), "Pasillo Principal (Hall Norte)", "", Quaternion.Euler(0f, 180f, 0f));
+            CreateTeleportPoint(parent, "Teleport_Pasillo_Oeste",
+                new Vector3(-2.40f, 0.01f, -1.05f), "Pasillo Central (Acceso Salas y PCs)", "", Quaternion.Euler(0f, 200f, 0f));
+            CreateTeleportPoint(parent, "Teleport_SalaLogs_Entrada",
+                new Vector3(-5.30f, 0.01f, -1.05f), "Acceso Sala SIEM (PC 3)", "", Quaternion.Euler(0f, 175f, 0f));
+            CreateTeleportPoint(parent, "Teleport_SalaLogs_Paso",
+                new Vector3(-4.50f, 0.01f, -2.35f), "Pasillo Interior Sala SIEM", "", Quaternion.Euler(0f, 195f, 0f));
+            CreateTeleportPoint(parent, "Teleport_SalaLogs_Vista",
+                new Vector3(-4.45f, 0.01f, -5.10f), "Mirador Sala SIEM (Vista PC 3 y Defensas)", "", Quaternion.Euler(0f, 300f, 0f));
+            CreateTeleportPoint(parent, "Teleport_Pasillo_SurOeste",
+                new Vector3(-2.40f, 0.01f, -4.95f), "Pasillo Sur-Oeste (Galeria de Puestos)", "", Quaternion.Euler(0f, 75f, 0f));
+            CreateTeleportPoint(parent, "Teleport_Pasillo_SurCentro",
+                new Vector3(3.20f, 0.01f, -5.00f), "Pasillo Sur (Vista PC 1, Tablero y PC 2)", "", Quaternion.Euler(0f, 330f, 0f));
+            CreateTeleportPoint(parent, "Teleport_Puesto1_Lateral",
+                new Vector3(2.75f, 0.01f, -2.75f), "Paso Lateral Puesto 1 (Entre PC 1 y Tablero)", "", Quaternion.Euler(0f, 240f, 0f));
+            CreateTeleportPoint(parent, "Teleport_Acceso_Puesto2",
+                new Vector3(5.75f, 0.01f, -4.75f), "Acceso Puesto 2 (Vista PC 2 - SWIFT)", "", Quaternion.Euler(0f, 350f, 0f));
         }
 
         private static Material GetOrCreateDarkMonitorScreenMaterial()
@@ -1370,6 +1393,16 @@ namespace AndesSim.Editor
                 Renderer sr = strip.GetComponent<Renderer>();
                 sr.sharedMaterial = matTrofferGlow;
                 sr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            }
+
+            // 7b. Abrir puerta de acceso a Sala SIEM (PC 3) para transito y visibilidad directa
+            foreach (Transform t in envRoot.GetComponentsInChildren<Transform>(true))
+            {
+                if (t.name == "door_c")
+                {
+                    t.localRotation = Quaternion.Euler(0f, 0f, 0f);
+                    break;
+                }
             }
 
             // 8. Renovar paleta cromatica arquitectonica (reemplaza blancos planos de paredes, piso y cubiculos)
