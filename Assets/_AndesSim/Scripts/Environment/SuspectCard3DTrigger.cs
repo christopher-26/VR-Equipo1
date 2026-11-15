@@ -53,7 +53,7 @@ namespace AndesSim.Environment
 
             if (_cachedBoard == null)
             {
-                _cachedBoard = FindFirstObjectByType<SuspectBoardVR>();
+                _cachedBoard = FindFirstObjectByType<SuspectBoardVR>(FindObjectsInactive.Include);
             }
 
             if (_cachedBoard != null)
@@ -61,12 +61,7 @@ namespace AndesSim.Environment
                 _cachedBoard.DisplaySuspect(suspectIndex);
             }
 
-            if (VrInspectionOverlayManager.I != null)
-            {
-                VrInspectionOverlayManager.I.OpenSuspectDossierInspection(suspectIndex);
-            }
-
-            Debug.Log($"[SuspectBoardMeshBuilder] <color=#38F28A>Ficha 3D seleccionada:</color> [{suspectIndex}] {suspectName}");
+            Debug.Log($"[SuspectBoardMeshBuilder] <color=#38F28A>Ficha seleccionada en pizarra:</color> [{suspectIndex}] {suspectName}");
         }
 
         public void OnPointerEnter(PointerEventData eventData)

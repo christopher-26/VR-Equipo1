@@ -874,6 +874,24 @@ namespace AndesSim.UI
 
         public void OpenSuspectDossierInspection(int suspectIndex)
         {
+            SuspectBoardVR board = SuspectBoardVR.I != null ? SuspectBoardVR.I : FindFirstObjectByType<SuspectBoardVR>(FindObjectsInactive.Include);
+            if (board != null)
+            {
+                int boardTotal = (board.Suspects != null && board.Suspects.Count > 0) ? board.Suspects.Count : 1;
+                int clampedIndex = ((suspectIndex % boardTotal) + boardTotal) % boardTotal;
+
+                // Mantener la interacción dentro de la misma pizarra (Tablero_Sospechosos_VR),
+                // sin abrir un panel flotante externo sobre ella.
+                if (_isOpen)
+                {
+                    CloseOverlay();
+                }
+
+                board.DisplaySuspect(clampedIndex);
+                AndesSim.Audio.AudioManager.I?.PlayGazeClick();
+                return;
+            }
+
             EnsureOverlayCanvas();
             ClearActiveContent();
 
@@ -882,13 +900,10 @@ namespace AndesSim.UI
             RectTransform dr = dossierPanel.AddComponent<RectTransform>();
             dr.sizeDelta = new Vector2(920f, 520f);
 
-            SuspectBoardVR board = SuspectBoardVR.I != null ? SuspectBoardVR.I : FindFirstObjectByType<SuspectBoardVR>();
-            int total = (board != null && board.Suspects != null && board.Suspects.Count > 0) ? board.Suspects.Count : 1;
+            int total = 1;
             int safeIndex = ((suspectIndex % total) + total) % total;
 
-            SuspectDossierScenario01 suspect = (board != null && board.Suspects != null && safeIndex < board.Suspects.Count)
-                ? board.Suspects[safeIndex]
-                : null;
+            SuspectDossierScenario01 suspect = null;
 
             string name = suspect != null ? suspect.fullName : "Sospechoso";
             string role = suspect != null ? suspect.roleTitle : "Personal Banco Andino";
