@@ -64,6 +64,7 @@ namespace AndesSim.VR
         private RaycastHit _currentHit;
         private bool _isHittingInteractable;
         private GameObject _labelContainerGO;
+        private readonly RaycastHit[] _raycastHitBuffer = new RaycastHit[24];
 
         public GazeInteractable CurrentTarget => _currentInteractable;
         public bool IsHittingInteractable => _isHittingInteractable;
@@ -110,43 +111,86 @@ namespace AndesSim.VR
         }
 
         /// <summary>
+        /// Emite un raycast sin asignaciones de memoria y resuelve el objetivo GazeInteractable válido más cercano,
+        /// ignorando colisionadores contenedores sin GazeInteractable (ej. chasis de monitor) y respetando oclusores.
+        /// </summary>
+        private bool TryRaycastInteractive(Ray ray, out RaycastHit bestHit, out GazeInteractable bestInteractable)
+        {
+            bestHit = default;
+            bestInteractable = null;
+
+            int interactiveLayer = LayerMask.NameToLayer(InteractiveLayerName);
+            int occluderMask = LayerMask.GetMask("Default", "Environment", "Obstacle");
+            int combinedMask = (interactiveMask.value != 0) ? (interactiveMask.value | occluderMask) : ~0;
+
+            int hitCount = Physics.RaycastNonAlloc(ray, _raycastHitBuffer, maxDistance, combinedMask, QueryTriggerInteraction.Collide);
+            if (hitCount <= 0) return false;
+
+            // Ordenamiento por inserción por distancia (0 GC)
+            for (int i = 1; i < hitCount; i++)
+            {
+                RaycastHit key = _raycastHitBuffer[i];
+                int j = i - 1;
+                while (j >= 0 && _raycastHitBuffer[j].distance > key.distance)
+                {
+                    _raycastHitBuffer[j + 1] = _raycastHitBuffer[j];
+                    j--;
+                }
+                _raycastHitBuffer[j + 1] = key;
+            }
+
+            for (int i = 0; i < hitCount; i++)
+            {
+                RaycastHit candidate = _raycastHitBuffer[i];
+                if (candidate.collider == null) continue;
+
+                int hitLayer = candidate.collider.gameObject.layer;
+                if (hitLayer == interactiveLayer)
+                {
+                    GazeInteractable interactable = candidate.collider.GetComponentInParent<GazeInteractable>();
+                    if (interactable != null && interactable.isActiveAndEnabled)
+                    {
+                        bestHit = candidate;
+                        bestInteractable = interactable;
+                        return true;
+                    }
+                    // Colisionador contenedor sin GazeInteractable (p.ej. chasis Monitor_01): no bloquear botones hijos
+                    continue;
+                }
+
+                // Oclusor opaco (pared, puerta, escritorio): detener el rayo
+                return false;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Ejecuta el raycast continuo desde el centro de la cámara hacia la capa Interactive.
         /// </summary>
         private void PerformCentralGazeRaycast()
         {
             Ray centerRay = _playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
 
-            // Raycast que detecta capa interactiva Y respeta oclusores físicos del entorno (paredes, columnas, puertas)
-            int occluderMask = LayerMask.GetMask("Default", "Environment", "Obstacle");
-            int combinedMask = (interactiveMask.value != 0) ? (interactiveMask.value | occluderMask) : ~0;
-
-            if (Physics.Raycast(centerRay, out RaycastHit hit, maxDistance, combinedMask))
+            if (TryRaycastInteractive(centerRay, out RaycastHit hit, out GazeInteractable interactable))
             {
-                int interactiveLayer = LayerMask.NameToLayer(InteractiveLayerName);
-                if (hit.collider.gameObject.layer == interactiveLayer)
+                _currentHit = hit;
+                _isHittingInteractable = true;
+
+                if (interactable != _currentInteractable)
                 {
-                    _currentHit = hit;
-                    _isHittingInteractable = true;
-
-                    GazeInteractable interactable = hit.collider.GetComponentInParent<GazeInteractable>();
-
-                    if (interactable != _currentInteractable)
+                    if (_currentInteractable != null)
                     {
-                        // Salir del objetivo anterior
-                        if (_currentInteractable != null)
-                        {
-                            _currentInteractable.OnPointerExit();
-                        }
-
-                        // Entrar en el nuevo objetivo
-                        _currentInteractable = interactable;
-                        if (_currentInteractable != null)
-                        {
-                            _currentInteractable.OnPointerEnter();
-                        }
+                        _currentInteractable.OnPointerExit();
                     }
-                    return;
+
+                    _currentInteractable = interactable;
+                    if (_currentInteractable != null)
+                    {
+                        _currentInteractable.OnPointerEnter();
+                    }
                 }
+                return;
             }
 
             // Si no impactó un objeto interactivo o fue ocluido por una pared/columna:
@@ -220,21 +264,10 @@ namespace AndesSim.VR
             if (hasPointerPos && _playerCamera != null)
             {
                 Ray pointerRay = _playerCamera.ScreenPointToRay(screenPos);
-                int occluderMask = LayerMask.GetMask("Default", "Environment", "Obstacle");
-                int combinedMask = (interactiveMask.value != 0) ? (interactiveMask.value | occluderMask) : ~0;
-
-                if (Physics.Raycast(pointerRay, out RaycastHit hit, maxDistance, combinedMask))
+                if (TryRaycastInteractive(pointerRay, out RaycastHit hit, out GazeInteractable interactable) && interactable != null)
                 {
-                    int interactiveLayer = LayerMask.NameToLayer(InteractiveLayerName);
-                    if (hit.collider.gameObject.layer == interactiveLayer)
-                    {
-                        GazeInteractable interactable = hit.collider.GetComponentInParent<GazeInteractable>();
-                        if (interactable != null)
-                        {
-                            Debug.Log($"{LogPrefix} Clic táctil directo sobre '{interactable.InteractableLabel}'.");
-                            interactable.OnPointerClick();
-                        }
-                    }
+                    Debug.Log($"{LogPrefix} Clic táctil directo sobre '{interactable.InteractableLabel}'.");
+                    interactable.OnPointerClick();
                 }
             }
         }

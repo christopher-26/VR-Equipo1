@@ -118,7 +118,13 @@ namespace AndesSim.Scenario01
             if (_collider is BoxCollider boxCol)
             {
                 Vector3 currentSize = boxCol.size;
-                boxCol.size = new Vector3(Mathf.Max(currentSize.x, 0.72f), Mathf.Max(currentSize.y, 0.48f), Mathf.Max(currentSize.z, 0.25f));
+                if (currentSize.x < 0.05f || currentSize.y < 0.05f || currentSize.z < 0.05f)
+                {
+                    boxCol.size = new Vector3(
+                        Mathf.Max(currentSize.x, 0.40f),
+                        Mathf.Max(currentSize.y, 0.36f),
+                        Mathf.Max(currentSize.z, 0.12f));
+                }
             }
         }
 

@@ -277,6 +277,21 @@ namespace AndesSim.UI
             EnsureAudioSource();
             EnsureDefaultDossiers();
 
+            // Ocultar elementos 3D/hilos/chinchetas de respaldo para que nada atraviese ni tape el tablero digital
+            if (transform.parent != null)
+            {
+                foreach (Transform sibling in transform.parent)
+                {
+                    if (sibling == transform) continue;
+                    string sn = sibling.name;
+                    if (sn.StartsWith("Lineas_Rojas") || sn.StartsWith("Ficha_") ||
+                        sn.StartsWith("Evidencia_") || sn == "Placa_Encabezado_Forense")
+                    {
+                        sibling.gameObject.SetActive(false);
+                    }
+                }
+            }
+
             // Si los campos de texto no están vinculados en inspector, auto-generar la estructura UI World Space
             if (suspectNameText == null || tabsContainer == null || selectHypothesisButton == null)
             {
@@ -333,7 +348,7 @@ namespace AndesSim.UI
 
             RectTransform rootRect = GetComponent<RectTransform>();
             rootRect.sizeDelta = new Vector2(1300f, 850f);
-            rootRect.localScale = new Vector3(0.0022f, 0.0022f, 0.0022f);
+            rootRect.localScale = new Vector3(0.00185f, 0.00185f, 0.00185f);
 
             CanvasScaler scaler = GetComponent<CanvasScaler>();
             if (scaler == null) scaler = gameObject.AddComponent<CanvasScaler>();
@@ -430,12 +445,12 @@ namespace AndesSim.UI
                 "<b>CONCLUSION:</b> Cargando...", 15f, TextAlignmentOptions.Left, HexToColor(ColorTextLight));
 
             // Botón interactivo de selección de hipótesis
-            GameObject btnSelectObj = CreateUiPanel("Btn_MarcarHipotesis", hypothesisBarObj.transform, new Vector2(300f, 0f), new Vector2(260f, 68f), HexToColor(ColorGreenCode, 0.9f));
+            GameObject btnSelectObj = CreateUiPanel("Btn_MarcarHipotesis", hypothesisBarObj.transform, new Vector2(292f, 0f), new Vector2(284f, 74f), HexToColor(ColorGreenCode, 0.9f));
             AddUiBorder(btnSelectObj, HexToColor(ColorDarkBg, 1f), 2f);
 
             selectHypothesisButton = btnSelectObj.AddComponent<Button>();
-            selectHypothesisBtnText = CreateTmpText("BtnLabel", btnSelectObj.transform, Vector2.zero, new Vector2(250f, 58f),
-                "<b>[*] FIJAR COMO\nRESPONSABLE</b>", 15.5f, TextAlignmentOptions.Center, HexToColor(ColorDarkBg));
+            selectHypothesisBtnText = CreateTmpText("BtnLabel", btnSelectObj.transform, Vector2.zero, new Vector2(270f, 66f),
+                "<b>[*] FIJAR COMO\nRESPONSABLE</b>", 12.5f, TextAlignmentOptions.Center, HexToColor(ColorDarkBg));
 
             // Conectar el adaptador de retícula VR
             WorldSpaceUiGazeButton gazeBtn = btnSelectObj.AddComponent<WorldSpaceUiGazeButton>();
@@ -464,8 +479,8 @@ namespace AndesSim.UI
             _tabButtonImages.Clear();
             _tabButtonTexts.Clear();
 
-            float startY = 280f;
-            float spacingY = 155f;
+            float startY = 248f;
+            float spacingY = 162f;
 
             for (int i = 0; i < suspects.Count; i++)
             {

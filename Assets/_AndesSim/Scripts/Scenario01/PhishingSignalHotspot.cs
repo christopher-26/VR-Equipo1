@@ -30,9 +30,12 @@ namespace AndesSim.Scenario01
     {
         private const string LogPrefix = "[ANDES-SIM - Phishing Hotspot]";
 
-        private static readonly Color AmberDetectedColor = new Color(1.0f, 0.62f, 0.26f, 1.0f); // Ámbar #ff9f43
+        private static readonly Color AmberDetectedColor = new Color(0.32f, 0.18f, 0.05f, 0.96f); // Ámbar oscuro legible
         private static readonly Color RedAlertColor = new Color(1.0f, 0.32f, 0.32f, 1.0f);     // Rojo #ff5252
-        private static readonly Color DefaultIdleColor = new Color(1.0f, 1.0f, 1.0f, 0.08f);
+        private static readonly Color DefaultIdleColor = new Color(0.08f, 0.12f, 0.18f, 0.90f); // Fondo oscuro terminal
+        private static readonly Color HoverHighlightColor = new Color(0.14f, 0.24f, 0.30f, 0.95f);
+        private static readonly Color BorderIdleGreen = new Color(0.18f, 0.90f, 0.50f, 1f);
+        private static readonly Color BorderDetectedAmber = new Color(1.0f, 0.62f, 0.26f, 1f);
 
         [Header("--- Identificación de la Señal (RF-03) ---")]
         [Tooltip("Identificador exacto: 'Signal_Remitente', 'Signal_Urgencia' o 'Signal_Enlace'.")]
@@ -75,6 +78,7 @@ namespace AndesSim.Scenario01
         private GazeInteractable _gazeInteractable;
         private Collider _collider;
         private Coroutine _hideTooltipCoroutine;
+        private int _lastClickFrame = -1;
 
         #region Propiedades Públicas
 
@@ -109,7 +113,7 @@ namespace AndesSim.Scenario01
         {
             AutoConfigureDefaults();
 
-            if (statusBadgeText != null)
+            if (statusBadgeText != null && statusBadgeText.gameObject.name != "Text")
             {
                 statusBadgeText.gameObject.SetActive(false);
             }
@@ -176,6 +180,9 @@ namespace AndesSim.Scenario01
         /// </summary>
         public void InspectSignal()
         {
+            if (_lastClickFrame == Time.frameCount) return;
+            _lastClickFrame = Time.frameCount;
+
             if (isDetected)
             {
                 // Si ya fue detectada, alternar tooltip explicativo
@@ -228,25 +235,40 @@ namespace AndesSim.Scenario01
 
         private void UpdateVisualAppearance()
         {
+            Transform borderBar = transform.Find("Borde_Hotspot");
+            Image borderBarImg = borderBar != null ? borderBar.GetComponent<Image>() : null;
+
             if (!isDetected)
             {
                 if (hotspotBorderImage != null)
                 {
                     hotspotBorderImage.color = DefaultIdleColor;
                 }
+                if (borderBarImg != null)
+                {
+                    borderBarImg.color = BorderIdleGreen;
+                }
+                if (statusBadgeText != null && statusBadgeText.gameObject.name != "Text")
+                {
+                    statusBadgeText.gameObject.SetActive(false);
+                }
                 return;
             }
 
-            // Resaltar en ámbar/rojo
+            // Resaltar en ámbar oscuro legible y borde lateral ámbar vivo
             if (hotspotBorderImage != null)
             {
                 hotspotBorderImage.color = AmberDetectedColor;
             }
+            if (borderBarImg != null)
+            {
+                borderBarImg.color = BorderDetectedAmber;
+            }
 
-            if (statusBadgeText != null)
+            if (statusBadgeText != null && statusBadgeText.gameObject.name != "Text")
             {
                 statusBadgeText.gameObject.SetActive(true);
-                statusBadgeText.text = "<color=#FF9F43><b>[SEÑAL DE PHISHING DETECTADA]</b></color>";
+                statusBadgeText.text = "<color=#FF9F43><b>[SEÑAL\nDETECTADA]</b></color>";
             }
 
             if (checkmarkBadge != null)
@@ -318,7 +340,7 @@ namespace AndesSim.Scenario01
 
             if (!isDetected && hotspotBorderImage != null)
             {
-                hotspotBorderImage.color = new Color(1f, 0.8f, 0.3f, 0.25f);
+                hotspotBorderImage.color = HoverHighlightColor;
             }
         }
 

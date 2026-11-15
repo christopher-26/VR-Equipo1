@@ -110,7 +110,10 @@ namespace AndesSim.VR
             if (_rectTransform != null && _boxCollider != null)
             {
                 Rect r = _rectTransform.rect;
-                _boxCollider.size = new Vector3(Mathf.Abs(r.width), Mathf.Abs(r.height), colliderThickness);
+                // Garantizar al menos ~2.4 cm fisicos en Z aunque el Canvas WorldSpace use escala 0.0005-0.002
+                float scaleZ = Mathf.Max(Mathf.Abs(transform.lossyScale.z), 0.0001f);
+                float localThickness = Mathf.Max(colliderThickness, 0.024f / scaleZ);
+                _boxCollider.size = new Vector3(Mathf.Abs(r.width), Mathf.Abs(r.height), localThickness);
 
                 // Compensar el pivote del RectTransform
                 Vector2 pivot = _rectTransform.pivot;

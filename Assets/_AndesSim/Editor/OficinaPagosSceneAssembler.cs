@@ -571,16 +571,37 @@ namespace AndesSim.Editor
                 new Vector3(-2.60f, 0.01f, 3.40f), "Puerta de Entrada (Acceso Principal)", "", Quaternion.Euler(0f, 180f, 0f));
         }
 
+        private static Material GetOrCreateDarkMonitorScreenMaterial()
+        {
+            const string assetPath = "Assets/_AndesSim/Art/Materials/Mat_Monitor_DarkScreen.mat";
+            Material existing = AssetDatabase.LoadAssetAtPath<Material>(assetPath);
+            if (existing != null)
+            {
+                Color c = new Color(0.015f, 0.02f, 0.03f, 1f);
+                if (existing.HasProperty("_BaseColor")) existing.SetColor("_BaseColor", c);
+                if (existing.HasProperty("_Color")) existing.SetColor("_Color", c);
+                if (existing.HasProperty("_Smoothness")) existing.SetFloat("_Smoothness", 0.10f);
+                if (existing.HasProperty("_Metallic")) existing.SetFloat("_Metallic", 0.0f);
+                EditorUtility.SetDirty(existing);
+                return existing;
+            }
+
+            Material mat = RoomArchitectureBuilder.CreatePbrMaterial(
+                "Mat_Monitor_DarkScreen", new Color(0.015f, 0.02f, 0.03f), 0.10f, 0.0f);
+            AssetDatabase.CreateAsset(mat, assetPath);
+            AssetDatabase.SaveAssets();
+            return AssetDatabase.LoadAssetAtPath<Material>(assetPath);
+        }
+
         private static void AttachFittedMonitorTerminal(GameObject monitorObj, string monitorId, string label)
         {
             ConfigureExistingMonitorObject(monitorObj, monitorId, label, monitorId);
 
-            // Reemplazar la textura blanca de escritorio de VNB (screen.mat) por vidrio oscuro antirreflejo
+            // Reemplazar permanentemente la textura blanca de escritorio de VNB (Submesh 1) por vidrio oscuro mate
             Renderer monRend = monitorObj.GetComponent<Renderer>();
             if (monRend != null && monRend.sharedMaterials != null && monRend.sharedMaterials.Length > 1)
             {
-                Material darkScreenMat = RoomArchitectureBuilder.CreatePbrMaterial(
-                    "Mat_Monitor_DarkScreen", new Color(0.03f, 0.05f, 0.08f), 0.16f, 0.05f);
+                Material darkScreenMat = GetOrCreateDarkMonitorScreenMaterial();
                 Material[] mats = monRend.sharedMaterials;
                 bool replaced = false;
                 for (int m = 0; m < mats.Length; m++)
@@ -595,72 +616,69 @@ namespace AndesSim.Editor
                 monRend.sharedMaterials = mats;
             }
 
-            Vector3 localPos = new Vector3(0f, 0.28f, 0.052f);
+            // Eliminar cualquier MeshCollider frontal de VNB para que no tape hotspots ni botones hijos
+            MeshCollider mc = monitorObj.GetComponent<MeshCollider>();
+            if (mc != null)
+            {
+                UnityEngine.Object.DestroyImmediate(mc);
+            }
+
+            Vector2 canvasSize = new Vector2(720f, 720f);
+            Vector3 localPos = new Vector3(0f, 0.3375f, 0.0304f);
             Quaternion localRot = Quaternion.Euler(0f, 180f, 0f);
-            Vector3 localScale = new Vector3(0.00055f, 0.00055f, 0.00055f);
+            Vector3 localScale = new Vector3(0.000498f, 0.000498f, 0.000498f);
 
             MeshFilter mf = monitorObj.GetComponent<MeshFilter>();
-            MeshCollider mc = monitorObj.GetComponent<MeshCollider>();
             if (mf != null && mf.sharedMesh != null)
             {
-                Bounds mb = mf.sharedMesh.bounds;
-                float screenCenterY = Mathf.Lerp(mb.min.y, mb.max.y, 0.60f);
-                Vector3 fittedNormal = Vector3.forward;
-                Vector3 anchorLocal = new Vector3(mb.center.x, screenCenterY, 0.040f);
+                Mesh mesh = mf.sharedMesh;
+                Bounds mb = mesh.bounds;
+                Vector3 screenMin = new Vector3(mb.min.x + 0.016f, Mathf.Lerp(mb.min.y, mb.max.y, 0.28f), mb.max.z - 0.009f);
+                Vector3 screenMax = new Vector3(mb.max.x - 0.016f, mb.max.y - 0.016f, mb.max.z - 0.009f);
 
-                if (mc != null)
+                // Usar el submesh exacto del vidrio (Submesh[1]) para encajar la pantalla sin sobresalir del bisel
+                if (mesh.subMeshCount > 1)
                 {
-                    Physics.SyncTransforms();
-                    Vector3 worldDir = -monitorObj.transform.forward;
-                    float[] ys = { screenCenterY - mb.size.y * 0.15f, screenCenterY, screenCenterY + mb.size.y * 0.15f };
-                    Vector3[] hits = new Vector3[ys.Length];
-                    bool[] ok = new bool[ys.Length];
-                    for (int i = 0; i < ys.Length; i++)
+                    Vector3[] verts = mesh.vertices;
+                    int[] screenTris = mesh.GetTriangles(1);
+                    if (screenTris != null && screenTris.Length > 0)
                     {
-                        Vector3 worldOrigin = monitorObj.transform.TransformPoint(new Vector3(mb.center.x, ys[i], mb.max.z + 0.35f));
-                        if (mc.Raycast(new Ray(worldOrigin, worldDir), out RaycastHit hit, 1.0f))
+                        Vector3 sMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+                        Vector3 sMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+                        for (int i = 0; i < screenTris.Length; i++)
                         {
-                            hits[i] = monitorObj.transform.InverseTransformPoint(hit.point);
-                            ok[i] = true;
+                            Vector3 v = verts[screenTris[i]];
+                            sMin = Vector3.Min(sMin, v);
+                            sMax = Vector3.Max(sMax, v);
                         }
-                    }
-                    if (ok[0] && ok[2])
-                    {
-                        Vector3 upSlope = (hits[2] - hits[0]).normalized;
-                        Vector3 tn = Vector3.Cross(upSlope, Vector3.left).normalized;
-                        if (tn.z < 0f) tn = -tn;
-                        if (Vector3.Dot(tn, Vector3.forward) > 0.7f) fittedNormal = tn;
-                    }
-                    float maxProj = float.NegativeInfinity;
-                    for (int i = 0; i < ys.Length; i++)
-                    {
-                        if (!ok[i]) continue;
-                        float p = Vector3.Dot(hits[i], fittedNormal);
-                        if (p > maxProj) maxProj = p;
-                    }
-                    if (maxProj > float.NegativeInfinity)
-                    {
-                        float curProj = Vector3.Dot(anchorLocal, fittedNormal);
-                        anchorLocal += fittedNormal * ((maxProj - curProj) + 0.012f);
+                        screenMin = sMin;
+                        screenMax = sMax;
                     }
                 }
-                else
-                {
-                    anchorLocal.z = Mathf.Max(0.048f, mb.max.z * 0.55f);
-                }
 
-                localPos = anchorLocal;
-                localRot = Quaternion.LookRotation(-fittedNormal, Vector3.up);
-                float usableW = Mathf.Max(0.36f, mb.size.x * 0.86f);
-                float usableH = Mathf.Max(0.22f, mb.size.y * 0.56f);
-                float uniScale = Mathf.Clamp(Mathf.Min(usableW / 800f, usableH / 480f), 0.00048f, 0.00060f);
-                localScale = new Vector3(uniScale, uniScale, uniScale);
+                Vector3 screenCenter = (screenMin + screenMax) * 0.5f;
+                float screenW = Mathf.Max(0.28f, screenMax.x - screenMin.x);
+                float screenH = Mathf.Max(0.28f, screenMax.y - screenMin.y);
 
+                // Ajustar aspect ratio al hueco real del monitor físico (1:1 en Computer_Monitor) con 5mm de margen dentro del bisel
+                float insetW = Mathf.Max(0.24f, screenW - 0.010f);
+                float insetH = Mathf.Max(0.24f, screenH - 0.010f);
+                float fitScale = Mathf.Clamp(Mathf.Min(insetW / canvasSize.x, insetH / canvasSize.y), 0.00035f, 0.00060f);
+
+                // Colocar 4.2mm por delante del vidrio (0.0262) y por dentro del borde externo del bisel (0.0354)
+                localPos = new Vector3(screenCenter.x, screenCenter.y, screenMax.z + 0.0042f);
+                localRot = Quaternion.Euler(0f, 180f, 0f);
+                localScale = new Vector3(fitScale, fitScale, fitScale);
+
+                // Mantener BoxCollider del chasis estrictamente DETRAS de Canvas_Pantalla (+0.016 < +0.0304)
                 BoxCollider col = monitorObj.GetComponent<BoxCollider>();
                 if (col != null)
                 {
-                    col.center = new Vector3(mb.center.x, screenCenterY, anchorLocal.z - 0.02f);
-                    col.size = new Vector3(Mathf.Max(0.46f, mb.size.x * 0.96f), Mathf.Max(0.34f, mb.size.y * 0.65f), 0.16f);
+                    float frontZ = screenMax.z - 0.010f;
+                    float backZ = mb.min.z;
+                    float depth = Mathf.Max(0.08f, frontZ - backZ);
+                    col.center = new Vector3(mb.center.x, mb.center.y, (frontZ + backZ) * 0.5f);
+                    col.size = new Vector3(mb.size.x, mb.size.y, depth);
                 }
             }
             else if (monitorObj.transform.Find("Cabeza_Pantalla_Monitor") != null)
@@ -669,8 +687,15 @@ namespace AndesSim.Editor
                 localRot = Quaternion.identity;
             }
 
+            // Solo Monitor_02 (sin botones propios) requiere GazeInteractable directo para abrir zoom SWIFT
+            if (monitorId == "Monitor_02" && monitorObj.GetComponent<GazeInteractable>() == null)
+            {
+                GazeInteractable monGaze = monitorObj.AddComponent<GazeInteractable>();
+                monGaze.interactableLabel = label;
+            }
+
             MonitorMeshBuilder.BuildTerminalWorldSpaceCanvas(
-                monitorObj.transform, monitorId, localPos, localRot, new Vector2(800f, 480f), localScale);
+                monitorObj.transform, monitorId, localPos, localRot, canvasSize, localScale);
         }
 
         private static void ConfigureExistingMonitorObject(GameObject monitorObj, string newName, string label, string workstationId)
@@ -797,30 +822,30 @@ namespace AndesSim.Editor
             GameObject titleObj = new GameObject("Txt_TituloConsola");
             titleObj.transform.SetParent(quarantinePanel.transform, false);
             RectTransform tRect = titleObj.AddComponent<RectTransform>();
-            tRect.anchoredPosition = new Vector2(0f, 185f);
-            tRect.sizeDelta = new Vector2(760f, 40f);
+            tRect.anchoredPosition = new Vector2(0f, 232f);
+            tRect.sizeDelta = new Vector2(660f, 54f);
             TextMeshProUGUI titleTmp = titleObj.AddComponent<TextMeshProUGUI>();
             titleTmp.text = "<b><color=#38F28A>CONSOLA DE CUARENTENA Y SANDBOX - BANCO ANDINO</color></b>";
-            titleTmp.fontSize = 15f;
+            titleTmp.fontSize = 18f;
             titleTmp.alignment = TextAlignmentOptions.Center;
 
             // Log del Sandbox
             GameObject logObj = new GameObject("Txt_LogSandbox");
             logObj.transform.SetParent(quarantinePanel.transform, false);
             RectTransform lRect = logObj.AddComponent<RectTransform>();
-            lRect.anchoredPosition = new Vector2(0f, 20f);
-            lRect.sizeDelta = new Vector2(750f, 240f);
+            lRect.anchoredPosition = new Vector2(0f, 30f);
+            lRect.sizeDelta = new Vector2(650f, 290f);
             TextMeshProUGUI logTmp = logObj.AddComponent<TextMeshProUGUI>();
             logTmp.text = "<color=#38F28A>[SOC-DEFENSE] 09:18:04</color> Correo de Rasel Ahlam interceptado.\n" +
                           "<color=#38F28A>[SANDBOX-ISOLATION]</color> Enlace detonado en sandbox aislado.\n" +
                           "<color=#FFC24A>[DETECCION]</color> Payload malicioso 'Rasel_Ahlam_CV_2015.scr' detectado.\n" +
                           "<color=#38F28A>[CONTENCION]</color> Bloqueo en 16 buzones. 0 equipos comprometidos.";
-            logTmp.fontSize = 12f;
+            logTmp.fontSize = 16.5f;
             logTmp.alignment = TextAlignmentOptions.TopLeft;
 
             // Botón interactivo: Confirmar Contención
             GameObject btnConfirmObj = CreateWorldGazeButton("Btn_ConfirmarContencion", quarantinePanel.transform,
-                new Vector2(0f, -165f), new Vector2(580f, 65f), "CONFIRMAR CONTENCION Y FINALIZAR", null, null, 14f);
+                new Vector2(0f, -238f), new Vector2(620f, 108f), "CONFIRMAR CONTENCION Y FINALIZAR", null, null, 17f);
             Button btnConfirm = btnConfirmObj.GetComponent<Button>();
 
             quarantinePanel.SetActive(false); // Inicia oculto, se activa en Modo Defensa
@@ -968,8 +993,8 @@ namespace AndesSim.Editor
             boardObj.name = "Tablero_Sospechosos_VR";
             AndesTypographyTheme.ApplyTypographyToTree(boardObj.transform, true, false);
 
-            // TeleportPoint específico frente al tablero de sospechosos, mirando hacia el sur
-            CreateTeleportPoint(parent, "Teleport_TableroSospechosos", new Vector3(2.20f, 0.01f, -4.40f),
+            // TeleportPoint específico frente al tablero de sospechosos (2.07m de distancia para vista panorámica completa)
+            CreateTeleportPoint(parent, "Teleport_TableroSospechosos", new Vector3(2.20f, 0.01f, -3.75f),
                 "Examinar Tablero Táctico de Sospechosos", "SuspectBoard", Quaternion.Euler(0f, 180f, 0f));
         }
 

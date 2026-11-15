@@ -246,125 +246,81 @@ namespace AndesSim.Environment
             titleTmp.textWrappingMode = TextWrappingModes.Normal;
 
             // -------------------------------------------------------------
-            // 1.4 Carpeta / Nodo Central del Caso y Notas de Evidencia
+            // 1.4 Notas de Evidencia y las 4 Fichas 3D (sin hilos ni pines rojos que tapen la UI)
             // -------------------------------------------------------------
-            Dictionary<string, Vector3> pinPositions = new Dictionary<string, Vector3>();
-
-            // Nodo Central: Fraude SWIFT 2015
-            Vector3 centerPin = BuildCentralIncidentCase(boardRoot.transform, mats);
-            pinPositions["Central"] = centerPin;
-
-            // Evidencia 01: Post-it credenciales de Carla Mendoza
-            Vector3 evi1Pin = BuildEvidenceCard(boardRoot.transform, "Evidencia_PostIt_Carla",
-                new Vector3(-0.35f, -0.28f, -0.025f), Quaternion.Euler(0f, 0f, 2.5f),
+            BuildEvidenceCard(boardRoot.transform, "Evidencia_PostIt_Carla",
+                new Vector3(-0.35f, -0.28f, -0.020f), Quaternion.Euler(0f, 0f, 2.5f),
                 "PISTA #01: POST-IT",
                 "Clave visible bajo monitor de Carla.",
                 mats["PostItYellow"], mats);
-            pinPositions["Evi1_PostIt"] = evi1Pin;
 
-            // Evidencia 02: 16 Destinatarios de Pagos en Bcc
-            Vector3 evi2Pin = BuildEvidenceCard(boardRoot.transform, "Evidencia_16Destinatarios",
-                new Vector3(-0.35f, 0.44f, -0.025f), Quaternion.Euler(0f, 0f, -1.8f),
+            BuildEvidenceCard(boardRoot.transform, "Evidencia_16Destinatarios",
+                new Vector3(-0.35f, 0.44f, -0.020f), Quaternion.Euler(0f, 0f, -1.8f),
                 "PISTA #02: 16 CORREOS",
                 "Correo phishing enviado a todo el equipo.",
                 mats["EvidenceWhite"], mats);
-            pinPositions["Evi2_16Buzones"] = evi2Pin;
 
-            // Evidencia 03: Payload ejecutable detonado
-            Vector3 evi3Pin = BuildEvidenceCard(boardRoot.transform, "Evidencia_Payload_SCR",
-                new Vector3(0f, -0.42f, -0.025f), Quaternion.Euler(0f, 0f, 1.2f),
+            BuildEvidenceCard(boardRoot.transform, "Evidencia_Payload_SCR",
+                new Vector3(0f, -0.42f, -0.020f), Quaternion.Euler(0f, 0f, 1.2f),
                 "PISTA #03: VIRUS .EXE",
                 "CV falso con puerta trasera oculta.",
-                mats["IncidentFolder"], mats);
-            pinPositions["Evi3_Payload"] = evi3Pin;
+                mats["EvidenceWhite"], mats);
 
-            // Evidencia 04: Red plana sin Sandbox ni VLANs
-            Vector3 evi4Pin = BuildEvidenceCard(boardRoot.transform, "Evidencia_Sin_Sandbox",
-                new Vector3(0.35f, 0.44f, -0.025f), Quaternion.Euler(0f, 0f, 2.0f),
+            BuildEvidenceCard(boardRoot.transform, "Evidencia_Sin_Sandbox",
+                new Vector3(0.35f, 0.44f, -0.020f), Quaternion.Euler(0f, 0f, 2.0f),
                 "PISTA #04: SIN SANDBOX",
                 "Red abierta sin firewall ni filtro web.",
                 mats["EvidenceWhite"], mats);
-            pinPositions["Evi4_Sandbox"] = evi4Pin;
 
-            // Evidencia 05: Registros SIEM nocturnos 23:42 hrs
-            Vector3 evi5Pin = BuildEvidenceCard(boardRoot.transform, "Evidencia_Logs_SIEM",
-                new Vector3(0.35f, -0.28f, -0.025f), Quaternion.Euler(0f, 0f, -2.2f),
+            BuildEvidenceCard(boardRoot.transform, "Evidencia_Logs_SIEM",
+                new Vector3(0.35f, -0.28f, -0.020f), Quaternion.Euler(0f, 0f, -2.2f),
                 "PISTA #05: LOGS SIEM",
                 "Acceso nocturno externo a PC SWIFT.",
                 mats["EvidenceWhite"], mats);
-            pinPositions["Evi5_Logs"] = evi5Pin;
 
             // -------------------------------------------------------------
             // 1.5 Las 4 Fichas Impresas en 3D de los Sospechosos
             // -------------------------------------------------------------
-            // 1. Samuel Torres (Arriba Izquierda)
-            Vector3 pinTorres = BuildSuspectCard3D(boardRoot.transform, 0,
+            BuildSuspectCard3D(boardRoot.transform, 0,
                 "Samuel_Torres", "Samuel Torres", "Jefe de Seguridad TI",
                 "NEGLIGENCIA DE RED", "#ff5a4e",
                 "• Red sin Sandbox ni bloqueos.",
                 "• Advirtio fallas en informes.",
-                new Vector3(-0.95f, 0.38f, -0.025f), Quaternion.Euler(0f, 0f, 1.8f), mats);
-            pinPositions["Torres"] = pinTorres;
+                new Vector3(-0.95f, 0.38f, -0.020f), Quaternion.Euler(0f, 0f, 1.8f), mats);
 
-            // 2. Hugo Benavides (Arriba Derecha)
-            Vector3 pinBenavides = BuildSuspectCard3D(boardRoot.transform, 1,
+            BuildSuspectCard3D(boardRoot.transform, 1,
                 "Hugo_Benavides", "Hugo Benavides", "Gerente de Operaciones",
                 "DESIDIA GERENCIAL", "#ffc24a",
                 "• Rechazo pagar filtro Sandbox.",
                 "• Estaba fuera del banco.",
-                new Vector3(0.95f, 0.38f, -0.025f), Quaternion.Euler(0f, 0f, -1.6f), mats);
-            pinPositions["Benavides"] = pinBenavides;
+                new Vector3(0.95f, 0.38f, -0.020f), Quaternion.Euler(0f, 0f, -1.6f), mats);
 
-            // 3. Carla Mendoza (Abajo Izquierda)
-            Vector3 pinMendoza = BuildSuspectCard3D(boardRoot.transform, 2,
+            BuildSuspectCard3D(boardRoot.transform, 2,
                 "Carla_Mendoza", "Carla Mendoza", "Operadora SWIFT",
                 "VICTIMA PHISHING", "#38f28a",
                 "• Abrio CV y uso Post-It.",
                 "• Fue enganada sin capacitacion.",
-                new Vector3(-0.95f, -0.38f, -0.025f), Quaternion.Euler(0f, 0f, -1.2f), mats);
-            pinPositions["Mendoza"] = pinMendoza;
+                new Vector3(-0.95f, -0.38f, -0.020f), Quaternion.Euler(0f, 0f, -1.2f), mats);
 
-            // 4. Renzo Aliaga (Abajo Derecha)
-            Vector3 pinAliaga = BuildSuspectCard3D(boardRoot.transform, 3,
+            BuildSuspectCard3D(boardRoot.transform, 3,
                 "Renzo_Aliaga", "Renzo Aliaga", "Soporte Redes",
                 "SOSPECHOSO INTERNO", "#ff5a4e",
                 "• Acceso fisico a claves y cables.",
                 "• Sin prueba de USB directo.",
-                new Vector3(0.95f, -0.38f, -0.025f), Quaternion.Euler(0f, 0f, 2.2f), mats);
-            pinPositions["Aliaga"] = pinAliaga;
-
-            // -------------------------------------------------------------
-            // 1.6 Líneas Rojas Conectando Evidencias (Investigative Red Web)
-            // -------------------------------------------------------------
-            GameObject yarnHolder = new GameObject("Lineas_Rojas_Investigacion");
-            yarnHolder.transform.SetParent(boardRoot.transform, false);
-
-            Material yarnMat = mats["RedYarn"];
-            CreateRedYarnConnection("Hilo_Torres_Sandbox", yarnHolder.transform, pinPositions["Torres"], pinPositions["Evi4_Sandbox"], yarnMat);
-            CreateRedYarnConnection("Hilo_Torres_16Buzones", yarnHolder.transform, pinPositions["Torres"], pinPositions["Evi2_16Buzones"], yarnMat);
-            CreateRedYarnConnection("Hilo_Benavides_Sandbox", yarnHolder.transform, pinPositions["Benavides"], pinPositions["Evi4_Sandbox"], yarnMat);
-            CreateRedYarnConnection("Hilo_Benavides_Central", yarnHolder.transform, pinPositions["Benavides"], pinPositions["Central"], yarnMat);
-            CreateRedYarnConnection("Hilo_Mendoza_PostIt", yarnHolder.transform, pinPositions["Mendoza"], pinPositions["Evi1_PostIt"], yarnMat);
-            CreateRedYarnConnection("Hilo_Mendoza_Payload", yarnHolder.transform, pinPositions["Mendoza"], pinPositions["Evi3_Payload"], yarnMat);
-            CreateRedYarnConnection("Hilo_Aliaga_Logs", yarnHolder.transform, pinPositions["Aliaga"], pinPositions["Evi5_Logs"], yarnMat);
-            CreateRedYarnConnection("Hilo_Aliaga_PostIt", yarnHolder.transform, pinPositions["Aliaga"], pinPositions["Evi1_PostIt"], yarnMat);
-            CreateRedYarnConnection("Hilo_Evi1_Central", yarnHolder.transform, pinPositions["Evi1_PostIt"], pinPositions["Central"], yarnMat);
-            CreateRedYarnConnection("Hilo_Evi2_Central", yarnHolder.transform, pinPositions["Evi2_16Buzones"], pinPositions["Central"], yarnMat);
-            CreateRedYarnConnection("Hilo_Evi3_Central", yarnHolder.transform, pinPositions["Evi3_Payload"], pinPositions["Central"], yarnMat);
-            CreateRedYarnConnection("Hilo_Evi5_Central", yarnHolder.transform, pinPositions["Evi5_Logs"], pinPositions["Central"], yarnMat);
+                new Vector3(0.95f, -0.38f, -0.020f), Quaternion.Euler(0f, 0f, 2.2f), mats);
 
             // -------------------------------------------------------------
             // 1.7 Integración con SuspectBoardVR (Rúbrica QA VR-5)
+            // Posicionado delante del respaldo de corcho (-0.065) para lectura 100% limpia sin solapamientos
             // -------------------------------------------------------------
-            // Instanciar o conectar SuspectBoardVR para garantizar funcionalidad completa
             GameObject suspectVRCanvas = new GameObject("Canvas_Tablero_Sospechosos_VR");
             suspectVRCanvas.transform.SetParent(boardRoot.transform, false);
-            suspectVRCanvas.transform.localPosition = new Vector3(0f, 0f, -0.035f);
+            suspectVRCanvas.transform.localPosition = new Vector3(0f, -0.02f, -0.065f);
 
             SuspectBoardVR boardVR = suspectVRCanvas.AddComponent<SuspectBoardVR>();
             boardVR.EnsureDefaultDossiers();
 
-            Debug.Log($"{LogPrefix} <color=#38F28A>Tablero táctico forense 3D construido con 4 fichas impresas y red de hilos rojos.</color>");
+            Debug.Log($"{LogPrefix} <color=#38F28A>Tablero táctico forense 3D construido limpio (sin hilos ni carpeta roja superpuesta).</color>");
             return boardRoot;
         }
 
@@ -390,9 +346,8 @@ namespace AndesSim.Environment
             CreateBox("Borde_Tarjeta", cardRoot.transform,
                 new Vector3(0f, 0f, 0.002f), new Vector3(cardW + 0.015f, cardH + 0.015f, 0.004f), mats["CardBorder"]);
 
-            // Chincheta de fijación superior
-            Vector3 pinPos = new Vector3(0f, cardH * 0.5f - 0.02f, -0.016f);
-            CreatePushpin(cardRoot.transform, pinPos, mats["PushpinRed"], mats["PinNeedle"]);
+            // Chincheta omitida para evitar solapamiento sobre el tablero interactivo VR
+            Vector3 pinPos = new Vector3(0f, cardH * 0.5f - 0.02f, -0.008f);
 
             // Marco de foto carnet
             CreateBox("Foto_Marco", cardRoot.transform,
@@ -451,43 +406,6 @@ namespace AndesSim.Environment
             return cardRoot.transform.localPosition + cardRoot.transform.localRotation * pinPos;
         }
 
-        private static Vector3 BuildCentralIncidentCase(Transform parent, Dictionary<string, Material> mats)
-        {
-            GameObject caseObj = new GameObject("Ficha_Caso_Lazarus2015");
-            caseObj.transform.SetParent(parent, false);
-            caseObj.transform.localPosition = new Vector3(0f, 0.08f, -0.025f);
-
-            const float w = 0.54f;
-            const float h = 0.32f;
-
-            CreateBox("Carpeta_Roja", caseObj.transform, Vector3.zero, new Vector3(w, h, 0.01f), mats["IncidentFolder"]);
-
-            Vector3 pinPos = new Vector3(0f, h * 0.5f - 0.02f, -0.016f);
-            CreatePushpin(caseObj.transform, pinPos, mats["PushpinGold"], mats["PinNeedle"]);
-
-            GameObject canvasObj = new GameObject("Canvas_Caso");
-            canvasObj.transform.SetParent(caseObj.transform, false);
-            canvasObj.transform.localPosition = new Vector3(0f, 0f, -0.008f);
-
-            Canvas canvas = canvasObj.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.WorldSpace;
-            RectTransform rect = canvasObj.GetComponent<RectTransform>();
-            rect.sizeDelta = new Vector2(500f, 280f);
-            rect.localScale = new Vector3(0.00105f, 0.00105f, 0.00105f);
-
-            TextMeshProUGUI tmp = canvasObj.AddComponent<TextMeshProUGUI>();
-            tmp.text = "<color=#FFFFFF><size=21><b>CASO SWIFT 2015</b></size>\n" +
-                       "<size=15><color=#FFC24A>BANCO ANDINO</color></size>\n\n" +
-                       "<size=15>• Correo phishing a 16 personas\n" +
-                       "• Robo objetivo: <b>US$ 951M</b>\n" +
-                       "• Grupo: <b>Lazarus (APT38)</b></size>\n\n" +
-                       "<align=center><color=#FF5A4E><b>[ CLASIFICADO ]</b></color></align></color>";
-            tmp.alignment = TextAlignmentOptions.TopLeft;
-            tmp.textWrappingMode = TextWrappingModes.Normal;
-
-            return caseObj.transform.localPosition + pinPos;
-        }
-
         private static Vector3 BuildEvidenceCard(Transform parent, string name, Vector3 pos, Quaternion rot,
             string title, string description, Material bodyMat, Dictionary<string, Material> mats)
         {
@@ -501,8 +419,7 @@ namespace AndesSim.Environment
 
             CreateBox("Tarjeta", eviObj.transform, Vector3.zero, new Vector3(w, h, 0.006f), bodyMat);
 
-            Vector3 pinPos = new Vector3(0f, h * 0.5f - 0.015f, -0.014f);
-            CreatePushpin(eviObj.transform, pinPos, mats["PushpinRed"], mats["PinNeedle"]);
+            Vector3 pinPos = new Vector3(0f, h * 0.5f - 0.015f, -0.008f);
 
             GameObject canvasObj = new GameObject("Canvas_Evidencia");
             canvasObj.transform.SetParent(eviObj.transform, false);
