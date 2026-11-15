@@ -4,6 +4,9 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 using AndesSim.Core;
 using AndesSim.Environment;
 using AndesSim.Scenario01;
@@ -234,7 +237,7 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_ToggleZoom", panelGO.transform,
                 new Vector2(285f, 326f), new Vector2(170f, 40f),
-                "[Q] 🔍 AGRANDAR",
+                "[Q] AGRANDAR",
                 new Color(0.08f, 0.35f, 0.42f, 0.98f),
                 CyanNeonAccent,
                 ToggleEnlargeZoom
@@ -1147,7 +1150,7 @@ namespace AndesSim.UI
 
             if (AndesSim.Audio.AudioManager.I != null)
             {
-                AndesSim.Audio.AudioManager.I.PlayUiClick();
+                AndesSim.Audio.AudioManager.I.PlayGazeClick();
             }
         }
 
@@ -1160,7 +1163,7 @@ namespace AndesSim.UI
                 var tmp = btnTr.GetComponent<TextMeshProUGUI>();
                 if (tmp != null)
                 {
-                    tmp.text = _isEnlarged ? "<b>[Q] 🔍 REDUCIR</b>" : "<b>[Q] 🔍 AGRANDAR</b>";
+                    tmp.text = _isEnlarged ? "<b>[Q] REDUCIR [-]</b>" : "<b>[Q] AGRANDAR [+]</b>";
                 }
             }
         }
