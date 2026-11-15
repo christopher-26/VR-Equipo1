@@ -204,8 +204,8 @@ namespace AndesSim.Scenario01
             if (_gazeInteractable != null)
             {
                 _gazeInteractable.interactableLabel = _isMfaActive
-                    ? "Token MFA Hardware (Código: " + currentOtpCode.ToString("D6") + ")"
-                    : "Dispositivo Token MFA [Inactivo en 2015]";
+                    ? "Token MFA (" + currentOtpCode.ToString("D6") + ")"
+                    : "Token MFA (Inactivo)";
             }
 
             SetLedVisuals(_isMfaActive ? ActiveGreenColor : InactiveRedColor);
@@ -227,7 +227,7 @@ namespace AndesSim.Scenario01
 
             if (_gazeInteractable != null && _isMfaActive)
             {
-                _gazeInteractable.interactableLabel = "Token MFA Hardware (Código: " + currentOtpCode.ToString("D6") + ")";
+                _gazeInteractable.interactableLabel = "Token MFA (" + currentOtpCode.ToString("D6") + ")";
             }
         }
 
@@ -273,17 +273,14 @@ namespace AndesSim.Scenario01
 
                 if (popupTitleText != null)
                 {
-                    popupTitleText.text = "<b><color=#38F28A>BÓVEDA DE CREDENCIALES & TOKEN MFA (RFC 6238)</color></b>";
+                    popupTitleText.text = "<b><color=#38F28A>TOKEN MFA ACTIVO</color></b>";
                 }
 
                 if (popupDetailText != null)
                 {
                     popupDetailText.text =
-                        "<b>Mecanismo de Mitigación en Profundidad:</b>\n" +
-                        "• <b>Código Dinámico:</b> Algoritmo TOTP genera un código de 6 dígitos cada 30 segundos.\n" +
-                        "• <b>Neutralización de Robo Físico:</b> El Post-It con contraseñas estáticas queda obsoleto.\n" +
-                        "• <b>Protección SWIFT:</b> Aunque un atacante obtenga la clave 'Andino2015*Swift', no puede " +
-                        "iniciar transferencias sin poseer físicamente este token criptográfico.";
+                        "• Codigo TOTP de 6 digitos cada 30s.\n" +
+                        "• Bloquea claves robadas y accesos sin token fisico.";
                 }
 
                 if (_popupCoroutine != null) StopCoroutine(_popupCoroutine);

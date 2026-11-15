@@ -365,16 +365,14 @@ namespace AndesSim.Scenario01
             {
                 if (criterionBannerTitle != null)
                 {
-                    criterionBannerTitle.text = "<color=#38F28A><b>[OK] CRITERIO DE ACEPTACION 1 CUMPLIDO [OK]</b></color>";
+                    criterionBannerTitle.text = "<color=#38F28A><b>3 PISTAS DETECTADAS</b></color>";
                 }
 
                 if (criterionBannerDetails != null)
                 {
                     criterionBannerDetails.text =
-                        $"Las 3 señales de phishing fueron identificadas en <b>{formattedTime}</b> " +
-                        $"(Límite: <b>{FormatTime(TimeLimitSeconds)}</b>).\n" +
-                        $"<color=#38F28A>[OK] Evidencia Forense Registrada:</color> <b>\"{EvidenceCorreoId}\"</b>\n" +
-                        "Selecciona la acción a tomar en el correo para continuar.";
+                        $"Tiempo: <b>{formattedTime}</b> · Evidencia guardada.\n" +
+                        "Elige <b>Abrir Enlace</b> o <b>Reportar Phishing</b>.";
                 }
 
                 if (criterionBannerBackground != null)
@@ -386,16 +384,14 @@ namespace AndesSim.Scenario01
             {
                 if (criterionBannerTitle != null)
                 {
-                    criterionBannerTitle.text = "<color=#FF9F43><b>3 SEÑALES DETECTADAS (TIEMPO EXCEDIDO)</b></color>";
+                    criterionBannerTitle.text = "<color=#FF9F43><b>3 PISTAS DETECTADAS</b></color>";
                 }
 
                 if (criterionBannerDetails != null)
                 {
                     criterionBannerDetails.text =
-                        $"Señales completadas en <b>{formattedTime}</b> " +
-                        $"(Excedió el objetivo de {FormatTime(TimeLimitSeconds)}).\n" +
-                        $"<color=#38F28A>[OK] Evidencia Forense Registrada:</color> <b>\"{EvidenceCorreoId}\"</b>\n" +
-                        "Selecciona la acción a tomar en el correo para continuar.";
+                        $"Tiempo: <b>{formattedTime}</b> (meta {FormatTime(TimeLimitSeconds)}).\n" +
+                        "Elige <b>Abrir Enlace</b> o <b>Reportar Phishing</b>.";
                 }
 
                 if (criterionBannerBackground != null)
@@ -411,7 +407,7 @@ namespace AndesSim.Scenario01
 
             if (signalsCounterText != null)
             {
-                signalsCounterText.text = $"Señales Detectadas: <b>{count}/3</b>";
+                signalsCounterText.text = $"Pistas: <b>{count}/3</b>";
                 signalsCounterText.color = (count >= 3) ? GreenSuccessColor : (count > 0 ? AmberWarningColor : Color.white);
             }
 
@@ -450,9 +446,7 @@ namespace AndesSim.Scenario01
 
                 if (openLinkButtonText != null)
                 {
-                    openLinkButtonText.text = mode == SimMode.Ataque
-                        ? "<b>Abrir enlace del CV</b>\n<size=80%>(Recrear Ataque 2016)</size>"
-                        : "<b>Abrir enlace del CV</b>\n<size=80%>(Observar Consecuencia)</size>";
+                    openLinkButtonText.text = "<b>ABRIR ENLACE</b>";
                 }
 
                 if (openLinkButtonGlow != null)
@@ -470,9 +464,7 @@ namespace AndesSim.Scenario01
 
                 if (reportButtonText != null)
                 {
-                    reportButtonText.text = mode == SimMode.Defensa
-                        ? "<b>Reportar Phishing a Seguridad TI</b>\n<size=80%>(Modo Defensa Oficial)</size>"
-                        : "<b>Reportar Phishing a Seguridad TI</b>\n<size=80%>(Activar Contramedidas)</size>";
+                    reportButtonText.text = "<b>REPORTAR PHISHING</b>";
                 }
 
                 if (reportButtonGlow != null)
@@ -548,8 +540,8 @@ namespace AndesSim.Scenario01
             if (infectionAlertText != null)
             {
                 infectionAlertText.text =
-                    "<color=#FF5A4E><b>[ALERTA DE INFECCION EN RED]:</b></color>\n" +
-                    "Dropper 'Rasel_Ahlam_CV_2015.scr.zip' ejecutado. Malware Lazarus activo.";
+                    "<color=#FF5A4E><b>RED INFECTADA</b></color>\n" +
+                    "Dropper CV_2015.scr ejecutado.";
             }
 
             // Notificar al flujo del escenario
@@ -675,10 +667,8 @@ namespace AndesSim.Scenario01
             if (quarantineNoticeText != null)
             {
                 quarantineNoticeText.text =
-                    "<color=#38F28A><b>[OK] PROTOCOLO DE DEFENSA EXITOSO:</b></color>\n" +
-                    "• Phishing reportado al SOC en tiempo real.\n" +
-                    "• Remitente bloqueado y buzones de los 16 empleados purgados.\n" +
-                    "• 0 computadoras infectadas en la red de pagos.";
+                    "<color=#38F28A><b>[OK] PHISHING BLOQUEADO</b></color>\n" +
+                    "16 buzones purgados · 0 PC infectadas.";
             }
 
             // 5. Notificar al flujo del escenario

@@ -146,15 +146,15 @@ namespace AndesSim.Scenario01
 
             // Sandbox
             if (sandboxStatusLight != null) sandboxStatusLight.color = hasSandbox ? Color.green : Color.red;
-            if (sandboxStatusText != null) sandboxStatusText.text = hasSandbox ? "ACTIVO (Detonación perimetral)" : "INACTIVO (Tráfico sin filtrar)";
+            if (sandboxStatusText != null) sandboxStatusText.text = hasSandbox ? "ACTIVO (Aislamiento)" : "INACTIVO (Sin filtro)";
 
             // Botón de Reporte
             if (reportButtonStatusLight != null) reportButtonStatusLight.color = hasReport ? Color.green : Color.red;
-            if (reportButtonStatusText != null) reportButtonStatusText.text = hasReport ? "DESPLEGADO (Buzones sincronizados)" : "INEXISTENTE (Sin canal rápido)";
+            if (reportButtonStatusText != null) reportButtonStatusText.text = hasReport ? "ACTIVO (Alerta SOC)" : "INACTIVO (Sin alerta)";
 
             // MFA
             if (mfaStatusLight != null) mfaStatusLight.color = hasMfa ? Color.green : Color.red;
-            if (mfaStatusText != null) mfaStatusText.text = hasMfa ? "OBLIGATORIO (Token criptográfico)" : "DESHABILITADO (Solo clave local)";
+            if (mfaStatusText != null) mfaStatusText.text = hasMfa ? "ACTIVO (Token MFA)" : "INACTIVO (Solo clave)";
 
             // Contador de equipos infectados
             int infectedCount = 3 - _activeDefenses.Count;
@@ -162,7 +162,7 @@ namespace AndesSim.Scenario01
 
             if (infectedCountText != null)
             {
-                infectedCountText.text = $"Equipos infectados: <size=120%><b>{infectedCount} / 3</b></size>";
+                infectedCountText.text = $"Equipos en riesgo: <b>{infectedCount}/3</b>";
                 infectedCountText.color = (infectedCount == 0) ? Color.green : ((infectedCount <= 1) ? Color.yellow : Color.red);
             }
 
@@ -171,15 +171,15 @@ namespace AndesSim.Scenario01
             {
                 if (infectedCount == 0)
                 {
-                    networkStatusText.text = "ESTADO DE RED: SEGURA Y MITIGADA";
+                    networkStatusText.text = "RED: PROTEGIDA";
                 }
                 else if (infectedCount == 1)
                 {
-                    networkStatusText.text = "ESTADO DE RED: CONTENCIÓN PARCIAL";
+                    networkStatusText.text = "RED: PARCIAL";
                 }
                 else
                 {
-                    networkStatusText.text = "ESTADO DE RED: COMPROMETIDA (C2 ACTIVO)";
+                    networkStatusText.text = "RED: VULNERABLE";
                 }
             }
 
@@ -190,7 +190,7 @@ namespace AndesSim.Scenario01
 
             if (defenseProgressText != null)
             {
-                defenseProgressText.text = $"Contramedidas implementadas: <b>{_activeDefenses.Count} / 3</b>";
+                defenseProgressText.text = $"Defensas: <b>{_activeDefenses.Count}/3</b>";
             }
         }
 

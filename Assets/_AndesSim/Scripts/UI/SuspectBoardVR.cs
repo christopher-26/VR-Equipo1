@@ -174,22 +174,22 @@ namespace AndesSim.UI
                     id = "SUSPECT_SAMUEL_TORRES",
                     fullName = "Ing. Samuel Torres",
                     roleTitle = "Jefe de Seguridad TI",
-                    threatLevelBadge = "NEGLIGENCIA DE RED",
+                    threatLevelBadge = "NEGLIGENCIA",
                     threatColorHex = ColorAlertRed,
                     careerAndPsychology =
-                        "• 12 anos en redes bancarias.\n" +
-                        "• Molesto por recortes de presupuesto.",
+                        "• 12 años en redes.\n" +
+                        "• Molesto por recortes.",
                     incriminatingPoints =
-                        "• Administrador total de correo y switches.\n" +
-                        "• No bloqueo archivos .exe ni puso VLANs.",
+                        "• Administra correo y red.\n" +
+                        "• Sin VLANs ni bloqueo .exe.",
                     exoneratingPoints =
-                        "• Envio 3 informes pidiendo un Sandbox.\n" +
-                        "• No uso su clave en el robo.",
-                    reason16Recipients = "Dejo abierto el grupo de correo al exterior.",
-                    reasonCarlaPostIt = "Exigia claves largas cada mes sin gestor.",
-                    reasonNoFirewallSandbox = "Sin dinero aprobado, no activo filtros.",
+                        "• Pidio Sandbox 3 veces.\n" +
+                        "• No uso su clave.",
+                    reason16Recipients = "Correo abierto al exterior.",
+                    reasonCarlaPostIt = "Claves largas sin gestor.",
+                    reasonNoFirewallSandbox = "Sin presupuesto para filtros.",
                     teamHypothesisArgument =
-                        "<b>CONCLUSION:</b> Por pasividad y falta de filtros dejo la red vulnerable."
+                        "<b>CONCLUSION:</b> Negligencia en seguridad de red."
                 },
 
                 // 2. Lic. Hugo Benavides
@@ -197,23 +197,23 @@ namespace AndesSim.UI
                 {
                     id = "SUSPECT_HUGO_BENAVIDES",
                     fullName = "Lic. Hugo Benavides",
-                    roleTitle = "Gerente de Operaciones",
-                    threatLevelBadge = "DESIDIA GERENCIAL",
+                    roleTitle = "Gerente Operaciones",
+                    threatLevelBadge = "DESIDIA",
                     threatColorHex = ColorAmberWarning,
                     careerAndPsychology =
-                        "• 18 anos en metas comerciales.\n" +
-                        "• Ve la seguridad como un freno.",
+                        "• 18 años en metas.\n" +
+                        "• Prioriza rapidez.",
                     incriminatingPoints =
-                        "• Ignoro fallas en impresora SWIFT.\n" +
-                        "• Pidio quitar filtros para ir rapido.",
+                        "• Pidio quitar filtros.\n" +
+                        "• Ignoro fallas SWIFT.",
                     exoneratingPoints =
-                        "• Sin conocimientos tecnicos de hacking.\n" +
-                        "• Estaba de viaje en otro evento.",
-                    reason16Recipients = "Publico correos del equipo en avisos.",
-                    reasonCarlaPostIt = "Acepto claves en Post-It para ir rapido.",
-                    reasonNoFirewallSandbox = "Voto en contra de comprar el Sandbox.",
+                        "• Sin perfil tecnico.\n" +
+                        "• Fuera de sede.",
+                    reason16Recipients = "Publico correos del area.",
+                    reasonCarlaPostIt = "Acepto claves en Post-It.",
+                    reasonNoFirewallSandbox = "Voto contra el Sandbox.",
                     teamHypothesisArgument =
-                        "<b>CONCLUSION:</b> Su presion y recortes anularon la seguridad."
+                        "<b>CONCLUSION:</b> Recortes anularon la defensa."
                 },
 
                 // 3. Carla Mendoza
@@ -221,23 +221,23 @@ namespace AndesSim.UI
                 {
                     id = "SUSPECT_CARLA_MENDOZA",
                     fullName = "Carla Mendoza",
-                    roleTitle = "Operadora Senior SWIFT",
-                    threatLevelBadge = "VICTIMA PHISHING",
+                    roleTitle = "Operadora SWIFT",
+                    threatLevelBadge = "VICTIMA",
                     threatColorHex = ColorGreenCode,
                     careerAndPsychology =
-                        "• 7 anos con record puntual.\n" +
-                        "• Trabajaba bajo mucho estres.",
+                        "• 7 años puntual.\n" +
+                        "• Alta carga laboral.",
                     incriminatingPoints =
-                        "• Su usuario autorizo los giros SWIFT.\n" +
-                        "• Tenia su clave pegada en Post-It.",
+                        "• Su usuario aprobo giros.\n" +
+                        "• Clave pegada en Post-It.",
                     exoneratingPoints =
-                        "• Estaba en casa durante el robo nocturno.\n" +
-                        "• Fue enganada por el correo falso.",
-                    reason16Recipients = "Su correo aparecia en contactos externos.",
-                    reasonCarlaPostIt = "Anoto la clave para no bloquear cierres.",
-                    reasonNoFirewallSandbox = "Confio en que el filtro ya bloqueaba virus.",
+                        "• En casa de noche.\n" +
+                        "• Engañada por phishing.",
+                    reason16Recipients = "Su correo era visible.",
+                    reasonCarlaPostIt = "Anoto clave por rapidez.",
+                    reasonNoFirewallSandbox = "Confio en el filtro.",
                     teamHypothesisArgument =
-                        "<b>CONCLUSION:</b> Victima sin capacitacion explotada por phishing."
+                        "<b>CONCLUSION:</b> Victima explotada por phishing."
                 },
 
                 // 4. Renzo Aliaga
@@ -245,23 +245,23 @@ namespace AndesSim.UI
                 {
                     id = "SUSPECT_RENZO_ALIAGA",
                     fullName = "Renzo Aliaga",
-                    roleTitle = "Soporte Redes (Externo)",
-                    threatLevelBadge = "SOSPECHOSO INTERNO",
+                    roleTitle = "Soporte Externo",
+                    threatLevelBadge = "SOSPECHOSO",
                     threatColorHex = ColorAlertRed,
                     careerAndPsychology =
-                        "• 4 anos viendo cableado de oficina.\n" +
-                        "• Tiene deudas bancarias graves.",
+                        "• 4 años en cableado.\n" +
+                        "• Deudas graves.",
                     incriminatingPoints =
-                        "• Trabajo bajo el escritorio de Carla.\n" +
-                        "• Entro de noche a servidores sin guia.",
+                        "• Trabajo bajo PC 1.\n" +
+                        "• Entro de noche sin guia.",
                     exoneratingPoints =
-                        "• Tenia ordenes de trabajo firmadas.\n" +
-                        "• Camaras no muestran uso de USB.",
-                    reason16Recipients = "Pudo ver la lista de correos en PC 1.",
-                    reasonCarlaPostIt = "Cableo justo debajo del Post-It de Carla.",
-                    reasonNoFirewallSandbox = "Sabia que la red no tenia proteccion.",
+                        "• Ordenes firmadas.\n" +
+                        "• Sin evidencia de USB.",
+                    reason16Recipients = "Vio correos en PC 1.",
+                    reasonCarlaPostIt = "Estuvo junto al Post-It.",
+                    reasonNoFirewallSandbox = "Conocia la red plana.",
                     teamHypothesisArgument =
-                        "<b>CONCLUSION:</b> Posible complice interno que filtro claves y red."
+                        "<b>CONCLUSION:</b> Posible complice interno."
                 }
             };
         }
@@ -365,11 +365,11 @@ namespace AndesSim.UI
             GameObject headerObj = CreateUiPanel("Header_Board", bgObj.transform, new Vector2(0f, 385f), new Vector2(1260f, 65f), HexToColor(ColorCardBg, 0.95f));
             AddUiBorder(headerObj, HexToColor(ColorGreenCode, 0.4f), 1.5f);
 
-            headerTitleText = CreateTmpText("Title", headerObj.transform, new Vector2(-150f, 8f), new Vector2(920f, 32f),
-                "<b><color=#38F28A>TABLERO TÁCTICO DE INVESTIGACIÓN</color> · CASO BANCO ANDINO 2016</b>", 20f, TextAlignmentOptions.Left, HexToColor(ColorTextLight));
+            headerTitleText = CreateTmpText("Title", headerObj.transform, new Vector2(-150f, 9f), new Vector2(920f, 34f),
+                "<b><color=#38F28A>TABLERO DE SOSPECHOSOS</color></b>", 22f, TextAlignmentOptions.Left, HexToColor(ColorTextLight));
 
-            headerSubtitleText = CreateTmpText("Subtitle", headerObj.transform, new Vector2(-150f, -16f), new Vector2(920f, 22f),
-                "<i>Expedientes de los 4 Sospechosos e Hipótesis de Complicidad Interna (Oficina de Pagos - RF-02)</i>", 13f, TextAlignmentOptions.Left, HexToColor(ColorMutedText));
+            headerSubtitleText = CreateTmpText("Subtitle", headerObj.transform, new Vector2(-150f, -16f), new Vector2(920f, 24f),
+                "<i>Caso Banco Andino · Elige al responsable</i>", 14.5f, TextAlignmentOptions.Left, HexToColor(ColorMutedText));
 
             // Sello superior de hipótesis activa
             GameObject stampObj = CreateUiPanel("Hypothesis_Global_Stamp", headerObj.transform, new Vector2(480f, 0f), new Vector2(260f, 44f), HexToColor(ColorCardBg, 0.98f));
@@ -377,7 +377,7 @@ namespace AndesSim.UI
             hypothesisStampBadge = stampObj;
 
             hypothesisStampText = CreateTmpText("StampText", stampObj.transform, Vector2.zero, new Vector2(250f, 40f),
-                "<b>[*] HIPÓTESIS REGISTRADA [*]</b>", 12f, TextAlignmentOptions.Center, HexToColor(ColorGreenCode));
+                "<b>HIPOTESIS ACTIVA</b>", 14f, TextAlignmentOptions.Center, HexToColor(ColorGreenCode));
 
             // Contenedor de Botones de Pestañas (Izquierda: 280px de ancho)
             GameObject tabsObj = CreateUiPanel("Container_Tabs", bgObj.transform, new Vector2(-490f, -40f), new Vector2(280f, 740f), HexToColor(ColorCardBg, 0.85f));
@@ -385,72 +385,72 @@ namespace AndesSim.UI
             tabsContainer = tabsObj.transform;
 
             CreateTmpText("TabsHeader", tabsObj.transform, new Vector2(0f, 345f), new Vector2(260f, 30f),
-                "<b>SOSPECHOSOS (4)</b>", 15f, TextAlignmentOptions.Center, HexToColor(ColorGreenCode));
+                "<b>SOSPECHOSOS</b>", 16f, TextAlignmentOptions.Center, HexToColor(ColorGreenCode));
 
-            // Contenedor del Expediente Principal (Derecha: 950px de ancho)
+            // Contenedor del Expediente Principal (Derecha: 960px de ancho)
             GameObject dossierObj = CreateUiPanel("Container_Dossier_Body", bgObj.transform, new Vector2(145f, -40f), new Vector2(960f, 740f), HexToColor(ColorCardBg, 0.90f));
             AddUiBorder(dossierObj, HexToColor(ColorGreenCode, 0.4f), 1.5f);
 
             // 1. Cabecera del Sospechoso Activo
-            GameObject suspectHeaderObj = CreateUiPanel("Suspect_Profile_Header", dossierObj.transform, new Vector2(0f, 325f), new Vector2(920f, 70f), HexToColor(ColorDarkBg, 0.95f));
+            GameObject suspectHeaderObj = CreateUiPanel("Suspect_Profile_Header", dossierObj.transform, new Vector2(0f, 320f), new Vector2(920f, 76f), HexToColor(ColorDarkBg, 0.95f));
             AddUiBorder(suspectHeaderObj, HexToColor(ColorGreenCode, 0.35f), 1f);
 
             suspectNameText = CreateTmpText("SuspectName", suspectHeaderObj.transform, new Vector2(-170f, 14f), new Vector2(540f, 36f),
-                "<b>Ing. Samuel Torres</b>", 24f, TextAlignmentOptions.Left, HexToColor(ColorTextLight));
+                "<b>Ing. Samuel Torres</b>", 27f, TextAlignmentOptions.Left, HexToColor(ColorTextLight));
 
             suspectRoleText = CreateTmpText("SuspectRole", suspectHeaderObj.transform, new Vector2(-170f, -15f), new Vector2(540f, 26f),
-                "Cargo: <b>Jefe de Seguridad TI</b>", 15.5f, TextAlignmentOptions.Left, HexToColor(ColorGreenCode));
+                "<b>Jefe de Seguridad TI</b>", 16.5f, TextAlignmentOptions.Left, HexToColor(ColorGreenCode));
 
             threatBadgeText = CreateTmpText("ThreatBadge", suspectHeaderObj.transform, new Vector2(300f, 0f), new Vector2(280f, 44f),
-                "<b>[SOSPECHOSO]</b>", 15f, TextAlignmentOptions.Center, HexToColor(ColorAlertRed));
+                "<b>NEGLIGENCIA</b>", 16.5f, TextAlignmentOptions.Center, HexToColor(ColorAlertRed));
 
-            // 2. Columna Izquierda: Carrera / Psicología / Indicios
-            GameObject colLeftObj = CreateUiPanel("Col_Trayectoria", dossierObj.transform, new Vector2(-235f, 90f), new Vector2(440f, 360f), HexToColor(ColorDarkBg, 0.7f));
+            // 2. Columna Izquierda: Perfil
+            GameObject colLeftObj = CreateUiPanel("Col_Trayectoria", dossierObj.transform, new Vector2(-235f, 128f), new Vector2(440f, 280f), HexToColor(ColorDarkBg, 0.7f));
             AddUiBorder(colLeftObj, HexToColor(ColorGreenCode, 0.25f), 1f);
 
-            CreateTmpText("ColLeftTitle", colLeftObj.transform, new Vector2(0f, 158f), new Vector2(410f, 28f),
-                "<b>1. PERFIL</b>", 16f, TextAlignmentOptions.Left, HexToColor(ColorGreenCode));
+            CreateTmpText("ColLeftTitle", colLeftObj.transform, new Vector2(0f, 108f), new Vector2(400f, 30f),
+                "<b>1. PERFIL</b>", 17.5f, TextAlignmentOptions.Left, HexToColor(ColorGreenCode));
 
-            careerPsychologyText = CreateTmpText("ColLeftBody", colLeftObj.transform, new Vector2(0f, 10f), new Vector2(410f, 260f),
-                "Cargando perfil...", 15.5f, TextAlignmentOptions.TopLeft, HexToColor(ColorTextLight));
+            careerPsychologyText = CreateTmpText("ColLeftBody", colLeftObj.transform, new Vector2(0f, -14f), new Vector2(400f, 185f),
+                "...", 19f, TextAlignmentOptions.TopLeft, HexToColor(ColorTextLight));
 
-            // 3. Columna Derecha: Indicios vs Coartada
-            GameObject colRightObj = CreateUiPanel("Col_Indicios", dossierObj.transform, new Vector2(235f, 90f), new Vector2(440f, 360f), HexToColor(ColorDarkBg, 0.7f));
+            // 3. Columna Derecha: Pistas A Favor / En Contra
+            GameObject colRightObj = CreateUiPanel("Col_Indicios", dossierObj.transform, new Vector2(235f, 128f), new Vector2(440f, 280f), HexToColor(ColorDarkBg, 0.7f));
             AddUiBorder(colRightObj, HexToColor(ColorGreenCode, 0.25f), 1f);
 
-            CreateTmpText("ColRightTitle", colRightObj.transform, new Vector2(0f, 158f), new Vector2(410f, 28f),
-                "<b>2. PISTAS A FAVOR / EN CONTRA</b>", 16f, TextAlignmentOptions.Left, HexToColor(ColorAmberWarning));
+            CreateTmpText("ColRightTitle", colRightObj.transform, new Vector2(0f, 108f), new Vector2(400f, 30f),
+                "<b>2. PISTAS</b>", 17.5f, TextAlignmentOptions.Left, HexToColor(ColorAmberWarning));
 
-            incriminatingFactsText = CreateTmpText("ColRightIncrim", colRightObj.transform, new Vector2(0f, 68f), new Vector2(410f, 145f),
-                "<b>En contra:</b>\n...", 14.5f, TextAlignmentOptions.TopLeft, HexToColor(ColorAlertRed));
+            incriminatingFactsText = CreateTmpText("ColRightIncrim", colRightObj.transform, new Vector2(0f, 36f), new Vector2(400f, 96f),
+                "<b>EN CONTRA:</b>\n...", 16.5f, TextAlignmentOptions.TopLeft, HexToColor(ColorAlertRed));
 
-            exoneratingFactsText = CreateTmpText("ColRightExon", colRightObj.transform, new Vector2(0f, -78f), new Vector2(410f, 135f),
-                "<b>A favor:</b>\n...", 14.5f, TextAlignmentOptions.TopLeft, HexToColor(ColorGreenCode));
+            exoneratingFactsText = CreateTmpText("ColRightExon", colRightObj.transform, new Vector2(0f, -68f), new Vector2(400f, 96f),
+                "<b>A FAVOR:</b>\n...", 16.5f, TextAlignmentOptions.TopLeft, HexToColor(ColorGreenCode));
 
-            // 4. Panel Inferior: CLAVES DEL ESCENARIO 1
-            GameObject scenarioKeysObj = CreateUiPanel("Panel_Claves_Escenario1", dossierObj.transform, new Vector2(0f, -145f), new Vector2(920f, 140f), HexToColor(ColorDarkBg, 0.85f));
+            // 4. Panel Inferior: Vínculo con el caso
+            GameObject scenarioKeysObj = CreateUiPanel("Panel_Claves_Escenario1", dossierObj.transform, new Vector2(0f, -100f), new Vector2(920f, 148f), HexToColor(ColorDarkBg, 0.85f));
             AddUiBorder(scenarioKeysObj, HexToColor(ColorGreenCode, 0.3f), 1f);
 
-            CreateTmpText("ScenarioKeysTitle", scenarioKeysObj.transform, new Vector2(0f, 50f), new Vector2(890f, 26f),
-                "<b>3. RELACION CON LAS PISTAS DEL CASO</b>", 15.5f, TextAlignmentOptions.Left, HexToColor(ColorGreenCode));
+            CreateTmpText("ScenarioKeysTitle", scenarioKeysObj.transform, new Vector2(0f, 48f), new Vector2(880f, 28f),
+                "<b>3. VINCULO CON EL CASO</b>", 17f, TextAlignmentOptions.Left, HexToColor(ColorGreenCode));
 
-            scenario01AnalysisText = CreateTmpText("ScenarioKeysBody", scenarioKeysObj.transform, new Vector2(0f, -14f), new Vector2(890f, 98f),
-                "Cargando pistas...", 14.5f, TextAlignmentOptions.TopLeft, HexToColor(ColorTextLight));
+            scenario01AnalysisText = CreateTmpText("ScenarioKeysBody", scenarioKeysObj.transform, new Vector2(0f, -14f), new Vector2(880f, 92f),
+                "...", 17f, TextAlignmentOptions.TopLeft, HexToColor(ColorTextLight));
 
-            // 5. Barra Inferior: Hipótesis Fundamentada y Botón de Marcado
-            GameObject hypothesisBarObj = CreateUiPanel("Panel_Hipotesis_Accion", dossierObj.transform, new Vector2(0f, -285f), new Vector2(920f, 115f), HexToColor(ColorDarkBg, 0.95f));
+            // 5. Barra Inferior: Conclusión y Botón
+            GameObject hypothesisBarObj = CreateUiPanel("Panel_Hipotesis_Accion", dossierObj.transform, new Vector2(0f, -255f), new Vector2(920f, 130f), HexToColor(ColorDarkBg, 0.95f));
             AddUiBorder(hypothesisBarObj, HexToColor(ColorGreenCode, 0.5f), 1.5f);
 
-            hypothesisArgumentText = CreateTmpText("HypothesisSummary", hypothesisBarObj.transform, new Vector2(-155f, 0f), new Vector2(570f, 95f),
-                "<b>CONCLUSION:</b> Cargando...", 15f, TextAlignmentOptions.Left, HexToColor(ColorTextLight));
+            hypothesisArgumentText = CreateTmpText("HypothesisSummary", hypothesisBarObj.transform, new Vector2(-160f, 0f), new Vector2(560f, 100f),
+                "<b>CONCLUSION:</b> ...", 17.5f, TextAlignmentOptions.Left, HexToColor(ColorTextLight));
 
             // Botón interactivo de selección de hipótesis
-            GameObject btnSelectObj = CreateUiPanel("Btn_MarcarHipotesis", hypothesisBarObj.transform, new Vector2(292f, 0f), new Vector2(284f, 74f), HexToColor(ColorGreenCode, 0.9f));
+            GameObject btnSelectObj = CreateUiPanel("Btn_MarcarHipotesis", hypothesisBarObj.transform, new Vector2(290f, 0f), new Vector2(292f, 78f), HexToColor(ColorGreenCode, 0.9f));
             AddUiBorder(btnSelectObj, HexToColor(ColorDarkBg, 1f), 2f);
 
             selectHypothesisButton = btnSelectObj.AddComponent<Button>();
-            selectHypothesisBtnText = CreateTmpText("BtnLabel", btnSelectObj.transform, Vector2.zero, new Vector2(270f, 66f),
-                "<b>[*] FIJAR COMO\nRESPONSABLE</b>", 12.5f, TextAlignmentOptions.Center, HexToColor(ColorDarkBg));
+            selectHypothesisBtnText = CreateTmpText("BtnLabel", btnSelectObj.transform, Vector2.zero, new Vector2(274f, 68f),
+                "<b>ELEGIR RESPONSABLE</b>", 15.5f, TextAlignmentOptions.Center, HexToColor(ColorDarkBg));
 
             // Conectar el adaptador de retícula VR
             WorldSpaceUiGazeButton gazeBtn = btnSelectObj.AddComponent<WorldSpaceUiGazeButton>();
@@ -503,17 +503,12 @@ namespace AndesSim.UI
                 tabObj.AddComponent<HolographicCardHover>().Configure(1.04f, 14f);
 
                 // Etiquetas internas del botón (Fuente grande y limpia para Cardboard)
-                TextMeshProUGUI label = CreateTmpText("Label", tabObj.transform, new Vector2(0f, 22f), new Vector2(230f, 38f),
-                    $"<b>{suspect.fullName}</b>", 17f, TextAlignmentOptions.Center, HexToColor(ColorTextLight));
+                TextMeshProUGUI label = CreateTmpText("Label", tabObj.transform, new Vector2(0f, 12f), new Vector2(236f, 40f),
+                    $"<b>{suspect.fullName}</b>", 18f, TextAlignmentOptions.Center, HexToColor(ColorTextLight));
                 _tabButtonTexts.Add(label);
 
-                CreateTmpText("Role", tabObj.transform, new Vector2(0f, -10f), new Vector2(230f, 26f),
-                    suspect.roleTitle, 13f, TextAlignmentOptions.Center, HexToColor(ColorGreenCode));
-
-                GameObject miniStamp = CreateUiPanel("MiniStamp", tabObj.transform, new Vector2(0f, -44f), new Vector2(220f, 26f), HexToColor(ColorCardBg, 0.95f));
-                AddUiBorder(miniStamp, HexToColor(ColorGreenCode, 0.5f), 1f);
-                CreateTmpText("StampText", miniStamp.transform, Vector2.zero, new Vector2(210f, 22f),
-                    $"[ FICHA #{index + 1} ]", 12.5f, TextAlignmentOptions.Center, HexToColor(ColorMutedText));
+                CreateTmpText("Role", tabObj.transform, new Vector2(0f, -14f), new Vector2(236f, 28f),
+                    suspect.roleTitle, 14f, TextAlignmentOptions.Center, HexToColor(ColorGreenCode));
             }
         }
 
@@ -537,7 +532,7 @@ namespace AndesSim.UI
             // 2. Distintivo de Amenaza
             if (threatBadgeText != null)
             {
-                threatBadgeText.text = $"<b>[{suspect.threatLevelBadge}]</b>";
+                threatBadgeText.text = $"<b>{suspect.threatLevelBadge}</b>";
                 threatBadgeText.color = HexToColor(suspect.threatColorHex);
             }
 
@@ -625,8 +620,8 @@ namespace AndesSim.UI
             if (selectHypothesisBtnText != null)
             {
                 selectHypothesisBtnText.text = isCurrentSelected
-                    ? "<b>[*] HIPÓTESIS OFICIAL DEL EQUIPO\n(REGISTRADA PARA EXPOSICIÓN) [*]</b>"
-                    : "<b>[*] FIJAR COMO HIPÓTESIS OFICIAL\nDEL EQUIPO (PULSAR CON RETÍCULA) [*]</b>";
+                    ? "<b>RESPONSABLE ELEGIDO</b>"
+                    : "<b>ELEGIR RESPONSABLE</b>";
                 selectHypothesisBtnText.color = HexToColor(ColorDarkBg);
             }
         }

@@ -96,7 +96,7 @@ namespace AndesSim.Scenario01
             // Configurar GazeInteractable si está presente
             if (_gazeInteractable != null)
             {
-                _gazeInteractable.interactableLabel = $"Examinar {evidenceTitle}";
+                _gazeInteractable.interactableLabel = evidenceTitle;
                 _gazeInteractable.onClick.AddListener(CollectEvidence);
             }
 
@@ -112,7 +112,7 @@ namespace AndesSim.Scenario01
             // Inicializar textos del popup
             if (popupTitleText != null)
             {
-                popupTitleText.text = $"EVIDENCIA REGISTRADA: {evidenceTitle.ToUpper()}";
+                popupTitleText.text = evidenceTitle.ToUpper();
             }
 
             if (popupDescriptionText != null)
@@ -215,7 +215,7 @@ namespace AndesSim.Scenario01
             // Actualizar etiqueta de mirada
             if (_gazeInteractable != null)
             {
-                _gazeInteractable.interactableLabel = $"[RECOLECTADA] {evidenceTitle}";
+                _gazeInteractable.interactableLabel = $"[OK] {evidenceTitle}";
             }
         }
 
@@ -227,7 +227,7 @@ namespace AndesSim.Scenario01
 
             if (popupTitleText != null)
             {
-                popupTitleText.text = $"<color=#38F28A>[OK] EVIDENCIA REGISTRADA</color>\n<b>{evidenceTitle}</b>";
+                popupTitleText.text = $"<color=#38F28A>PISTA GUARDADA</color>\n<b>{evidenceTitle}</b>";
             }
 
             if (popupDescriptionText != null)

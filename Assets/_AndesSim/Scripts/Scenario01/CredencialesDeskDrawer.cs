@@ -124,7 +124,7 @@ namespace AndesSim.Scenario01
             if (_gazeInteractable == null)
             {
                 _gazeInteractable = gameObject.AddComponent<GazeInteractable>();
-                _gazeInteractable.interactableLabel = "Abrir Cajón del Escritorio (Credenciales)";
+                _gazeInteractable.interactableLabel = "Abrir Cajon";
             }
 
             if (notebookCredentials3DText != null)
@@ -181,8 +181,8 @@ namespace AndesSim.Scenario01
             if (_gazeInteractable != null)
             {
                 _gazeInteractable.interactableLabel = isDefense
-                    ? "Cajón Asegurado (Control de Acceso Físico)"
-                    : (_isOpen ? "Cerrar Cajón del Escritorio" : "Abrir Cajón de Credenciales");
+                    ? "Cajon Protegido"
+                    : (_isOpen ? "Cerrar Cajon" : "Abrir Cajon");
             }
         }
 
@@ -225,7 +225,7 @@ namespace AndesSim.Scenario01
             // Actualizar etiqueta del interactable
             if (_gazeInteractable != null)
             {
-                _gazeInteractable.interactableLabel = _isOpen ? "Cerrar Cajón del Escritorio" : "Abrir Cajón de Credenciales";
+                _gazeInteractable.interactableLabel = _isOpen ? "Cerrar Cajon" : "Abrir Cajon";
             }
 
             // Al abrir el cajón:
@@ -293,21 +293,15 @@ namespace AndesSim.Scenario01
                 if (popupTitleText != null)
                 {
                     popupTitleText.text = isDefense
-                        ? "<b><color=#38F28A>CAJÓN ASEGURADO · POLÍTICA DE ESCRITORIO LIMPIO</color></b>"
-                        : "<b><color=#FF9F43>VULNERABILIDAD FÍSICA: LIBRETA DE CREDENCIALES</color></b>";
+                        ? "<b><color=#38F28A>ESCRITORIO LIMPIO</color></b>"
+                        : "<b><color=#FF9F43>CLAVES EN PAPEL</color></b>";
                 }
 
                 if (popupDetailText != null)
                 {
                     popupDetailText.text = isDefense
-                        ? "<b>Mitigación de Seguridad Física:</b>\n" +
-                          "• Las claves operativas ya no se escriben en papel ni se guardan en cajones sin llave.\n" +
-                          "• Implementación de política de escritorio limpio y bóveda de credenciales cifrada.\n" +
-                          "• Autenticación protegida mediante hardware Token MFA."
-                        : "<b>Mala Práctica Grave de Seguridad Física:</b>\n" +
-                          "• Cuaderno de contingencia con credenciales de operador SWIFT ('cmendoza_op') en texto claro.\n" +
-                          "• Cajón sin cerradura accesible para cualquier persona en la oficina.\n" +
-                          "• Facilitó la extracción de credenciales legítimas tras la infección inicial por el dropper.";
+                        ? "Sin claves en papel · Boveda cifrada y Token MFA."
+                        : "Libreta con usuario SWIFT en texto claro dentro de un cajon sin llave.";
                 }
 
                 if (_popupCoroutine != null) StopCoroutine(_popupCoroutine);

@@ -458,19 +458,19 @@ namespace AndesSim.Environment
             postItObj.tag = "Evidence";
             postItObj.layer = LayerMask.NameToLayer("Interactive");
 
-            // 4.1 Hoja adhesiva de papel amarillo fluorescente (#ffc24a)
+            // 4.1 Hoja adhesiva vertical de papel amarillo fluorescente (#ffc24a)
             GameObject paper = GameObject.CreatePrimitive(PrimitiveType.Cube);
             paper.name = "Papel_Amarillo_Fluorescente";
             paper.transform.SetParent(postItObj.transform, false);
             paper.transform.localPosition = Vector3.zero;
-            paper.transform.localScale = new Vector3(0.11f, 0.003f, 0.11f);
+            paper.transform.localScale = new Vector3(0.11f, 0.11f, 0.003f);
             paper.GetComponent<Renderer>().sharedMaterial = mats["PostIt"];
 
-            // 4.2 Canvas en World Space para el texto de credenciales manuscritas
+            // 4.2 Canvas en World Space frente a la hoja (orientado verticalmente hacia -Z local)
             GameObject canvasObj = new GameObject("Canvas_PostIt");
             canvasObj.transform.SetParent(postItObj.transform, false);
-            canvasObj.transform.localPosition = new Vector3(0f, 0.0022f, 0f);
-            canvasObj.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+            canvasObj.transform.localPosition = new Vector3(0f, 0f, -0.0022f);
+            canvasObj.transform.localRotation = Quaternion.identity;
 
             Canvas canvas = canvasObj.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.WorldSpace;
@@ -486,29 +486,28 @@ namespace AndesSim.Environment
             tRect.sizeDelta = Vector2.zero;
 
             TextMeshProUGUI tmp = textObj.AddComponent<TextMeshProUGUI>();
-            tmp.text = "<b><color=#111111>BANCO ANDINO\nUser: c.mendoza\nPass: BancoAndino2015$!\nTerminal: SWIFT-01</color></b>";
-            tmp.fontSize = 8.5f;
+            tmp.text = "<b><color=#111111>SWIFT-01\nc.mendoza\nAndino15$!</color></b>";
+            tmp.fontSize = 13.5f;
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.color = new Color(0.08f, 0.08f, 0.08f, 1f);
 
             // 4.3 Colisionador para interacción VR por retícula Cardboard
             BoxCollider col = postItObj.AddComponent<BoxCollider>();
             col.center = Vector3.zero;
-            col.size = new Vector3(0.13f, 0.04f, 0.13f);
+            col.size = new Vector3(0.13f, 0.13f, 0.04f);
 
             // 4.4 Componente GazeInteractable oficial
             GazeInteractable gaze = postItObj.AddComponent<GazeInteractable>();
-            gaze.interactableLabel = "Post-It: Credenciales SWIFT de Carla Mendoza";
+            gaze.interactableLabel = "Post-It: Claves";
 
             // 4.5 Componente EvidenceItem obligatorio para la rúbrica forense (RF-05)
             AndesSim.Scenario01.EvidenceItem evidence = postItObj.AddComponent<AndesSim.Scenario01.EvidenceItem>();
 #if UNITY_EDITOR
             UnityEditor.SerializedObject sEv = new UnityEditor.SerializedObject(evidence);
             sEv.FindProperty("evidenceId").stringValue = "Evidencia_PostIt";
-            sEv.FindProperty("evidenceTitle").stringValue = "Credenciales en Post-It (Carla Mendoza)";
+            sEv.FindProperty("evidenceTitle").stringValue = "Claves en Post-It";
             sEv.FindProperty("forensicDescription").stringValue =
-                "Credenciales SWIFT de Carla Mendoza escritas a mano en nota adhesiva visible para cualquiera. " +
-                "Permitió a los atacantes de Lazarus autenticarse en la red financiera.";
+                "Usuario y clave SWIFT anotados en papel junto al monitor.";
             sEv.ApplyModifiedProperties();
 #endif
 

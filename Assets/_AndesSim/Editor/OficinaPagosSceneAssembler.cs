@@ -479,19 +479,19 @@ namespace AndesSim.Editor
             Material bezelMat = CreateColorMaterial("Mat_MonitorBezel_Black", new Color(0.12f, 0.12f, 0.14f));
             if (monitor01 == null)
             {
-                monitor01 = BuildMonitorDisplay(parent, "Monitor_01", "Puesto 1: Carla Mendoza (SWIFT)", bezelMat);
+                monitor01 = BuildMonitorDisplay(parent, "Monitor_01", "PC 1 · Correo SWIFT", bezelMat);
                 monitor01.transform.position = new Vector3(1.372f, 0.949f, -1.624f);
                 monitor01.transform.rotation = Quaternion.Euler(0f, 171.3f, 0f);
             }
             if (monitor02 == null)
             {
-                monitor02 = BuildMonitorDisplay(parent, "Monitor_02", "Puesto 2: Analista Comercio Exterior", bezelMat);
+                monitor02 = BuildMonitorDisplay(parent, "Monitor_02", "PC 2 · Pagos SWIFT", bezelMat);
                 monitor02.transform.position = new Vector3(5.335f, 0.949f, -1.478f);
                 monitor02.transform.rotation = Quaternion.Euler(0f, 183.0f, 0f);
             }
             if (monitor03 == null)
             {
-                monitor03 = BuildMonitorDisplay(parent, "Monitor_03", "Puesto 3: Consola SIEM (Logs)", bezelMat);
+                monitor03 = BuildMonitorDisplay(parent, "Monitor_03", "PC 3 · Consola SIEM", bezelMat);
                 monitor03.transform.position = new Vector3(-6.372f, 0.949f, -4.241f);
                 monitor03.transform.rotation = Quaternion.Euler(0f, 159.5f, 0f);
             }
@@ -499,14 +499,14 @@ namespace AndesSim.Editor
             // =========================================================================
             // PUESTO 1: Carla Mendoza (Operadora SWIFT)
             // =========================================================================
-            AttachFittedMonitorTerminal(monitor01, "Monitor_01", "Puesto 1: Carla Mendoza (SWIFT)");
+            AttachFittedMonitorTerminal(monitor01, "Monitor_01", "PC 1 · Correo SWIFT");
 
             PhishingInspector phishingInspector = monitor01.AddComponent<PhishingInspector>();
             MailQuarantine mailQuarantine = monitor01.AddComponent<MailQuarantine>();
             GameObject panelCorreo = BuildPhishingEmailPanel(monitor01, phishingInspector, mailQuarantine);
 
             // Post-It adherido al marco derecho del monitor de Carla
-            GameObject postItObj = BuildPostItNote(monitor01.transform, new Vector3(0.24f, 0.18f, 0.025f));
+            GameObject postItObj = BuildPostItNote(monitor01.transform, new Vector3(0.285f, 0.23f, 0.036f));
 
             // Token MFA que sustituye al Post-It en Modo Defensa
             BuildTokenMfaBoveda(monitor01.transform, postItObj);
@@ -526,28 +526,28 @@ namespace AndesSim.Editor
 
             // TeleportPoint Puesto 1 (Carla Mendoza) - ubicado frente al escritorio
             GameObject tp1 = CreateTeleportPoint(parent, "Teleport_Puesto1_Carla",
-                new Vector3(1.40f, 0.01f, -2.50f), "Puesto 1: Carla Mendoza (Operadora SWIFT)", "Monitor_01", Quaternion.identity);
+                new Vector3(1.40f, 0.01f, -2.50f), "PC 1 (Carla)", "Monitor_01", Quaternion.identity);
 
             // =========================================================================
             // PUESTO 2: Analista de Comercio Exterior (Destinatario #7)
             // =========================================================================
-            AttachFittedMonitorTerminal(monitor02, "Monitor_02", "Puesto 2: Analista Comercio Exterior");
+            AttachFittedMonitorTerminal(monitor02, "Monitor_02", "PC 2 · Pagos SWIFT");
             MonitorMeshBuilder.BuildMonitor2TradeFinanceDisplay(monitor02);
 
             CreateTeleportPoint(parent, "Teleport_Puesto2_Analista",
-                new Vector3(5.33f, 0.01f, -2.40f), "Puesto 2: Analista de Comercio Exterior", "Monitor_02", Quaternion.identity);
+                new Vector3(5.33f, 0.01f, -2.40f), "PC 2 (SWIFT)", "Monitor_02", Quaternion.identity);
 
             // =========================================================================
             // PUESTO 3: Consola SIEM y Panel de Defensas (Oficina Privada / SOC)
             // =========================================================================
-            AttachFittedMonitorTerminal(monitor03, "Monitor_03", "Puesto 3: Consola SIEM (Logs)");
+            AttachFittedMonitorTerminal(monitor03, "Monitor_03", "PC 3 · Consola SIEM");
 
             monitor03.AddComponent<DefenseTerminalController>();
             AccessLogTerminal siemTerminal = monitor03.AddComponent<AccessLogTerminal>();
             MonitorMeshBuilder.BuildMonitor3SiemDisplay(monitor03, siemTerminal);
 
             CreateTeleportPoint(parent, "Teleport_Puesto3_LogsYDefensa",
-                new Vector3(-6.26f, 0.01f, -5.00f), "Puesto 3: Terminal de Registros y Panel de Defensa", "Monitor_03", Quaternion.Euler(0f, 20f, 0f));
+                new Vector3(-6.26f, 0.01f, -5.00f), "PC 3 y Defensas", "Monitor_03", Quaternion.Euler(0f, 20f, 0f));
 
             // Consola física de contramedidas en el escritorio de Monitor 3
             GameObject defSwitchesObj = new GameObject("Consola_Contramedidas_Puesto3");
@@ -563,35 +563,35 @@ namespace AndesSim.Editor
             BuildInfectionSpreadVisualizer(parent, monitor01, monitor02, monitor03);
 
             // Balizas holográficas flotantes sobre los puestos y consola de defensa
-            OficinaPagosMenuAndFxBuilder.AttachWorkstationHoloBeacon(parent, "Holo_Baliza_Monitor_01", monitor01.transform.position + new Vector3(0f, 0.72f, 0f), AndesTypographyTheme.AccentCyan, "PUESTO 01 · SWIFT");
-            OficinaPagosMenuAndFxBuilder.AttachWorkstationHoloBeacon(parent, "Holo_Baliza_Monitor_02", monitor02.transform.position + new Vector3(0f, 0.72f, 0f), AndesTypographyTheme.AccentCyan, "PUESTO 02 · COMEX");
-            OficinaPagosMenuAndFxBuilder.AttachWorkstationHoloBeacon(parent, "Holo_Baliza_Monitor_03", monitor03.transform.position + new Vector3(0f, 0.72f, 0f), AndesTypographyTheme.AccentCyan, "PUESTO 03 · SIEM");
-            OficinaPagosMenuAndFxBuilder.AttachWorkstationHoloBeacon(parent, "Holo_Baliza_Defensas", defSwitchesObj.transform.position + new Vector3(0f, 0.50f, 0f), AndesTypographyTheme.AccentEmerald, "CONTRA-MEDIDAS");
+            OficinaPagosMenuAndFxBuilder.AttachWorkstationHoloBeacon(parent, "Holo_Baliza_Monitor_01", monitor01.transform.position + new Vector3(0f, 0.72f, 0f), AndesTypographyTheme.AccentCyan, "PC 1 · CORREO");
+            OficinaPagosMenuAndFxBuilder.AttachWorkstationHoloBeacon(parent, "Holo_Baliza_Monitor_02", monitor02.transform.position + new Vector3(0f, 0.72f, 0f), AndesTypographyTheme.AccentCyan, "PC 2 · SWIFT");
+            OficinaPagosMenuAndFxBuilder.AttachWorkstationHoloBeacon(parent, "Holo_Baliza_Monitor_03", monitor03.transform.position + new Vector3(0f, 0.72f, 0f), AndesTypographyTheme.AccentCyan, "PC 3 · SIEM");
+            OficinaPagosMenuAndFxBuilder.AttachWorkstationHoloBeacon(parent, "Holo_Baliza_Defensas", defSwitchesObj.transform.position + new Vector3(0f, 0.50f, 0f), AndesTypographyTheme.AccentEmerald, "DEFENSAS");
             AndesTypographyTheme.ApplyTypographyToTree(parent, true, false);
 
             // TeleportPoint de retorno a la Puerta de Entrada (Acceso Principal)
             CreateTeleportPoint(parent, "Teleport_PuertaEntrada",
-                new Vector3(-2.60f, 0.01f, 3.40f), "Puerta de Entrada (Acceso Principal)", "", Quaternion.Euler(0f, 180f, 0f));
+                new Vector3(-2.60f, 0.01f, 3.40f), "Entrada", "", Quaternion.Euler(0f, 180f, 0f));
 
             // Red de TeleportPoints de pasillo para recorrer libremente la oficina y ver las otras PCs
             CreateTeleportPoint(parent, "Teleport_Pasillo_Norte",
-                new Vector3(-1.60f, 0.01f, 1.25f), "Pasillo Principal (Hall Norte)", "", Quaternion.Euler(0f, 180f, 0f));
+                new Vector3(-1.60f, 0.01f, 1.25f), "Pasillo Norte", "", Quaternion.Euler(0f, 180f, 0f));
             CreateTeleportPoint(parent, "Teleport_Pasillo_Oeste",
-                new Vector3(-2.40f, 0.01f, -1.05f), "Pasillo Central (Acceso Salas y PCs)", "", Quaternion.Euler(0f, 200f, 0f));
+                new Vector3(-2.40f, 0.01f, -1.05f), "Pasillo Central", "", Quaternion.Euler(0f, 200f, 0f));
             CreateTeleportPoint(parent, "Teleport_SalaLogs_Entrada",
-                new Vector3(-5.30f, 0.01f, -1.05f), "Acceso Sala SIEM (PC 3)", "", Quaternion.Euler(0f, 175f, 0f));
+                new Vector3(-5.30f, 0.01f, -1.05f), "Acceso Sala SIEM", "", Quaternion.Euler(0f, 175f, 0f));
             CreateTeleportPoint(parent, "Teleport_SalaLogs_Paso",
-                new Vector3(-4.50f, 0.01f, -2.35f), "Pasillo Interior Sala SIEM", "", Quaternion.Euler(0f, 195f, 0f));
+                new Vector3(-4.50f, 0.01f, -2.35f), "Pasillo SIEM", "", Quaternion.Euler(0f, 195f, 0f));
             CreateTeleportPoint(parent, "Teleport_SalaLogs_Vista",
-                new Vector3(-4.45f, 0.01f, -5.10f), "Mirador Sala SIEM (Vista PC 3 y Defensas)", "", Quaternion.Euler(0f, 300f, 0f));
+                new Vector3(-4.45f, 0.01f, -5.10f), "Vista SIEM y Defensas", "", Quaternion.Euler(0f, 300f, 0f));
             CreateTeleportPoint(parent, "Teleport_Pasillo_SurOeste",
-                new Vector3(-2.40f, 0.01f, -4.95f), "Pasillo Sur-Oeste (Galeria de Puestos)", "", Quaternion.Euler(0f, 75f, 0f));
+                new Vector3(-2.40f, 0.01f, -4.95f), "Pasillo Sur-Oeste", "", Quaternion.Euler(0f, 75f, 0f));
             CreateTeleportPoint(parent, "Teleport_Pasillo_SurCentro",
-                new Vector3(3.20f, 0.01f, -5.00f), "Pasillo Sur (Vista PC 1, Tablero y PC 2)", "", Quaternion.Euler(0f, 330f, 0f));
+                new Vector3(3.20f, 0.01f, -5.00f), "Vista Tablero", "", Quaternion.Euler(0f, 330f, 0f));
             CreateTeleportPoint(parent, "Teleport_Puesto1_Lateral",
-                new Vector3(2.75f, 0.01f, -2.75f), "Paso Lateral Puesto 1 (Entre PC 1 y Tablero)", "", Quaternion.Euler(0f, 240f, 0f));
+                new Vector3(2.75f, 0.01f, -2.75f), "Entre PC 1 y Tablero", "", Quaternion.Euler(0f, 240f, 0f));
             CreateTeleportPoint(parent, "Teleport_Acceso_Puesto2",
-                new Vector3(5.75f, 0.01f, -4.75f), "Acceso Puesto 2 (Vista PC 2 - SWIFT)", "", Quaternion.Euler(0f, 350f, 0f));
+                new Vector3(5.75f, 0.01f, -4.75f), "Vista PC 2", "", Quaternion.Euler(0f, 350f, 0f));
         }
 
         private static Material GetOrCreateDarkMonitorScreenMaterial()
@@ -763,7 +763,7 @@ namespace AndesSim.Editor
         {
             Dictionary<string, Material> mats = OfficeFurnitureBuilder.CreateFurnitureMaterialPalette();
             // Post-It amarillo fluorescente (#ffc24a) adherido con credenciales SWIFT expuestas
-            return OfficeFurnitureBuilder.BuildCarlaPostIt(parent, localPos, Quaternion.Euler(0f, -12f, 0f), mats);
+            return OfficeFurnitureBuilder.BuildCarlaPostIt(parent, localPos, Quaternion.Euler(0f, 180f, -4f), mats);
         }
 
         private static void BuildDeskDrawer(Transform parent, Material deskMat)
@@ -776,7 +776,7 @@ namespace AndesSim.Editor
             drawerMoving.layer = LayerMask.NameToLayer("Interactive");
             drawerMoving.GetComponent<Renderer>().sharedMaterial = deskMat;
 
-            drawerMoving.AddComponent<GazeInteractable>().interactableLabel = "Cajón de Carla Mendoza (Abrir / Cerrar)";
+            drawerMoving.AddComponent<GazeInteractable>().interactableLabel = "Cajon de Claves";
             drawerMoving.AddComponent<CredencialesDeskDrawer>();
         }
 
@@ -797,7 +797,7 @@ namespace AndesSim.Editor
             baseObj.GetComponent<Renderer>().sharedMaterial = phoneMat;
 
             phoneObj.AddComponent<BoxCollider>().size = new Vector3(0.26f, 0.15f, 0.24f);
-            phoneObj.AddComponent<GazeInteractable>().interactableLabel = "Teléfono IP: Marcar Anexo 404 (Seguridad TI)";
+            phoneObj.AddComponent<GazeInteractable>().interactableLabel = "Telefono SOC (404)";
             phoneObj.AddComponent<TelefonoAnexoSoc>();
         }
 
@@ -817,7 +817,7 @@ namespace AndesSim.Editor
             body.GetComponent<Renderer>().sharedMaterial = tokenMat;
 
             tokenObj.AddComponent<BoxCollider>().size = new Vector3(0.15f, 0.04f, 0.09f);
-            tokenObj.AddComponent<GazeInteractable>().interactableLabel = "Token MFA Físico: Generar Código Dinámico";
+            tokenObj.AddComponent<GazeInteractable>().interactableLabel = "Token MFA";
             TokenMfaBoveda mfaScript = tokenObj.AddComponent<TokenMfaBoveda>();
 
             SerializedObject sMfa = new SerializedObject(mfaScript);
@@ -848,8 +848,8 @@ namespace AndesSim.Editor
             tRect.anchoredPosition = new Vector2(0f, 232f);
             tRect.sizeDelta = new Vector2(660f, 54f);
             TextMeshProUGUI titleTmp = titleObj.AddComponent<TextMeshProUGUI>();
-            titleTmp.text = "<b><color=#38F28A>CONSOLA DE CUARENTENA Y SANDBOX - BANCO ANDINO</color></b>";
-            titleTmp.fontSize = 18f;
+            titleTmp.text = "<b><color=#38F28A>CUARENTENA Y SANDBOX</color></b>";
+            titleTmp.fontSize = 20f;
             titleTmp.alignment = TextAlignmentOptions.Center;
 
             // Log del Sandbox
@@ -859,16 +859,16 @@ namespace AndesSim.Editor
             lRect.anchoredPosition = new Vector2(0f, 30f);
             lRect.sizeDelta = new Vector2(650f, 290f);
             TextMeshProUGUI logTmp = logObj.AddComponent<TextMeshProUGUI>();
-            logTmp.text = "<color=#38F28A>[SOC-DEFENSE] 09:18:04</color> Correo de Rasel Ahlam interceptado.\n" +
-                          "<color=#38F28A>[SANDBOX-ISOLATION]</color> Enlace detonado en sandbox aislado.\n" +
-                          "<color=#FFC24A>[DETECCION]</color> Payload malicioso 'Rasel_Ahlam_CV_2015.scr' detectado.\n" +
-                          "<color=#38F28A>[CONTENCION]</color> Bloqueo en 16 buzones. 0 equipos comprometidos.";
-            logTmp.fontSize = 16.5f;
+            logTmp.text = "<color=#38F28A>[09:18]</color> Correo interceptado en pasarela.\n" +
+                          "<color=#38F28A>[SANDBOX]</color> Adjunto detonado de forma segura.\n" +
+                          "<color=#FFC24A>[ALERTA]</color> Dropper CV_2015.scr bloqueado.\n" +
+                          "<color=#38F28A>[OK]</color> 16 buzones purgados · 0 infectados.";
+            logTmp.fontSize = 18.5f;
             logTmp.alignment = TextAlignmentOptions.TopLeft;
 
             // Botón interactivo: Confirmar Contención
             GameObject btnConfirmObj = CreateWorldGazeButton("Btn_ConfirmarContencion", quarantinePanel.transform,
-                new Vector2(0f, -238f), new Vector2(620f, 108f), "CONFIRMAR CONTENCION Y FINALIZAR", null, null, 17f);
+                new Vector2(0f, -238f), new Vector2(620f, 108f), "CONFIRMAR CONTENCION", null, null, 19f);
             Button btnConfirm = btnConfirmObj.GetComponent<Button>();
 
             quarantinePanel.SetActive(false); // Inicia oculto, se activa en Modo Defensa
@@ -952,8 +952,8 @@ namespace AndesSim.Editor
             htRect.anchoredPosition = new Vector2(0f, 22f);
             htRect.sizeDelta = new Vector2(390f, 30f);
             TextMeshProUGUI htTmp = hTitleObj.AddComponent<TextMeshProUGUI>();
-            htTmp.text = "<b><color=#FF5A4E>ALERTA: RED COMPROMETIDA</color></b>";
-            htTmp.fontSize = 18f;
+            htTmp.text = "<b><color=#FF5A4E>RED COMPROMETIDA</color></b>";
+            htTmp.fontSize = 20f;
             htTmp.alignment = TextAlignmentOptions.Center;
 
             GameObject hBodyObj = new GameObject("Txt_HoloBody");
@@ -962,8 +962,8 @@ namespace AndesSim.Editor
             hbRect.anchoredPosition = new Vector2(0f, -14f);
             hbRect.sizeDelta = new Vector2(390f, 40f);
             TextMeshProUGUI hbTmp = hBodyObj.AddComponent<TextMeshProUGUI>();
-            hbTmp.text = "29 ENE 2015: Malware Lazarus activo en los 3 puestos.";
-            hbTmp.fontSize = 13.5f;
+            hbTmp.text = "Malware Lazarus propagado en los 3 puestos.";
+            hbTmp.fontSize = 14f;
             hbTmp.alignment = TextAlignmentOptions.Center;
 
             InfectionSpreadVisualizer visualizer = visualizerObj.AddComponent<InfectionSpreadVisualizer>();
@@ -1049,8 +1049,8 @@ namespace AndesSim.Editor
             ttRect.anchoredPosition = new Vector2(0f, 14f);
             ttRect.sizeDelta = new Vector2(280f, 18f);
             TextMeshProUGUI ttTmp = tTitleObj.AddComponent<TextMeshProUGUI>();
-            ttTmp.text = "<b><color=#38F28A>EVIDENCIA REGISTRADA</color></b>";
-            ttTmp.fontSize = 8.5f;
+            ttTmp.text = "<b><color=#38F28A>PISTA GUARDADA</color></b>";
+            ttTmp.fontSize = 9.5f;
             ttTmp.alignment = TextAlignmentOptions.Center;
 
             GameObject tMsgObj = new GameObject("Txt_ToastMessage");
@@ -1059,8 +1059,8 @@ namespace AndesSim.Editor
             tmRect.anchoredPosition = new Vector2(0f, -8f);
             tmRect.sizeDelta = new Vector2(280f, 24f);
             TextMeshProUGUI tmTmp = tMsgObj.AddComponent<TextMeshProUGUI>();
-            tmTmp.text = "Se ha añadido la evidencia al informe forense.";
-            tmTmp.fontSize = 7f;
+            tmTmp.text = "Evidencia agregada al tablero.";
+            tmTmp.fontSize = 7.5f;
             tmTmp.alignment = TextAlignmentOptions.Center;
 
             // Cablear UIManager
@@ -1161,9 +1161,11 @@ namespace AndesSim.Editor
 
             Button btn = btnObj.AddComponent<Button>();
             ColorBlock cb = btn.colors;
-            cb.normalColor = nColor;
-            cb.highlightedColor = hColor;
-            cb.pressedColor = pColor;
+            cb.colorMultiplier = 1.18f;
+            cb.normalColor = new Color(0.85f, 0.85f, 0.85f, 1f);
+            cb.highlightedColor = Color.white;
+            cb.selectedColor = new Color(0.85f, 0.85f, 0.85f, 1f);
+            cb.pressedColor = new Color(0.68f, 0.68f, 0.68f, 1f);
             btn.colors = cb;
 
             GameObject txtObj = new GameObject("Text");

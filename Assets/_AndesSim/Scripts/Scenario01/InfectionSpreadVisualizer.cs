@@ -21,7 +21,7 @@ namespace AndesSim.Scenario01
 
         private const string LogPrefix = "[ANDES-SIM - InfectionVisualizer]";
 
-        public const string HologramMessage = "29 ENE 2015: PUERTA TRASERA ABIERTA EN LA RED DEL BANCO ANDINO. El grupo Lazarus inicia 1 año de espionaje silencioso.";
+        public const string HologramMessage = "29 ENE 2015: Backdoor Lazarus activo en red plana.";
 
         private static readonly Color InfectionRedColor = new Color(1.0f, 0.22f, 0.20f, 1.0f);    // #ff3834
         private static readonly Color BeamPulseGlow = new Color(1.0f, 0.42f, 0.24f, 0.96f);        // Naranja-Rojo neón
@@ -333,8 +333,8 @@ namespace AndesSim.Scenario01
                 titleRect.anchoredPosition = new Vector2(0f, 44f);
                 titleRect.sizeDelta = new Vector2(520f, 34f);
                 holographicSignTitle = titleObj.AddComponent<TextMeshProUGUI>();
-                holographicSignTitle.text = "ALERTA CRITICA · RED PLANA COMPROMETIDA";
-                AndesTypographyTheme.StyleDisplayTitle(holographicSignTitle, AndesTypographyTheme.AccentRed, 18f);
+                holographicSignTitle.text = "RED COMPROMETIDA";
+                AndesTypographyTheme.StyleDisplayTitle(holographicSignTitle, AndesTypographyTheme.AccentRed, 19f);
 
                 GameObject bodyObj = new GameObject("Txt_MensajeOficial");
                 bodyObj.transform.SetParent(bgObj.transform, false);
@@ -342,10 +342,8 @@ namespace AndesSim.Scenario01
                 bodyRect.anchoredPosition = new Vector2(0f, -12f);
                 bodyRect.sizeDelta = new Vector2(510f, 76f);
                 holographicSignBody = bodyObj.AddComponent<TextMeshProUGUI>();
-                holographicSignBody.text =
-                    $"<b>{HologramMessage}</b>\n" +
-                    "<size=78%><color=#FFC66D>Topología sin segmentación VLAN permitió la intrusión masiva.</color></size>";
-                AndesTypographyTheme.StyleBodyCentered(holographicSignBody, Color.white, 15.5f, 8f);
+                holographicSignBody.text = $"<b>{HologramMessage}</b>";
+                AndesTypographyTheme.StyleBodyCentered(holographicSignBody, Color.white, 16.5f, 8f);
 
                 holographicSignPanel = canvasObj;
             }
@@ -415,9 +413,9 @@ namespace AndesSim.Scenario01
                 BuildStationCluster(i, anchors[i]);
             }
 
-            // 4. Aro protector superior de contención para Modo Defensa
-            _defenseCanopyRing = BuildFlatRing("Canopy_DefenseShieldRing", _fxRigRoot, 1.15f, 0.032f, DefenseEmerald);
-            _defenseCanopyRing.transform.position = ComputeOptimalBannerPosition() + new Vector3(0f, -0.38f, 0f);
+            // 4. Aro protector superior de contención para Modo Defensa (elevado en el techo para no obstruir la cámara)
+            _defenseCanopyRing = BuildFlatRing("Canopy_DefenseShieldRing", _fxRigRoot, 0.70f, 0.012f, DefenseEmerald);
+            _defenseCanopyRing.transform.position = new Vector3(ComputeOptimalBannerPosition().x, 2.75f, ComputeOptimalBannerPosition().z);
             HolographicOrbitRing canopySpin = _defenseCanopyRing.AddComponent<HolographicOrbitRing>();
             canopySpin.Configure(new Vector3(0f, 38f, 0f), _defenseCanopyRing.GetComponent<Renderer>(), DefenseEmerald, 1.0f, 2.3f, 1.8f);
             _defenseCanopyRing.SetActive(false);
@@ -892,15 +890,13 @@ namespace AndesSim.Scenario01
             }
             if (holographicSignTitle != null)
             {
-                holographicSignTitle.text = "ALERTA CRITICA · RED PLANA COMPROMETIDA";
-                AndesTypographyTheme.StyleDisplayTitle(holographicSignTitle, AndesTypographyTheme.AccentRed, 18f);
+                holographicSignTitle.text = "RED COMPROMETIDA";
+                AndesTypographyTheme.StyleDisplayTitle(holographicSignTitle, AndesTypographyTheme.AccentRed, 19f);
             }
             if (holographicSignBody != null)
             {
-                holographicSignBody.text =
-                    $"<b>{HologramMessage}</b>\n" +
-                    "<size=78%><color=#FFC66D>Topología sin segmentación VLAN permitió la intrusión masiva.</color></size>";
-                AndesTypographyTheme.StyleBodyCentered(holographicSignBody, Color.white, 15.5f, 8f);
+                holographicSignBody.text = $"<b>{HologramMessage}</b>";
+                AndesTypographyTheme.StyleBodyCentered(holographicSignBody, Color.white, 16.5f, 8f);
             }
         }
 
@@ -927,7 +923,9 @@ namespace AndesSim.Scenario01
             SetPacketPoolActive(_packetsRoute2C2, false);
 
             if (_c2NodeRoot != null) _c2NodeRoot.gameObject.SetActive(false);
-            if (_defenseCanopyRing != null) _defenseCanopyRing.SetActive(true);
+
+            bool isOverlayActive = (VrInspectionOverlayManager.I != null && VrInspectionOverlayManager.I.IsOpen);
+            if (_defenseCanopyRing != null) _defenseCanopyRing.SetActive(!isOverlayActive);
 
             for (int i = 0; i < 3; i++)
             {
@@ -940,7 +938,7 @@ namespace AndesSim.Scenario01
             if (holographicSignPanel != null)
             {
                 holographicSignPanel.transform.position = ComputeOptimalBannerPosition();
-                holographicSignPanel.SetActive(true);
+                holographicSignPanel.SetActive(!isOverlayActive);
             }
 
             if (holographicSignCanvasGroup != null)
@@ -955,16 +953,15 @@ namespace AndesSim.Scenario01
 
             if (holographicSignTitle != null)
             {
-                holographicSignTitle.text = "CONTENCION EXITOSA · ESCUDOS SOC ACTIVOS";
-                AndesTypographyTheme.StyleDisplayTitle(holographicSignTitle, DefenseEmerald, 18f);
+                holographicSignTitle.text = "AMENAZA CONTENIDA · RED SEGURA";
+                AndesTypographyTheme.StyleDisplayTitle(holographicSignTitle, DefenseEmerald, 19f);
             }
 
             if (holographicSignBody != null)
             {
                 holographicSignBody.text =
-                    "<b>AMENAZA AISLADA EN SANDBOX CUCKOO: INFECCIÓN EVITADA AL 100%.</b>\n" +
-                    "<size=78%><color=#A0F5C4>Dropper neutralizado en perímetro · Fondos SWIFT intactos (US$ 0 robados).</color></size>";
-                AndesTypographyTheme.StyleBodyCentered(holographicSignBody, Color.white, 15.5f, 8f);
+                    "<b>Sandbox aislo el dropper .scr · US$ 0 robados.</b>";
+                AndesTypographyTheme.StyleBodyCentered(holographicSignBody, Color.white, 16.5f, 8f);
             }
 
             if (monitor01Controller != null) monitor01Controller.SetState(InteractiveMonitorController.MonitorState.ProtegidoCuarentena);
@@ -972,6 +969,21 @@ namespace AndesSim.Scenario01
             if (monitor03Controller != null) monitor03Controller.SetState(InteractiveMonitorController.MonitorState.ProtegidoCuarentena);
 
             Debug.Log($"{LogPrefix} <color=#38F28A><b>Letrero superior actualizado a MODO DEFENSA / CONTENCIÓN EXITOSA.</b></color>");
+        }
+
+        /// <summary>
+        /// Oculta o restaura elementos 3D del entorno para que nunca se sobrepongan al panel de inspección VR.
+        /// </summary>
+        public void SetVisualsSuppressedForInspection(bool suppress)
+        {
+            if (_fxRigRoot != null)
+            {
+                _fxRigRoot.gameObject.SetActive(!suppress);
+            }
+            if (holographicSignPanel != null)
+            {
+                holographicSignPanel.SetActive(!suppress);
+            }
         }
 
         /// <summary>

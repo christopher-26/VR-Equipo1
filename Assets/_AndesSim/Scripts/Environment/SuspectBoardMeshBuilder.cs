@@ -458,9 +458,9 @@ namespace AndesSim.Environment
             hRect.localScale = new Vector3(0.0012f, 0.0012f, 0.0012f);
 
             TextMeshProUGUI headerTmp = headerObj.AddComponent<TextMeshProUGUI>();
-            headerTmp.text = "<color=#38F28A><b>BANCO ANDINO · SISTEMA CENTRAL DE CONTRAMEDIDAS</b></color>\n" +
-                             "<size=10><color=#A0B6A8>SELECCIONE SALVAGUARDAS PARA CONTENCIÓN DE AMENAZAS (RF-04)</size></color>";
-            headerTmp.fontSize = 13f;
+            headerTmp.text = "<color=#38F28A><b>CONTRAMEDIDAS SOC</b></color>\n" +
+                             "<size=10.5><color=#CBD5E1>Activa los 3 interruptores de defensa</color></size>";
+            headerTmp.fontSize = 14f;
             headerTmp.alignment = TextAlignmentOptions.Center;
 
             // -------------------------------------------------------------
@@ -468,14 +468,14 @@ namespace AndesSim.Environment
             // -------------------------------------------------------------
             string[] defIds = { "Defensa_Sandbox", "Defensa_BotonReportar", "Defensa_MFA" };
             string[] defTitles = {
-                "1. FILTRO DE CORREO Y SANDBOX CUCKOO",
-                "2. BOTÓN SOC \"REPORTAR PHISHING\"",
-                "3. GESTOR CORPORATIVO Y DOBLE FACTOR (MFA)"
+                "1. SANDBOX DE CORREO",
+                "2. BOTON REPORTAR PHISHING",
+                "3. AUTENTICACION MFA"
             };
             string[] defDescriptions = {
-                "Detonación en entorno virtual antes de buzones; neutraliza '.scr.zip'.",
-                "Capacitación al personal y purga en <60s de los 16 buzones del área.",
-                "Tokens dinámicos TOTP; invalida contraseñas expuestas en papel/Post-It."
+                "Aisla adjuntos antes de abrir.",
+                "Alerta SOC y purga buzones.",
+                "Token TOTP bloquea claves."
             };
 
             float startY = 0.085f;
@@ -504,13 +504,13 @@ namespace AndesSim.Environment
             const float swW = 0.58f;
             const float swH = 0.082f;
 
-            // Pozo de montaje empotrado
+            // Pozo de montaje empotrado (adelante del marco metálico para cero Z-fighting)
             CreateBox("Bisel_Pozo", switchRoot.transform,
-                Vector3.zero, new Vector3(swW, swH, 0.012f), mats["SwitchPocket"]);
+                new Vector3(0f, 0f, -0.003f), new Vector3(swW, swH, 0.006f), mats["SwitchPocket"]);
 
             // Marco metálico pulido
             CreateBox("Borde_Metal", switchRoot.transform,
-                new Vector3(0f, 0f, -0.003f), new Vector3(swW + 0.01f, swH + 0.008f, 0.006f), mats["MetalTrim"]);
+                new Vector3(0f, 0f, 0.004f), new Vector3(swW + 0.01f, swH + 0.008f, 0.006f), mats["MetalTrim"]);
 
             // -------------------------------------------------------------
             // Palanca Mecánica 3D (Toggle Switch Pivotable)
@@ -576,14 +576,14 @@ namespace AndesSim.Environment
             ledRenderer.sharedMaterial = instancedLedMat;
             GameObject.DestroyImmediate(ledDome.GetComponent<Collider>());
 
-            // Luz puntual real-time focalizada (OpenGLES3 60 FPS, LightShadows.None)
+            // Luz puntual real-time focalizada sobre el bisel sin saturar texto
             GameObject ledLightObj = new GameObject("Luz_Foco_LED");
             ledLightObj.transform.SetParent(ledHolder.transform, false);
-            ledLightObj.transform.localPosition = new Vector3(0f, 0f, -0.035f);
+            ledLightObj.transform.localPosition = new Vector3(0f, 0f, -0.015f);
             Light ledLight = ledLightObj.AddComponent<Light>();
             ledLight.type = LightType.Point;
-            ledLight.range = 0.75f;
-            ledLight.intensity = 0.90f;
+            ledLight.range = 0.12f;
+            ledLight.intensity = 0.10f;
             ledLight.color = LedInactiveRed;
             ledLight.shadows = LightShadows.None;
 
@@ -592,26 +592,26 @@ namespace AndesSim.Environment
             // -------------------------------------------------------------
             GameObject textCanvasObj = new GameObject("Canvas_Etiqueta");
             textCanvasObj.transform.SetParent(switchRoot.transform, false);
-            textCanvasObj.transform.localPosition = new Vector3(0.07f, 0f, -0.012f);
+            textCanvasObj.transform.localPosition = new Vector3(0.06f, 0f, -0.018f);
 
             Canvas tCanvas = textCanvasObj.AddComponent<Canvas>();
             tCanvas.renderMode = RenderMode.WorldSpace;
             RectTransform tRect = textCanvasObj.GetComponent<RectTransform>();
-            tRect.sizeDelta = new Vector2(320f, 65f);
-            tRect.localScale = new Vector3(0.00115f, 0.00115f, 0.00115f);
+            tRect.sizeDelta = new Vector2(330f, 65f);
+            tRect.localScale = new Vector3(0.00118f, 0.00118f, 0.00118f);
 
             GameObject textObj = new GameObject("Txt_Detalle");
             textObj.transform.SetParent(textCanvasObj.transform, false);
             RectTransform txtRect = textObj.AddComponent<RectTransform>();
-            txtRect.sizeDelta = new Vector2(310f, 60f);
+            txtRect.sizeDelta = new Vector2(320f, 62f);
 
             TextMeshProUGUI labelTmp = textObj.AddComponent<TextMeshProUGUI>();
-            labelTmp.fontSize = 11.5f;
+            labelTmp.fontSize = 12.5f;
             labelTmp.alignment = TextAlignmentOptions.MidlineLeft;
             labelTmp.textWrappingMode = TextWrappingModes.Normal;
-            labelTmp.text = $"<size=12><b>{title}</b></size>\n" +
-                           $"<size=9.5><color=#95A5A6>{description}</color></size>\n" +
-                           $"<size=9.5><color=#FF4444><b>[-] INACTIVO EN 2015 (VULNERABLE)</b></color></size>";
+            labelTmp.text = $"<size=14><b>{title}</b></size>\n" +
+                           $"<size=10><color=#CBD5E1>{description}</color></size>\n" +
+                           $"<size=10><color=#FF5A4E><b>INACTIVO</b></color></size>";
 
             // -------------------------------------------------------------
             // Colisionador Ergonómico e Integración con DefenseControl
@@ -620,7 +620,7 @@ namespace AndesSim.Environment
             col.size = new Vector3(swW + 0.02f, swH + 0.01f, 0.06f);
 
             GazeInteractable gaze = switchRoot.AddComponent<GazeInteractable>();
-            gaze.interactableLabel = $"Activar contramedida: {title}";
+            gaze.interactableLabel = $"Activar: {title}";
 
             DefenseControl defCtrl = switchRoot.AddComponent<DefenseControl>();
             defCtrl.Configure(defenseId, title, ledRenderer, ledLight, null, labelTmp);

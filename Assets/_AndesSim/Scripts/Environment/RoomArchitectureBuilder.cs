@@ -533,9 +533,8 @@ namespace AndesSim.Environment
             swiftTmp.fontSize = 1.35f;
             swiftTmp.alignment = TextAlignmentOptions.Center;
             swiftTmp.color = new Color(0.22f, 0.95f, 0.54f, 0.45f);
-            swiftTmp.text = "MT103 :20:REF-20150129-9942 // :32A:USD81000000,00 // :50K:/192-8841 BANCO ANDINO\n" +
-                            ":59:/RCBC-MAKATI-991 // :71A:OUR // :72:/BNF/RASEL AHLAM // SWIFT-NET FIN MSG // AUTH OK\n" +
-                            "MT202 :21:ORDER-36-DEF // :53A:NY-FED-RES // :58A:BANGLADESH-BANK // STATUS: INTERCEPTED";
+            swiftTmp.text = "MT103 :20:REF-20150129 // :32A:USD81M // BANCO ANDINO\n" +
+                            ":59:/RCBC-MAKATI // SWIFT-NET FIN // AUTH OK";
 
             // 4.5 Telón de fondo con vista a rascacielos nocturnos iluminados
             GameObject skylineQuad = GameObject.CreatePrimitive(PrimitiveType.Quad);

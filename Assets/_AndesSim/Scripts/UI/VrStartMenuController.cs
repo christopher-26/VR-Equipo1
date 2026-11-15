@@ -173,33 +173,33 @@ namespace AndesSim.VR
             {
                 Name = "ING. SAMUEL TORRES",
                 Role = "Jefe de Seguridad TI",
-                Badge = "NEGLIGENCIA DE RED",
+                Badge = "NEGLIGENCIA",
                 BadgeColor = new Color(1.0f, 0.35f, 0.31f, 1f),
-                Clues = "· Administrador de correo y switches sin VLANs ni bloqueo .exe.\n· Pidió 3 veces presupuesto para Sandbox antes del ataque."
+                Clues = "· Administra red sin VLANs ni bloqueo .exe."
             },
             new SuspectQuickProfile
             {
                 Name = "LIC. HUGO BENAVIDES",
                 Role = "Gerente de Operaciones",
-                Badge = "DESIDIA GERENCIAL",
+                Badge = "DESIDIA",
                 BadgeColor = new Color(1.0f, 0.66f, 0.25f, 1f),
-                Clues = "· Pidió quitar filtros para acelerar cierres y votó contra el Sandbox.\n· Aceptó el uso de claves en Post-It por metas comerciales."
+                Clues = "· Pidio quitar filtros por rapidez comercial."
             },
             new SuspectQuickProfile
             {
                 Name = "CARLA MENDOZA",
-                Role = "Operadora Senior SWIFT",
-                Badge = "VICTIMA PHISHING",
+                Role = "Operadora SWIFT",
+                Badge = "VICTIMA",
                 BadgeColor = new Color(0.22f, 0.95f, 0.54f, 1f),
-                Clues = "· Su terminal PC 1 ejecutó el correo falso y dejó su clave en Post-It.\n· Engañada por ingeniería social; estaba en casa durante el robo."
+                Clues = "· Abrio el phishing y dejo su clave en Post-It."
             },
             new SuspectQuickProfile
             {
                 Name = "RENZO ALIAGA",
-                Role = "Soporte Redes (Externo)",
-                Badge = "SOSPECHOSO INTERNO",
+                Role = "Soporte Externo",
+                Badge = "SOSPECHOSO",
                 BadgeColor = new Color(0.65f, 0.54f, 0.98f, 1f),
-                Clues = "· Cableó debajo del escritorio de Carla cerca del Post-It amarillo.\n· Ingresó de noche al área de servidores sin guía registrada."
+                Clues = "· Cableo bajo PC 1 y entro de noche sin guia."
             }
         };
 
@@ -389,15 +389,15 @@ namespace AndesSim.VR
             switch (preset)
             {
                 case SocLightingPreset.SocCyan:
-                    txtLightingBadge.text = "AMBIENTE ACTIVO: <b>SOC CYAN NEON</b>";
+                    txtLightingBadge.text = "AMBIENTE: <b>SOC CYAN NEON</b>";
                     txtLightingBadge.color = AndesTypographyTheme.AccentCyan;
                     break;
                 case SocLightingPreset.CyberNocturno:
-                    txtLightingBadge.text = "AMBIENTE ACTIVO: <b>CYBER NOCTURNO</b>";
+                    txtLightingBadge.text = "AMBIENTE: <b>CYBER NOCTURNO</b>";
                     txtLightingBadge.color = AndesTypographyTheme.AccentViolet;
                     break;
                 default:
-                    txtLightingBadge.text = "AMBIENTE ACTIVO: <b>OFICINA CLARA</b>";
+                    txtLightingBadge.text = "AMBIENTE: <b>OFICINA CLARA</b>";
                     txtLightingBadge.color = AndesTypographyTheme.AccentEmerald;
                     break;
             }
@@ -495,14 +495,13 @@ namespace AndesSim.VR
             {
                 if (txtModoSeleccionadoBadge != null)
                 {
-                    txtModoSeleccionadoBadge.text = "MODO ACTIVO · ATAQUE LAZARUS";
+                    txtModoSeleccionadoBadge.text = "ACTIVO · MODO ATAQUE";
                     txtModoSeleccionadoBadge.color = AttackRed;
                 }
                 if (txtModoDescripcion != null)
                 {
                     txtModoDescripcion.text =
-                        "1. Revisa el correo en PC 1   ·   2. Detona el enlace y observa el virus 3D\n" +
-                        "3. Recoge el Post-It y Log SIEM   ·   4. Identifica al responsable";
+                        "PC 1 (Correo) -> Detonar -> Post-It y SIEM -> Tablero";
                 }
                 if (imgModoAtaqueBorder != null) imgModoAtaqueBorder.color = AttackRed;
                 if (imgModoDefensaBorder != null) imgModoDefensaBorder.color = new Color(0.16f, 0.28f, 0.42f, 0.75f);
@@ -511,14 +510,13 @@ namespace AndesSim.VR
             {
                 if (txtModoSeleccionadoBadge != null)
                 {
-                    txtModoSeleccionadoBadge.text = "MODO ACTIVO · DEFENSA SOC";
+                    txtModoSeleccionadoBadge.text = "ACTIVO · MODO DEFENSA";
                     txtModoSeleccionadoBadge.color = DefenseGreen;
                 }
                 if (txtModoDescripcion != null)
                 {
                     txtModoDescripcion.text =
-                        "1. Marca las 3 señales en PC 1   ·   2. Aísla el correo en Sandbox\n" +
-                        "3. Guarda Post-It y SIEM   ·   4. Activa MFA, Red y Escudo SOC";
+                        "PC 1 (3 senales) -> Sandbox -> Pistas -> Contramedidas";
                 }
                 if (imgModoAtaqueBorder != null) imgModoAtaqueBorder.color = new Color(0.16f, 0.28f, 0.42f, 0.75f);
                 if (imgModoDefensaBorder != null) imgModoDefensaBorder.color = DefenseGreen;
@@ -537,7 +535,7 @@ namespace AndesSim.VR
             if (panelVistaPasos != null) panelVistaPasos.SetActive(showPasos);
             if (txtBtnTogglePasosLabel != null)
             {
-                txtBtnTogglePasosLabel.text = showPasos ? "[ VER MODOS ]" : "[ ? COMO JUGAR ]";
+                txtBtnTogglePasosLabel.text = showPasos ? "VER MODOS" : "? GUIA RAPIDA";
             }
             if (showPasos && AudioManager.I != null)
             {
@@ -580,7 +578,7 @@ namespace AndesSim.VR
         {
             if (txtDwellActualBadge != null)
             {
-                txtDwellActualBadge.text = $"TIEMPO DE MIRADA: <b>{_currentDwellTime:F1}s</b>";
+                txtDwellActualBadge.text = $"MIRADA: <b>{_currentDwellTime:F1}s</b>";
             }
         }
 
@@ -591,7 +589,7 @@ namespace AndesSim.VR
 
             if (txtAudioStatus != null)
             {
-                txtAudioStatus.text = _audioMuted ? "AUDIO: SILENCIADO" : "AUDIO: ACTIVO 100%";
+                txtAudioStatus.text = _audioMuted ? "AUDIO: OFF" : "AUDIO: ON";
             }
 
             PlayUiSound(tabSwitchSound, _audioMuted ? 300f : 800f);

@@ -334,7 +334,7 @@ namespace AndesSim.Scenario01
             // Configuración inicial de textos
             if (consoleHeaderTitleText != null)
             {
-                consoleHeaderTitleText.text = "<b><color=#38F28A>CONSOLA DE CUARENTENA Y SANDBOX · BANCO ANDINO</color></b>";
+                consoleHeaderTitleText.text = "<b><color=#38F28A>CUARENTENA Y SANDBOX</color></b>";
             }
 
             if (confirmContainmentButton != null)
@@ -342,7 +342,7 @@ namespace AndesSim.Scenario01
                 confirmContainmentButton.interactable = false;
                 if (confirmButtonText != null)
                 {
-                    confirmButtonText.text = "<b>Análisis en curso...</b>\n<size=75%>(Inspeccionando Sandbox)</size>";
+                    confirmButtonText.text = "<b>Analizando en Sandbox...</b>";
                 }
                 if (confirmButtonGlow != null)
                 {
@@ -357,15 +357,12 @@ namespace AndesSim.Scenario01
 
             if (quarantinePhaseStatusText != null)
             {
-                quarantinePhaseStatusText.text = "ESTADO: <color=#4EC9B0><b>[1/3] AISLAMIENTO EN TRÁNSITO Y ANÁLISIS DE REPUTACIÓN</b></color>";
+                quarantinePhaseStatusText.text = "<color=#4EC9B0><b>[1/3] INTERCEPCION EN PASARELA</b></color>";
             }
 
-            sb.AppendLine("<color=#4EC9B0>[09:14:02.102] SEG INBOUND (Secure Email Gateway):</color>");
-            sb.AppendLine("• <b>Remitente:</b> Rasel Ahlam &lt;rasel.ahlam@career-applicants-bd.com&gt;");
-            sb.AppendLine("• <b>Destinatarios:</b> 16 buzones corporativos (c.mendoza@bancoandino.pe + 15 analistas)");
-            sb.AppendLine("• <b>Asunto:</b> Application: Rasel Ahlam - Payments Specialist (CV Attached)");
-            sb.AppendLine("• <b>Verificación SPF/DKIM:</b> <color=#FF9F43>[FALLIDO] Dominio no verificado (creado hace 48h)</color>");
-            sb.AppendLine("• <b>Acción pasarela:</b> Tráfico retenido preventivamente antes de entrega a bandejas.");
+            sb.AppendLine("<color=#4EC9B0>[1/3] SEG INBOUND:</color>");
+            sb.AppendLine("• De: career-applicants-bd.com -> 16 buzones");
+            sb.AppendLine("• SPF/DKIM: <color=#FF9F43>FALLIDO (dominio reciente)</color>");
 
             if (sandboxTerminalLogText != null)
             {
@@ -388,15 +385,12 @@ namespace AndesSim.Scenario01
 
             if (quarantinePhaseStatusText != null)
             {
-                quarantinePhaseStatusText.text = "ESTADO: <color=#FF5A4E><b>[2/3] DETONACIÓN EN ENTORNO AISLADO (SANDBOX CUCKOO/FIREEYE)</b></color>";
+                quarantinePhaseStatusText.text = "<color=#FF5A4E><b>[2/3] DETONACION EN SANDBOX</b></color>";
             }
 
-            sb.AppendLine("\n<color=#FF5A4E>[09:14:03.450] SANDBOX DETONATION ENGINE (Win7 x64 Emulated Node):</color>");
-            sb.AppendLine("• <b>Archivo analizado:</b> Rasel_Ahlam_CV_2015.scr.zip (1.2 MB)");
-            sb.AppendLine("• <b>Evasión por doble extensión:</b> Rasel_Ahlam_CV_2015.scr (PE32 Executable / ScreenSaver)");
-            sb.AppendLine("• <b>Comportamiento hostil:</b> Intento de inyección de proceso en AppData\\Local\\svchost_upd.exe");
-            sb.AppendLine("• <b>PAYLOAD HOSTIL CONFIRMADO:</b> <color=#FF5A4E><b>[Win32/Lazarus.Dropper!tr]</b></color>");
-            sb.AppendLine("• <b>Intento de Conexión C2:</b> TCP saliente a 185.130.44.82:443 <color=#FF5A4E>[INTERCEPTADO Y CORTADO]</color>");
+            sb.AppendLine("\n<color=#FF5A4E>[2/3] SANDBOX:</color>");
+            sb.AppendLine("• Archivo: CV_2015.scr.zip -> <color=#FF5A4E><b>Lazarus.Dropper</b></color>");
+            sb.AppendLine("• Salida IP 185.130.44.82 <color=#FF5A4E>[BLOQUEADA]</color>");
 
             if (sandboxTerminalLogText != null)
             {
@@ -409,7 +403,7 @@ namespace AndesSim.Scenario01
             }
             if (threatBadgeText != null)
             {
-                threatBadgeText.text = "<color=#FF5A4E><b>[ALERTA] AMENAZA LAZARUS IDENTIFICADA - DROPPER .SCR BLOQUEADO</b></color>";
+                threatBadgeText.text = "<color=#FF5A4E><b>MALWARE .SCR BLOQUEADO</b></color>";
             }
 
             timer = 0f;
@@ -428,15 +422,11 @@ namespace AndesSim.Scenario01
 
             if (quarantinePhaseStatusText != null)
             {
-                quarantinePhaseStatusText.text = "ESTADO: <color=#38F28A><b>[3/3] CONTENCIÓN EXITOSA Y PURGA DE 16 BUZONES (100%)</b></color>";
+                quarantinePhaseStatusText.text = "<color=#38F28A><b>[3/3] CONTENCION COMPLETADA</b></color>";
             }
 
-            sb.AppendLine("\n<color=#38F28A>[09:14:04.810] SOAR & PERIMETER DEFENSE (Mitigación Defensiva):</color>");
-            sb.AppendLine("• <b>Regla Firewall de Borde:</b> DROP ANY -> IP C2 185.130.44.82 (Regla FW-BANCO-ANDINO-01)");
-            sb.AppendLine("• <b>Buzones purgados:</b> 16/16 correos eliminados antes de interacción de los empleados.");
-            sb.AppendLine("• <b>Puestos protegidos:</b> PC-PAGOS-01, PC-PAGOS-02, PC-PAGOS-09 <color=#38F28A>[LIMPIOS]</color>");
-            sb.AppendLine("• <b>Topología SWIFT:</b> Sin intrusión. Zero credenciales robadas. 0 backdoors en red.");
-            sb.AppendLine("• <color=#38F28A><b>CONCLUSIÓN: Criterio de Aceptación 2 cumplido. Infección evitada al 100%.</b></color>");
+            sb.AppendLine("\n<color=#38F28A>[3/3] DEFENSA:</color>");
+            sb.AppendLine("• 16/16 buzones purgados · 0 PC infectadas.");
 
             if (sandboxTerminalLogText != null)
             {
@@ -449,7 +439,7 @@ namespace AndesSim.Scenario01
             }
             if (quarantineSuccessText != null)
             {
-                quarantineSuccessText.text = "<color=#38F28A><b>[OK] CORREO EN CUARENTENA PERIMETRAL - AMENAZA NEUTRALIZADA</b></color>";
+                quarantineSuccessText.text = "<color=#38F28A><b>[OK] CORREO EN CUARENTENA</b></color>";
             }
 
             timer = 0f;
@@ -474,7 +464,7 @@ namespace AndesSim.Scenario01
 
                 if (confirmButtonText != null)
                 {
-                    confirmButtonText.text = "<color=#38F28A><b>Confirmar Contención y Finalizar Defensa</b></color>\n<size=75%>(Cerrar Simulación)</size>";
+                    confirmButtonText.text = "<color=#38F28A><b>CONFIRMAR CONTENCION</b></color>";
                 }
 
                 if (confirmButtonGlow != null)

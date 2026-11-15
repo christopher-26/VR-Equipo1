@@ -1,9 +1,10 @@
-﻿using System.Collections;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using AndesSim.Core;
+using AndesSim.Environment;
 using AndesSim.VR;
 
 namespace AndesSim.Scenario01
@@ -186,16 +187,16 @@ namespace AndesSim.Scenario01
             switch (defenseId)
             {
                 case "Defensa_Sandbox":
-                    defenseTitle = "Filtro de correo con análisis en Sandbox";
-                    mitigationMechanism = "Inspección automatizada en pasarela (Secure Email Gateway). Los enlaces y adjuntos se ejecutan en un entorno virtual aislado antes de llegar a los buzones, detonando el archivo '.scr.zip'.";
+                    defenseTitle = "1. SANDBOX DE CORREO";
+                    mitigationMechanism = "Ejecuta enlaces y adjuntos en entorno aislado antes del buzon.";
                     break;
                 case "Defensa_BotonReportar":
-                    defenseTitle = "Capacitación y botón \"Reportar phishing\"";
-                    mitigationMechanism = "Cultura continua en el personal y un botón en el cliente de correo para alertar inmediatamente al SOC, permitiendo purgar los buzones en menos de un minuto.";
+                    defenseTitle = "2. BOTON REPORTAR PHISHING";
+                    mitigationMechanism = "Alerta al SOC al instante y purga buzones en menos de 60s.";
                     break;
                 case "Defensa_MFA":
-                    defenseTitle = "Gestor corporativo y doble factor (MFA)";
-                    mitigationMechanism = "Autenticación robusta mediante tokens físicos dinámicos (TOTP), invalidando cualquier contraseña robada o expuesta físicamente en papel.";
+                    defenseTitle = "3. AUTENTICACION MFA";
+                    mitigationMechanism = "Token dinamico TOTP que bloquea claves robadas o en papel.";
                     break;
             }
         }
@@ -289,13 +290,13 @@ namespace AndesSim.Scenario01
         public void UpdateVisualIndicators()
         {
             Color targetColor = isApplied ? ActiveGreenColor : InactiveRedColor;
-            string statusText = isApplied ? "CONTRAMEDIDA ACTIVA" : "INACTIVO EN 2016";
+            string statusText = isApplied ? "ACTIVA" : "INACTIVO";
 
-            // Luz 3D
+            // Luz 3D suave (sin saturar etiquetas)
             if (statusLedLight != null)
             {
                 statusLedLight.color = targetColor;
-                statusLedLight.intensity = isApplied ? 1.5f : 0.8f;
+                statusLedLight.intensity = isApplied ? 0.22f : 0.10f;
             }
 
             // Material emisivo
@@ -326,12 +327,26 @@ namespace AndesSim.Scenario01
 
             if (statusLabelText != null)
             {
-                statusLabelText.text = isApplied ? $"<color=#38F28A><b>[OK] {statusText}</b></color>" : $"<color=#FF4444>[-] {statusText}</color>";
+                string titleStr = string.IsNullOrEmpty(defenseTitle) ? defenseId : defenseTitle;
+                string statusColored = isApplied
+                    ? $"<color=#38F28A><b>{statusText}</b></color>"
+                    : $"<color=#FF5A4E><b>{statusText}</b></color>";
+                PhysicalDefenseSwitchLever lever = GetComponent<PhysicalDefenseSwitchLever>();
+                if (lever != null && !string.IsNullOrEmpty(lever.defenseDescription))
+                {
+                    statusLabelText.text = $"<size=14><b>{titleStr}</b></size>\n" +
+                                           $"<size=10><color=#CBD5E1>{lever.defenseDescription}</color></size>\n" +
+                                           $"<size=10>{statusColored}</size>";
+                }
+                else
+                {
+                    statusLabelText.text = $"<size=14><b>{titleStr}</b></size>\n<size=10>{statusColored}</size>";
+                }
             }
 
             if (_gazeInteractable != null)
             {
-                _gazeInteractable.interactableLabel = isApplied ? $"[ACTIVA] {defenseTitle}" : $"Activar {defenseTitle}";
+                _gazeInteractable.interactableLabel = isApplied ? $"Activa: {defenseTitle}" : $"Activar: {defenseTitle}";
             }
         }
 
@@ -343,7 +358,7 @@ namespace AndesSim.Scenario01
 
             if (popupTitleText != null)
             {
-                popupTitleText.text = $"<color=#38F28A>[OK] CONTRAMEDIDA ACTIVA</color>\n<b>{defenseTitle}</b>";
+                popupTitleText.text = $"<color=#38F28A>CONTRAMEDIDA ACTIVA</color>\n<b>{defenseTitle}</b>";
             }
 
             if (popupDetailText != null)

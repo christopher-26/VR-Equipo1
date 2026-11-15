@@ -102,17 +102,17 @@ namespace AndesSim.Editor
 
             // Título y Subtítulo Centrados
             TextMeshProUGUI titleTmp = CreateCenteredText("Title", canvasObj.transform, new Vector2(0f, 286f), new Vector2(960f, 42f),
-                "<color=#00E5FF>BANCO ANDINO</color> · CENTRO HOLOGRAFICO VR", 27f, Color.white);
+                "<color=#00E5FF>BANCO ANDINO</color> · SOC VR", 27f, Color.white);
             AndesTypographyTheme.StyleDisplayTitle(titleTmp, Color.white, 27f);
 
             TextMeshProUGUI subTmp = CreateCenteredText("SubTitle", canvasObj.transform, new Vector2(0f, 250f), new Vector2(960f, 28f),
-                "Caso Histórico Lazarus 2015  ·  Simulador Forense y de Defensa SOC", 16f, AndesTypographyTheme.TextMuted);
+                "Caso Lazarus 2015", 16f, AndesTypographyTheme.TextMuted);
             AndesTypographyTheme.StyleBodyCentered(subTmp, AndesTypographyTheme.TextMuted, 16f, 6f);
 
             // =========================================================================
             // 3. Barra Superior de 5 Pestañas Holográficas
             // =========================================================================
-            string[] tabTitles = { "1. INICIO", "2. MAPA", "3. SOSPECHOSOS", "4. GUIA VR", "5. AJUSTES & FX" };
+            string[] tabTitles = { "1. INICIO", "2. MAPA", "3. SOSPECHOSOS", "4. GUIA", "5. AJUSTES" };
             Button[] tabButtons = new Button[5];
             Image[] tabBgs = new Image[5];
             TextMeshProUGUI[] tabLabels = new TextMeshProUGUI[5];
@@ -155,7 +155,7 @@ namespace AndesSim.Editor
 
             GameObject btnAtkObj = CreateMenuButton("Btn_SelectAtaque", frameAtk.transform,
                 Vector2.zero, new Vector2(408f, 154f),
-                "<size=20><color=#FF5A4E>MODO ATAQUE</color></size>\n<size=15><color=#E8F1FC>Observa el phishing y el robo\n($81M + virus 3D en vivo)</color></size>",
+                "<size=22><color=#FF5A4E>MODO ATAQUE</color></size>\n<size=15><color=#E8F1FC>Simula el robo ($81M)</color></size>",
                 new Color(0.15f, 0.05f, 0.07f, 0.98f), Color.white, 16f);
             Button btnAtk = btnAtkObj.GetComponent<Button>();
 
@@ -170,17 +170,17 @@ namespace AndesSim.Editor
 
             GameObject btnDefObj = CreateMenuButton("Btn_SelectDefensa", frameDef.transform,
                 Vector2.zero, new Vector2(408f, 154f),
-                "<size=20><color=#38F28A>MODO DEFENSA</color></size>\n<size=15><color=#E8F1FC>Marca las 3 señales, bloquea\ny activa escudos SOC</color></size>",
+                "<size=22><color=#38F28A>MODO DEFENSA</color></size>\n<size=15><color=#E8F1FC>Bloquea el phishing SOC</color></size>",
                 new Color(0.04f, 0.15f, 0.10f, 0.98f), Color.white, 16f);
             Button btnDef = btnDefObj.GetComponent<Button>();
 
             TextMeshProUGUI badgeTmp = CreateCenteredText("Txt_ModoBadge", panelModos.transform, new Vector2(0f, -38f), new Vector2(880f, 34f),
-                "MODO ACTIVO · ATAQUE LAZARUS", 19.5f, AndesTypographyTheme.AccentRed);
+                "ACTIVO · MODO ATAQUE", 19.5f, AndesTypographyTheme.AccentRed);
             AndesTypographyTheme.StyleDisplayTitle(badgeTmp, AndesTypographyTheme.AccentRed, 19.5f);
 
-            TextMeshProUGUI descTmp = CreateCenteredText("Txt_ModoDescripcion", panelModos.transform, new Vector2(0f, -86f), new Vector2(880f, 58f),
-                "1. Revisa el correo en PC 1   ·   2. Detona el enlace y observa el virus 3D\n3. Recoge Post-It y Log SIEM   ·   4. Identifica al responsable",
-                15.5f, AndesTypographyTheme.TextPrimary);
+            TextMeshProUGUI descTmp = CreateCenteredText("Txt_ModoDescripcion", panelModos.transform, new Vector2(0f, -84f), new Vector2(880f, 44f),
+                "PC 1 (Correo)  ->  PC 2 / PC 3  ->  Tablero",
+                16.5f, AndesTypographyTheme.TextPrimary);
 
             // Subvista rápida de pasos (Alternada con Btn_TogglePasos)
             GameObject panelPasos = new GameObject("Panel_VistaPasos");
@@ -191,30 +191,30 @@ namespace AndesSim.Editor
             GameObject pasosCard = CreateGlassCard("Card_GuiaPasos", panelPasos.transform, new Vector2(0f, 18f), new Vector2(860f, 224f),
                 AndesTypographyTheme.BgCardGlass, AndesTypographyTheme.AccentCyan);
             CreateCenteredText("Txt_GuiaPasos", pasosCard.transform, Vector2.zero, new Vector2(810f, 194f),
-                "<color=#00E5FF><b>COMO FUNCIONA EN 3 PASOS</b></color>\n\n" +
-                "<b>1. INICIA Y MIRA PC 1:</b> Lee el correo de Rasel Ahlam y el Post-It amarillo.\n" +
-                "<b>2. DECIDE E INVESTIGA:</b> Abre el enlace o aísla en Sandbox y revisa PC 2 y SIEM.\n" +
-                "<b>3. TABLERO Y ESCUDOS:</b> Elige al responsable en el tablero y activa MFA.",
-                17.5f, Color.white);
+                "<color=#00E5FF><b>COMO JUGAR</b></color>\n\n" +
+                "<b>1.</b> Revisa PC 1, Post-It y SIEM (PC 3)\n" +
+                "<b>2.</b> Abre enlace o aisla en Sandbox\n" +
+                "<b>3.</b> Elige al responsable en el Tablero",
+                19f, Color.white);
             panelPasos.SetActive(false);
 
             // CTA Principal + Botones Inferiores Tab 0
             GameObject btnStartObj = CreateMenuButton("Btn_IniciarSimulacion", tab0.transform,
                 new Vector2(0f, -158f), new Vector2(560f, 64f),
-                "INICIAR SIMULACION VR",
+                "INICIAR SIMULACION",
                 new Color(0.06f, 0.44f, 0.56f, 0.98f), AndesTypographyTheme.AccentCyan, 20f);
             Button btnStart = btnStartObj.GetComponent<Button>();
 
             GameObject btnPasosObj = CreateMenuButton("Btn_TogglePasos", tab0.transform,
                 new Vector2(-215f, -238f), new Vector2(400f, 46f),
-                "[ ? COMO JUGAR ]",
+                "? GUIA RAPIDA",
                 new Color(0.09f, 0.19f, 0.33f, 0.96f), AndesTypographyTheme.AccentCyan, 15.5f);
             Button btnPasos = btnPasosObj.GetComponent<Button>();
             TextMeshProUGUI txtPasosLabel = btnPasosObj.GetComponentInChildren<TextMeshProUGUI>();
 
             GameObject btnCreditosObj = CreateMenuButton("Btn_AbrirCreditos", tab0.transform,
                 new Vector2(215f, -238f), new Vector2(400f, 46f),
-                "CREDITOS Y ETICA LEGAL",
+                "CREDITOS Y ETICA",
                 new Color(0.13f, 0.16f, 0.29f, 0.96f), AndesTypographyTheme.AccentSky, 15.5f);
             Button btnCreditos = btnCreditosObj.GetComponent<Button>();
 
@@ -225,7 +225,7 @@ namespace AndesSim.Editor
             tabPanels[1] = tab1;
 
             CreateCenteredText("Lbl_MapaHeader", tab1.transform, new Vector2(0f, 134f), new Vector2(880f, 34f),
-                "<color=#00E5FF><b>SALTA DIRECTAMENTE A CUALQUIER PUESTO DE LA OFICINA</b></color>", 18f, Color.white);
+                "<color=#00E5FF><b>IR A UN PUESTO</b></color>", 18f, Color.white);
 
             string[] tpNames =
             {
@@ -236,10 +236,10 @@ namespace AndesSim.Editor
             };
             string[] tpLabels =
             {
-                "<color=#00E5FF>PUESTO 1 · CARLA MENDOZA</color>\n<size=14><color=#ADC4DD>Correo Phishing · Post-It · Teléfono SOC</color></size>",
-                "<color=#FFA940>PUESTO 2 · TERMINAL SWIFT</color>\n<size=14><color=#ADC4DD>Transferencias US$ 951M · MT103</color></size>",
-                "<color=#38F28A>PUESTO 3 · SIEM Y DEFENSAS</color>\n<size=14><color=#ADC4DD>Logs IP 185.130.44.82 · Palancas MFA</color></size>",
-                "<color=#A78BFA>TABLERO · 4 SOSPECHOSOS</color>\n<size=14><color=#ADC4DD>Expedientes · Hipótesis Final</color></size>"
+                "<color=#00E5FF>PC 1 · CARLA</color>\n<size=14><color=#ADC4DD>Correo y Post-It</color></size>",
+                "<color=#FFA940>PC 2 · SWIFT</color>\n<size=14><color=#ADC4DD>Giros MT103 ($81M)</color></size>",
+                "<color=#38F28A>PC 3 · SIEM</color>\n<size=14><color=#ADC4DD>Logs y Defensas</color></size>",
+                "<color=#A78BFA>TABLERO</color>\n<size=14><color=#ADC4DD>4 Sospechosos</color></size>"
             };
             Vector2[] tpCoords =
             {
@@ -259,7 +259,7 @@ namespace AndesSim.Editor
             }
 
             CreateCenteredText("Lbl_MapaHint", tab1.transform, new Vector2(0f, -220f), new Vector2(880f, 32f),
-                "Al seleccionar un puesto se inicia el reloj y llegas directo frente al monitor.",
+                "Al elegir un puesto inicia el reloj.",
                 15f, AndesTypographyTheme.TextMuted);
 
             // =========================================================================
@@ -289,19 +289,19 @@ namespace AndesSim.Editor
             AndesTypographyTheme.StyleDisplayTitle(sPrevTitle, Color.white, 22f);
 
             TextMeshProUGUI sPrevRole = CreateCenteredText("Txt_SuspectPreviewRole", dossierPreviewCard.transform,
-                new Vector2(0f, 38f), new Vector2(840f, 26f), "Jefe de Seguridad TI", 16f, AndesTypographyTheme.TextMuted);
+                new Vector2(0f, 34f), new Vector2(840f, 26f), "Jefe de Seguridad TI", 16f, AndesTypographyTheme.TextMuted);
 
             TextMeshProUGUI sPrevBadge = CreateCenteredText("Txt_SuspectPreviewBadge", dossierPreviewCard.transform,
-                new Vector2(0f, 8f), new Vector2(840f, 26f), "NEGLIGENCIA DE RED", 15.5f, AndesTypographyTheme.AccentRed);
+                new Vector2(0f, -2f), new Vector2(840f, 26f), "NEGLIGENCIA", 15.5f, AndesTypographyTheme.AccentRed);
             AndesTypographyTheme.StyleBadge(sPrevBadge, AndesTypographyTheme.AccentRed, 15.5f);
 
             TextMeshProUGUI sPrevClues = CreateCenteredText("Txt_SuspectPreviewClues", dossierPreviewCard.transform,
-                new Vector2(0f, -48f), new Vector2(830f, 84f),
-                "· Administrador de correo y switches sin VLANs ni bloqueo .exe.", 16f, AndesTypographyTheme.TextPrimary);
+                new Vector2(0f, -52f), new Vector2(830f, 76f),
+                "· Administra red sin VLANs ni bloqueo .exe.", 18f, AndesTypographyTheme.TextPrimary);
 
             GameObject btnGoBoardMenuObj = CreateMenuButton("Btn_GoTableroTab2", tab2.transform,
                 new Vector2(0f, -176f), new Vector2(480f, 56f),
-                "IR AL TABLERO EN LA OFICINA >",
+                "IR AL TABLERO >",
                 new Color(0.09f, 0.34f, 0.24f, 0.98f), AndesTypographyTheme.AccentEmerald, 17f);
 
             // =========================================================================
@@ -311,15 +311,15 @@ namespace AndesSim.Editor
             tabPanels[3] = tab3;
 
             CreateCenteredText("Lbl_GuiaTitle", tab3.transform, new Vector2(0f, 134f), new Vector2(880f, 34f),
-                "<color=#00E5FF><b>RECORRIDO GUIADO · 4 PASOS EN REALIDAD VIRTUAL</b></color>", 18f, Color.white);
+                "<color=#00E5FF><b>GUIA EN 4 PASOS</b></color>", 18f, Color.white);
 
-            string[] guideTitles = { "1 · PC 1 CORREO", "2 · POST-IT Y TEL", "3 · PC 2 Y SIEM", "4 · TABLERO Y MFA" };
+            string[] guideTitles = { "1 · PC 1", "2 · EVIDENCIA", "3 · ACCION", "4 · TABLERO" };
             string[] guideBodies =
             {
-                "Mira el monitor de Carla para abrir el correo y marcar 3 señales.",
-                "Guarda la clave del Post-It amarillo o llama al Anexo 404.",
-                "Revisa el riesgo SWIFT ($951M) y guarda el log en PC 3.",
-                "Señala al responsable en el tablero y activa las defensas."
+                "Abre el correo y marca 3 pistas.",
+                "Guarda Post-It y Log SIEM.",
+                "Detona enlace o aisla en Sandbox.",
+                "Elige al responsable."
             };
             Color[] guideColors =
             {
@@ -338,15 +338,15 @@ namespace AndesSim.Editor
                     guideTitles[i], 15.5f, guideColors[i]);
                 AndesTypographyTheme.StyleBadge(gt, guideColors[i], 15.5f);
 
-                CreateCenteredText($"Txt_GuiaBody_{i}", gCard.transform, new Vector2(0f, -20f), new Vector2(190f, 128f),
-                    guideBodies[i], 15f, AndesTypographyTheme.TextPrimary);
+                CreateCenteredText($"Txt_GuiaBody_{i}", gCard.transform, new Vector2(0f, -18f), new Vector2(190f, 128f),
+                    guideBodies[i], 16.5f, AndesTypographyTheme.TextPrimary);
             }
 
             GameObject ctrlBar = CreateGlassCard("Card_ControlesVR", tab3.transform, new Vector2(0f, -176f), new Vector2(896f, 66f),
                 AndesTypographyTheme.BgCardElevated, AndesTypographyTheme.AccentCyan);
             CreateCenteredText("Txt_ControlesVR", ctrlBar.transform, Vector2.zero, new Vector2(860f, 54f),
-                "<b>CONTROLES:</b> Apunta la retícula central por 1.6s (o toca la pantalla) · Aros verdes en el suelo = Teletransporte",
-                15f, Color.white);
+                "<b>MIRADA (1.6s):</b> Selecciona  ·  <b>AROS VERDES:</b> Teletransporte",
+                16f, Color.white);
 
             // =========================================================================
             // TAB 4: AJUSTES, ILUMINACIÓN & FX 3D
@@ -356,7 +356,7 @@ namespace AndesSim.Editor
 
             // Fila 1: Dwell Time
             CreateCenteredText("Lbl_DwellHeader", tab4.transform, new Vector2(0f, 146f), new Vector2(880f, 26f),
-                "VELOCIDAD DE SELECCION CON LA MIRADA (DWELL)", 14.5f, AndesTypographyTheme.TextMuted);
+                "VELOCIDAD DE MIRADA", 14.5f, AndesTypographyTheme.TextMuted);
 
             GameObject btnDwell1 = CreateMenuButton("Btn_Dwell_Rapido", tab4.transform, new Vector2(-235f, 106f), new Vector2(220f, 44f),
                 "1.0s · RAPIDO", AndesTypographyTheme.BgCardGlass, Color.white, 15f);
@@ -366,11 +366,11 @@ namespace AndesSim.Editor
                 "2.4s · COMODO", AndesTypographyTheme.BgCardGlass, Color.white, 15f);
 
             TextMeshProUGUI txtDwellBadge = CreateCenteredText("Txt_DwellActual", tab4.transform, new Vector2(0f, 66f), new Vector2(880f, 24f),
-                "TIEMPO DE MIRADA: <b>1.6s</b>", 14.5f, AndesTypographyTheme.AccentCyan);
+                "MIRADA: <b>1.6s</b>", 14.5f, AndesTypographyTheme.AccentCyan);
 
             // Fila 2: Iluminación Dinámica de Oficina
             CreateCenteredText("Lbl_LightHeader", tab4.transform, new Vector2(0f, 28f), new Vector2(880f, 26f),
-                "ILUMINACION Y TEMA VISUAL DE LA OFICINA", 14.5f, AndesTypographyTheme.TextMuted);
+                "ILUMINACION", 14.5f, AndesTypographyTheme.TextMuted);
 
             GameObject btnL1 = CreateMenuButton("Btn_Light_Clara", tab4.transform, new Vector2(-296f, -12f), new Vector2(280f, 46f),
                 "OFICINA CLARA", new Color(0.10f, 0.32f, 0.24f, 0.98f), AndesTypographyTheme.AccentEmerald, 15f);
@@ -380,22 +380,22 @@ namespace AndesSim.Editor
                 "CYBER NOCTURNO", new Color(0.16f, 0.14f, 0.32f, 0.98f), AndesTypographyTheme.AccentViolet, 15f);
 
             TextMeshProUGUI txtLightBadge = CreateCenteredText("Txt_LightingActual", tab4.transform, new Vector2(0f, -52f), new Vector2(880f, 24f),
-                "AMBIENTE ACTIVO: <b>OFICINA CLARA</b>", 14.5f, AndesTypographyTheme.AccentEmerald);
+                "AMBIENTE: <b>OFICINA CLARA</b>", 14.5f, AndesTypographyTheme.AccentEmerald);
 
             // Fila 3: Audio, Voz y Demo 3D Virus
             GameObject btnAudioObj = CreateMenuButton("Btn_ToggleAudio", tab4.transform, new Vector2(-296f, -112f), new Vector2(280f, 54f),
-                "AUDIO: ACTIVO 100%", new Color(0.10f, 0.20f, 0.32f, 0.96f), Color.white, 15f);
+                "AUDIO: ON", new Color(0.10f, 0.20f, 0.32f, 0.96f), Color.white, 15f);
             TextMeshProUGUI txtAudioStat = btnAudioObj.GetComponentInChildren<TextMeshProUGUI>();
 
             GameObject btnVoiceObj = CreateMenuButton("Btn_TestVoice", tab4.transform, new Vector2(0f, -112f), new Vector2(280f, 54f),
-                "PROBAR VOZ NARRADOR", new Color(0.08f, 0.26f, 0.38f, 0.96f), AndesTypographyTheme.AccentCyan, 15f);
+                "PROBAR VOZ", new Color(0.08f, 0.26f, 0.38f, 0.96f), AndesTypographyTheme.AccentCyan, 15f);
 
             GameObject btnDemoVirusObj = CreateMenuButton("Btn_PreviewVirusFx", tab4.transform, new Vector2(296f, -112f), new Vector2(280f, 54f),
-                "DEMO VIRUS 3D (8s)", new Color(0.42f, 0.10f, 0.13f, 0.98f), AndesTypographyTheme.AccentRed, 15f);
+                "DEMO VIRUS 3D", new Color(0.42f, 0.10f, 0.13f, 0.98f), AndesTypographyTheme.AccentRed, 15f);
 
             // Fila 4: Créditos y Ética
             GameObject btnCreditsTab4 = CreateMenuButton("Btn_CreditsTab4", tab4.transform, new Vector2(0f, -196f), new Vector2(520f, 48f),
-                "VER CREDITOS Y MARCO ETICO-LEGAL", new Color(0.14f, 0.18f, 0.32f, 0.96f), AndesTypographyTheme.AccentSky, 15.5f);
+                "CREDITOS Y ETICA", new Color(0.14f, 0.18f, 0.32f, 0.96f), AndesTypographyTheme.AccentSky, 15.5f);
 
             // =========================================================================
             // 4. Enlazar todo en VrStartMenuController
@@ -614,9 +614,11 @@ namespace AndesSim.Editor
 
             Button btn = btnObj.AddComponent<Button>();
             ColorBlock cb = btn.colors;
-            cb.normalColor = bgColor;
-            cb.highlightedColor = bgColor * 1.24f;
-            cb.pressedColor = bgColor * 0.80f;
+            cb.colorMultiplier = 1.18f;
+            cb.normalColor = new Color(0.85f, 0.85f, 0.85f, 1f);
+            cb.highlightedColor = Color.white;
+            cb.selectedColor = new Color(0.85f, 0.85f, 0.85f, 1f);
+            cb.pressedColor = new Color(0.68f, 0.68f, 0.68f, 1f);
             btn.colors = cb;
 
             GameObject txtObj = new GameObject("Text");

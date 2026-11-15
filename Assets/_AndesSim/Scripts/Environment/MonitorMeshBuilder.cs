@@ -356,11 +356,11 @@ namespace AndesSim.Environment
             tmp.alignment = TextAlignmentOptions.MidlineLeft;
             tmp.color = HighLegibilityTextColor;
 
-            string stationTitle = monitorId == "Monitor_01" ? "PC 1 - CORREO PHISHING" :
-                                 monitorId == "Monitor_02" ? "PC 2 - PAGOS SWIFT" :
-                                 "PC 3 - CONSOLA SIEM";
+            string stationTitle = monitorId == "Monitor_01" ? "PC 1 · CORREO" :
+                                 monitorId == "Monitor_02" ? "PC 2 · SWIFT" :
+                                 "PC 3 · SIEM";
 
-            tmp.text = $"<b><color=#38F28A>BANCO ANDINO</color></b> | <color=#E2E8F0>{stationTitle}</color>";
+            tmp.text = $"<b><color=#38F28A>BANCO ANDINO</color></b>  |  <color=#E2E8F0>{stationTitle}</color>";
         }
 
         #endregion
@@ -415,8 +415,8 @@ namespace AndesSim.Environment
             counterRect.sizeDelta = new Vector2(660f, 46f);
 
             TextMeshProUGUI counterTmp = counterObj.AddComponent<TextMeshProUGUI>();
-            counterTmp.text = "Pistas: <b><color=#FFC24A>0/3</color></b>  (Mira 1, 2 y 3)";
-            counterTmp.fontSize = 22f;
+            counterTmp.text = "Pistas: <b><color=#FFC24A>0/3</color></b>";
+            counterTmp.fontSize = 23f;
             counterTmp.alignment = TextAlignmentOptions.Center;
             counterTmp.color = HighLegibilityTextColor;
 
@@ -424,25 +424,25 @@ namespace AndesSim.Environment
             GameObject remObj = CreatePhishingHotspot(
                 "Hotspot_Remitente", panelCorreo.transform,
                 new Vector2(0f, 155f), new Vector2(660f, 86f),
-                "<b>1. De:</b> rasel.ahlam@<color=#FFC24A>career-applicants-bd.com</color>",
+                "<b>1. De:</b> <color=#FFC24A>career-applicants-bd.com</color>",
                 "Signal_Remitente",
-                "Dominio externo no institucional",
+                "Dominio externo",
                 phishingInspector);
 
             GameObject urgObj = CreatePhishingHotspot(
                 "Hotspot_Urgencia", panelCorreo.transform,
                 new Vector2(0f, 52f), new Vector2(660f, 86f),
-                "<b>2. Asunto:</b> <color=#FF5A4E>URGENTE</color> - Contratacion Hoy",
+                "<b>2. Asunto:</b> <color=#FF5A4E>URGENTE</color> · Revision hoy",
                 "Signal_Urgencia",
-                "Presion de urgencia artificial",
+                "Urgencia artificial",
                 phishingInspector);
 
             GameObject linkObj = CreatePhishingHotspot(
                 "Hotspot_Enlace", panelCorreo.transform,
                 new Vector2(0f, -51f), new Vector2(660f, 86f),
-                "<b>3. Link:</b> <color=#FFC24A>185.130.44.82/...CV.scr.zip</color>",
+                "<b>3. Adjunto:</b> <color=#FFC24A>CV_2015.scr.zip</color>",
                 "Signal_Enlace",
-                "Ejecutable oculto .scr.zip en IP sospechosa",
+                "Ejecutable .scr oculto",
                 phishingInspector);
 
             GameObject bodyObj = new GameObject("Txt_CuerpoCorreoExtracto");
@@ -451,8 +451,8 @@ namespace AndesSim.Environment
             bRect.anchoredPosition = new Vector2(0f, -135f);
             bRect.sizeDelta = new Vector2(660f, 48f);
             TextMeshProUGUI bodyTmp = bodyObj.AddComponent<TextMeshProUGUI>();
-            bodyTmp.text = "<color=#CBD5E1><i>'Revise mi CV adjunto hoy mismo para pagos.'</i></color>";
-            bodyTmp.fontSize = 18.5f;
+            bodyTmp.text = "<color=#CBD5E1><i>\"Revise mi CV adjunto hoy.\"</i></color>";
+            bodyTmp.fontSize = 19f;
             bodyTmp.alignment = TextAlignmentOptions.Center;
 
             // 3.4 Botones Interactivos de Decisión por Mirada (grandes y fáciles de seleccionar)
@@ -550,7 +550,7 @@ namespace AndesSim.Environment
             col.size = new Vector3(size.x, size.y, 48f);
 
             GazeInteractable gaze = hotspotObj.AddComponent<GazeInteractable>();
-            gaze.interactableLabel = "Inspeccionar: " + description;
+            gaze.interactableLabel = description;
 
             PhishingSignalHotspot hotspot = hotspotObj.AddComponent<PhishingSignalHotspot>();
 #if UNITY_EDITOR
@@ -586,21 +586,40 @@ namespace AndesSim.Environment
             rect.anchorMax = Vector2.one;
             rect.sizeDelta = Vector2.zero;
 
+            GameObject cardBg = CreateUiLine("Card_TablaSwift", panel.transform,
+                new Vector2(0f, 18f), new Vector2(660f, 380f), new Color(0.06f, 0.11f, 0.17f, 0.92f));
+            CreateUiLine("Card_TablaSwift_Borde", cardBg.transform,
+                new Vector2(0f, 188f), new Vector2(660f, 4f), TerminalBorderGreen);
+
             GameObject txtTable = new GameObject("Txt_OperacionesSwift");
-            txtTable.transform.SetParent(panel.transform, false);
+            txtTable.transform.SetParent(cardBg.transform, false);
             RectTransform tRect = txtTable.AddComponent<RectTransform>();
-            tRect.anchoredPosition = new Vector2(0f, -20f);
-            tRect.sizeDelta = new Vector2(650f, 500f);
+            tRect.anchoredPosition = Vector2.zero;
+            tRect.sizeDelta = new Vector2(600f, 320f);
 
             TextMeshProUGUI tmp = txtTable.AddComponent<TextMeshProUGUI>();
-            tmp.fontSize = 24f;
+            tmp.fontSize = 26f;
             tmp.alignment = TextAlignmentOptions.MidlineLeft;
             tmp.color = HighLegibilityTextColor;
-            tmp.text = "<color=#38F28A><b>TRANSFERENCIAS SWIFT MT103</b></color>\n\n" +
-                       "OP #9481 NY   |  $1.25M  | <color=#38F28A>OK</color>\n" +
-                       "OP #9482 LON  |  $0.48M  | <color=#38F28A>OK</color>\n" +
-                       "<color=#FFC24A><b>OP #9483 MKT | $81.0M  | EN ESPERA</b></color>\n\n" +
-                       "<color=#94A3B8>Destino sospechoso: RCBC Makati (IP .10.16)</color>";
+            tmp.text = "<color=#38F28A><b>TRANSFERENCIAS SWIFT</b></color>\n\n" +
+                       "OP #9481 NY    $1.25M   <color=#38F28A><b>OK</b></color>\n" +
+                       "OP #9482 LON   $0.48M   <color=#38F28A><b>OK</b></color>\n" +
+                       "<color=#FFC24A><b>OP #9483 MKT  $81.0M   ESPERA</b></color>";
+
+            GameObject alertPill = CreateUiLine("Pill_AlertaSwift", panel.transform,
+                new Vector2(0f, -242f), new Vector2(660f, 92f), new Color(0.30f, 0.19f, 0.04f, 0.92f));
+            CreateUiLine("Pill_AlertaSwift_Borde", alertPill.transform,
+                new Vector2(0f, 44f), new Vector2(660f, 4f), new Color(1f, 0.76f, 0.29f, 0.85f));
+
+            GameObject alertTxtObj = new GameObject("Txt_AlertaDestino");
+            alertTxtObj.transform.SetParent(alertPill.transform, false);
+            RectTransform aRect = alertTxtObj.AddComponent<RectTransform>();
+            aRect.sizeDelta = new Vector2(620f, 70f);
+            TextMeshProUGUI alertTmp = alertTxtObj.AddComponent<TextMeshProUGUI>();
+            alertTmp.fontSize = 21f;
+            alertTmp.alignment = TextAlignmentOptions.Center;
+            alertTmp.color = new Color(1f, 0.88f, 0.56f, 1f);
+            alertTmp.text = "<b>Destino anomalo: RCBC Makati (IP .10.16)</b>";
         }
 
         /// <summary>
@@ -620,32 +639,37 @@ namespace AndesSim.Environment
             rect.anchorMax = Vector2.one;
             rect.sizeDelta = Vector2.zero;
 
+            GameObject cardBg = CreateUiLine("Card_SiemEventos", panel.transform,
+                new Vector2(0f, 44f), new Vector2(660f, 380f), new Color(0.06f, 0.11f, 0.17f, 0.92f));
+            CreateUiLine("Card_SiemEventos_Borde", cardBg.transform,
+                new Vector2(0f, 188f), new Vector2(660f, 4f), TerminalBorderGreen);
+
             GameObject txtLog = new GameObject("Txt_LogTerminalSiem");
-            txtLog.transform.SetParent(panel.transform, false);
+            txtLog.transform.SetParent(cardBg.transform, false);
             RectTransform lRect = txtLog.AddComponent<RectTransform>();
-            lRect.anchoredPosition = new Vector2(0f, 40f);
-            lRect.sizeDelta = new Vector2(650f, 360f);
+            lRect.anchoredPosition = Vector2.zero;
+            lRect.sizeDelta = new Vector2(600f, 320f);
 
             TextMeshProUGUI tmp = txtLog.AddComponent<TextMeshProUGUI>();
-            tmp.fontSize = 23f;
+            tmp.fontSize = 24f;
             tmp.alignment = TextAlignmentOptions.MidlineLeft;
             tmp.color = HighLegibilityTextColor;
-            tmp.text = "<color=#38F28A><b>ALERTAS SIEM (29 ENE 2015)</b></color>\n\n" +
-                       "<color=#94A3B8>09:14</color> Correo externo -> 16 buzones\n" +
-                       "<color=#FFC24A>09:18</color> Descarga .scr.zip (185.130.44.82)\n" +
-                       "<color=#FF5A4E><b>09:18 ALERTA: Dropper svchost_upd.exe</b></color>";
+            tmp.text = "<color=#38F28A><b>ALERTAS SIEM · 29 ENE</b></color>\n\n" +
+                       "<color=#94A3B8>09:14</color> Phishing -> 16 buzones\n" +
+                       "<color=#FFC24A>09:18</color> Descarga CV_2015.scr.zip\n" +
+                       "<color=#FF5A4E><b>09:18 ALERTA: Dropper activo</b></color>";
 
             GameObject logBtnObj = CreateWorldGazeButton(
                 "Btn_RegistrarLogEvidencia", panel.transform,
-                new Vector2(0f, -238f), new Vector2(620f, 108f),
-                "REGISTRAR LOG COMO EVIDENCIA", new Color(0.10f, 0.28f, 0.44f, 0.96f), TerminalBorderGreen);
+                new Vector2(0f, -238f), new Vector2(660f, 108f),
+                "REGISTRAR LOG SIEM", new Color(0.10f, 0.28f, 0.44f, 0.96f), TerminalBorderGreen);
 
             if (siemTerminal != null)
             {
 #if UNITY_EDITOR
                 SerializedObject sSiem = new SerializedObject(siemTerminal);
                 sSiem.FindProperty("evidenceId").stringValue = "Evidencia_LogAccesos";
-                sSiem.FindProperty("evidenceTitle").stringValue = "Registro SIEM de Conexiones Anomalas";
+                sSiem.FindProperty("evidenceTitle").stringValue = "Log SIEM de Red";
                 sSiem.FindProperty("registerLogEvidenceButton").objectReferenceValue = logBtnObj.GetComponent<Button>();
                 sSiem.FindProperty("registerButtonLabelText").objectReferenceValue = logBtnObj.GetComponentInChildren<TextMeshProUGUI>();
                 sSiem.FindProperty("registerButtonBgImage").objectReferenceValue = logBtnObj.GetComponent<Image>();
@@ -690,9 +714,11 @@ namespace AndesSim.Environment
 
             Button btn = btnObj.AddComponent<Button>();
             ColorBlock cb = btn.colors;
-            cb.normalColor = bgColor;
-            cb.highlightedColor = borderColor;
-            cb.pressedColor = new Color(0.1f, 0.6f, 0.3f, 1f);
+            cb.colorMultiplier = 1.18f;
+            cb.normalColor = new Color(0.85f, 0.85f, 0.85f, 1f);
+            cb.highlightedColor = Color.white;
+            cb.selectedColor = new Color(0.85f, 0.85f, 0.85f, 1f);
+            cb.pressedColor = new Color(0.68f, 0.68f, 0.68f, 1f);
             btn.colors = cb;
 
             GameObject txtObj = new GameObject("Text");

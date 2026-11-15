@@ -82,17 +82,17 @@ namespace AndesSim.Environment
             // Pulso sutil de alta tecnología cuando el LED está en verde activo
             if (isApplied && _ledMaterial != null)
             {
-                float pulse = 1.0f + 0.20f * Mathf.Sin(Time.time * 4.5f);
+                float pulse = 1.0f + 0.15f * Mathf.Sin(Time.time * 4.5f);
                 Color activeGreen = SuspectBoardMeshBuilder.LedActiveGreen;
 
                 if (_ledMaterial.HasProperty("_EmissionColor"))
                 {
-                    _ledMaterial.SetColor("_EmissionColor", activeGreen * (1.6f * pulse));
+                    _ledMaterial.SetColor("_EmissionColor", activeGreen * (1.2f * pulse));
                 }
 
                 if (ledLight != null)
                 {
-                    ledLight.intensity = 1.6f * pulse;
+                    ledLight.intensity = 0.22f * pulse;
                 }
             }
         }
@@ -108,10 +108,10 @@ namespace AndesSim.Environment
             _lastAppliedState = isApplied;
 
             Color targetColor = isApplied ? SuspectBoardMeshBuilder.LedActiveGreen : SuspectBoardMeshBuilder.LedInactiveRed;
-            float targetIntensity = isApplied ? 1.6f : 0.85f;
+            float targetIntensity = isApplied ? 0.22f : 0.10f;
             string statusStr = isApplied
-                ? "<color=#38F28A><b>[OK] CONTRAMEDIDA ACTIVA (MITIGADA)</b></color>"
-                : "<color=#FF4444><b>[-] INACTIVO EN 2015 (VULNERABLE)</b></color>";
+                ? "<color=#38F28A><b>ACTIVA</b></color>"
+                : "<color=#FF5A4E><b>INACTIVO</b></color>";
 
             // Actualizar palanca mecánica
             float targetAngle = isApplied ? onAngle : offAngle;
@@ -130,7 +130,7 @@ namespace AndesSim.Environment
                 }
                 if (_ledMaterial.HasProperty("_EmissionColor"))
                 {
-                    _ledMaterial.SetColor("_EmissionColor", targetColor * (isApplied ? 1.6f : 0.6f));
+                    _ledMaterial.SetColor("_EmissionColor", targetColor * (isApplied ? 1.2f : 0.45f));
                     _ledMaterial.EnableKeyword("_EMISSION");
                 }
             }
@@ -145,9 +145,9 @@ namespace AndesSim.Environment
             // Actualizar textos
             if (statusLabel != null)
             {
-                statusLabel.text = $"<size=12><b>{defenseTitle}</b></size>\n" +
-                                   $"<size=9.5><color=#95A5A6>{defenseDescription}</color></size>\n" +
-                                   $"<size=9.5>{statusStr}</size>";
+                statusLabel.text = $"<size=14><b>{defenseTitle}</b></size>\n" +
+                                   $"<size=10><color=#CBD5E1>{defenseDescription}</color></size>\n" +
+                                   $"<size=10>{statusStr}</size>";
             }
         }
     }

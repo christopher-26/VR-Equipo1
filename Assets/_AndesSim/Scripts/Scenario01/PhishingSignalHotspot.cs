@@ -104,7 +104,7 @@ namespace AndesSim.Scenario01
 
             if (_gazeInteractable != null)
             {
-                _gazeInteractable.interactableLabel = $"Inspeccionar {signalTitle}";
+                _gazeInteractable.interactableLabel = signalTitle;
                 _gazeInteractable.onClick.AddListener(InspectSignal);
             }
         }
@@ -147,27 +147,18 @@ namespace AndesSim.Scenario01
             switch (signalId)
             {
                 case "Signal_Remitente":
-                    signalTitle = "Remitente sospechoso y dominio no institucional";
-                    technicalExplanation =
-                        "De: Rasel Ahlam <rasel.ahlam@career-applicants-bd.com>\n" +
-                        "Dominio público no verificado por SPF/DKIM institucional de Banco Andino. " +
-                        "Suplanta la identidad de un postulante a vacante bancaria para generar confianza inicial.";
+                    signalTitle = "Dominio externo sospechoso";
+                    technicalExplanation = "Dominio @career-applicants-bd.com ajeno al Banco Andino (SPF/DKIM invalido).";
                     break;
 
                 case "Signal_Urgencia":
-                    signalTitle = "Sentido artificial de urgencia y presión psicológica";
-                    technicalExplanation =
-                        "Texto: '...revisar mi CV hoy mismo con carácter urgente antes del cierre de selección...'\n" +
-                        "Ingeniería social clásica diseñada para forzar a la víctima a omitir los protocolos " +
-                        "de seguridad y actuar apresuradamente por amabilidad o miedo a perder una oportunidad.";
+                    signalTitle = "Urgencia artificial";
+                    technicalExplanation = "Presion inmediata para forzar descuido y saltar controles.";
                     break;
 
                 case "Signal_Enlace":
-                    signalTitle = "Enlace con doble extensión ejecutable (.scr.zip)";
-                    technicalExplanation =
-                        "URL: http://bit.ly-cv-storage.org/Rasel_Ahlam_CV_2015.scr.zip\n" +
-                        "Apunta a un servidor externo desconocido descargando un ejecutable Screensaver (.scr) " +
-                        "camuflado dentro de un archivo .zip para burlar filtros básicos de antivirus.";
+                    signalTitle = "Ejecutable .scr oculto";
+                    technicalExplanation = "Archivo .scr.zip en IP externa que instala el dropper malicioso.";
                     break;
             }
         }
@@ -268,7 +259,7 @@ namespace AndesSim.Scenario01
             if (statusBadgeText != null && statusBadgeText.gameObject.name != "Text")
             {
                 statusBadgeText.gameObject.SetActive(true);
-                statusBadgeText.text = "<color=#FF9F43><b>[SEÑAL\nDETECTADA]</b></color>";
+                statusBadgeText.text = "<color=#FF9F43><b>[OK]</b></color>";
             }
 
             if (checkmarkBadge != null)
@@ -278,7 +269,7 @@ namespace AndesSim.Scenario01
 
             if (_gazeInteractable != null)
             {
-                _gazeInteractable.interactableLabel = $"[DETECTADA] {signalTitle}";
+                _gazeInteractable.interactableLabel = $"[OK] {signalTitle}";
             }
         }
 
@@ -290,7 +281,7 @@ namespace AndesSim.Scenario01
 
             if (tooltipTitleText != null)
             {
-                tooltipTitleText.text = $"<color=#FF9F43>SEÑAL IDENTIFICADA:</color>\n<b>{signalTitle}</b>";
+                tooltipTitleText.text = $"<color=#FF9F43>PISTA:</color> <b>{signalTitle}</b>";
             }
 
             if (tooltipDetailText != null)

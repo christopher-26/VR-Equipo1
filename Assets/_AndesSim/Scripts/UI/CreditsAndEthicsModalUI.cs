@@ -130,26 +130,26 @@ namespace AndesSim.UI
             if (teamRolesText != null)
             {
                 teamRolesText.text =
-                    $"<b><color={ColorGreenCode}>EQUIPO 1 · INTEGRANTES:</color></b>\n" +
+                    $"<b><color={ColorGreenCode}>EQUIPO 1</color></b>\n" +
                     $"• <b>Lider / Guion:</b> {teamLeaderName}\n" +
-                    $"• <b>Unity C# / VR:</b> {unityDevName}  |  <b>3D / UI / Audio:</b> {artistName}\n" +
-                    $"• <b>Ciberseguridad y QA:</b> {cybersecurityQaName}";
+                    $"• <b>Unity / VR:</b> {unityDevName}  ·  <b>3D / UI:</b> {artistName}\n" +
+                    $"• <b>Seguridad / QA:</b> {cybersecurityQaName}";
             }
 
             if (attributionAiText != null)
             {
                 attributionAiText.text =
-                    $"<b><color={ColorAmberWarning}>RECURSOS Y HERRAMIENTAS:</color></b>\n" +
-                    $"• <b>Modelos 3D:</b> Assets CC0 / CC-BY (VNB Office Set, Sketchfab) y texturas propias.\n" +
-                    $"• <b>Audio e IA:</b> Sintesis Web/SFX + apoyo de Google Gemini / Antigravity y Kling AI.";
+                    $"<b><color={ColorAmberWarning}>RECURSOS</color></b>\n" +
+                    $"• <b>3D:</b> Assets CC0/CC-BY (VNB Office, Sketchfab).\n" +
+                    $"• <b>Audio / IA:</b> Web/SFX · Gemini · Antigravity · Kling AI.";
             }
 
             if (legalEthicsText != null)
             {
                 legalEthicsText.text =
-                    $"<b><color={ColorAlertRed}>USO EDUCATIVO Y LEYES (30096 / 29733):</color></b>\n" +
-                    $"• <b>Fines Academicos:</b> Simulador solo para concientizacion y defensa (nunca ataque).\n" +
-                    $"• <b>Datos Ficticios:</b> Nombres y correos (<i>Banco Andino</i>, <i>Carla</i>, <i>Rasel</i>) inspirados en el caso Bangladesh 2016.";
+                    $"<b><color={ColorAlertRed}>ETICA Y USO (LEY 30096 / 29733)</color></b>\n" +
+                    $"• Simulador academico defensivo.\n" +
+                    $"• Datos ficticios inspirados en el caso Bangladesh.";
             }
         }
 

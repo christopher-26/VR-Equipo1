@@ -288,8 +288,8 @@ namespace AndesSim.UI
                 _emailSubPart == 0 ? CyanNeonAccent : WarningAmberColor,
                 "PC 1 · CORREO DE PHISHING",
                 _emailSubPart == 0
-                    ? "1ra Parte: Analiza el mensaje recibido por Carla Mendoza"
-                    : "2da Parte: Marca las 3 señales y decide tu acción"
+                    ? "Analiza el mensaje recibido por Carla Mendoza"
+                    : "Marca las 3 pistas y decide tu accion"
             );
 
             GameObject emailPanel = new GameObject("EmailContentPanel");
@@ -305,7 +305,7 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_TabParte1", emailPanel.transform,
                 new Vector2(-230f, 215f), new Vector2(435f, 48f),
-                "1RA PARTE: LEER CORREO",
+                "1. LEER CORREO",
                 part1Bg, _emailSubPart == 0 ? CyanNeonAccent : Color.white,
                 () => OpenEmailInspection(0)
             );
@@ -313,7 +313,7 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_TabParte2", emailPanel.transform,
                 new Vector2(230f, 215f), new Vector2(435f, 48f),
-                "2DA PARTE: PISTAS Y DECIDIR",
+                "2. PISTAS Y ACCION",
                 part2Bg, _emailSubPart == 1 ? WarningAmberColor : Color.white,
                 () => OpenEmailInspection(1)
             );
@@ -325,14 +325,14 @@ namespace AndesSim.UI
                 CreateLabel("Txt_MailLines", bodyBox.transform, Vector2.zero, new Vector2(820f, 220f),
                     "<b>De:</b> rasel.ahlam@<color=#FFA940>career-applicants-bd.com</color>\n" +
                     "<b>Asunto:</b> <color=#FF5A4E>URGENTE · CV Especialista SWIFT</color>\n\n" +
-                    "<i>\"Carla: adjunto mi CV urgente para el área de pagos.\"</i>\n\n" +
-                    "<b>Adjunto:</b> <color=#00E5FF>http://185.130.44.82/CV_2015.scr.zip</color>",
+                    "<i>\"Carla: adjunto mi CV urgente para pagos.\"</i>\n\n" +
+                    "<b>Adjunto:</b> <color=#00E5FF>185.130.44.82/CV_2015.scr.zip</color>",
                     20f, TextAlignmentOptions.Center, AndesTypographyTheme.TextPrimary);
 
                 CreateInspectionButton(
                     "Btn_NextToPart2", emailPanel.transform,
                     new Vector2(-225f, -165f), new Vector2(420f, 68f),
-                    "VER 2DA PARTE: 3 PISTAS >",
+                    "VER PISTAS >",
                     new Color(0.10f, 0.34f, 0.44f, 0.98f),
                     CyanNeonAccent,
                     () => OpenEmailInspection(1)
@@ -341,7 +341,7 @@ namespace AndesSim.UI
                 CreateInspectionButton(
                     "Btn_QuickOpenLink", emailPanel.transform,
                     new Vector2(225f, -165f), new Vector2(420f, 68f),
-                    "ABRIR ENLACE (ATAQUE)",
+                    "ABRIR ENLACE",
                     new Color(0.48f, 0.12f, 0.14f, 0.98f),
                     Color.white,
                     TriggerAttackInfectionSequence
@@ -350,7 +350,7 @@ namespace AndesSim.UI
             else
             {
                 CreateLabel("Lbl_StepHint", emailPanel.transform, new Vector2(0f, 155f), new Vector2(880f, 38f),
-                    "Apunta a cada señal sospechosa y elige qué hacer con el correo:",
+                    "Marca las 3 pistas y elige una accion:",
                     19f, TextAlignmentOptions.Center, AndesTypographyTheme.TextPrimary);
 
                 CreateSignalButton("Btn_Signal1", emailPanel.transform, new Vector2(-300f, 70f), new Vector2(285f, 108f),
@@ -358,7 +358,7 @@ namespace AndesSim.UI
                     PhishingInspector.SignalRemitenteId);
 
                 CreateSignalButton("Btn_Signal2", emailPanel.transform, new Vector2(0f, 70f), new Vector2(285f, 108f),
-                    "<b>2. URGENCIA</b>\n<size=15><color=#FFA940>Presión inmediata</color></size>",
+                    "<b>2. URGENCIA</b>\n<size=15><color=#FFA940>Presion inmediata</color></size>",
                     PhishingInspector.SignalUrgenciaId);
 
                 CreateSignalButton("Btn_Signal3", emailPanel.transform, new Vector2(300f, 70f), new Vector2(285f, 108f),
@@ -368,7 +368,7 @@ namespace AndesSim.UI
                 CreateInspectionButton(
                     "Btn_AttackOpenLink", emailPanel.transform,
                     new Vector2(-225f, -55f), new Vector2(420f, 74f),
-                    "<color=#FF5A4E>[ ! ] ABRIR ENLACE (ATAQUE)</color>\n<size=14><color=#F4F9FF>Ver propagación 3D del virus</color></size>",
+                    "<color=#FF5A4E><b>ABRIR ENLACE (ATAQUE)</b></color>",
                     new Color(0.48f, 0.12f, 0.14f, 0.98f),
                     Color.white,
                     TriggerAttackInfectionSequence
@@ -377,7 +377,7 @@ namespace AndesSim.UI
                 CreateInspectionButton(
                     "Btn_DefenseReport", emailPanel.transform,
                     new Vector2(225f, -55f), new Vector2(420f, 74f),
-                    "<color=#38F28A>[ + ] AISLAR SANDBOX (DEFENSA)</color>\n<size=14><color=#F4F9FF>Bloquear y activar escudos</color></size>",
+                    "<color=#38F28A><b>AISLAR EN SANDBOX</b></color>",
                     new Color(0.08f, 0.34f, 0.20f, 0.98f),
                     Color.white,
                     () =>
@@ -397,7 +397,7 @@ namespace AndesSim.UI
                 CreateInspectionButton(
                     "Btn_NextStepPostIt", emailPanel.transform,
                     new Vector2(0f, -165f), new Vector2(520f, 58f),
-                    "SIGUIENTE PASO: VER POST-IT (PC 1) >",
+                    "VER POST-IT (PC 1) >",
                     new Color(0.13f, 0.25f, 0.40f, 0.96f),
                     CyanNeonAccent,
                     OpenCredentialsInspection
@@ -421,8 +421,8 @@ namespace AndesSim.UI
 
             SetHeaderTheme(
                 GreenSuccessColor,
-                "CORREO EN CUARENTENA · SANDBOX",
-                "Amenaza detenida antes de infectar la red bancaria"
+                "CORREO EN CUARENTENA",
+                "Amenaza aislada antes de entrar a la red"
             );
 
             GameObject qPanel = new GameObject("QuarantineContentPanel");
@@ -436,11 +436,10 @@ namespace AndesSim.UI
                 new Color(0.03f, 0.11f, 0.11f, 0.98f), GreenSuccessColor);
 
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("<b><color=#38F28A>REPORTE DE CONTENCIÓN EN TIEMPO REAL</color></b>\n");
-            sb.AppendLine("· <b>Sandbox Cuckoo:</b> Adjunto <i>.scr.zip</i> aislado sin ejecución.");
-            sb.AppendLine("· <b>Filtro Correo:</b> Dominio falso externo bloqueado.");
-            sb.AppendLine("· <b>Firewall SOC:</b> Salida hacia IP 185.130.44.82 cerrada.\n");
-            sb.AppendLine("<color=#38F28A><b>[OK] 100% CONTENIDO · US$ 0 ROBADOS</b></color>");
+            sb.AppendLine("<b><color=#38F28A>CONTENCION EN SANDBOX</color></b>\n");
+            sb.AppendLine("· <b>Sandbox:</b> Adjunto <i>.scr.zip</i> bloqueado sin ejecucion.");
+            sb.AppendLine("· <b>Firewall:</b> Salida hacia 185.130.44.82 cerrada.\n");
+            sb.AppendLine("<color=#38F28A><b>[OK] 16 BUZONES LIMPIOS · US$ 0 ROBADOS</b></color>");
 
             CreateLabel("Txt_QuarantineLog", boxGO.transform, Vector2.zero, new Vector2(820f, 260f),
                 sb.ToString(), 20f, TextAlignmentOptions.Center, Color.white);
@@ -448,7 +447,7 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_GoDefenseConsole", qPanel.transform,
                 new Vector2(-305f, -175f), new Vector2(280f, 62f),
-                "IR A CONSOLA DEFENSA >",
+                "CONSOLA DEFENSA >",
                 new Color(0.08f, 0.28f, 0.36f, 0.98f),
                 CyanNeonAccent,
                 NavigateToDefenseConsole
@@ -457,7 +456,7 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_ConfirmDefense", qPanel.transform,
                 new Vector2(0f, -175f), new Vector2(290f, 62f),
-                "FINALIZAR CON EXITO",
+                "FINALIZAR",
                 new Color(0.08f, 0.35f, 0.19f, 0.98f),
                 GreenSuccessColor,
                 () =>
@@ -520,8 +519,8 @@ namespace AndesSim.UI
 
             SetHeaderTheme(
                 DangerRedColor,
-                "[ ! ] MALWARE LAZARUS EN EJECUCION",
-                "Propagación en vivo por la red corporativa del banco"
+                "MALWARE EN EJECUCION",
+                "Propagacion en la red del banco"
             );
 
             GameObject infectPanel = new GameObject("InfectionContentPanel");
@@ -536,7 +535,7 @@ namespace AndesSim.UI
             Image tBg = terminalBox.GetComponent<Image>();
 
             CreateLabel("Txt_InfectionTrace", terminalBox.transform, new Vector2(0f, 24f), new Vector2(820f, 175f),
-                "<color=#FF5A4E><b>FASE 1/3 · DESCARGA EN CURSO</b></color>\n<size=17>Ejecutando Rasel_Ahlam_CV_2015.scr en PC-PAGOS-01...</size>",
+                "<color=#FF5A4E><b>1/3 · DESCARGA EN CURSO</b></color>\n<size=17>Ejecutando CV_2015.scr en PC 1...</size>",
                 22f, TextAlignmentOptions.Center, Color.white);
             TextMeshProUGUI traceTmp = terminalBox.transform.Find("Txt_InfectionTrace")?.GetComponent<TextMeshProUGUI>();
 
@@ -631,8 +630,8 @@ namespace AndesSim.UI
 
             SetHeaderTheme(
                 DangerRedColor,
-                "ROBO CONSUMADO · US$ 81M TRANSFERIDOS",
-                "Red plana sin segmentación ni MFA permitió el ataque"
+                "ROBO SWIFT · US$ 81M",
+                "Red plana sin MFA permitio el ataque"
             );
 
             GameObject robPanel = new GameObject("RobberyResultPanel");
@@ -646,10 +645,9 @@ namespace AndesSim.UI
                 new Color(0.11f, 0.02f, 0.03f, 0.98f), DangerRedColor);
 
             StringBuilder rsb = new StringBuilder();
-            rsb.AppendLine("<color=#FF3834><b>· ROBADO: US$ 81,000,000</b></color> (desviados a Filipinas)");
-            rsb.AppendLine("· <b>RETENIDO:</b> US$ 870,000,000 (bloqueados por error tipográfico)");
-            rsb.AppendLine("· <b>ENTRADA:</b> Phishing <i>.scr.zip</i> ejecutado en PC 1");
-            rsb.AppendLine("<color=#FFA940><b>· CAUSA RAÍZ:</b> Sin Sandbox, sin VLAN, sin MFA</color>");
+            rsb.AppendLine("<color=#FF3834><b>· Robado:</b></color> US$ 81M desviados a Filipinas");
+            rsb.AppendLine("· <b>Bloqueado:</b> US$ 870M frenados a tiempo");
+            rsb.AppendLine("<color=#FFA940><b>· Fallas:</b> Sin Sandbox · Sin VLAN · Sin MFA</color>");
 
             CreateLabel("Txt_RobberySummary", rBox.transform, Vector2.zero, new Vector2(820f, 250f),
                 rsb.ToString(), 20f, TextAlignmentOptions.Center, Color.white);
@@ -666,7 +664,7 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_FinalizeAttack", robPanel.transform,
                 new Vector2(0f, -175f), new Vector2(290f, 62f),
-                "FINALIZAR EVALUACION",
+                "FINALIZAR",
                 new Color(0.48f, 0.12f, 0.14f, 0.98f),
                 Color.white,
                 () =>
@@ -682,7 +680,7 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_CloseRobbery", robPanel.transform,
                 new Vector2(300f, -175f), new Vector2(250f, 62f),
-                "CERRAR VISTA",
+                "CERRAR",
                 new Color(0.18f, 0.25f, 0.36f, 0.98f),
                 Color.white,
                 CloseOverlay
@@ -700,8 +698,8 @@ namespace AndesSim.UI
 
             SetHeaderTheme(
                 WarningAmberColor,
-                "EVIDENCIA #2 · POST-IT CON CLAVES",
-                "Puesto 1 · Credenciales críticas expuestas a simple vista"
+                "EVIDENCIA 2 · POST-IT",
+                "Claves SWIFT expuestas a simple vista"
             );
 
             GameObject credPanel = new GameObject("CredentialsContentPanel");
@@ -715,25 +713,24 @@ namespace AndesSim.UI
                 new Color(0.98f, 0.88f, 0.35f, 0.98f), WarningAmberColor);
 
             CreateLabel("Txt_PostItTitle", postItBox.transform, new Vector2(0f, 96f), new Vector2(370f, 40f),
-                "<b>CLAVES PC-PAGOS-01</b>", 20f, TextAlignmentOptions.Center, new Color(0.10f, 0.10f, 0.10f));
+                "<b>SWIFT-01</b>", 20f, TextAlignmentOptions.Center, new Color(0.10f, 0.10f, 0.10f));
 
             CreateLabel("Txt_PostItBody", postItBox.transform, new Vector2(0f, -20f), new Vector2(370f, 190f),
                 "<b>Usuario:</b> c.mendoza\n" +
-                "<b>Clave:</b> <color=#990000>Swift2015$Admin!</color>\n" +
-                "<b>Token:</b> 849201\n" +
+                "<b>Clave:</b> <color=#990000>Andino15$!</color>\n" +
                 "<b>PIN:</b> 9481",
-                19.5f, TextAlignmentOptions.Center, new Color(0.12f, 0.12f, 0.12f));
+                20f, TextAlignmentOptions.Center, new Color(0.12f, 0.12f, 0.12f));
 
             GameObject diagBox = CreateStyledCard("ForensicDiagBox", credPanel.transform, new Vector2(225f, 30f), new Vector2(415f, 290f),
                 AndesTypographyTheme.BgCardGlass, WarningAmberColor);
 
             CreateLabel("Txt_DiagTitle", diagBox.transform, new Vector2(0f, 96f), new Vector2(370f, 40f),
-                "<b>FALLA ISO 27001</b>", 20f, TextAlignmentOptions.Center, WarningAmberColor);
+                "<b>SEGURIDAD FISICA</b>", 20f, TextAlignmentOptions.Center, WarningAmberColor);
 
             CreateLabel("Txt_DiagBody", diagBox.transform, new Vector2(0f, -20f), new Vector2(370f, 190f),
-                "· Clave escrita en papel visible.\n\n" +
-                "· Sin bloqueo físico ni gestor seguro, cualquiera accede al módulo SWIFT.",
-                18.5f, TextAlignmentOptions.Center, AndesTypographyTheme.TextPrimary);
+                "· Clave anotada en papel.\n\n" +
+                "· Cualquiera puede usar la terminal SWIFT.",
+                19f, TextAlignmentOptions.Center, AndesTypographyTheme.TextPrimary);
 
             Action saveEvidence = () =>
             {
@@ -744,7 +741,7 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_SaveAndNextSiem", credPanel.transform,
                 new Vector2(-215f, -175f), new Vector2(420f, 62f),
-                "GUARDAR Y VER SIEM (PC 3) >",
+                "GUARDAR Y VER SIEM >",
                 new Color(0.10f, 0.38f, 0.22f, 0.98f),
                 GreenSuccessColor,
                 () => { saveEvidence(); OpenSiemLogInspection(); }
@@ -753,7 +750,7 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_LogEvidencePostIt", credPanel.transform,
                 new Vector2(225f, -175f), new Vector2(390f, 62f),
-                "SOLO GUARDAR Y CERRAR",
+                "GUARDAR Y CERRAR",
                 new Color(0.14f, 0.24f, 0.36f, 0.98f),
                 Color.white,
                 () => { saveEvidence(); CloseOverlay(); }
@@ -772,7 +769,7 @@ namespace AndesSim.UI
             SetHeaderTheme(
                 CyanNeonAccent,
                 "PC 2 · TERMINAL SWIFT",
-                "Transferencias internacionales de alto valor sin aislamiento"
+                "Transferencias sin aislamiento de red"
             );
 
             GameObject swiftPanel = new GameObject("SwiftContentPanel");
@@ -786,16 +783,16 @@ namespace AndesSim.UI
                 AndesTypographyTheme.BgCardGlass, CyanNeonAccent);
 
             CreateLabel("Txt_SwiftTable", tableBox.transform, Vector2.zero, new Vector2(820f, 250f),
-                "<b><color=#00E5FF>OPERACIÓN SWIFT MT103</color></b>\n\n" +
-                "· <b>Destino sospechoso:</b> RCBC Filipinas\n" +
-                "· <b>Monto en riesgo:</b> <color=#FF5A4E><b>US$ 951,000,000</b></color>\n" +
-                "· <b>Vulnerabilidad:</b> <color=#FFA940>Red plana sin VLAN ni autenticación MFA</color>",
+                "<b><color=#00E5FF>OPERACIONES SWIFT</color></b>\n\n" +
+                "· <b>Destino anomalo:</b> RCBC Filipinas\n" +
+                "· <b>Monto en riesgo:</b> <color=#FF5A4E><b>US$ 951M</b></color>\n" +
+                "· <b>Falla:</b> <color=#FFA940>Red plana sin VLAN ni MFA</color>",
                 20f, TextAlignmentOptions.Center, Color.white);
 
             CreateInspectionButton(
                 "Btn_SwiftToMail", swiftPanel.transform,
                 new Vector2(-220f, -175f), new Vector2(410f, 62f),
-                "< VOLVER A CORREO (PC 1)",
+                "< VER CORREO",
                 new Color(0.14f, 0.24f, 0.36f, 0.98f),
                 Color.white,
                 () => OpenEmailInspection(0)
@@ -804,7 +801,7 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_SwiftToSiem", swiftPanel.transform,
                 new Vector2(220f, -175f), new Vector2(410f, 62f),
-                "SIGUIENTE: VER SIEM (PC 3) >",
+                "VER SIEM >",
                 new Color(0.10f, 0.34f, 0.26f, 0.98f),
                 GreenSuccessColor,
                 OpenSiemLogInspection
@@ -822,7 +819,7 @@ namespace AndesSim.UI
 
             SetHeaderTheme(
                 GreenSuccessColor,
-                "PC 3 · EVIDENCIA #3: CONSOLA SIEM",
+                "EVIDENCIA 3 · CONSOLA SIEM",
                 "Alertas de red saliente hacia la IP atacante"
             );
 
@@ -837,10 +834,10 @@ namespace AndesSim.UI
                 AndesTypographyTheme.BgCardGlass, GreenSuccessColor);
 
             CreateLabel("Txt_SiemLogs", logBox.transform, Vector2.zero, new Vector2(820f, 250f),
-                "<b><color=#38F28A>REGISTROS FORENSES SIEM (29 ENE 2015)</color></b>\n\n" +
-                "· <b>09:18 C2 Saliente:</b> <color=#FF5A4E>192.168.1.101 -> 185.130.44.82:443</color>\n" +
-                "· <b>Proceso oculto:</b> svchost_upd.exe (Grupo Lazarus)\n" +
-                "· <b>Causa raíz:</b> Descarga .scr ejecutada sin Sandbox",
+                "<b><color=#38F28A>LOG SIEM · 29 ENE 2015</color></b>\n\n" +
+                "· <b>09:18 C2:</b> <color=#FF5A4E>192.168.1.101 -> 185.130.44.82</color>\n" +
+                "· <b>Proceso:</b> svchost_upd.exe (Lazarus)\n" +
+                "· <b>Origen:</b> Adjunto .scr sin Sandbox",
                 20f, TextAlignmentOptions.Center, Color.white);
 
             Action saveSiem = () =>
@@ -852,7 +849,7 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_LogSiemAndBoard", siemPanel.transform,
                 new Vector2(-220f, -175f), new Vector2(430f, 62f),
-                "GUARDAR LOG E IR AL TABLERO >",
+                "GUARDAR E IR AL TABLERO >",
                 new Color(0.10f, 0.38f, 0.22f, 0.98f),
                 GreenSuccessColor,
                 () => { saveSiem(); NavigateToSuspectBoardOrDefense(); }
@@ -861,7 +858,7 @@ namespace AndesSim.UI
             CreateInspectionButton(
                 "Btn_LogEvidenceSiem", siemPanel.transform,
                 new Vector2(230f, -175f), new Vector2(370f, 62f),
-                "SOLO GUARDAR Y CERRAR",
+                "GUARDAR Y CERRAR",
                 new Color(0.14f, 0.24f, 0.36f, 0.98f),
                 Color.white,
                 () => { saveSiem(); CloseOverlay(); }
@@ -913,15 +910,15 @@ namespace AndesSim.UI
 
             SetHeaderTheme(
                 CyanNeonAccent,
-                $"SOSPECHOSO #{safeIndex + 1} DE {total} · {name.ToUpper()}",
-                $"{role}  ·  <color=#FFA940>[{badge}]</color>"
+                $"SOSPECHOSO {safeIndex + 1}/{total} · {name.ToUpper()}",
+                $"{role}  ·  <color=#FFA940>{badge}</color>"
             );
 
             GameObject leftBox = CreateStyledCard("LeftBox", dossierPanel.transform, new Vector2(-225f, 35f), new Vector2(430f, 290f),
                 new Color(0.14f, 0.05f, 0.06f, 0.96f), DangerRedColor);
 
             CreateLabel("Txt_LeftTitle", leftBox.transform, new Vector2(0f, 112f), new Vector2(390f, 36f),
-                "<b><color=#FF5A4E>INDICIOS EN CONTRA</color></b>",
+                "<b><color=#FF5A4E>EN CONTRA</color></b>",
                 18.5f, TextAlignmentOptions.Center, DangerRedColor);
 
             CreateLabel("Txt_LeftContent", leftBox.transform, new Vector2(0f, -15f), new Vector2(380f, 210f),
@@ -931,7 +928,7 @@ namespace AndesSim.UI
                 new Color(0.05f, 0.14f, 0.09f, 0.96f), GreenSuccessColor);
 
             CreateLabel("Txt_RightTitle", rightBox.transform, new Vector2(0f, 112f), new Vector2(390f, 36f),
-                "<b><color=#38F28A>DESCARGOS A FAVOR</color></b>",
+                "<b><color=#38F28A>A FAVOR</color></b>",
                 18.5f, TextAlignmentOptions.Center, GreenSuccessColor);
 
             CreateLabel("Txt_RightContent", rightBox.transform, new Vector2(0f, -15f), new Vector2(380f, 210f),

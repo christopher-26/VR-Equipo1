@@ -98,7 +98,7 @@ namespace AndesSim.VR
             var labelField = typeof(GazeInteractable).GetField("interactableLabel", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             if (labelField != null)
             {
-                labelField.SetValue(_gazeInteractable, $"Teletransportarse a {pointName}");
+                labelField.SetValue(_gazeInteractable, $"Ir a {pointName}");
             }
 
             // Suscribir eventos

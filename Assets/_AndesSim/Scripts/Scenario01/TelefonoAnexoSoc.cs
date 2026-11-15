@@ -105,14 +105,14 @@ namespace AndesSim.Scenario01
             {
                 _gazeInteractable = gameObject.AddComponent<GazeInteractable>();
             }
-            _gazeInteractable.interactableLabel = "Llamar al Anexo SOC (Ext. 4040) · Reportar Amenaza";
+            _gazeInteractable.interactableLabel = "Telefono SOC (4040)";
 
             if (dialogCanvasPanel != null)
             {
                 dialogCanvasPanel.SetActive(false);
             }
 
-            SetLedState(IdleBlueColor, "ANEXO 2401 · LISTO");
+            SetLedState(IdleBlueColor, "SOC · LISTO");
         }
 
         #region Eventos de Retícula VR (Gaze & Touch)
@@ -158,7 +158,7 @@ namespace AndesSim.Scenario01
             Debug.Log($"{LogPrefix} <color=#4EC9B0><b>Iniciando llamada al Anexo 4040 (SOC Seguridad TI)...</b></color>");
 
             // 1. Descolgar y marcar DTMF
-            SetLedState(CallingAmberColor, "MARCANDO: 4040 [SOC]");
+            SetLedState(CallingAmberColor, "MARCANDO 4040");
             PlaySound(phonePickUpClip, GenerateDtmfTone(4));
 
             if (dialogCanvasPanel != null)
@@ -168,60 +168,56 @@ namespace AndesSim.Scenario01
 
             if (dialogHeaderTitleText != null)
             {
-                dialogHeaderTitleText.text = "<b><color=#FFA633>[SOC] MARCANDO AL ANEXO 4040 · SEGURIDAD TI</color></b>";
+                dialogHeaderTitleText.text = "<b><color=#FFA633>LLAMANDO AL SOC (4040)</color></b>";
             }
 
             if (speakerNameText != null)
             {
-                speakerNameText.text = "Conectando con la Central de Incidentes...";
+                speakerNameText.text = "Conectando...";
             }
 
             if (subtitleContentText != null)
             {
-                subtitleContentText.text = "<i>[Tonos de marcado DTMF: 4 · 0 · 4 · 0 ... Estableciendo canal seguro VoIP]</i>";
+                subtitleContentText.text = "<i>Estableciendo canal con Seguridad TI...</i>";
             }
 
             yield return new WaitForSeconds(dialDuration);
 
             // 2. Línea 1: Carla Mendoza habla
-            SetLedState(CallingAmberColor, "EN LLAMADA: 2401 -> 4040");
+            SetLedState(CallingAmberColor, "EN LLAMADA · SOC");
             PlaySound(null, GenerateRadioChirpTone());
 
             if (dialogHeaderTitleText != null)
             {
-                dialogHeaderTitleText.text = "<b><color=#4EC9B0>[SOC] CANAL DE EMERGENCIA TI ACTIVO · ANEXO 4040</color></b>";
+                dialogHeaderTitleText.text = "<b><color=#4EC9B0>ANEXO SOC 4040 ACTIVO</color></b>";
             }
 
             if (speakerNameText != null)
             {
-                speakerNameText.text = "<b><color=#4EC9B0>Carla Mendoza (Ext. 2401 · Operaciones SWIFT):</color></b>";
+                speakerNameText.text = "<b><color=#4EC9B0>Carla Mendoza · SWIFT</color></b>";
             }
 
             if (subtitleContentText != null)
             {
                 subtitleContentText.text =
-                    "\"¡Aló, Seguridad TI! Les habla Carla Mendoza de Operaciones de Pagos.\n" +
-                    "Acabo de recibir un correo sospechoso de <b>'Rasel Ahlam'</b> con un currículum adjunto en archivo ZIP urgente. " +
-                    "No lo he ejecutado, pero tiene señales claras de suplantación y phishing.\"";
+                    "\"Seguridad TI, recibi un correo sospechoso de Rasel Ahlam con un .zip urgente. No lo abri.\"";
             }
 
             yield return new WaitForSeconds(carlaDialogueDuration);
 
             // 3. Línea 2: Operador del SOC responde
-            SetLedState(ConnectedGreenColor, "SOC: CONTENCIÓN ACTIVA");
+            SetLedState(ConnectedGreenColor, "CONTENCION ACTIVA");
             PlaySound(radioSquelchClip, GenerateRadioTransmissionTone());
 
             if (speakerNameText != null)
             {
-                speakerNameText.text = "<b><color=#38F28A>Javier Morales · Analista Senior SOC (Ext. 4040):</color></b>";
+                speakerNameText.text = "<b><color=#38F28A>Analista SOC · Anexo 4040</color></b>";
             }
 
             if (subtitleContentText != null)
             {
                 subtitleContentText.text =
-                    "\"¡Excelente reporte, Carla! Nuestro Sandbox acaba de interceptar el archivo <b>'Rasel_Ahlam_CV_2015.scr.zip'</b>: " +
-                    "contiene un backdoor del grupo hostil Lazarus. ¡No toques ningún enlace!\n" +
-                    "Estamos aplicando la regla de bloqueo perimetral y purgando los 16 buzones del banco ahora mismo.\"";
+                    "\"Buen reporte. Bloqueamos el remitente y purgamos los 16 buzones del banco.\"";
             }
 
             // Aplicar contramedida oficial en GameManager
@@ -245,27 +241,25 @@ namespace AndesSim.Scenario01
 
             if (dialogHeaderTitleText != null)
             {
-                dialogHeaderTitleText.text = "<b><color=#38F28A>[OK] REPORTE TELEFONICO COMPLETADO - AMENAZA AISLADA</color></b>";
+                dialogHeaderTitleText.text = "<b><color=#38F28A>[OK] AMENAZA REPORTADA</color></b>";
             }
 
             if (speakerNameText != null)
             {
-                speakerNameText.text = "<b><color=#38F28A>ESTADO: PROTOCOLO DE DEFENSA SOC EJECUTADO</color></b>";
+                speakerNameText.text = "<b><color=#38F28A>SOC DE SEGURIDAD</color></b>";
             }
 
             if (subtitleContentText != null)
             {
                 subtitleContentText.text =
-                    "<color=#38F28A>• Remitente hostil 'career-applicants-bd.com' bloqueado en el firewall.\n" +
-                    "• 16 buzones corporativos desinfectados preventivamente.\n" +
-                    "• 0 equipos infectados en la red de pagos del Banco Andino.</color>";
+                    "<color=#38F28A>• Dominio bloqueado · 16 buzones purgados · 0 PC infectadas.</color>";
             }
 
-            SetLedState(ConnectedGreenColor, "ANEXO 4040 · REPORTE EXITOSO");
+            SetLedState(ConnectedGreenColor, "REPORTE EXITOSO");
 
             if (_gazeInteractable != null)
             {
-                _gazeInteractable.interactableLabel = "Anexo SOC (Ext. 4040) · [Reporte Confirmado]";
+                _gazeInteractable.interactableLabel = "Telefono SOC [Listo]";
             }
 
             Debug.Log($"{LogPrefix} <color=#38F28A><b>¡Reporte por anexo telefónico finalizado exitosamente!</b></color>");

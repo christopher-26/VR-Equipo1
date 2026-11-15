@@ -127,8 +127,8 @@ namespace AndesSim.UI
             if (acceptanceCriterionBadgeText != null)
             {
                 acceptanceCriterionBadgeText.text = criterionMet
-                    ? $"[OK] CRITERIO DE ACEPTACION: SUPERADO EN {timeStr} (< 3 MIN) [OK]"
-                    : $"TIEMPO EXCEDIDO: {timeStr} (> 3 MINUTOS REQUERIDOS)";
+                    ? $"META CUMPLIDA · {timeStr}"
+                    : $"TIEMPO: {timeStr} (META 03:00)";
             }
 
             if (acceptanceCriterionBadgeBackground != null)
@@ -138,25 +138,25 @@ namespace AndesSim.UI
 
             if (timeDetailText != null)
             {
-                timeDetailText.text = $"Tiempo exacto de detección: <b>{timeStr}</b> / Límite: <b>03:00</b>";
+                timeDetailText.text = $"Deteccion: <b>{timeStr}</b> / 03:00";
             }
 
             // 2. Resumen de Evidencias
             int evidenceCount = (GameManager.I != null && GameManager.I.DiscoveredEvidences != null) ? GameManager.I.DiscoveredEvidences.Count : 0;
             if (evidencesSummaryText != null)
             {
-                evidencesSummaryText.text = $"Evidencias identificadas: <b>{evidenceCount} / 3</b>\n" +
-                                            $"• Correo con enlace .scr.zip: {(HasEvidence("Evidencia_Correo") ? "<color=#38F28A>OK</color>" : "<color=#888>No</color>")}\n" +
-                                            $"• Credenciales en Post-It: {(HasEvidence("Evidencia_PostIt") ? "<color=#38F28A>OK</color>" : "<color=#888>No</color>")}\n" +
-                                            $"• Registros de Eventos SIEM: {(HasEvidence("Evidencia_LogAccesos") ? "<color=#38F28A>OK</color>" : "<color=#888>No</color>")}";
+                evidencesSummaryText.text = $"Evidencias: <b>{evidenceCount}/3</b>\n" +
+                                            $"• Correo .scr.zip: {(HasEvidence("Evidencia_Correo") ? "<color=#38F28A>OK</color>" : "<color=#888>No</color>")}\n" +
+                                            $"• Post-It Claves: {(HasEvidence("Evidencia_PostIt") ? "<color=#38F28A>OK</color>" : "<color=#888>No</color>")}\n" +
+                                            $"• Log SIEM: {(HasEvidence("Evidencia_LogAccesos") ? "<color=#38F28A>OK</color>" : "<color=#888>No</color>")}";
             }
 
             // 3. Desenlace Técnico por Modo
             if (outcomeTitleText != null)
             {
                 outcomeTitleText.text = (mode == SimMode.Ataque)
-                    ? "DESENLACE: MODO ATAQUE (HISTÓRICO 2015)"
-                    : "DESENLACE: MODO DEFENSA (CONTENCIÓN EXITOSA)";
+                    ? "RESULTADO: MODO ATAQUE"
+                    : "RESULTADO: MODO DEFENSA";
             }
 
             if (outcomeTechnicalSummaryText != null)
@@ -164,16 +164,16 @@ namespace AndesSim.UI
                 if (mode == SimMode.Ataque)
                 {
                     outcomeTechnicalSummaryText.text =
-                        "• <b>3 equipos infectados</b> en la red de pagos (PC-PAGOS-01, PC-PAGOS-02, PC-PAGOS-09).\n" +
-                        "• <b>Puerta trasera activa:</b> Dropper ejecutó `svchost_upd.exe` con conexión C2 hacia `185.130.44.82:443`.\n" +
-                        "• <b>Fuga de credenciales:</b> Contraseña en texto claro de Carla Mendoza expuesta físicamente.";
+                        "• <b>3 PCs infectadas</b> tras abrir el adjunto falso.\n" +
+                        "• <b>Backdoor C2:</b> Conexion activa a 185.130.44.82.\n" +
+                        "• <b>Fuga de claves:</b> Credenciales expuestas en Post-It.";
                 }
                 else
                 {
                     outcomeTechnicalSummaryText.text =
-                        "• <b>0 equipos infectados:</b> Correo neutralizado antes de que los operadores detonaran el adjunto.\n" +
-                        "• <b>Protección perimetral:</b> Sandbox detectó el dropper .scr.zip y bloqueó la IP hostil en firewall.\n" +
-                        "• <b>MFA activo:</b> Autenticación multifactor impidió el uso de credenciales robadas.";
+                        "• <b>0 PCs infectadas:</b> Correo bloqueado antes de abrirse.\n" +
+                        "• <b>Sandbox:</b> Dropper .scr aislado en pasarela.\n" +
+                        "• <b>MFA activo:</b> Claves robadas quedaron inutilizadas.";
                 }
             }
 
@@ -189,16 +189,16 @@ namespace AndesSim.UI
             if (suspectHypothesisText != null)
             {
                 suspectHypothesisText.text = string.IsNullOrEmpty(suspectId)
-                    ? "Hipótesis de cómplice interno: <i>No seleccionada</i>"
-                    : $"Hipótesis del equipo: <b><color=#9CDCFE>{suspectId}</color></b>";
+                    ? "Responsable elegido: <i>Sin elegir</i>"
+                    : $"Responsable elegido: <b><color=#9CDCFE>{suspectId}</color></b>";
             }
 
             // 5. Botón de cambio de modo
             if (switchModeButtonText != null)
             {
                 switchModeButtonText.text = (mode == SimMode.Ataque)
-                    ? "PROBAR MODO DEFENSA (APLICAR CONTRAMEDIDAS)"
-                    : "PROBAR MODO ATAQUE (EXPERIMENTAR VULNERABILIDAD)";
+                    ? "PROBAR MODO DEFENSA"
+                    : "PROBAR MODO ATAQUE";
             }
 
             // Reproducir sonido de fin

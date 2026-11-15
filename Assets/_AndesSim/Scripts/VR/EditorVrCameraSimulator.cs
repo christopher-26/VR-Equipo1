@@ -68,6 +68,7 @@ namespace AndesSim.VR
 #if UNITY_EDITOR
             HandleEditorCameraRotation();
             HandleEditorModeSwitchShortcut();
+            HandleEditorZoomShortcut();
 #elif UNITY_ANDROID && !UNITY_EDITOR
             HandleAndroidGyroFallback();
 #endif

@@ -266,17 +266,16 @@ namespace AndesSim.UI
             if (technicalSummaryBodyText != null)
             {
                 technicalSummaryBodyText.text =
-                    "<b>LO QUE OCURRIO:</b>\n" +
-                    "• <b>Paso 1:</b> Se abrio el archivo falso de <i>Rasel Ahlam</i> en PC 1.\n" +
-                    "• <b>Paso 2:</b> Sin Sandbox ni clave segura (Post-It), el virus salto a 3 PCs.\n" +
-                    "• <b>Paso 3:</b> Puerta trasera lista para robo SWIFT de <b>US$ 951M</b>.";
+                    "• <b>PC 1:</b> Se abrio el adjunto falso de <i>Rasel Ahlam</i>.\n" +
+                    "• <b>Red plana:</b> El malware salto a los 3 puestos.\n" +
+                    "• <b>SWIFT:</b> Clave expuesta permitio desvio de <b>US$ 81M</b>.";
                 technicalSummaryBodyText.color = ColorLightText;
             }
 
             // Métricas
             if (infectedHostsMetricText != null)
             {
-                infectedHostsMetricText.text = "<b>PC INFECTADAS</b>\n<size=24><color=#FF5A4E><b>3 / 3 (100%)</b></color></size>";
+                infectedHostsMetricText.text = "<b>PC INFECTADAS</b>\n<size=24><color=#FF5A4E><b>3 / 3</b></color></size>";
             }
 
             if (stolenMoneyMetricText != null)
@@ -286,14 +285,14 @@ namespace AndesSim.UI
 
             if (swiftStatusMetricText != null)
             {
-                swiftStatusMetricText.text = "<b>ACCESO C2</b>\n<size=20><color=#FF5A4E><b>185.130.44.82</b></color></size>";
+                swiftStatusMetricText.text = "<b>IP ATACANTE</b>\n<size=20><color=#FF5A4E><b>185.130.44.82</b></color></size>";
             }
 
             // Criterio de tiempo
             if (acceptanceCriterionBadgeText != null)
             {
-                string eval = timeCriterionMet ? "<color=#38F28A>[A TIEMPO]</color>" : "<color=#FF5A4E>[LENTO]</color>";
-                acceptanceCriterionBadgeText.text = $"TIEMPO: <b>{elapsed:F0}s / 180s</b>  {eval}";
+                string eval = timeCriterionMet ? "<color=#38F28A>A TIEMPO</color>" : "<color=#FF5A4E>LENTO</color>";
+                acceptanceCriterionBadgeText.text = $"TIEMPO: <b>{elapsed:F0}s / 180s</b> · {eval}";
             }
 
             // Contenedores de botones
@@ -326,34 +325,33 @@ namespace AndesSim.UI
             if (technicalSummaryBodyText != null)
             {
                 technicalSummaryBodyText.text =
-                    "<b>CONTENCION SOC APLICADA:</b>\n" +
-                    "• <b>Correo:</b> Aislado en cuarentena y reportado antes de abrirse.\n" +
-                    "• <b>Red:</b> Sandbox activo bloqueo el avance entre computadoras.\n" +
-                    "• <b>Clave:</b> Token MFA protegio la cuenta SWIFT de Carla.";
+                    "• <b>Correo:</b> Reportado y bloqueado antes de abrirse.\n" +
+                    "• <b>Sandbox:</b> Detuvo el archivo .scr.zip en la red.\n" +
+                    "• <b>MFA:</b> Token fisico protegio los accesos SWIFT.";
                 technicalSummaryBodyText.color = ColorLightText;
             }
 
             // Métricas
             if (infectedHostsMetricText != null)
             {
-                infectedHostsMetricText.text = "<b>PC INFECTADAS</b>\n<size=24><color=#38F28A><b>0 / 3 (0%)</b></color></size>";
+                infectedHostsMetricText.text = "<b>PC INFECTADAS</b>\n<size=24><color=#38F28A><b>0 / 3</b></color></size>";
             }
 
             if (stolenMoneyMetricText != null)
             {
-                stolenMoneyMetricText.text = "<b>DINERO ROBADO</b>\n<size=24><color=#38F28A><b>US$ 0</b></color></size>";
+                stolenMoneyMetricText.text = "<b>PERDIDA SWIFT</b>\n<size=24><color=#38F28A><b>US$ 0</b></color></size>";
             }
 
             if (swiftStatusMetricText != null)
             {
-                swiftStatusMetricText.text = "<b>RED SWIFT</b>\n<size=22><color=#38F28A><b>100% SEGURA</b></color></size>";
+                swiftStatusMetricText.text = "<b>RED SWIFT</b>\n<size=22><color=#38F28A><b>SEGURA</b></color></size>";
             }
 
             // Criterio de tiempo
             if (acceptanceCriterionBadgeText != null)
             {
-                string eval = timeCriterionMet ? "<color=#38F28A>[CRITERIO CUMPLIDO]</color>" : "<color=#FF5A4E>[TIEMPO EXCEDIDO]</color>";
-                acceptanceCriterionBadgeText.text = $"TIEMPO: <b>{elapsed:F0}s / 180s</b>  {eval}";
+                string eval = timeCriterionMet ? "<color=#38F28A>CUMPLIDO</color>" : "<color=#FF5A4E>EXCEDIDO</color>";
+                acceptanceCriterionBadgeText.text = $"TIEMPO: <b>{elapsed:F0}s / 180s</b> · {eval}";
             }
 
             // Contenedores de botones
@@ -654,20 +652,20 @@ namespace AndesSim.UI
 
             GameObject tryDefBtnObj = CreateEndGazeButton("Btn_ProbarDefensa", attackActionContainer.transform,
                 new Vector2(0f, 22f), new Vector2(620f, 60f),
-                "<b>[ > PROBAR MODO DEFENSA AHORA ]</b>",
+                "<b>PROBAR MODO DEFENSA</b>",
                 new Color(0.08f, 0.42f, 0.24f, 0.98f), ColorCodeGreen, 21f, Color.white);
             tryDefenseModeButton = tryDefBtnObj.GetComponent<Button>();
             tryDefenseButtonText = tryDefBtnObj.GetComponentInChildren<TextMeshProUGUI>();
 
             GameObject atkSuspectsObj = CreateEndGazeButton("Btn_Ataque_Sospechosos", attackActionContainer.transform,
                 new Vector2(-215f, -44f), new Vector2(360f, 46f),
-                "<b>[ VER SOSPECHOSOS ]</b>",
+                "<b>VER SOSPECHOSOS</b>",
                 new Color(0.10f, 0.18f, 0.26f, 0.95f), ColorLightText, 17f, ColorLightText);
             atkSuspectsObj.GetComponent<Button>().onClick.AddListener(OnViewSuspectsClicked);
 
             GameObject atkMenuObj = CreateEndGazeButton("Btn_Ataque_Menu", attackActionContainer.transform,
                 new Vector2(215f, -44f), new Vector2(360f, 46f),
-                "<b>[ < MENU INICIAL ]</b>",
+                "<b>MENU INICIAL</b>",
                 new Color(0.16f, 0.12f, 0.16f, 0.95f), ColorLightText, 17f, ColorLightText);
             atkMenuObj.GetComponent<Button>().onClick.AddListener(OnRestartSimulationClicked);
 
@@ -680,19 +678,19 @@ namespace AndesSim.UI
 
             GameObject viewSuspObj = CreateEndGazeButton("Btn_Def_Sospechosos", defenseActionContainer.transform,
                 new Vector2(-305f, -5f), new Vector2(285f, 64f),
-                "<b>[ VER\nSOSPECHOSOS ]</b>",
+                "<b>VER\nSOSPECHOSOS</b>",
                 new Color(0.08f, 0.34f, 0.22f, 0.96f), ColorCodeGreen, 18f, Color.white);
             viewSuspectsButton = viewSuspObj.GetComponent<Button>();
 
             GameObject viewCredObj = CreateEndGazeButton("Btn_Def_Creditos", defenseActionContainer.transform,
                 new Vector2(0f, -5f), new Vector2(285f, 64f),
-                "<b>[ CREDITOS\nY ETICA ]</b>",
+                "<b>CREDITOS\nY ETICA</b>",
                 new Color(0.10f, 0.22f, 0.34f, 0.96f), ColorLightText, 18f, Color.white);
             viewCreditsButton = viewCredObj.GetComponent<Button>();
 
             GameObject restartObj = CreateEndGazeButton("Btn_Def_Menu", defenseActionContainer.transform,
                 new Vector2(305f, -5f), new Vector2(285f, 64f),
-                "<b>[ < VOLVER AL\nMENU INICIAL ]</b>",
+                "<b>MENU\nINICIAL</b>",
                 new Color(0.16f, 0.24f, 0.18f, 0.96f), ColorLightText, 18f, Color.white);
             restartSimulationButton = restartObj.GetComponent<Button>();
 

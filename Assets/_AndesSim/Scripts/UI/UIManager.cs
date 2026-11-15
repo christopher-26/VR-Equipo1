@@ -254,10 +254,10 @@ namespace AndesSim.UI
             RefreshAllHudDisplays();
 
             bool isDefensa = newMode == SimMode.Defensa;
-            string title = isDefensa ? "MODO DEFENSA ACTIVADO" : "MODO ATAQUE 2016 ACTIVADO";
+            string title = isDefensa ? "MODO DEFENSA" : "MODO ATAQUE";
             string msg = isDefensa
-                ? "Estrategia de seguridad en profundidad: Sandbox, botón de reporte y MFA."
-                : "Recreando el ataque de 2015: Infección lateral y robo de credenciales en red plana.";
+                ? "Sandbox, reporte SOC y MFA."
+                : "Ataque Lazarus en red plana.";
             Color color = isDefensa ? ColorCodeGreen : ColorAlertRed;
 
             ShowNotification(title, msg, NotificationType.ModeChanged, color);
@@ -269,8 +269,8 @@ namespace AndesSim.UI
 
             int count = GameManager.I != null ? GameManager.I.DiscoveredPhishingSignals.Count : 1;
             string name = GetSignalHumanName(signalId);
-            string title = $"SEÑAL DE PHISHING DETECTADA [{count}/3]";
-            string msg = $"Identificador: {name}\nAnaliza el correo para ubicar las 3 señales antes de 3 minutos.";
+            string title = $"PISTA {count}/3";
+            string msg = name;
 
             ShowNotification(title, msg, NotificationType.PhishingSignal, ColorWarningAmber);
         }
@@ -281,8 +281,8 @@ namespace AndesSim.UI
 
             int count = GameManager.I != null ? GameManager.I.DiscoveredEvidences.Count : 1;
             string name = GetEvidenceHumanName(evidenceId);
-            string title = $"EVIDENCIA REGISTRADA [{count}/3]";
-            string msg = $"Elemento: {name}\nIncorporado al informe forense oficial del Banco Andino.";
+            string title = $"EVIDENCIA {count}/3";
+            string msg = name;
 
             ShowNotification(title, msg, NotificationType.EvidenceFound, ColorCodeGreen);
         }
@@ -293,8 +293,8 @@ namespace AndesSim.UI
 
             int count = GameManager.I != null ? GameManager.I.AppliedDefenses.Count : 1;
             string name = GetDefenseHumanName(defenseId);
-            string title = $"CONTRAMEDIDA ACTIVADA [{count}/3]";
-            string msg = $"Defensa: {name}\nMitigando el vector de ataque en tiempo real.";
+            string title = $"DEFENSA {count}/3";
+            string msg = name;
 
             ShowNotification(title, msg, NotificationType.DefenseActivated, ColorCodeGreen);
         }
@@ -716,17 +716,17 @@ namespace AndesSim.UI
 
         private static string GetEvidenceHumanName(string evidenceId)
         {
-            if (evidenceId.Equals("Evidencia_Correo", StringComparison.OrdinalIgnoreCase)) return "Correo Malicioso de Phishing (Puesto 1)";
-            if (evidenceId.Equals("Evidencia_PostIt", StringComparison.OrdinalIgnoreCase)) return "Credenciales SWIFT Expuestas (Carla Mendoza)";
-            if (evidenceId.Equals("Evidencia_LogAccesos", StringComparison.OrdinalIgnoreCase)) return "Eventos de Conexión y Dropper (Puesto 3 - SIEM)";
+            if (evidenceId.Equals("Evidencia_Correo", StringComparison.OrdinalIgnoreCase)) return "Correo Phishing (PC 1)";
+            if (evidenceId.Equals("Evidencia_PostIt", StringComparison.OrdinalIgnoreCase)) return "Claves en Post-It";
+            if (evidenceId.Equals("Evidencia_LogAccesos", StringComparison.OrdinalIgnoreCase)) return "Log SIEM (PC 3)";
             return evidenceId;
         }
 
         private static string GetDefenseHumanName(string defenseId)
         {
-            if (defenseId.Equals("Defensa_Sandbox", StringComparison.OrdinalIgnoreCase)) return "Análisis en Sandbox Cuckoo / FireEye";
-            if (defenseId.Equals("Defensa_BotonReportar", StringComparison.OrdinalIgnoreCase)) return "Capacitación y Botón de Reporte al SOC";
-            if (defenseId.Equals("Defensa_MFA", StringComparison.OrdinalIgnoreCase)) return "Doble Factor (MFA) y Bóveda Criptográfica";
+            if (defenseId.Equals("Defensa_Sandbox", StringComparison.OrdinalIgnoreCase)) return "Sandbox de Correo";
+            if (defenseId.Equals("Defensa_BotonReportar", StringComparison.OrdinalIgnoreCase)) return "Boton Reportar SOC";
+            if (defenseId.Equals("Defensa_MFA", StringComparison.OrdinalIgnoreCase)) return "Token MFA";
             return defenseId;
         }
 

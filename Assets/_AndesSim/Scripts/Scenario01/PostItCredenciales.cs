@@ -65,11 +65,9 @@ namespace AndesSim.Scenario01
         {
             // Inicializar metadatos de EvidenceItem
             evidenceId = "Evidencia_PostIt";
-            evidenceTitle = "Credenciales Expuestas en Post-It (Carla Mendoza)";
+            evidenceTitle = "Claves en Post-It";
             forensicDescription =
-                "Mala práctica grave de seguridad física: Contraseña de operador SWIFT ('cmendoza_op' / 'Andino2015*Swift') " +
-                "escrita en papel adhesivo junto al monitor. Esta negligencia permitió a los ciberdelincuentes apropiarse " +
-                "de credenciales legítimas de autorización tras la infección inicial por el dropper, posibilitando transferencias fraudulentas.";
+                "Usuario y clave SWIFT escritos en papel junto al monitor.";
 
             base.Awake();
 
@@ -170,8 +168,8 @@ namespace AndesSim.Scenario01
             if (_gazeInteractable != null)
             {
                 _gazeInteractable.interactableLabel = _isMfaActive
-                    ? "Examinar Token MFA Hardware (OTP Dinámico)"
-                    : "Examinar Post-It con Contraseñas Expuestas";
+                    ? "Token MFA"
+                    : "Post-It: Claves";
             }
         }
 
@@ -192,7 +190,7 @@ namespace AndesSim.Scenario01
 
             if (mfaStatusLabel != null)
             {
-                mfaStatusLabel.text = $"OTP EXPIRA EN: {Mathf.CeilToInt(remaining):00}s";
+                mfaStatusLabel.text = $"OTP: {Mathf.CeilToInt(remaining):00}s";
             }
 
             // Al completar los 30 segundos, generar nuevo código
@@ -258,16 +256,13 @@ namespace AndesSim.Scenario01
 
             if (popupTitleText != null)
             {
-                popupTitleText.text = "<color=#38F28A>[OK] CONTROL DEFENSA: TOKEN MFA ACTIVO</color>\n<b>Doble Factor Criptográfico</b>";
+                popupTitleText.text = "<color=#38F28A>TOKEN MFA ACTIVO</color>";
             }
 
             if (popupDescriptionText != null)
             {
                 popupDescriptionText.text =
-                    "El Banco Andino desplegó autenticación multifactor (MFA/TOTP) con token físico.\n" +
-                    "• El código de 6 dígitos rota automáticamente cada 30 segundos.\n" +
-                    "• Cualquier contraseña robada de Carla Mendoza es completamente inútil sin este dispositivo físico.\n" +
-                    "• Las autorizaciones de pago en la terminal SWIFT requieren este segundo factor dinámico.";
+                    "Codigo de 6 digitos rota cada 30s.\nLas claves robadas en papel quedan anuladas.";
             }
 
             if (autoHideDuration > 0f)

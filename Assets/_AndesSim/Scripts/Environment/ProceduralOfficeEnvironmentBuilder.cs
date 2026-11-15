@@ -676,7 +676,7 @@ namespace AndesSim.Environment
             textObj.transform.SetParent(noteQuad.transform, false);
             textObj.transform.localPosition = new Vector3(0f, 0f, -0.01f);
             TextMeshPro tmp = textObj.AddComponent<TextMeshPro>();
-            tmp.text = "<b>SWIFT ALLIANCE</b>\nUser: C_MENDOZA\nPass: Andes$2015*Op1";
+            tmp.text = "<b>SWIFT-01</b>\nc.mendoza\nAndino15$!";
             tmp.fontSize = 1.3f;
             tmp.color = new Color(0.12f, 0.12f, 0.12f);
             tmp.alignment = TextAlignmentOptions.Center;

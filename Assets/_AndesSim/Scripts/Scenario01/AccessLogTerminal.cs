@@ -157,13 +157,13 @@ namespace AndesSim.Scenario01
         {
             if (terminalHeaderText != null)
             {
-                terminalHeaderText.text = "<b>AUDITORÍA DE EVENTOS DE RED · SRV-SIEM-01 (BANCO ANDINO)</b>\n" +
-                                          "<size=85%>Fecha: 29 ENE 2015 | Filtro: SMTP / HTTP / Tráfico Anómalo | Modo: ATAQUE</size>";
+                terminalHeaderText.text = "<b>SIEM SRV-01 · BANCO ANDINO</b>\n" +
+                                          "<size=85%>29 ENE 2015 | Modo Ataque</size>";
             }
 
             if (terminalStatusBannerText != null)
             {
-                terminalStatusBannerText.text = "ESTADO: <color=#FF4444><b>COMPROMISO ACTIVO · BACKDOOR DETECTADO</b></color>";
+                terminalStatusBannerText.text = "ESTADO: <color=#FF4444><b>BACKDOOR ACTIVO</b></color>";
             }
 
             if (terminalStatusBannerBg != null)
@@ -172,13 +172,10 @@ namespace AndesSim.Scenario01
             }
 
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("<color=#A0A0A0>[09:14:02] SMTP IN:</color> <color=#FF6B6B>rasel.ahlam@career-applicants-bd.com</color> -> 16 destinatarios internos (incluye c.mendoza@bancoandino.pe)");
-            sb.AppendLine("<color=#A0A0A0>[09:18:44] HTTP GET:</color> <b>PC-PAGOS-01</b> (C. Mendoza) intenta abrir <color=#FCE762>Rasel_Ahlam_CV_2015.scr.zip</color> (Descarga 1.42MB)");
-            sb.AppendLine("<color=#A0A0A0>[09:21:10] HTTP GET:</color> <b>PC-PAGOS-02</b> (Comercio Ext.) intenta abrir <color=#FCE762>Rasel_Ahlam_CV_2015.scr.zip</color> (Descarga 1.42MB)");
-            sb.AppendLine("<color=#A0A0A0>[09:25:03] HTTP GET:</color> <b>PC-PAGOS-09</b> (Soporte Oper.) intenta abrir <color=#FCE762>Rasel_Ahlam_CV_2015.scr.zip</color> (Descarga 1.42MB)");
-            sb.AppendLine("<color=#FF4444><b>[09:25:09] ALERTA SILENCIADA:</b> Proceso backdoor (svchost_upd.exe) iniciado en red plana hacia nodo SWIFT (C2: 185.130.44.82:443)</color>");
-            sb.AppendLine("<color=#888888>----------------------------------------------------------------------------</color>");
-            sb.AppendLine("<color=#CE9178>• Diagnóstico Forense: 16 buzones alcanzados, 3 terminales infectadas sin contención perimetral.</color>");
+            sb.AppendLine("<color=#A0A0A0>[09:14]</color> Correo externo -> 16 buzones (c.mendoza)");
+            sb.AppendLine("<color=#A0A0A0>[09:18]</color> <b>PC 1</b> abre <color=#FCE762>CV_2015.scr.zip</color>");
+            sb.AppendLine("<color=#A0A0A0>[09:21]</color> <b>PC 2 y PC 3</b> infectadas por red plana");
+            sb.AppendLine("<color=#FF4444><b>[09:25] ALERTA: svchost_upd.exe -> IP C2 .44.82</b></color>");
 
             if (logConsoleBodyText != null)
             {
@@ -193,13 +190,13 @@ namespace AndesSim.Scenario01
         {
             if (terminalHeaderText != null)
             {
-                terminalHeaderText.text = "<b>AUDITORÍA DE EVENTOS DE RED · SRV-SIEM-01 (BANCO ANDINO)</b>\n" +
-                                          "<size=85%>Fecha: 29 ENE 2015 | Protección Perimetral SOC Activa | Modo: DEFENSA</size>";
+                terminalHeaderText.text = "<b>SIEM SRV-01 · BANCO ANDINO</b>\n" +
+                                          "<size=85%>29 ENE 2015 | Modo Defensa</size>";
             }
 
             if (terminalStatusBannerText != null)
             {
-                terminalStatusBannerText.text = "ESTADO: <color=#38F28A><b>DEFENSA ACTIVA · AMENAZA MITIGADA (0 INFECTADOS)</b></color>";
+                terminalStatusBannerText.text = "ESTADO: <color=#38F28A><b>RED PROTEGIDA (0 INFECTADOS)</b></color>";
             }
 
             if (terminalStatusBannerBg != null)
@@ -208,13 +205,10 @@ namespace AndesSim.Scenario01
             }
 
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("<color=#A0A0A0>[09:14:02] SMTP IN:</color> rasel.ahlam@career-applicants-bd.com -> 16 destinatarios solicitados.");
-            sb.AppendLine("<color=#38F28A>[09:14:05] SANDBOX ANALYSIS:</color> Adjunto 'Rasel_Ahlam_CV_2015.scr.zip' detonado en entorno virtual aislado.");
-            sb.AppendLine("<color=#FCE762>[09:14:07] THREAT DETECTED:</color> Dropper screensaver ejecutable (.scr) identificado. Firma maliciosa confirmada.");
-            sb.AppendLine("<color=#38F28A>[09:14:08] FIREWALL BLOCK:</color> Regla perimetral aplicada en borde: IP hostil 185.130.44.82 añadida a lista negra.");
-            sb.AppendLine("<color=#38F28A><b>[09:14:09] MAIL PURGE:</b> Correo purgado de los 16 buzones antes de ser entregado. 0 equipos infectados.</color>");
-            sb.AppendLine("<color=#888888>----------------------------------------------------------------------------</color>");
-            sb.AppendLine("<color=#9CDCFE>• Contención Exitosa: El vector de phishing fue neutralizado en sandbox antes de llegar a los colaboradores.</color>");
+            sb.AppendLine("<color=#A0A0A0>[09:14:02]</color> Correo detectado hacia 16 buzones");
+            sb.AppendLine("<color=#38F28A>[09:14:05]</color> Sandbox detona <color=#FCE762>CV_2015.scr.zip</color>");
+            sb.AppendLine("<color=#38F28A>[09:14:08]</color> Bloqueo Firewall a IP 185.130.44.82");
+            sb.AppendLine("<color=#38F28A><b>[09:14:09] 16/16 buzones purgados</b></color>");
 
             if (logConsoleBodyText != null)
             {
@@ -227,8 +221,8 @@ namespace AndesSim.Scenario01
             if (registerButtonLabelText != null)
             {
                 registerButtonLabelText.text = isCollected
-                    ? "[OK] LOG REGISTRADO COMO EVIDENCIA FORENSE"
-                    : "REGISTRAR LOG COMO EVIDENCIA FORENSE";
+                    ? "[OK] LOG REGISTRADO"
+                    : "REGISTRAR LOG SIEM";
             }
 
             if (registerButtonBgImage != null)
