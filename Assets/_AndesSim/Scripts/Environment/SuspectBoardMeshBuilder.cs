@@ -219,10 +219,10 @@ namespace AndesSim.Environment
             spotObj.transform.localRotation = Quaternion.Euler(42f, 0f, 0f);
             Light spotLight = spotObj.AddComponent<Light>();
             spotLight.type = LightType.Spot;
-            spotLight.range = 4.8f;
-            spotLight.spotAngle = 100f;
-            spotLight.intensity = 9.5f;
-            spotLight.color = new Color(1.0f, 0.98f, 0.95f);
+            spotLight.range = 3.6f;
+            spotLight.spotAngle = 94f;
+            spotLight.intensity = 1.25f;
+            spotLight.color = new Color(0.95f, 0.97f, 1.0f);
             spotLight.shadows = LightShadows.None;
 
             // -------------------------------------------------------------

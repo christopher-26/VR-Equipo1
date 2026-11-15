@@ -458,6 +458,10 @@ namespace AndesSim.Editor
             }
 
             AndesTypographyTheme.ApplyTypographyToTree(menuRoot.transform, true, true);
+            for (int t = 1; t < tabPanels.Length; t++)
+            {
+                if (tabPanels[t] != null) tabPanels[t].SetActive(false);
+            }
             Debug.Log("[ANDES-SIM - SceneAssembler] Centro Holográfico Flotante de 5 Pestañas construido exitosamente.");
             return menuRoot;
         }
@@ -508,11 +512,11 @@ namespace AndesSim.Editor
             HolographicOrbitRing spinB = ringB.AddComponent<HolographicOrbitRing>();
             spinB.Configure(new Vector3(-18f, -54f, -12f), rB, initialColor, 0.9f, 2.2f, 2.1f);
 
-            // Mini etiqueta flotante
+            // Mini etiqueta flotante (orientada de frente legible sin inversion especular)
             GameObject lblCanvas = new GameObject("Canvas_Tag");
             lblCanvas.transform.SetParent(root.transform, false);
             lblCanvas.transform.localPosition = new Vector3(0f, 0.14f, 0f);
-            lblCanvas.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
+            lblCanvas.transform.localRotation = Quaternion.identity;
             Canvas c = lblCanvas.AddComponent<Canvas>();
             c.renderMode = RenderMode.WorldSpace;
             RectTransform cr = lblCanvas.GetComponent<RectTransform>();
@@ -526,7 +530,7 @@ namespace AndesSim.Editor
             AndesTypographyTheme.StyleBadge(txt, initialColor, 14.5f);
 
             HolographicDataBeacon beacon = root.AddComponent<HolographicDataBeacon>();
-            beacon.Bind(new[] { coreR, rA, rB }, new[] { spinA, spinB }, HoloBeaconState.NormalCyan);
+            beacon.Bind(new[] { coreR, rA, rB }, new[] { spinA, spinB }, HoloBeaconState.NormalCyan, lblCanvas.transform);
             return root;
         }
 

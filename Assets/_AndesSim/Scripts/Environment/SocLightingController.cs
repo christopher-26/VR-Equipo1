@@ -69,7 +69,7 @@ namespace AndesSim.Environment
         [Header("--- 1. Luz Direccional Principal (Luna / Ciudad Nocturna) ---")]
         [Tooltip("Luz direccional simulando luz exterior nocturna a través del ventanal.")]
         [SerializeField] private Light moonlightDirectionalLight;
-        [SerializeField] private float moonlightBaseIntensity = 1.65f;
+        [SerializeField] private float moonlightBaseIntensity = 0.15f;
 
         [Header("--- 2. Luces Puntuales de Escritorios (Verde Suave / Blanco Frío) ---")]
         [Tooltip("Luz sobre Puesto 1 (Carla Mendoza / SWIFT).")]
@@ -81,8 +81,8 @@ namespace AndesSim.Environment
         [Tooltip("Luz sobre Puesto 3 (Consola SIEM / Defensas).")]
         [SerializeField] private Light desk3PointLight;
 
-        [SerializeField] private float deskLightBaseIntensity = 5.40f;
-        [SerializeField] private float deskLightRange = 4.6f;
+        [SerializeField] private float deskLightBaseIntensity = 0.68f;
+        [SerializeField] private float deskLightRange = 2.8f;
 
         [Header("--- 3. Luces de Alerta Roja (#ff5a4e - Modo Ataque) ---")]
         [Tooltip("Balizas / luces de emergencia de techo que titilan en Modo Ataque.")]
@@ -92,7 +92,7 @@ namespace AndesSim.Environment
         [SerializeField] private Renderer[] emergencyBeaconRenderers;
 
         [SerializeField] private float emergencyStrobeFrequency = 1.8f;
-        [SerializeField] private float emergencyMaxIntensity = 3.50f;
+        [SerializeField] private float emergencyMaxIntensity = 2.00f;
 
         [Header("--- 4. Estado de Iluminación ---")]
         [SerializeField] private bool isEmergencyActive = false;
@@ -123,11 +123,9 @@ namespace AndesSim.Environment
                 return;
             }
 
-            // Aplicar configuración de ambiente nocturno bancario optimizado para mobile
-            ApplyNocturnalAmbientSettings();
-
-            // Garantizar que la iluminación sea clara en vestíbulo de spawn, centro de sala y escritorios
+            // Aplicar iluminación calibrada y equilibrada acorde al tema activo (sin sobreexposición en LDR)
             EnsureCompleteLightingIntegrity();
+            ApplyLightingPreset(activePreset);
 
             // Asegurar que las luces de emergencia inicien apagadas
             SetEmergencyLightsState(false);
@@ -325,35 +323,44 @@ namespace AndesSim.Environment
 
         /// <summary>
         /// Cambia en tiempo real el estilo cromático y lumínico de la oficina desde el menú VR.
+        /// Calibrado para URP móvil sin HDR (evita quemado blanco en paredes y escritorios).
         /// </summary>
         public void ApplyLightingPreset(SocLightingPreset preset)
         {
             activePreset = preset;
 
-            // Actualizar base de luminarias según tema
+            float overheadMult;
+            Color overheadTint;
+
             switch (preset)
             {
                 case SocLightingPreset.SocCyan:
-                    moonlightBaseIntensity = 1.25f;
-                    deskLightBaseIntensity = 5.60f;
+                    moonlightBaseIntensity = 0.12f;
+                    deskLightBaseIntensity = 0.62f;
+                    overheadMult = 0.86f;
+                    overheadTint = new Color(0.68f, 0.90f, 1.00f, 1f);
                     if (!isEmergencyActive && !isDefenseShieldActive)
                     {
-                        SetDeskLightsColor(new Color(0.60f, 0.95f, 1.00f, 1f), deskLightBaseIntensity);
+                        SetDeskLightsColor(new Color(0.55f, 0.88f, 0.98f, 1f), deskLightBaseIntensity);
                     }
                     break;
 
                 case SocLightingPreset.CyberNocturno:
-                    moonlightBaseIntensity = 0.85f;
-                    deskLightBaseIntensity = 5.20f;
+                    moonlightBaseIntensity = 0.08f;
+                    deskLightBaseIntensity = 0.52f;
+                    overheadMult = 0.68f;
+                    overheadTint = new Color(0.62f, 0.76f, 0.96f, 1f);
                     if (!isEmergencyActive && !isDefenseShieldActive)
                     {
-                        SetDeskLightsColor(new Color(0.72f, 0.88f, 1.00f, 1f), deskLightBaseIntensity);
+                        SetDeskLightsColor(new Color(0.66f, 0.82f, 0.98f, 1f), deskLightBaseIntensity);
                     }
                     break;
 
                 default: // OficinaClara
-                    moonlightBaseIntensity = 1.45f;
-                    deskLightBaseIntensity = 5.40f;
+                    moonlightBaseIntensity = 0.15f;
+                    deskLightBaseIntensity = 0.68f;
+                    overheadMult = 1.00f;
+                    overheadTint = new Color(0.95f, 0.97f, 1.00f, 1f);
                     if (!isEmergencyActive && !isDefenseShieldActive)
                     {
                         SetDeskLightsColor(DeskCoolWhiteGreenColor, deskLightBaseIntensity);
@@ -366,15 +373,39 @@ namespace AndesSim.Environment
                 moonlightDirectionalLight.intensity = moonlightBaseIntensity;
             }
 
+            ApplyOverheadLightTuning(overheadMult, overheadTint);
             ApplyCyberAmbientTint(_cyberTintState);
         }
 
+        private void ApplyOverheadLightTuning(float multiplier, Color tint)
+        {
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                Transform child = transform.GetChild(i);
+                Light pt = child.GetComponent<Light>();
+                if (pt == null || pt.type != LightType.Point) continue;
+                if (child.name == "Luz_Escritorio_Puesto1_Carla" ||
+                    child.name == "Luz_Escritorio_Puesto2_Analista" ||
+                    child.name == "Luz_Escritorio_Puesto3_Siem")
+                {
+                    continue;
+                }
+
+                bool isSconce = child.name.StartsWith("Luz_Aplique_", StringComparison.Ordinal);
+                float baseInt = isSconce ? 0.28f : 0.74f;
+                pt.intensity = baseInt * multiplier;
+                pt.color = Color.Lerp(new Color(0.94f, 0.97f, 1.0f, 1f), tint, isSconce ? 0.25f : 0.45f);
+            }
+        }
+
         /// <summary>
-        /// Sincroniza el matiz ambiental de RenderSettings sin oscurecer la visibilidad arquitectónica de la oficina.
+        /// Sincroniza el matiz ambiental de RenderSettings con rango luminoso equilibrado sin quemado blanco.
         /// </summary>
         public void ApplyCyberAmbientTint(CyberAmbientState state)
         {
             _cyberTintState = state;
+            RenderSettings.skybox = null;
+            RenderSettings.defaultReflectionMode = UnityEngine.Rendering.DefaultReflectionMode.Custom;
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
 
             Color baseSky;
@@ -385,38 +416,38 @@ namespace AndesSim.Environment
             switch (activePreset)
             {
                 case SocLightingPreset.SocCyan:
-                    baseSky = new Color(0.56f, 0.82f, 0.94f, 1f);
-                    baseEq = new Color(0.45f, 0.68f, 0.78f, 1f);
-                    baseGround = new Color(0.32f, 0.48f, 0.56f, 1f);
-                    baseAmbientInt = 1.50f;
+                    baseSky = new Color(0.24f, 0.36f, 0.46f, 1f);
+                    baseEq = new Color(0.18f, 0.27f, 0.35f, 1f);
+                    baseGround = new Color(0.11f, 0.16f, 0.21f, 1f);
+                    baseAmbientInt = 0.36f;
                     break;
 
                 case SocLightingPreset.CyberNocturno:
-                    baseSky = new Color(0.40f, 0.52f, 0.68f, 1f);
-                    baseEq = new Color(0.32f, 0.42f, 0.54f, 1f);
-                    baseGround = new Color(0.24f, 0.29f, 0.36f, 1f);
-                    baseAmbientInt = 1.35f;
+                    baseSky = new Color(0.18f, 0.24f, 0.34f, 1f);
+                    baseEq = new Color(0.14f, 0.18f, 0.26f, 1f);
+                    baseGround = new Color(0.09f, 0.12f, 0.17f, 1f);
+                    baseAmbientInt = 0.31f;
                     break;
 
                 default: // OficinaClara
-                    baseSky = new Color(0.84f, 0.90f, 0.96f, 1f);
-                    baseEq = new Color(0.72f, 0.77f, 0.83f, 1f);
-                    baseGround = new Color(0.52f, 0.56f, 0.60f, 1f);
-                    baseAmbientInt = 1.65f;
+                    baseSky = new Color(0.30f, 0.36f, 0.44f, 1f);
+                    baseEq = new Color(0.22f, 0.27f, 0.34f, 1f);
+                    baseGround = new Color(0.14f, 0.17f, 0.22f, 1f);
+                    baseAmbientInt = 0.42f;
                     break;
             }
 
             if (state == CyberAmbientState.EmergencyAttackInfection)
             {
-                RenderSettings.ambientSkyColor = Color.Lerp(baseSky, new Color(0.78f, 0.24f, 0.22f, 1f), 0.55f);
-                RenderSettings.ambientEquatorColor = Color.Lerp(baseEq, new Color(0.58f, 0.18f, 0.16f, 1f), 0.50f);
+                RenderSettings.ambientSkyColor = Color.Lerp(baseSky, new Color(0.48f, 0.16f, 0.14f, 1f), 0.55f);
+                RenderSettings.ambientEquatorColor = Color.Lerp(baseEq, new Color(0.35f, 0.12f, 0.10f, 1f), 0.50f);
                 RenderSettings.ambientGroundColor = baseGround;
-                RenderSettings.ambientIntensity = Mathf.Max(1.25f, baseAmbientInt * 0.88f);
+                RenderSettings.ambientIntensity = Mathf.Max(0.34f, baseAmbientInt * 0.90f);
             }
             else if (state == CyberAmbientState.QuarantineDefenseShield)
             {
-                RenderSettings.ambientSkyColor = Color.Lerp(baseSky, new Color(0.38f, 0.92f, 0.72f, 1f), 0.42f);
-                RenderSettings.ambientEquatorColor = Color.Lerp(baseEq, new Color(0.28f, 0.76f, 0.60f, 1f), 0.38f);
+                RenderSettings.ambientSkyColor = Color.Lerp(baseSky, new Color(0.20f, 0.48f, 0.38f, 1f), 0.40f);
+                RenderSettings.ambientEquatorColor = Color.Lerp(baseEq, new Color(0.15f, 0.38f, 0.29f, 1f), 0.36f);
                 RenderSettings.ambientGroundColor = baseGround;
                 RenderSettings.ambientIntensity = baseAmbientInt;
             }
@@ -427,7 +458,7 @@ namespace AndesSim.Environment
                 RenderSettings.ambientGroundColor = baseGround;
                 RenderSettings.ambientIntensity = baseAmbientInt;
             }
-            RenderSettings.reflectionIntensity = 1.0f;
+            RenderSettings.reflectionIntensity = 0.24f;
         }
 
         private void SetDeskLightsColor(Color color, float intensity)
@@ -442,16 +473,18 @@ namespace AndesSim.Environment
         #region Configuración Ambiental Móvil (OpenGLES3 - 60 FPS)
 
         /// <summary>
-        /// Aplica la configuración de RenderSettings para iluminación Trilight nocturna con visibilidad óptima.
+        /// Aplica la configuración de RenderSettings para iluminación Trilight equilibrada sin sobreexposición LDR.
         /// </summary>
         public static void ApplyNocturnalAmbientSettings()
         {
+            RenderSettings.skybox = null;
+            RenderSettings.defaultReflectionMode = UnityEngine.Rendering.DefaultReflectionMode.Custom;
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
-            RenderSettings.ambientSkyColor = new Color(0.82f, 0.88f, 0.95f, 1f);     // Luz ambiental superior clara
-            RenderSettings.ambientEquatorColor = new Color(0.70f, 0.75f, 0.81f, 1f); // Tono medio equilibrado
-            RenderSettings.ambientGroundColor = new Color(0.50f, 0.54f, 0.58f, 1f);  // Rebote suave de piso
-            RenderSettings.ambientIntensity = 1.65f;
-            RenderSettings.reflectionIntensity = 1.0f;
+            RenderSettings.ambientSkyColor = new Color(0.30f, 0.36f, 0.44f, 1f);
+            RenderSettings.ambientEquatorColor = new Color(0.22f, 0.27f, 0.34f, 1f);
+            RenderSettings.ambientGroundColor = new Color(0.14f, 0.17f, 0.22f, 1f);
+            RenderSettings.ambientIntensity = 0.42f;
+            RenderSettings.reflectionIntensity = 0.24f;
         }
 
         private static Light EnsureOrUpdatePointLight(Transform parent, string lightName, Vector3 defaultPos, Color color, float intensity, float range, bool updatePositionIfExists = false)
@@ -484,7 +517,7 @@ namespace AndesSim.Environment
             GameObject mon = GameObject.Find(monitorName);
             if (mon != null)
             {
-                return mon.transform.position + new Vector3(0f, 1.65f, -0.40f);
+                return mon.transform.position + new Vector3(0f, 1.45f, -0.35f);
             }
             return fallbackPos;
         }
@@ -493,38 +526,37 @@ namespace AndesSim.Environment
         {
             if (!isVnbOffice)
             {
-                EnsureOrUpdatePointLight(parent, "Luz_Cenital_Vestibulo_Spawn", new Vector3(0f, 2.95f, -4.5f), new Color(1.0f, 0.96f, 0.90f), 7.50f, 12.0f, updatePositions);
-                EnsureOrUpdatePointLight(parent, "Luz_Cenital_Central_Oficina", new Vector3(0f, 3.10f, 0.0f), new Color(0.98f, 0.99f, 1.0f), 7.50f, 12.0f, updatePositions);
+                EnsureOrUpdatePointLight(parent, "Luz_Cenital_Vestibulo_Spawn", new Vector3(0f, 2.58f, -4.5f), new Color(0.98f, 0.96f, 0.92f), 2.10f, 8.5f, updatePositions);
+                EnsureOrUpdatePointLight(parent, "Luz_Cenital_Central_Oficina", new Vector3(0f, 2.58f, 0.0f), new Color(0.98f, 0.99f, 1.0f), 2.10f, 8.5f, updatePositions);
                 return;
             }
 
-            // Cuadricula arquitectonica 3x4 de 12 luminarias cenitales alineadas con los plafones LED del techo (Y = 2.80m)
-            // Rangos acotados (5.6 - 6.2m) para maximizar iluminacion URP sin exceder el limite de luces por objeto en mobile.
-            // Fila Norte (Lounge NO, Vestibulo Entrada, Centro-Norte, Cocina/Esquina NE)
-            EnsureOrUpdatePointLight(parent, "Luz_Techo_Lounge_Oeste",      new Vector3(-5.80f, 2.80f,  2.20f), new Color(1.00f, 0.96f, 0.90f), 7.80f, 5.8f, updatePositions);
-            EnsureOrUpdatePointLight(parent, "Luz_Cenital_Vestibulo_Spawn", new Vector3(-2.40f, 2.80f,  2.60f), new Color(1.00f, 0.97f, 0.92f), 8.50f, 6.0f, updatePositions);
-            EnsureOrUpdatePointLight(parent, "Luz_Cenital_Central_Oficina", new Vector3( 1.80f, 2.80f,  2.25f), new Color(0.98f, 0.99f, 1.00f), 8.20f, 6.2f, updatePositions);
-            EnsureOrUpdatePointLight(parent, "Luz_Cocina_Pasillo_Este",     new Vector3( 5.80f, 2.80f,  2.20f), new Color(1.00f, 0.96f, 0.90f), 8.20f, 6.0f, updatePositions);
+            // Cuadrícula 3x4 a Y = 2.50m (luz cómoda, bien visible y sin quemado blanco)
+            // Fila Norte
+            EnsureOrUpdatePointLight(parent, "Luz_Techo_Lounge_Oeste",      new Vector3(-5.80f, 2.50f,  2.20f), new Color(0.98f, 0.95f, 0.92f), 0.72f, 4.2f, updatePositions);
+            EnsureOrUpdatePointLight(parent, "Luz_Cenital_Vestibulo_Spawn", new Vector3(-2.40f, 2.50f,  2.60f), new Color(0.98f, 0.96f, 0.93f), 0.78f, 4.4f, updatePositions);
+            EnsureOrUpdatePointLight(parent, "Luz_Cenital_Central_Oficina", new Vector3( 1.80f, 2.50f,  2.25f), new Color(0.95f, 0.97f, 1.00f), 0.76f, 4.4f, updatePositions);
+            EnsureOrUpdatePointLight(parent, "Luz_Cocina_Pasillo_Este",     new Vector3( 5.80f, 2.50f,  2.20f), new Color(0.98f, 0.95f, 0.92f), 0.70f, 4.2f, updatePositions);
 
-            // Fila Central (Oeste, Nave Central, Puesto 1, Oficina Este/Puesto 2)
-            EnsureOrUpdatePointLight(parent, "Luz_Techo_Centro_Oeste",      new Vector3(-5.90f, 2.80f, -1.25f), new Color(0.96f, 0.98f, 1.00f), 7.50f, 5.6f, updatePositions);
-            EnsureOrUpdatePointLight(parent, "Luz_Techo_Nave_CentroOeste",  new Vector3(-1.90f, 2.80f, -1.00f), new Color(0.98f, 0.99f, 1.00f), 7.80f, 6.0f, updatePositions);
-            EnsureOrUpdatePointLight(parent, "Luz_Techo_Nave_CentroEste",   new Vector3( 1.65f, 2.80f, -1.35f), new Color(0.98f, 0.99f, 1.00f), 8.00f, 6.0f, updatePositions);
-            EnsureOrUpdatePointLight(parent, "Luz_Techo_Oficina_Este",      new Vector3( 5.75f, 2.80f, -1.35f), new Color(0.99f, 0.98f, 0.95f), 8.00f, 5.8f, updatePositions);
+            // Fila Central
+            EnsureOrUpdatePointLight(parent, "Luz_Techo_Centro_Oeste",      new Vector3(-5.90f, 2.50f, -1.25f), new Color(0.94f, 0.97f, 1.00f), 0.70f, 4.2f, updatePositions);
+            EnsureOrUpdatePointLight(parent, "Luz_Techo_Nave_CentroOeste",  new Vector3(-1.90f, 2.50f, -1.00f), new Color(0.95f, 0.98f, 1.00f), 0.74f, 4.2f, updatePositions);
+            EnsureOrUpdatePointLight(parent, "Luz_Techo_Nave_CentroEste",   new Vector3( 1.65f, 2.50f, -1.35f), new Color(0.95f, 0.98f, 1.00f), 0.74f, 4.2f, updatePositions);
+            EnsureOrUpdatePointLight(parent, "Luz_Techo_Oficina_Este",      new Vector3( 5.75f, 2.50f, -1.35f), new Color(0.98f, 0.96f, 0.94f), 0.72f, 4.2f, updatePositions);
 
-            // Fila Sur (Puesto 3/Descanso SW, Pasillo Sur-Oeste, Tablero Sur, Esquina SE)
-            EnsureOrUpdatePointLight(parent, "Luz_Sala_Descanso_Oeste",     new Vector3(-5.95f, 2.80f, -4.15f), new Color(0.95f, 0.98f, 1.00f), 8.20f, 5.8f, updatePositions);
-            EnsureOrUpdatePointLight(parent, "Luz_Techo_Pasillo_SurOeste",  new Vector3(-1.90f, 2.80f, -4.30f), new Color(0.98f, 0.99f, 1.00f), 7.80f, 5.8f, updatePositions);
-            EnsureOrUpdatePointLight(parent, "Luz_Pasillo_Tablero_Sur",     new Vector3( 2.20f, 2.80f, -4.35f), new Color(0.99f, 0.99f, 1.00f), 8.60f, 6.0f, updatePositions);
-            EnsureOrUpdatePointLight(parent, "Luz_Techo_Esquina_Sureste",   new Vector3( 5.95f, 2.80f, -4.35f), new Color(1.00f, 0.97f, 0.92f), 8.40f, 6.0f, updatePositions);
+            // Fila Sur
+            EnsureOrUpdatePointLight(parent, "Luz_Sala_Descanso_Oeste",     new Vector3(-5.95f, 2.50f, -4.15f), new Color(0.94f, 0.97f, 1.00f), 0.72f, 4.2f, updatePositions);
+            EnsureOrUpdatePointLight(parent, "Luz_Techo_Pasillo_SurOeste",  new Vector3(-1.90f, 2.50f, -4.30f), new Color(0.95f, 0.98f, 1.00f), 0.74f, 4.2f, updatePositions);
+            EnsureOrUpdatePointLight(parent, "Luz_Pasillo_Tablero_Sur",     new Vector3( 2.20f, 2.50f, -4.35f), new Color(0.96f, 0.98f, 1.00f), 0.80f, 4.4f, updatePositions);
+            EnsureOrUpdatePointLight(parent, "Luz_Techo_Esquina_Sureste",   new Vector3( 5.95f, 2.50f, -4.35f), new Color(0.98f, 0.95f, 0.92f), 0.74f, 4.2f, updatePositions);
 
-            // Apliques murales suaves en perimetro (alcance corto para bano de pared sin saturar el limite URP)
-            EnsureOrUpdatePointLight(parent, "Luz_Aplique_Puerta_Izq",      new Vector3(-3.45f, 2.02f,  3.62f), new Color(1.00f, 0.95f, 0.88f), 3.60f, 3.2f, updatePositions);
-            EnsureOrUpdatePointLight(parent, "Luz_Aplique_Puerta_Der",      new Vector3(-1.75f, 2.02f,  3.62f), new Color(1.00f, 0.95f, 0.88f), 3.60f, 3.2f, updatePositions);
-            EnsureOrUpdatePointLight(parent, "Luz_Aplique_Muro_Este_Norte", new Vector3( 7.62f, 2.02f,  1.20f), new Color(1.00f, 0.95f, 0.88f), 3.80f, 3.4f, updatePositions);
-            EnsureOrUpdatePointLight(parent, "Luz_Aplique_Muro_Este_Sur",   new Vector3( 7.62f, 2.02f, -3.40f), new Color(1.00f, 0.95f, 0.88f), 3.80f, 3.4f, updatePositions);
-            EnsureOrUpdatePointLight(parent, "Luz_Aplique_Muro_Sur_Este",   new Vector3( 5.80f, 2.02f, -5.62f), new Color(1.00f, 0.95f, 0.88f), 3.80f, 3.4f, updatePositions);
-            EnsureOrUpdatePointLight(parent, "Luz_Aplique_Muro_Oeste",      new Vector3(-7.62f, 2.02f,  0.40f), new Color(0.96f, 0.98f, 1.00f), 3.60f, 3.4f, updatePositions);
+            // Apliques murales suaves de perímetro (bajo contraste sin focos quemados en pared)
+            EnsureOrUpdatePointLight(parent, "Luz_Aplique_Puerta_Izq",      new Vector3(-3.45f, 2.08f,  3.15f), new Color(0.96f, 0.92f, 0.86f), 0.28f, 2.6f, updatePositions);
+            EnsureOrUpdatePointLight(parent, "Luz_Aplique_Puerta_Der",      new Vector3(-1.75f, 2.08f,  3.15f), new Color(0.96f, 0.92f, 0.86f), 0.28f, 2.6f, updatePositions);
+            EnsureOrUpdatePointLight(parent, "Luz_Aplique_Muro_Este_Norte", new Vector3( 7.12f, 2.08f,  1.20f), new Color(0.96f, 0.92f, 0.86f), 0.28f, 2.6f, updatePositions);
+            EnsureOrUpdatePointLight(parent, "Luz_Aplique_Muro_Este_Sur",   new Vector3( 7.12f, 2.08f, -3.40f), new Color(0.96f, 0.92f, 0.86f), 0.28f, 2.6f, updatePositions);
+            EnsureOrUpdatePointLight(parent, "Luz_Aplique_Muro_Sur_Este",   new Vector3( 5.80f, 2.08f, -5.12f), new Color(0.96f, 0.92f, 0.86f), 0.28f, 2.6f, updatePositions);
+            EnsureOrUpdatePointLight(parent, "Luz_Aplique_Muro_Oeste",      new Vector3(-7.12f, 2.08f,  0.40f), new Color(0.92f, 0.96f, 1.00f), 0.28f, 2.6f, updatePositions);
 
             BoostVnbOfficeLamps();
         }
@@ -542,18 +574,16 @@ namespace AndesSim.Environment
                 if (l.type == LightType.Point)
                 {
                     l.enabled = true;
-                    l.color = new Color(1.0f, 0.93f, 0.80f, 1f);
-                    l.intensity = Mathf.Max(l.intensity, 3.20f);
-                    l.range = Mathf.Clamp(l.range, 3.6f, 4.4f);
+                    l.color = new Color(1.0f, 0.93f, 0.82f, 1f);
+                    l.intensity = Mathf.Clamp(l.intensity, 0.22f, 0.40f);
+                    l.range = Mathf.Clamp(l.range, 2.0f, 2.4f);
                     l.shadows = LightShadows.None;
                 }
             }
         }
 
         /// <summary>
-        /// Verifica y garantiza que todas las fuentes lumínicas clave (luz direccional, plafones cenitales
-        /// y escritorios) estén activas, con alcance y potencia adecuados.
-        /// Se ejecuta en Awake() para asegurar que la escena nunca se vea a oscuras al presionar Play.
+        /// Verifica y garantiza que todas las fuentes lumínicas clave estén activas dentro de un rango balanceado.
         /// </summary>
         public void EnsureCompleteLightingIntegrity()
         {
@@ -561,7 +591,6 @@ namespace AndesSim.Environment
 
             ApplyNocturnalAmbientSettings();
 
-            // 1. Luz Direccional principal (sin sombras para que el techo completo no oscurezca el interior)
             if (moonlightDirectionalLight == null)
             {
                 GameObject existingMoon = GameObject.Find("Luz_Direccional_Luna_Ventanal") ?? GameObject.Find("Directional Light");
@@ -585,12 +614,11 @@ namespace AndesSim.Environment
 
             if (moonlightDirectionalLight != null)
             {
-                moonlightDirectionalLight.intensity = Mathf.Max(moonlightDirectionalLight.intensity, 1.15f);
-                moonlightDirectionalLight.color = new Color(0.96f, 0.98f, 1.0f);
+                moonlightDirectionalLight.intensity = Mathf.Clamp(moonlightBaseIntensity, 0.08f, 0.20f);
+                moonlightDirectionalLight.color = new Color(0.94f, 0.96f, 1.0f);
                 moonlightDirectionalLight.shadows = LightShadows.None;
             }
 
-            // 2. Luces de escritorio
             if (desk1PointLight == null)
             {
                 GameObject d1 = GameObject.Find("Luz_Escritorio_Puesto1_Carla");
@@ -607,11 +635,12 @@ namespace AndesSim.Environment
                 if (d3 != null) desk3PointLight = d3.GetComponent<Light>();
             }
 
-            if (desk1PointLight != null) { desk1PointLight.intensity = deskLightBaseIntensity; desk1PointLight.range = deskLightRange; }
-            if (desk2PointLight != null) { desk2PointLight.intensity = deskLightBaseIntensity; desk2PointLight.range = deskLightRange; }
-            if (desk3PointLight != null) { desk3PointLight.intensity = Mathf.Max(deskLightBaseIntensity, 5.80f); desk3PointLight.range = Mathf.Max(deskLightRange, 4.8f); }
+            float clampedDeskInt = Mathf.Clamp(deskLightBaseIntensity, 0.45f, 0.85f);
+            float clampedDeskRange = Mathf.Clamp(deskLightRange, 2.4f, 3.1f);
+            if (desk1PointLight != null) { desk1PointLight.intensity = clampedDeskInt; desk1PointLight.range = clampedDeskRange; }
+            if (desk2PointLight != null) { desk2PointLight.intensity = clampedDeskInt; desk2PointLight.range = clampedDeskRange; }
+            if (desk3PointLight != null) { desk3PointLight.intensity = clampedDeskInt * 1.08f; desk3PointLight.range = clampedDeskRange + 0.15f; }
 
-            // 3. Luces cenitales bajo los plafones del techo
             EnsureOverheadZoneLights(transform, isVnbOffice, false);
         }
 
@@ -660,19 +689,19 @@ namespace AndesSim.Environment
                 moonLight = moonObj.AddComponent<Light>();
                 moonLight.type = LightType.Directional;
             }
-            moonLight.color = new Color(0.96f, 0.98f, 1.0f, 1f);
-            moonLight.intensity = isVnbOffice ? 1.15f : 1.45f;
+            moonLight.color = new Color(0.94f, 0.96f, 1.0f, 1f);
+            moonLight.intensity = isVnbOffice ? 0.15f : 0.22f;
             moonLight.shadows = LightShadows.None;
 
-            // 2. Luces Puntuales sobre los 3 Escritorios
-            Vector3 p1Pos = isVnbOffice ? ResolveDeskLightPos("Monitor_01", new Vector3(1.37f, 2.72f, -2.07f)) : new Vector3(-3.0f, 2.80f, 1.8f);
-            Vector3 p2Pos = isVnbOffice ? ResolveDeskLightPos("Monitor_02", new Vector3(5.34f, 2.72f, -1.93f)) : new Vector3(0.0f, 2.80f, 1.8f);
-            Vector3 p3Pos = isVnbOffice ? ResolveDeskLightPos("Monitor_03", new Vector3(-6.37f, 2.72f, -4.69f)) : new Vector3(3.0f, 2.80f, 1.8f);
+            // 2. Luces Puntuales sobre los 3 Escritorios (luz suave sin quemar monitores ni cubículos)
+            Vector3 p1Pos = isVnbOffice ? ResolveDeskLightPos("Monitor_01", new Vector3(1.37f, 2.40f, -1.97f)) : new Vector3(-3.0f, 2.50f, 1.8f);
+            Vector3 p2Pos = isVnbOffice ? ResolveDeskLightPos("Monitor_02", new Vector3(5.34f, 2.40f, -1.83f)) : new Vector3(0.0f, 2.50f, 1.8f);
+            Vector3 p3Pos = isVnbOffice ? ResolveDeskLightPos("Monitor_03", new Vector3(-6.37f, 2.40f, -4.59f)) : new Vector3(3.0f, 2.50f, 1.8f);
 
             Light[] deskLights = new Light[3];
-            deskLights[0] = EnsureOrUpdatePointLight(lightingRoot.transform, "Luz_Escritorio_Puesto1_Carla", p1Pos, DeskCoolWhiteGreenColor, 5.40f, 4.6f, true);
-            deskLights[1] = EnsureOrUpdatePointLight(lightingRoot.transform, "Luz_Escritorio_Puesto2_Analista", p2Pos, DeskCoolWhiteGreenColor, 5.40f, 4.6f, true);
-            deskLights[2] = EnsureOrUpdatePointLight(lightingRoot.transform, "Luz_Escritorio_Puesto3_Siem", p3Pos, DeskCoolWhiteGreenColor, isVnbOffice ? 5.80f : 4.80f, isVnbOffice ? 4.8f : 6.0f, true);
+            deskLights[0] = EnsureOrUpdatePointLight(lightingRoot.transform, "Luz_Escritorio_Puesto1_Carla", p1Pos, DeskCoolWhiteGreenColor, 0.68f, 2.8f, true);
+            deskLights[1] = EnsureOrUpdatePointLight(lightingRoot.transform, "Luz_Escritorio_Puesto2_Analista", p2Pos, DeskCoolWhiteGreenColor, 0.68f, 2.8f, true);
+            deskLights[2] = EnsureOrUpdatePointLight(lightingRoot.transform, "Luz_Escritorio_Puesto3_Siem", p3Pos, DeskCoolWhiteGreenColor, isVnbOffice ? 0.74f : 0.85f, isVnbOffice ? 2.9f : 3.4f, true);
 
             // 3. Luces Cenitales de Entrada, Centro y Zonas de Oficina (alineadas al techo)
             EnsureOverheadZoneLights(lightingRoot.transform, isVnbOffice, true);
@@ -686,7 +715,7 @@ namespace AndesSim.Environment
             Renderer[] beaconRenderers = new Renderer[2];
 
             Material beaconMat = RoomArchitectureBuilder.CreatePbrMaterial(
-                "Mat_EmergencyBeaconRed_ff5a4e", AlertRedColor, 0.90f, 0.1f, AlertRedColor * 3.0f);
+                "Mat_EmergencyBeaconRed_ff5a4e", AlertRedColor, 0.80f, 0.1f, AlertRedColor * 1.8f);
 
             for (int b = 0; b < 2; b++)
             {
@@ -720,7 +749,7 @@ namespace AndesSim.Environment
                 alertL.type = LightType.Point;
                 alertL.color = AlertRedColor;
                 alertL.intensity = 0f; // Inicia apagada
-                alertL.range = 8.5f;
+                alertL.range = 7.0f;
                 alertL.shadows = LightShadows.None; // Optimizado OpenGLES3
                 alertL.enabled = false;
 
@@ -731,13 +760,13 @@ namespace AndesSim.Environment
 #if UNITY_EDITOR
             SerializedObject sCtrl = new SerializedObject(controller);
             sCtrl.FindProperty("moonlightDirectionalLight").objectReferenceValue = moonLight;
-            sCtrl.FindProperty("moonlightBaseIntensity").floatValue = 1.65f;
+            sCtrl.FindProperty("moonlightBaseIntensity").floatValue = 0.15f;
             sCtrl.FindProperty("desk1PointLight").objectReferenceValue = deskLights[0];
             sCtrl.FindProperty("desk2PointLight").objectReferenceValue = deskLights[1];
             sCtrl.FindProperty("desk3PointLight").objectReferenceValue = deskLights[2];
-            sCtrl.FindProperty("deskLightBaseIntensity").floatValue = 5.40f;
-            sCtrl.FindProperty("deskLightRange").floatValue = 4.6f;
-            sCtrl.FindProperty("emergencyMaxIntensity").floatValue = 4.50f;
+            sCtrl.FindProperty("deskLightBaseIntensity").floatValue = 0.68f;
+            sCtrl.FindProperty("deskLightRange").floatValue = 2.8f;
+            sCtrl.FindProperty("emergencyMaxIntensity").floatValue = 2.00f;
 
             SerializedProperty alertLightsProp = sCtrl.FindProperty("emergencyAlertLights");
             alertLightsProp.arraySize = 2;

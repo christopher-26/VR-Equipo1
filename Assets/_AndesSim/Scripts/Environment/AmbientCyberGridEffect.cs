@@ -58,16 +58,16 @@ namespace AndesSim.Environment
 
         [Header("--- 5. Parámetros de Pulsación de Emergencia ---")]
         [SerializeField] private float emergencyPulseFrequency = 3.2f;
-        [SerializeField] private float minPulseIntensity = 0.35f;
-        [SerializeField] private float maxPulseIntensity = 1.35f;
+        [SerializeField] private float minPulseIntensity = 0.14f;
+        [SerializeField] private float maxPulseIntensity = 0.52f;
         [SerializeField] private float transitionSpeed = 3.0f;
 
         // Estado interno
         private CyberAmbientState _currentState = CyberAmbientState.NormalInvestigation;
         private Color _currentLightColor;
         private Color _targetLightColor;
-        private float _currentBaseIntensity = 0.85f;
-        private float _targetBaseIntensity = 0.85f;
+        private float _currentBaseIntensity = 0.32f;
+        private float _targetBaseIntensity = 0.32f;
 
         public CyberAmbientState CurrentState => _currentState;
 
@@ -171,8 +171,8 @@ namespace AndesSim.Environment
 
                 windowCyberLight = wLightObj.AddComponent<Light>();
                 windowCyberLight.type = LightType.Point;
-                windowCyberLight.range = 7.0f;
-                windowCyberLight.intensity = 0.85f;
+                windowCyberLight.range = 5.5f;
+                windowCyberLight.intensity = 0.32f;
                 windowCyberLight.color = normalColor;
                 windowCyberLight.shadows = LightShadows.None; // 0 costo de sombras para OpenGLES3
             }
@@ -186,8 +186,8 @@ namespace AndesSim.Environment
 
                 portalCyberLight = pLightObj.AddComponent<Light>();
                 portalCyberLight.type = LightType.Point;
-                portalCyberLight.range = 5.0f;
-                portalCyberLight.intensity = 0.75f;
+                portalCyberLight.range = 3.8f;
+                portalCyberLight.intensity = 0.28f;
                 portalCyberLight.color = normalColor;
                 portalCyberLight.shadows = LightShadows.None;
             }
@@ -304,23 +304,23 @@ namespace AndesSim.Environment
             {
                 case CyberAmbientState.NormalInvestigation:
                     _targetLightColor = normalColor;
-                    _targetBaseIntensity = 0.85f;
+                    _targetBaseIntensity = 0.32f;
                     SetParticleColor(normalColor);
-                    ApplyCoordinatedAmbient(newState, new Color(0.82f, 0.88f, 0.95f), new Color(0.70f, 0.75f, 0.81f));
+                    ApplyCoordinatedAmbient(newState, new Color(0.24f, 0.29f, 0.36f), new Color(0.17f, 0.21f, 0.27f));
                     break;
 
                 case CyberAmbientState.EmergencyAttackInfection:
                     _targetLightColor = emergencyRedColor;
-                    _targetBaseIntensity = 1.10f;
+                    _targetBaseIntensity = 0.55f;
                     SetParticleColor(emergencyRedColor);
-                    ApplyCoordinatedAmbient(newState, new Color(0.75f, 0.30f, 0.28f), new Color(0.55f, 0.22f, 0.20f));
+                    ApplyCoordinatedAmbient(newState, new Color(0.45f, 0.14f, 0.12f), new Color(0.32f, 0.10f, 0.09f));
                     break;
 
                 case CyberAmbientState.QuarantineDefenseShield:
                     _targetLightColor = defenseCyanColor;
-                    _targetBaseIntensity = 0.95f;
+                    _targetBaseIntensity = 0.38f;
                     SetParticleColor(defenseCyanColor);
-                    ApplyCoordinatedAmbient(newState, new Color(0.48f, 0.90f, 0.72f), new Color(0.36f, 0.75f, 0.58f));
+                    ApplyCoordinatedAmbient(newState, new Color(0.18f, 0.44f, 0.34f), new Color(0.13f, 0.34f, 0.26f));
                     break;
             }
 

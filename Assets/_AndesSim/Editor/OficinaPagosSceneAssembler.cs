@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using TMPro;
@@ -352,7 +352,8 @@ namespace AndesSim.Editor
             Camera cam = camObj.AddComponent<Camera>();
             cam.nearClipPlane = 0.05f;
             cam.farClipPlane = 100f;
-            cam.clearFlags = CameraClearFlags.Skybox;
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            cam.backgroundColor = new Color(0.05f, 0.07f, 0.11f, 1f);
 
             camObj.AddComponent<AudioListener>();
 
@@ -495,9 +496,7 @@ namespace AndesSim.Editor
             // =========================================================================
             // PUESTO 1: Carla Mendoza (Operadora SWIFT)
             // =========================================================================
-            ConfigureExistingMonitorObject(monitor01, "Monitor_01", "Puesto 1: Carla Mendoza (SWIFT)", "Monitor_01");
-            MonitorMeshBuilder.BuildTerminalWorldSpaceCanvas(monitor01.transform, "Monitor_01",
-                new Vector3(0f, 0.28f, 0.02f), Quaternion.Euler(0f, 180f, 0f), new Vector2(800f, 480f), new Vector3(0.00055f, 0.00055f, 0.00055f));
+            AttachFittedMonitorTerminal(monitor01, "Monitor_01", "Puesto 1: Carla Mendoza (SWIFT)");
 
             PhishingInspector phishingInspector = monitor01.AddComponent<PhishingInspector>();
             MailQuarantine mailQuarantine = monitor01.AddComponent<MailQuarantine>();
@@ -529,9 +528,7 @@ namespace AndesSim.Editor
             // =========================================================================
             // PUESTO 2: Analista de Comercio Exterior (Destinatario #7)
             // =========================================================================
-            ConfigureExistingMonitorObject(monitor02, "Monitor_02", "Puesto 2: Analista Comercio Exterior", "Monitor_02");
-            MonitorMeshBuilder.BuildTerminalWorldSpaceCanvas(monitor02.transform, "Monitor_02",
-                new Vector3(0f, 0.28f, 0.02f), Quaternion.Euler(0f, 180f, 0f), new Vector2(800f, 480f), new Vector3(0.00055f, 0.00055f, 0.00055f));
+            AttachFittedMonitorTerminal(monitor02, "Monitor_02", "Puesto 2: Analista Comercio Exterior");
             MonitorMeshBuilder.BuildMonitor2TradeFinanceDisplay(monitor02);
 
             CreateTeleportPoint(parent, "Teleport_Puesto2_Analista",
@@ -540,9 +537,7 @@ namespace AndesSim.Editor
             // =========================================================================
             // PUESTO 3: Consola SIEM y Panel de Defensas (Oficina Privada / SOC)
             // =========================================================================
-            ConfigureExistingMonitorObject(monitor03, "Monitor_03", "Puesto 3: Consola SIEM (Logs)", "Monitor_03");
-            MonitorMeshBuilder.BuildTerminalWorldSpaceCanvas(monitor03.transform, "Monitor_03",
-                new Vector3(0f, 0.28f, 0.02f), Quaternion.Euler(0f, 180f, 0f), new Vector2(800f, 480f), new Vector3(0.00055f, 0.00055f, 0.00055f));
+            AttachFittedMonitorTerminal(monitor03, "Monitor_03", "Puesto 3: Consola SIEM (Logs)");
 
             monitor03.AddComponent<DefenseTerminalController>();
             AccessLogTerminal siemTerminal = monitor03.AddComponent<AccessLogTerminal>();
@@ -574,6 +569,108 @@ namespace AndesSim.Editor
             // TeleportPoint de retorno a la Puerta de Entrada (Acceso Principal)
             CreateTeleportPoint(parent, "Teleport_PuertaEntrada",
                 new Vector3(-2.60f, 0.01f, 3.40f), "Puerta de Entrada (Acceso Principal)", "", Quaternion.Euler(0f, 180f, 0f));
+        }
+
+        private static void AttachFittedMonitorTerminal(GameObject monitorObj, string monitorId, string label)
+        {
+            ConfigureExistingMonitorObject(monitorObj, monitorId, label, monitorId);
+
+            // Reemplazar la textura blanca de escritorio de VNB (screen.mat) por vidrio oscuro antirreflejo
+            Renderer monRend = monitorObj.GetComponent<Renderer>();
+            if (monRend != null && monRend.sharedMaterials != null && monRend.sharedMaterials.Length > 1)
+            {
+                Material darkScreenMat = RoomArchitectureBuilder.CreatePbrMaterial(
+                    "Mat_Monitor_DarkScreen", new Color(0.03f, 0.05f, 0.08f), 0.16f, 0.05f);
+                Material[] mats = monRend.sharedMaterials;
+                bool replaced = false;
+                for (int m = 0; m < mats.Length; m++)
+                {
+                    if (mats[m] != null && mats[m].name.ToLowerInvariant().Contains("screen"))
+                    {
+                        mats[m] = darkScreenMat;
+                        replaced = true;
+                    }
+                }
+                if (!replaced) mats[1] = darkScreenMat;
+                monRend.sharedMaterials = mats;
+            }
+
+            Vector3 localPos = new Vector3(0f, 0.28f, 0.052f);
+            Quaternion localRot = Quaternion.Euler(0f, 180f, 0f);
+            Vector3 localScale = new Vector3(0.00055f, 0.00055f, 0.00055f);
+
+            MeshFilter mf = monitorObj.GetComponent<MeshFilter>();
+            MeshCollider mc = monitorObj.GetComponent<MeshCollider>();
+            if (mf != null && mf.sharedMesh != null)
+            {
+                Bounds mb = mf.sharedMesh.bounds;
+                float screenCenterY = Mathf.Lerp(mb.min.y, mb.max.y, 0.60f);
+                Vector3 fittedNormal = Vector3.forward;
+                Vector3 anchorLocal = new Vector3(mb.center.x, screenCenterY, 0.040f);
+
+                if (mc != null)
+                {
+                    Physics.SyncTransforms();
+                    Vector3 worldDir = -monitorObj.transform.forward;
+                    float[] ys = { screenCenterY - mb.size.y * 0.15f, screenCenterY, screenCenterY + mb.size.y * 0.15f };
+                    Vector3[] hits = new Vector3[ys.Length];
+                    bool[] ok = new bool[ys.Length];
+                    for (int i = 0; i < ys.Length; i++)
+                    {
+                        Vector3 worldOrigin = monitorObj.transform.TransformPoint(new Vector3(mb.center.x, ys[i], mb.max.z + 0.35f));
+                        if (mc.Raycast(new Ray(worldOrigin, worldDir), out RaycastHit hit, 1.0f))
+                        {
+                            hits[i] = monitorObj.transform.InverseTransformPoint(hit.point);
+                            ok[i] = true;
+                        }
+                    }
+                    if (ok[0] && ok[2])
+                    {
+                        Vector3 upSlope = (hits[2] - hits[0]).normalized;
+                        Vector3 tn = Vector3.Cross(upSlope, Vector3.left).normalized;
+                        if (tn.z < 0f) tn = -tn;
+                        if (Vector3.Dot(tn, Vector3.forward) > 0.7f) fittedNormal = tn;
+                    }
+                    float maxProj = float.NegativeInfinity;
+                    for (int i = 0; i < ys.Length; i++)
+                    {
+                        if (!ok[i]) continue;
+                        float p = Vector3.Dot(hits[i], fittedNormal);
+                        if (p > maxProj) maxProj = p;
+                    }
+                    if (maxProj > float.NegativeInfinity)
+                    {
+                        float curProj = Vector3.Dot(anchorLocal, fittedNormal);
+                        anchorLocal += fittedNormal * ((maxProj - curProj) + 0.012f);
+                    }
+                }
+                else
+                {
+                    anchorLocal.z = Mathf.Max(0.048f, mb.max.z * 0.55f);
+                }
+
+                localPos = anchorLocal;
+                localRot = Quaternion.LookRotation(-fittedNormal, Vector3.up);
+                float usableW = Mathf.Max(0.36f, mb.size.x * 0.86f);
+                float usableH = Mathf.Max(0.22f, mb.size.y * 0.56f);
+                float uniScale = Mathf.Clamp(Mathf.Min(usableW / 800f, usableH / 480f), 0.00048f, 0.00060f);
+                localScale = new Vector3(uniScale, uniScale, uniScale);
+
+                BoxCollider col = monitorObj.GetComponent<BoxCollider>();
+                if (col != null)
+                {
+                    col.center = new Vector3(mb.center.x, screenCenterY, anchorLocal.z - 0.02f);
+                    col.size = new Vector3(Mathf.Max(0.46f, mb.size.x * 0.96f), Mathf.Max(0.34f, mb.size.y * 0.65f), 0.16f);
+                }
+            }
+            else if (monitorObj.transform.Find("Cabeza_Pantalla_Monitor") != null)
+            {
+                localPos = new Vector3(0f, 0.32f, -0.018f);
+                localRot = Quaternion.identity;
+            }
+
+            MonitorMeshBuilder.BuildTerminalWorldSpaceCanvas(
+                monitorObj.transform, monitorId, localPos, localRot, new Vector2(800f, 480f), localScale);
         }
 
         private static void ConfigureExistingMonitorObject(GameObject monitorObj, string newName, string label, string workstationId)
@@ -1092,13 +1189,13 @@ namespace AndesSim.Editor
             GameObject wallStdPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/VNB - Office Set/Prefabs/Building/wall_standard.prefab");
             GameObject wallWoodPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/VNB - Office Set/Prefabs/Building/wall_standard_wood_alt_1.prefab");
 
-            Material matWallFallback = RoomArchitectureBuilder.CreatePbrMaterial("Mat_Oficina_ParedCierre", new Color(0.80f, 0.82f, 0.86f), 0.2f, 0.0f);
-            Material matCeilingSlab = RoomArchitectureBuilder.CreatePbrMaterial("Mat_Oficina_TechoAcustico", new Color(0.84f, 0.86f, 0.89f), 0.15f, 0.0f);
-            Material matBeamDark = RoomArchitectureBuilder.CreatePbrMaterial("Mat_Oficina_VigaOscura", new Color(0.18f, 0.21f, 0.26f), 0.35f, 0.2f);
-            Material matTrofferFrame = RoomArchitectureBuilder.CreatePbrMaterial("Mat_Luminaria_Marco", new Color(0.12f, 0.15f, 0.20f), 0.45f, 0.35f);
-            Material matTrofferGlow = RoomArchitectureBuilder.CreatePbrMaterial("Mat_Luminaria_DifusorLED", new Color(0.98f, 0.99f, 1.0f), 0.90f, 0.0f, new Color(0.98f, 0.99f, 1.0f) * 2.4f);
-            Material matCoveNeon = RoomArchitectureBuilder.CreatePbrMaterial("Mat_Techo_CoveNeon", new Color(0.30f, 0.88f, 0.98f), 0.90f, 0.0f, new Color(0.30f, 0.88f, 0.98f) * 1.15f);
-            Material matClerestory = RoomArchitectureBuilder.CreatePbrMaterial("Mat_Cerramiento_SocSuperior", new Color(0.66f, 0.76f, 0.84f), 0.72f, 0.1f);
+            Material matWallFallback = RoomArchitectureBuilder.CreatePbrMaterial("Mat_Oficina_ParedCierre", new Color(0.25f, 0.31f, 0.39f), 0.06f, 0.0f);
+            Material matCeilingSlab = RoomArchitectureBuilder.CreatePbrMaterial("Mat_Oficina_TechoAcustico", new Color(0.18f, 0.22f, 0.28f), 0.06f, 0.0f);
+            Material matBeamDark = RoomArchitectureBuilder.CreatePbrMaterial("Mat_Oficina_VigaOscura", new Color(0.11f, 0.14f, 0.19f), 0.25f, 0.2f);
+            Material matTrofferFrame = RoomArchitectureBuilder.CreatePbrMaterial("Mat_Luminaria_Marco", new Color(0.09f, 0.11f, 0.16f), 0.35f, 0.3f);
+            Material matTrofferGlow = RoomArchitectureBuilder.CreatePbrMaterial("Mat_Luminaria_DifusorLED", new Color(0.54f, 0.62f, 0.70f), 0.35f, 0.0f, new Color(0.45f, 0.56f, 0.68f) * 0.35f);
+            Material matCoveNeon = RoomArchitectureBuilder.CreatePbrMaterial("Mat_Techo_CoveNeon", new Color(0.08f, 0.54f, 0.68f), 0.50f, 0.0f, new Color(0.08f, 0.54f, 0.68f) * 0.40f);
+            Material matClerestory = RoomArchitectureBuilder.CreatePbrMaterial("Mat_Cerramiento_SocSuperior", new Color(0.20f, 0.27f, 0.35f), 0.20f, 0.05f);
 
             // 1. Muro Este completo (X = +8.00, rotY = -90 -> Z cubre [-6 .. +4])
             Transform eastGroup = new GameObject("Muro_Este_Cerramiento").transform;
@@ -1108,7 +1205,7 @@ namespace AndesSim.Editor
             {
                 bool useWood = (i == 1 || i == 3);
                 InstantiateWallPrefabOrCube(useWood ? wallWoodPrefab : wallStdPrefab, wallStdPrefab, eastGroup,
-                    $"Pared_Este_0{i + 1}", new Vector3(8.00f, 0f, eastZ[i]), Quaternion.Euler(0f, -90f, 0f), matWallFallback);
+                    useWood ? $"Pared_Este_Wood_0{i + 1}" : $"Pared_Este_0{i + 1}", new Vector3(8.00f, 0f, eastZ[i]), Quaternion.Euler(0f, -90f, 0f), matWallFallback);
             }
 
             // 2. Muro Sur completo (Z = -6.00, rotY = 0 -> X cubre [-8 .. +8])
@@ -1120,7 +1217,7 @@ namespace AndesSim.Editor
                 // Mantener muro liso detras del Tablero de Sospechosos (X = 0..4)
                 bool useWood = (i == 1 || i == 6);
                 InstantiateWallPrefabOrCube(useWood ? wallWoodPrefab : wallStdPrefab, wallStdPrefab, southGroup,
-                    $"Pared_Sur_0{i + 1}", new Vector3(southX[i], 0f, -6.00f), Quaternion.identity, matWallFallback);
+                    useWood ? $"Pared_Sur_Wood_0{i + 1}" : $"Pared_Sur_0{i + 1}", new Vector3(southX[i], 0f, -6.00f), Quaternion.identity, matWallFallback);
             }
 
             // 3. Columnas estructurales en las 4 esquinas exteriores
@@ -1250,7 +1347,150 @@ namespace AndesSim.Editor
                 sr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             }
 
-            Debug.Log($"{LogPrefix} <color=#38F28A>Oficina cerrada con muros Este/Sur, techo arquitectonico, 12 luminarias LED y 6 apliques murales.</color>");
+            // 8. Renovar paleta cromatica arquitectonica (reemplaza blancos planos de paredes, piso y cubiculos)
+            ApplyVnbExecutiveColorTheme(envRoot);
+
+            Debug.Log($"{LogPrefix} <color=#38F28A>Oficina cerrada con muros Este/Sur, techo arquitectonico, paleta ejecutiva y luminarias calibradas.</color>");
+        }
+
+        private static void ApplyVnbExecutiveColorTheme(GameObject envRoot)
+        {
+            var variantCache = new Dictionary<string, Material>();
+            MeshRenderer[] renderers = envRoot.GetComponentsInChildren<MeshRenderer>(true);
+
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                MeshRenderer mr = renderers[i];
+                if (mr == null) continue;
+
+                if (!TryResolveVnbSurfaceRole(mr.transform, envRoot.transform, out string role, out Color tint, out float smoothness))
+                {
+                    continue;
+                }
+
+                Material[] mats = mr.sharedMaterials;
+                bool changed = false;
+                for (int m = 0; m < mats.Length; m++)
+                {
+                    Material src = mats[m];
+                    if (src != null && src.name.StartsWith("palette_", System.StringComparison.OrdinalIgnoreCase))
+                    {
+                        mats[m] = GetOrCreateVnbPaletteVariant(variantCache, src, role, tint, smoothness);
+                        changed = true;
+                    }
+                }
+                if (changed)
+                {
+                    mr.sharedMaterials = mats;
+                }
+            }
+        }
+
+        private static bool TryResolveVnbSurfaceRole(Transform t, Transform stopAt, out string role, out Color tint, out float smoothness)
+        {
+            Transform cur = t;
+            while (cur != null && cur != stopAt)
+            {
+                string low = cur.name.ToLowerInvariant();
+                if (low.Contains("floor_tile"))
+                {
+                    role = "Floor";
+                    tint = new Color(0.28f, 0.32f, 0.38f, 1f);
+                    smoothness = 0.08f;
+                    return true;
+                }
+                if (low.Contains("wood") && (low.Contains("wall_") || low.Contains("pared_")))
+                {
+                    role = "WoodWall";
+                    tint = new Color(0.68f, 0.62f, 0.56f, 1f);
+                    smoothness = 0.10f;
+                    return true;
+                }
+                if (low.Contains("wall_small") || low.Contains("wall_medium"))
+                {
+                    role = "Cubicle";
+                    tint = new Color(0.24f, 0.33f, 0.42f, 1f);
+                    smoothness = 0.06f;
+                    return true;
+                }
+                if (low.Contains("wall_standard") || low.Contains("pared_este") || low.Contains("pared_sur"))
+                {
+                    role = "PerimeterWall";
+                    tint = new Color(0.29f, 0.36f, 0.45f, 1f);
+                    smoothness = 0.06f;
+                    return true;
+                }
+                if (low.Contains("door_") || low == "door" || low.Contains("door frame"))
+                {
+                    role = "Door";
+                    tint = new Color(0.48f, 0.46f, 0.45f, 1f);
+                    smoothness = 0.10f;
+                    return true;
+                }
+                if (low.StartsWith("monitor_") || low.Contains("new_monitor"))
+                {
+                    role = "MonitorBody";
+                    tint = new Color(0.35f, 0.38f, 0.42f, 1f);
+                    smoothness = 0.12f;
+                    return true;
+                }
+                if (low.Contains("desk") || low.Contains("table") || low.Contains("counter_") ||
+                    low.Contains("shelf") || low.Contains("file_cabinet") || low.Contains("printer") ||
+                    low.Contains("air_conditioner") || low.Contains("small_whiteboard") || low.Contains("fan_small") ||
+                    low.Contains("chair") || low.Contains("stool") || low.Contains("locker") ||
+                    low.Contains("old_pc_case") || low.Contains("new_case"))
+                {
+                    role = "Furniture";
+                    tint = new Color(0.66f, 0.69f, 0.74f, 1f);
+                    smoothness = 0.08f;
+                    return true;
+                }
+                cur = cur.parent;
+            }
+
+            role = null;
+            tint = Color.white;
+            smoothness = 0.10f;
+            return false;
+        }
+
+        private static Material GetOrCreateVnbPaletteVariant(Dictionary<string, Material> cache, Material sourcePalette, string role, Color tint, float smoothness)
+        {
+            string key = role + "_" + sourcePalette.name;
+            if (cache.TryGetValue(key, out Material cached) && cached != null)
+            {
+                return cached;
+            }
+
+            string assetPath = $"Assets/_AndesSim/Art/Materials/Mat_Vnb_{role}_{sourcePalette.name}.mat";
+            string dir = System.IO.Path.GetDirectoryName(assetPath).Replace('\\', '/');
+            if (!AssetDatabase.IsValidFolder(dir))
+            {
+                System.IO.Directory.CreateDirectory(dir);
+                AssetDatabase.Refresh();
+            }
+
+            Material mat = AssetDatabase.LoadAssetAtPath<Material>(assetPath);
+            if (mat == null)
+            {
+                mat = new Material(sourcePalette);
+                mat.name = System.IO.Path.GetFileNameWithoutExtension(assetPath);
+                AssetDatabase.CreateAsset(mat, assetPath);
+            }
+            else
+            {
+                mat.shader = sourcePalette.shader;
+                if (sourcePalette.HasProperty("_BaseMap")) mat.SetTexture("_BaseMap", sourcePalette.GetTexture("_BaseMap"));
+                if (sourcePalette.HasProperty("_MainTex")) mat.SetTexture("_MainTex", sourcePalette.GetTexture("_MainTex"));
+            }
+
+            if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", tint);
+            if (mat.HasProperty("_Color")) mat.SetColor("_Color", tint);
+            if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", smoothness);
+            if (mat.HasProperty("_Metallic")) mat.SetFloat("_Metallic", 0.0f);
+            EditorUtility.SetDirty(mat);
+            cache[key] = mat;
+            return mat;
         }
 
         private static void BuildTransomSegment(Transform parent, string name, Vector3 centerPos, Vector3 size, Material panelMat, Material frameMat)
