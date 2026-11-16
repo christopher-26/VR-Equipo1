@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEditor;
+using UnityEditor.Android;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
@@ -74,7 +75,7 @@ namespace AndesSim.Editor
             sb.AppendLine("| **Motor de Desarrollo** | Unity 6 (6000.3.24f1 LTS) |");
             sb.AppendLine("| **Arquitectura de Ejecución** | Android 64-bit (ARM64) compilado con backend IL2CPP |");
             sb.AppendLine("| **API de Gráficos** | OpenGLES3 puro (optimizado para GPU móvil sin sobrecarga de shaders) |");
-            sb.AppendLine("| **Nivel Mínimo de SDK** | Android 8.0 Oreo (API Level 26) · Target: Android 14 (API Level 34) |");
+            sb.AppendLine("| **Nivel Mínimo de SDK** | Android 8.0 Oreo (API Level 26) · Target: Android 15 (API Level 35) |");
             sb.AppendLine("| **Dispositivo Objetivo** | Google Cardboard XR (Visor VR móvil con retícula central por mirada y toque en pantalla) |");
             sb.AppendLine("| **Rendimiento Objetivo** | 60 FPS estables continuos, confort *Zero Cybersickness* (teletransporte parpadeo 0.15s) |");
             sb.AppendLine("| **Escena Principal (Índice 0)** | `Assets/_AndesSim/Scenes/Oficina_Pagos.unity` |");
@@ -448,9 +449,9 @@ namespace AndesSim.Editor
             // Identificador de paquete
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, PackageIdentifier);
 
-            // Nivel de SDK Android (Mínimo API 26 - Oreo 8.0, Target API 34 - Android 14.0 para evitar bloqueo por endurecimiento de seguridad)
+            // Nivel de SDK Android (Mínimo API 26 - Oreo 8.0, Target API 35 - Android 15.0 para evitar bloqueo por endurecimiento de seguridad)
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
-            PlayerSettings.Android.targetSdkVersion = (AndroidSdkVersions)34;
+            PlayerSettings.Android.targetSdkVersion = (AndroidSdkVersions)35;
 
             // Arquitectura 64 bits IL2CPP
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
@@ -523,5 +524,88 @@ namespace AndesSim.Editor
         }
 
         #endregion
+    }
+
+    /// <summary>
+    /// Post-procesador Gradle automatizado que garantiza compatibilidad estricta en Unity 6
+    /// para el paquete Google Cardboard XR (GfxPluginCardboard.aar):
+    /// 1. Eleva 'compileSdk' y 'targetSdk' a 35 si estan configurados en un nivel inferior.
+    /// 2. Inyecta el estilo 'Theme.AppCompat.NoActionBar' en res/values/styles.xml para evitar fallo AAPT2.
+    /// </summary>
+    public class AndesSimGradlePostProcessor : IPostGenerateGradleAndroidProject
+    {
+        public int callbackOrder => 1000;
+
+        public void OnPostGenerateGradleAndroidProject(string basePath)
+        {
+            try
+            {
+                string rootGradle = Path.GetFullPath(Path.Combine(basePath, ".."));
+                string[] gradleFiles = Directory.GetFiles(rootGradle, "build.gradle", SearchOption.AllDirectories);
+                foreach (var gf in gradleFiles)
+                {
+                    string fileText = File.ReadAllText(gf, Encoding.UTF8);
+                    bool modified = false;
+
+                    if (System.Text.RegularExpressions.Regex.IsMatch(fileText, @"compileSdk\s+(?:[12]\d|3[0-4])"))
+                    {
+                        fileText = System.Text.RegularExpressions.Regex.Replace(fileText, @"compileSdk\s+\d+", "compileSdk 35");
+                        fileText = System.Text.RegularExpressions.Regex.Replace(fileText, @"targetSdk\s+\d+", "targetSdk 35");
+                        modified = true;
+                    }
+
+                    if (modified)
+                    {
+                        File.WriteAllText(gf, fileText, Encoding.UTF8);
+                        Debug.Log($"[ANDES-SIM - GradlePostProcessor] Ajustado compileSdk/targetSdk a 35 en: {gf}");
+                    }
+                }
+
+                string[] resDirs = new string[]
+                {
+                    Path.Combine(basePath, "src", "main", "res", "values"),
+                    Path.Combine(rootGradle, "launcher", "src", "main", "res", "values"),
+                    Path.Combine(basePath, "CardboardAppResources.androidlib", "res", "values")
+                };
+
+                string styleBlock = @"    <style name=""Theme.AppCompat.NoActionBar"" parent=""@android:style/Theme.DeviceDefault.NoActionBar"">
+        <item name=""android:windowNoTitle"">true</item>
+        <item name=""android:windowActionBar"">false</item>
+        <item name=""android:windowFullscreen"">true</item>
+        <item name=""android:windowContentOverlay"">@null</item>
+    </style>
+";
+                string fullStylesXml = @"<?xml version=""1.0"" encoding=""utf-8""?>
+<resources>
+" + styleBlock + "</resources>";
+
+                foreach (var dir in resDirs)
+                {
+                    if (Directory.Exists(dir))
+                    {
+                        string stylesPath = Path.Combine(dir, "styles.xml");
+                        if (!File.Exists(stylesPath))
+                        {
+                            File.WriteAllText(stylesPath, fullStylesXml, Encoding.UTF8);
+                            Debug.Log($"[ANDES-SIM - GradlePostProcessor] Creado styles.xml en: {stylesPath}");
+                        }
+                        else
+                        {
+                            string c = File.ReadAllText(stylesPath, Encoding.UTF8);
+                            if (!c.Contains("Theme.AppCompat.NoActionBar"))
+                            {
+                                c = c.Replace("</resources>", styleBlock + "</resources>");
+                                File.WriteAllText(stylesPath, c, Encoding.UTF8);
+                                Debug.Log($"[ANDES-SIM - GradlePostProcessor] Inyectado Theme.AppCompat.NoActionBar en: {stylesPath}");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[ANDES-SIM - GradlePostProcessor] Aviso: {ex.Message}");
+            }
+        }
     }
 }
