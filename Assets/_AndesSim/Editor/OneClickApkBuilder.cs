@@ -470,6 +470,10 @@ namespace AndesSim.Editor
             // Desactivar OpenXR / MetaQuest en Android para garantizar compatibilidad con smartphones y visores Cardboard
             EnsureCardboardXrConfiguration();
 
+            // Active Input Handling: Forzar modo exclusivo 'Input System Package (New)' (valor 1)
+            // En Unity 6, Android rechaza el valor 2 ("Both") arrojando UnityException durante BuildPlayer.
+            EnsureSingleInputHandling();
+
             Debug.Log($"{LogPrefix} <color=#38F28A>PlayerSettings Android aplicados (IL2CPP, ARM64, API 26, OpenGLES3, LandscapeLeft, Cardboard Safe).</color>");
         }
 
@@ -497,6 +501,24 @@ namespace AndesSim.Editor
                 EditorUtility.SetDirty(settings);
                 EditorUtility.SetDirty(manager);
                 AssetDatabase.SaveAssets();
+            }
+        }
+
+
+        public static void EnsureSingleInputHandling()
+        {
+            var assets = AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/ProjectSettings.asset");
+            if (assets != null && assets.Length > 0)
+            {
+                SerializedObject projectSettings = new SerializedObject(assets[0]);
+                SerializedProperty prop = projectSettings.FindProperty("activeInputHandler");
+                if (prop != null && prop.intValue != 1)
+                {
+                    prop.intValue = 1;
+                    projectSettings.ApplyModifiedProperties();
+                    AssetDatabase.SaveAssets();
+                    Debug.Log($"{LogPrefix} 'activeInputHandler' fijado a 1 (Input System Package New) para compatibilidad con Android.");
+                }
             }
         }
 
