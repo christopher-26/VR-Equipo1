@@ -303,8 +303,21 @@ namespace AndesSim.Editor
             BuildAndroidApk(showDialog: false);
         }
 
+        [MenuItem("ANDES-SIM/09. Limpiar Consola de Unity", priority = 9)]
+        public static void ClearUnityConsole()
+        {
+            try
+            {
+                var logEntries = typeof(EditorApplication).Assembly.GetType("UnityEditor.LogEntries");
+                var clearMethod = logEntries?.GetMethod("Clear", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+                clearMethod?.Invoke(null, null);
+            }
+            catch { }
+        }
+
         public static bool BuildAndroidApk(bool showDialog = false)
         {
+            ClearUnityConsole();
             Debug.Log($"{LogPrefix} <b>==================================================================</b>");
             Debug.Log($"{LogPrefix} <b>INICIANDO PROCESO DE COMPILACIÓN: APK ANDROID CARDBOARD XR</b>");
             Debug.Log($"{LogPrefix} <b>==================================================================</b>");
@@ -545,19 +558,34 @@ namespace AndesSim.Editor
                 foreach (var gf in gradleFiles)
                 {
                     string fileText = File.ReadAllText(gf, Encoding.UTF8);
-                    bool modified = false;
+                    string updated = System.Text.RegularExpressions.Regex.Replace(
+                        fileText,
+                        @"(compileSdk(?:Version)?\s*(?:=|\s)\s*)(?:[12]?\d|3[0-4])\b",
+                        "${1}35");
+                    updated = System.Text.RegularExpressions.Regex.Replace(
+                        updated,
+                        @"(targetSdk(?:Version)?\s*(?:=|\s)\s*)(?:[12]?\d|3[0-4])\b",
+                        "${1}35");
 
-                    if (System.Text.RegularExpressions.Regex.IsMatch(fileText, @"compileSdk\s+(?:[12]\d|3[0-4])"))
+                    if (!string.Equals(updated, fileText, StringComparison.Ordinal))
                     {
-                        fileText = System.Text.RegularExpressions.Regex.Replace(fileText, @"compileSdk\s+\d+", "compileSdk 35");
-                        fileText = System.Text.RegularExpressions.Regex.Replace(fileText, @"targetSdk\s+\d+", "targetSdk 35");
-                        modified = true;
-                    }
-
-                    if (modified)
-                    {
-                        File.WriteAllText(gf, fileText, Encoding.UTF8);
+                        File.WriteAllText(gf, updated, Encoding.UTF8);
                         Debug.Log($"[ANDES-SIM - GradlePostProcessor] Ajustado compileSdk/targetSdk a 35 en: {gf}");
+                    }
+                }
+
+                string gradlePropsPath = Path.Combine(rootGradle, "gradle.properties");
+                if (File.Exists(gradlePropsPath))
+                {
+                    string propsText = File.ReadAllText(gradlePropsPath, Encoding.UTF8);
+                    string updatedProps = System.Text.RegularExpressions.Regex.Replace(
+                        propsText,
+                        @"(unity\.(?:compileSdkVersion|targetSdkVersion)\s*=\s*)(?:[12]?\d|3[0-4])\b",
+                        "${1}35");
+                    if (!string.Equals(updatedProps, propsText, StringComparison.Ordinal))
+                    {
+                        File.WriteAllText(gradlePropsPath, updatedProps, Encoding.UTF8);
+                        Debug.Log($"[ANDES-SIM - GradlePostProcessor] Ajustado gradle.properties SDK a 35 en: {gradlePropsPath}");
                     }
                 }
 

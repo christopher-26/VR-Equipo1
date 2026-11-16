@@ -47,6 +47,9 @@ namespace AndesSim.VR
         // Estado del giroscopio Android
         private bool _gyroInitialized = false;
 
+        public float MouseSensitivity => mouseSensitivity;
+        public float RollSensitivity => rollSensitivity;
+        public bool InvertPitch => invertPitch;
         public bool EnableGyroFallback => enableGyroFallback;
         public bool IsGyroInitialized => _gyroInitialized;
 
