@@ -233,6 +233,7 @@ namespace AndesSim.VR
                 hasPointerPos = true;
             }
 #endif
+#if ENABLE_LEGACY_INPUT_MANAGER
             try
             {
                 if (Input.GetMouseButtonDown(0))
@@ -249,6 +250,7 @@ namespace AndesSim.VR
                 }
             }
             catch { }
+#endif
 
             if (!isTriggered) return;
 

@@ -73,9 +73,16 @@ namespace AndesSim.VR
 
 #if UNITY_ANDROID && !UNITY_EDITOR
             // Primer arranque: pedir el QR del visor Cardboard (se guarda en el teléfono).
-            if (IsCardboardActive && !Google.XR.Cardboard.Api.HasDeviceParams())
+            try
             {
-                Google.XR.Cardboard.Api.ScanDeviceParams();
+                if (IsCardboardActive && !Google.XR.Cardboard.Api.HasDeviceParams())
+                {
+                    Google.XR.Cardboard.Api.ScanDeviceParams();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"{LogPrefix} Aviso al verificar visor Cardboard en inicio: {ex.Message}");
             }
 #endif
         }
@@ -84,17 +91,24 @@ namespace AndesSim.VR
         private static bool IsCardboardActive =>
             XRGeneralSettings.Instance != null &&
             XRGeneralSettings.Instance.Manager != null &&
+            XRGeneralSettings.Instance.Manager.isInitializationComplete &&
             XRGeneralSettings.Instance.Manager.activeLoader is Google.XR.Cardboard.XRLoader;
 
         // Botones nativos de la vista estéreo (engranaje = reescanear visor, X = salir).
         private void Update()
         {
             if (!IsCardboardActive) return;
-
-            if (Google.XR.Cardboard.Api.IsCloseButtonPressed) Application.Quit();
-            if (Google.XR.Cardboard.Api.IsGearButtonPressed) Google.XR.Cardboard.Api.ScanDeviceParams();
-            if (Google.XR.Cardboard.Api.HasNewDeviceParams()) Google.XR.Cardboard.Api.ReloadDeviceParams();
-            Google.XR.Cardboard.Api.UpdateScreenParams();
+            try
+            {
+                if (Google.XR.Cardboard.Api.IsCloseButtonPressed) Application.Quit();
+                if (Google.XR.Cardboard.Api.IsGearButtonPressed) Google.XR.Cardboard.Api.ScanDeviceParams();
+                if (Google.XR.Cardboard.Api.HasNewDeviceParams()) Google.XR.Cardboard.Api.ReloadDeviceParams();
+                Google.XR.Cardboard.Api.UpdateScreenParams();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"{LogPrefix} Aviso en ciclo VR Cardboard: {ex.Message}");
+            }
         }
 #endif
 

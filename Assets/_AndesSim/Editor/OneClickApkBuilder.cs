@@ -574,6 +574,30 @@ namespace AndesSim.Editor
                     }
                 }
 
+                // Inyectar dependencias oficiales AndroidX / Vision / Protobuf requeridas por GfxPluginCardboard.aar
+                string unityLibGradlePath = Path.Combine(basePath, "build.gradle");
+                if (File.Exists(unityLibGradlePath))
+                {
+                    string ulText = File.ReadAllText(unityLibGradlePath, Encoding.UTF8);
+                    if (!ulText.Contains("androidx.appcompat:appcompat"))
+                    {
+                        string cardboardDeps = "\n    implementation 'androidx.appcompat:appcompat:1.6.1'\n" +
+                                               "    implementation 'com.google.android.gms:play-services-vision:20.1.3'\n" +
+                                               "    implementation 'com.google.android.material:material:1.12.0'\n" +
+                                               "    implementation 'com.google.protobuf:protobuf-javalite:3.19.4'";
+                        string updatedUl = System.Text.RegularExpressions.Regex.Replace(
+                            ulText,
+                            @"dependencies\s*\{",
+                            "dependencies {" + cardboardDeps,
+                            System.Text.RegularExpressions.RegexOptions.None);
+                        if (!string.Equals(updatedUl, ulText, StringComparison.Ordinal))
+                        {
+                            File.WriteAllText(unityLibGradlePath, updatedUl, Encoding.UTF8);
+                            Debug.Log($"[ANDES-SIM - GradlePostProcessor] Dependencias Cardboard/AppCompat/Protobuf inyectadas en: {unityLibGradlePath}");
+                        }
+                    }
+                }
+
                 string gradlePropsPath = Path.Combine(rootGradle, "gradle.properties");
                 if (File.Exists(gradlePropsPath))
                 {
@@ -582,49 +606,42 @@ namespace AndesSim.Editor
                         propsText,
                         @"(unity\.(?:compileSdkVersion|targetSdkVersion)\s*=\s*)(?:[12]?\d|3[0-4])\b",
                         "${1}35");
+                    if (!updatedProps.Contains("android.useAndroidX")) updatedProps += "\nandroid.useAndroidX=true";
+                    if (!updatedProps.Contains("android.enableJetifier")) updatedProps += "\nandroid.enableJetifier=true";
                     if (!string.Equals(updatedProps, propsText, StringComparison.Ordinal))
                     {
                         File.WriteAllText(gradlePropsPath, updatedProps, Encoding.UTF8);
-                        Debug.Log($"[ANDES-SIM - GradlePostProcessor] Ajustado gradle.properties SDK a 35 en: {gradlePropsPath}");
+                        Debug.Log($"[ANDES-SIM - GradlePostProcessor] Ajustado gradle.properties SDK 35 y AndroidX en: {gradlePropsPath}");
                     }
                 }
 
-                string[] resDirs = new string[]
+                // Limpiar posible styles.xml falso que sombree al Theme.AppCompat.NoActionBar real de androidx.appcompat
+                string[] staleStyles = new string[]
                 {
-                    Path.Combine(basePath, "src", "main", "res", "values"),
-                    Path.Combine(rootGradle, "launcher", "src", "main", "res", "values"),
-                    Path.Combine(basePath, "CardboardAppResources.androidlib", "res", "values")
+                    Path.Combine(basePath, "src", "main", "res", "values", "styles.xml"),
+                    Path.Combine(rootGradle, "launcher", "src", "main", "res", "values", "styles.xml"),
+                    Path.Combine(basePath, "CardboardAppResources.androidlib", "res", "values", "styles.xml")
                 };
-
-                string styleBlock = @"    <style name=""Theme.AppCompat.NoActionBar"" parent=""@android:style/Theme.DeviceDefault.NoActionBar"">
-        <item name=""android:windowNoTitle"">true</item>
-        <item name=""android:windowActionBar"">false</item>
-        <item name=""android:windowFullscreen"">true</item>
-        <item name=""android:windowContentOverlay"">@null</item>
-    </style>
-";
-                string fullStylesXml = @"<?xml version=""1.0"" encoding=""utf-8""?>
-<resources>
-" + styleBlock + "</resources>";
-
-                foreach (var dir in resDirs)
+                foreach (var sp in staleStyles)
                 {
-                    if (Directory.Exists(dir))
+                    if (File.Exists(sp))
                     {
-                        string stylesPath = Path.Combine(dir, "styles.xml");
-                        if (!File.Exists(stylesPath))
+                        string c = File.ReadAllText(sp, Encoding.UTF8);
+                        if (c.Contains("@android:style/Theme.DeviceDefault.NoActionBar"))
                         {
-                            File.WriteAllText(stylesPath, fullStylesXml, Encoding.UTF8);
-                            Debug.Log($"[ANDES-SIM - GradlePostProcessor] Creado styles.xml en: {stylesPath}");
-                        }
-                        else
-                        {
-                            string c = File.ReadAllText(stylesPath, Encoding.UTF8);
-                            if (!c.Contains("Theme.AppCompat.NoActionBar"))
+                            string cleaned = System.Text.RegularExpressions.Regex.Replace(
+                                c,
+                                @"\s*<style\s+name=""Theme\.AppCompat\.NoActionBar""[^>]*>[\s\S]*?</style>",
+                                string.Empty);
+                            if (cleaned.Contains("<style"))
                             {
-                                c = c.Replace("</resources>", styleBlock + "</resources>");
-                                File.WriteAllText(stylesPath, c, Encoding.UTF8);
-                                Debug.Log($"[ANDES-SIM - GradlePostProcessor] Inyectado Theme.AppCompat.NoActionBar en: {stylesPath}");
+                                File.WriteAllText(sp, cleaned, Encoding.UTF8);
+                                Debug.Log($"[ANDES-SIM - GradlePostProcessor] Limpiado estilo Theme.AppCompat falso en: {sp}");
+                            }
+                            else
+                            {
+                                File.Delete(sp);
+                                Debug.Log($"[ANDES-SIM - GradlePostProcessor] Eliminado styles.xml falso para usar AppCompat real: {sp}");
                             }
                         }
                     }
