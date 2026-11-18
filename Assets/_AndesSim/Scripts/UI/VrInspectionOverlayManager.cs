@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -50,11 +51,11 @@ namespace AndesSim.UI
         private static readonly Color DangerRedColor = AndesTypographyTheme.AccentRed;
 
         [Header("--- Anclaje VR y Zoom ---")]
-        [SerializeField] private float distanceFromCamera = 0.95f;
-        public const float NormalScale = 0.00192f;
-        public const float EnlargedScale = 0.00285f; // +48% más grande para lectura cómoda
-        public const float NormalDistance = 0.95f;
-        public const float EnlargedDistance = 0.78f;
+        [SerializeField] private float distanceFromCamera = 0.68f;
+        public const float NormalScale = 0.00072f;
+        public const float EnlargedScale = 0.00084f; // Escala ampliada ergonómica sin recortar bordes ni chocar con escritorio
+        public const float NormalDistance = 0.68f;
+        public const float EnlargedDistance = 0.58f;
 
         private int _emailSubPart = 0;
         private bool _isEnlarged = false;
@@ -66,9 +67,21 @@ namespace AndesSim.UI
         private CanvasGroup _overlayCanvasGroup;
         private RectTransform _mainPanelRect;
         private HolographicPanelEntrance _panelEntrance;
+        private BoxCollider _overlayBackplateCollider;
         private Image _topGlowBarImg;
         private Camera _targetCamera;
         private bool _isOpen = false;
+        private bool _hasAnchorPose = false;
+        private Vector3 _anchorForward = Vector3.forward;
+
+        // Registro de objetos 3D temporalmente ocultos/deshabilitados mientras se revisa una PC
+        private bool _sceneObstructionsSuppressed = false;
+        private readonly List<Renderer> _suppressedRenderers = new List<Renderer>();
+        private readonly List<Canvas> _suppressedCanvases = new List<Canvas>();
+        private readonly List<Collider> _suppressedColliders = new List<Collider>();
+        private readonly List<Collider2D> _suppressedColliders2D = new List<Collider2D>();
+        private readonly List<Light> _suppressedLights = new List<Light>();
+        private readonly HashSet<int> _suppressedComponentIds = new HashSet<int>();
 
         public bool IsOpen => _isOpen;
         public bool IsEnlarged => _isEnlarged;
@@ -100,6 +113,16 @@ namespace AndesSim.UI
             {
                 _targetCamera = Camera.main != null ? Camera.main : FindFirstObjectByType<Camera>();
             }
+        }
+
+        private void OnDisable()
+        {
+            RestoreSceneObstructionsAfterOverlay();
+        }
+
+        private void OnDestroy()
+        {
+            RestoreSceneObstructionsAfterOverlay();
         }
 
         private void Update()
@@ -143,7 +166,7 @@ namespace AndesSim.UI
             // Si el usuario gira la cabeza completamente fuera del panel, cerrarlo automáticamente.
             Vector3 dirToPanel = (_overlayRoot.transform.position - _targetCamera.transform.position).normalized;
             float angle = Vector3.Angle(_targetCamera.transform.forward, dirToPanel);
-            if (angle > 82f)
+            if (angle > 85f)
             {
                 CloseOverlay();
             }
@@ -173,12 +196,13 @@ namespace AndesSim.UI
 
             RectTransform canvasRect = _overlayRoot.GetComponent<RectTransform>();
             canvasRect.sizeDelta = new Vector2(1020f, 760f);
-            canvasRect.localScale = Vector3.one * 0.00192f;
+            canvasRect.localScale = Vector3.one * NormalScale;
 
             EnsureEventSystemExists();
 
             GameObject panelGO = new GameObject("InspectionFrame");
             panelGO.transform.SetParent(_overlayRoot.transform, false);
+            panelGO.layer = _overlayRoot.layer;
             _mainPanelRect = panelGO.AddComponent<RectTransform>();
             _mainPanelRect.anchorMin = Vector2.zero;
             _mainPanelRect.anchorMax = Vector2.one;
@@ -186,13 +210,16 @@ namespace AndesSim.UI
 
             _overlayCanvasGroup = panelGO.AddComponent<CanvasGroup>();
             _panelEntrance = panelGO.AddComponent<HolographicPanelEntrance>();
-            _panelEntrance.Configure(0.28f, 0.87f, 24f, _overlayCanvasGroup);
+            _panelEntrance.Configure(0.24f, 0.90f, 16f, _overlayCanvasGroup);
 
-            HolographicFloatMotion panelFloat = panelGO.AddComponent<HolographicFloatMotion>();
-            panelFloat.Configure(11f, 0.85f, new Vector3(0.55f, 0.85f, 0.35f), 0f, 0f, true);
+            // Colisionador trasero no interactivo: estabiliza la retícula frente al HUD sin bloquear botones hijos
+            _overlayBackplateCollider = panelGO.AddComponent<BoxCollider>();
+            _overlayBackplateCollider.size = new Vector3(1020f, 760f, 12f);
+            _overlayBackplateCollider.center = new Vector3(0f, 0f, 16f);
+            _overlayBackplateCollider.isTrigger = true;
 
             Image bgImage = panelGO.AddComponent<Image>();
-            bgImage.color = new Color(0.012f, 0.030f, 0.055f, 0.995f); // Fondo opaco para evitar transparencias
+            bgImage.color = new Color(0.012f, 0.030f, 0.055f, 1.0f); // 100% opaco para eliminar transparencia trasera
 
             Outline panelOutline = panelGO.AddComponent<Outline>();
             panelOutline.effectColor = new Color(0.000f, 0.898f, 1.000f, 0.50f);
@@ -1125,14 +1152,13 @@ namespace AndesSim.UI
 
         public void ShowOverlay()
         {
+            bool wasAlreadyOpen = _isOpen;
             _isOpen = true;
-
-            // Suprimir visuales 3D del entorno para que nunca se sobrepongan al panel
-            InfectionSpreadVisualizer.I?.SetVisualsSuppressedForInspection(true);
 
             if (_overlayRoot != null)
             {
-                if (_targetCamera == null) _targetCamera = Camera.main;
+                EnsureEventSystemExists();
+                if (_targetCamera == null) _targetCamera = Camera.main != null ? Camera.main : FindFirstObjectByType<Camera>();
                 if (_targetCamera != null && _overlayCanvas != null)
                 {
                     _overlayCanvas.worldCamera = _targetCamera;
@@ -1145,14 +1171,28 @@ namespace AndesSim.UI
                     canvasRect.localScale = Vector3.one * (_isEnlarged ? EnlargedScale : NormalScale);
                 }
 
+                // Capturar anclaje ergonómico cómodo al abrir; mantener estable al cambiar de pestaña interna
+                if (!wasAlreadyOpen || !_hasAnchorPose)
+                {
+                    CaptureErgonomicAnchorFromCamera();
+                }
+
                 RepositionOverlay();
+                SuppressSceneObstructionsForOverlay();
                 UpdateZoomButtonLabel();
 
                 _overlayRoot.SetActive(true);
-                _panelEntrance?.PlayEntrance();
+                if (!wasAlreadyOpen)
+                {
+                    _panelEntrance?.PlayEntrance();
+                }
+            }
+            else
+            {
+                SuppressSceneObstructionsForOverlay();
             }
 
-            if (AndesSim.Audio.AudioManager.I != null)
+            if (!wasAlreadyOpen && AndesSim.Audio.AudioManager.I != null)
             {
                 AndesSim.Audio.AudioManager.I.PlayLaserScan(transform.position);
             }
@@ -1167,9 +1207,11 @@ namespace AndesSim.UI
             }
             _isOpen = false;
             _isEnlarged = false;
+            _hasAnchorPose = false;
+            distanceFromCamera = NormalDistance;
 
-            // Restaurar visuales 3D del entorno
-            InfectionSpreadVisualizer.I?.SetVisualsSuppressedForInspection(false);
+            // Restaurar 100% de monitores físicos, balizas, mobiliario, colisionadores y visuales 3D
+            RestoreSceneObstructionsAfterOverlay();
 
             if (_overlayRoot != null)
             {
@@ -1214,10 +1256,10 @@ namespace AndesSim.UI
         private void UpdateZoomButtonLabel()
         {
             if (_overlayRoot == null) return;
-            Transform btnTr = _overlayRoot.transform.Find("InspectionFrame/Btn_ToggleZoom/Text_Btn_ToggleZoom");
+            Transform btnTr = _overlayRoot.transform.Find("InspectionFrame/Btn_ToggleZoom");
             if (btnTr != null)
             {
-                var tmp = btnTr.GetComponent<TextMeshProUGUI>();
+                var tmp = btnTr.GetComponentInChildren<TextMeshProUGUI>(true);
                 if (tmp != null)
                 {
                     tmp.text = _isEnlarged ? "<b>[Q] REDUCIR [-]</b>" : "<b>[Q] AGRANDAR [+]</b>";
@@ -1272,21 +1314,239 @@ namespace AndesSim.UI
             _zoomRoutine = null;
         }
 
+        public bool IsOverlayTransform(Transform t)
+        {
+            return t != null && _overlayRoot != null && (t == _overlayRoot.transform || t.IsChildOf(_overlayRoot.transform));
+        }
+
+        public bool TryRaycastOverlayPlane(Ray ray, out float distance)
+        {
+            distance = 0f;
+            if (!_isOpen || _overlayRoot == null || !_overlayRoot.activeInHierarchy) return false;
+
+            if (_overlayBackplateCollider != null && _overlayBackplateCollider.enabled &&
+                _overlayBackplateCollider.Raycast(ray, out RaycastHit hit, 5f))
+            {
+                distance = hit.distance;
+                return true;
+            }
+
+            Plane panelPlane = new Plane(-_overlayRoot.transform.forward, _overlayRoot.transform.position);
+            if (panelPlane.Raycast(ray, out float planeDist) && planeDist > 0.08f && planeDist < 5f)
+            {
+                distance = planeDist;
+                return true;
+            }
+
+            return false;
+        }
+
+        private void CaptureErgonomicAnchorFromCamera()
+        {
+            if (_targetCamera == null) _targetCamera = Camera.main != null ? Camera.main : FindFirstObjectByType<Camera>();
+            if (_targetCamera == null) return;
+
+            Vector3 camForward = _targetCamera.transform.forward;
+            Vector3 flatForward = new Vector3(camForward.x, 0f, camForward.z);
+            if (flatForward.sqrMagnitude < 0.001f) flatForward = Vector3.forward;
+            flatForward.Normalize();
+
+            // Inclinación ergonómica limitada (-4° arriba, +10° abajo) para coincidir con la mirada al PC
+            // sin inclinar el HUD dentro del escritorio y manteniendo los 4 bordes dentro del FOV VR.
+            float downPitchDeg = -Mathf.Asin(Mathf.Clamp(camForward.y, -0.99f, 0.99f)) * Mathf.Rad2Deg;
+            float clampedDownPitchDeg = Mathf.Clamp(downPitchDeg, -4f, 10f);
+
+            Quaternion yawRot = Quaternion.LookRotation(flatForward, Vector3.up);
+            _anchorForward = (yawRot * Quaternion.Euler(clampedDownPitchDeg, 0f, 0f) * Vector3.forward).normalized;
+            _hasAnchorPose = true;
+        }
+
         private void RepositionOverlay()
         {
             if (_overlayRoot == null) return;
-            if (_targetCamera == null) _targetCamera = Camera.main;
+            if (_targetCamera == null) _targetCamera = Camera.main != null ? Camera.main : FindFirstObjectByType<Camera>();
             if (_targetCamera == null) return;
 
-            Vector3 forward = _targetCamera.transform.forward;
-            forward.y = 0f;
-            if (forward.sqrMagnitude < 0.001f) forward = _targetCamera.transform.forward;
-            forward.Normalize();
+            if (!_hasAnchorPose)
+            {
+                CaptureErgonomicAnchorFromCamera();
+            }
 
+            Vector3 forward = _anchorForward.sqrMagnitude > 0.001f ? _anchorForward.normalized : _targetCamera.transform.forward;
             Vector3 newPos = _targetCamera.transform.position + (forward * distanceFromCamera);
-            newPos.y = _targetCamera.transform.position.y - 0.02f;
+
             _overlayRoot.transform.position = newPos;
             _overlayRoot.transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
+        }
+
+        private void SuppressSceneObstructionsForOverlay()
+        {
+            InfectionSpreadVisualizer.I?.SetVisualsSuppressedForInspection(true);
+
+            if (!_sceneObstructionsSuppressed)
+            {
+                _sceneObstructionsSuppressed = true;
+
+                // Ocultar todos los monitores físicos, pantallas World Space, balizas y accesorios de escritorio
+                SuppressAllRootsOfType<InteractiveMonitorController>();
+                SuppressAllRootsOfType<HolographicDataBeacon>();
+                SuppressAllRootsOfType<PostItCredenciales>();
+                SuppressAllRootsOfType<TokenMfaBoveda>();
+                SuppressAllRootsOfType<TelefonoAnexoSoc>();
+                SuppressAllRootsOfType<CredencialesDeskDrawer>();
+                SuppressAllRootsOfType<DefenseTerminalController>();
+                SuppressAllRootsOfType<TeleportPoint>();
+            }
+
+            // Barrido espacial en el corredor cámara -> HUD para ocultar mobiliario/mamparas que invadan la vista
+            SuppressNearbyObstructionsInViewCorridor();
+        }
+
+        private void SuppressAllRootsOfType<T>() where T : Component
+        {
+            T[] items = FindObjectsByType<T>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            for (int i = 0; i < items.Length; i++)
+            {
+                if (items[i] != null)
+                {
+                    SuppressHierarchyComponents(items[i].gameObject);
+                }
+            }
+        }
+
+        private void SuppressNearbyObstructionsInViewCorridor()
+        {
+            if (_overlayRoot == null || _targetCamera == null) return;
+
+            Vector3 camPos = _targetCamera.transform.position;
+            Vector3 panelCenter = _overlayRoot.transform.position;
+            Vector3 forward = _anchorForward.sqrMagnitude > 0.001f ? _anchorForward.normalized : _targetCamera.transform.forward;
+            Vector3 corridorEnd = panelCenter + (forward * 0.45f);
+
+            Renderer[] renderers = FindObjectsByType<Renderer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                Renderer r = renderers[i];
+                if (r == null || !r.enabled || ShouldSkipSuppressionTransform(r.transform)) continue;
+                if (IsBoundsObstructingOverlay(r.bounds, camPos, panelCenter, corridorEnd))
+                {
+                    SuppressComponent(r, _suppressedRenderers, c => c.enabled, (c, v) => c.enabled = v);
+                }
+            }
+
+            Collider[] colliders = FindObjectsByType<Collider>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                Collider col = colliders[i];
+                if (col == null || !col.enabled || ShouldSkipSuppressionTransform(col.transform)) continue;
+                if (IsBoundsObstructingOverlay(col.bounds, camPos, panelCenter, corridorEnd))
+                {
+                    SuppressComponent(col, _suppressedColliders, c => c.enabled, (c, v) => c.enabled = v);
+                }
+            }
+        }
+
+        private void SuppressHierarchyComponents(GameObject root)
+        {
+            if (root == null || ShouldSkipSuppressionTransform(root.transform)) return;
+
+            SuppressComponentsInChildren(root, _suppressedRenderers, c => c.enabled, (c, v) => c.enabled = v);
+            SuppressComponentsInChildren(root, _suppressedCanvases, c => c.enabled, (c, v) => c.enabled = v);
+            SuppressComponentsInChildren(root, _suppressedColliders, c => c.enabled, (c, v) => c.enabled = v);
+            SuppressComponentsInChildren(root, _suppressedColliders2D, c => c.enabled, (c, v) => c.enabled = v);
+            SuppressComponentsInChildren(root, _suppressedLights, c => c.enabled, (c, v) => c.enabled = v);
+        }
+
+        private void SuppressComponent<T>(T component, List<T> restoreList, Func<T, bool> isEnabled, Action<T, bool> setEnabled) where T : Component
+        {
+            if (component == null || !isEnabled(component) || ShouldSkipSuppressionTransform(component.transform))
+            {
+                return;
+            }
+
+            if (!_suppressedComponentIds.Add(component.GetInstanceID()))
+            {
+                return;
+            }
+
+            setEnabled(component, false);
+            restoreList.Add(component);
+        }
+
+        private void SuppressComponentsInChildren<T>(GameObject root, List<T> restoreList, Func<T, bool> isEnabled, Action<T, bool> setEnabled) where T : Component
+        {
+            if (root == null) return;
+            T[] items = root.GetComponentsInChildren<T>(false);
+            for (int i = 0; i < items.Length; i++)
+            {
+                SuppressComponent(items[i], restoreList, isEnabled, setEnabled);
+            }
+        }
+
+        private void RestoreSceneObstructionsAfterOverlay()
+        {
+            InfectionSpreadVisualizer.I?.SetVisualsSuppressedForInspection(false);
+
+            RestoreComponents(_suppressedRenderers, (c, v) => c.enabled = v);
+            RestoreComponents(_suppressedCanvases, (c, v) => c.enabled = v);
+            RestoreComponents(_suppressedColliders, (c, v) => c.enabled = v);
+            RestoreComponents(_suppressedColliders2D, (c, v) => c.enabled = v);
+            RestoreComponents(_suppressedLights, (c, v) => c.enabled = v);
+
+            _suppressedComponentIds.Clear();
+            _sceneObstructionsSuppressed = false;
+        }
+
+        private static void RestoreComponents<T>(List<T> restoreList, Action<T, bool> setEnabled) where T : Component
+        {
+            for (int i = 0; i < restoreList.Count; i++)
+            {
+                T item = restoreList[i];
+                if (item != null)
+                {
+                    setEnabled(item, true);
+                }
+            }
+            restoreList.Clear();
+        }
+
+        private bool ShouldSkipSuppressionTransform(Transform t)
+        {
+            if (t == null) return true;
+            if (_overlayRoot != null && (t == _overlayRoot.transform || t.IsChildOf(_overlayRoot.transform))) return true;
+            if (PlayerTeleportController.I != null && (t == PlayerTeleportController.I.transform || t.IsChildOf(PlayerTeleportController.I.transform))) return true;
+            if (_targetCamera != null && (t == _targetCamera.transform || t.IsChildOf(_targetCamera.transform))) return true;
+            if (t.GetComponentInParent<CardboardReticleAdapter>() != null) return true;
+
+            string n = t.name;
+            return n.IndexOf("CardboardReticle", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   n.IndexOf("PlayerBlinkFader", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private static bool IsBoundsObstructingOverlay(Bounds bounds, Vector3 camPos, Vector3 panelCenter, Vector3 corridorEnd)
+        {
+            bool isFloorOrCeilingLike = (bounds.max.y < 0.25f || bounds.min.y > 2.35f) && bounds.size.x > 2.5f && bounds.size.z > 2.5f;
+            if (isFloorOrCeilingLike) return false;
+
+            Vector3 closestToPanel = bounds.ClosestPoint(panelCenter);
+            if (bounds.Contains(panelCenter) || Vector3.Distance(closestToPanel, panelCenter) <= 0.42f)
+            {
+                return true;
+            }
+
+            if (bounds.size.magnitude > 7.5f) return false;
+            if (Vector3.Distance(closestToPanel, panelCenter) <= 0.72f) return true;
+
+            Vector3 seg = corridorEnd - camPos;
+            float segLenSq = seg.sqrMagnitude;
+            if (segLenSq <= 0.0001f) return false;
+
+            Vector3 closestToCam = bounds.ClosestPoint(camPos);
+            float tCam = Mathf.Clamp01(Vector3.Dot(closestToCam - camPos, seg) / segLenSq);
+            if (Vector3.Distance(closestToCam, camPos + seg * tCam) <= 0.65f) return true;
+
+            float tPanel = Mathf.Clamp01(Vector3.Dot(closestToPanel - camPos, seg) / segLenSq);
+            return Vector3.Distance(closestToPanel, camPos + seg * tPanel) <= 0.65f;
         }
 
         private void ClearActiveContent()

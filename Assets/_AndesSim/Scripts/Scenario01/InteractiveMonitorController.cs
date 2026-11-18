@@ -462,7 +462,21 @@ namespace AndesSim.Scenario01
 
         private IEnumerator OpenInspectionAfterTeleport()
         {
-            yield return new WaitForSeconds(0.2f);
+            if (PlayerTeleportController.I != null)
+            {
+                float timeout = 1.0f;
+                while (PlayerTeleportController.I.IsTeleporting && timeout > 0f)
+                {
+                    timeout -= Time.unscaledDeltaTime;
+                    yield return null;
+                }
+                yield return null;
+            }
+            else
+            {
+                yield return new WaitForSecondsRealtime(0.2f);
+            }
+
             OpenInspectionZoomModal();
         }
 

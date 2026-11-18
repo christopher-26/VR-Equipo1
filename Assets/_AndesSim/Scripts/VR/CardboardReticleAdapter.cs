@@ -1,4 +1,5 @@
 using System;
+using AndesSim.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -139,10 +140,18 @@ namespace AndesSim.VR
                 _raycastHitBuffer[j + 1] = key;
             }
 
+            bool overlayOnly = VrInspectionOverlayManager.I != null && VrInspectionOverlayManager.I.IsOpen;
+
             for (int i = 0; i < hitCount; i++)
             {
                 RaycastHit candidate = _raycastHitBuffer[i];
                 if (candidate.collider == null) continue;
+
+                if (overlayOnly && !VrInspectionOverlayManager.I.IsOverlayTransform(candidate.collider.transform))
+                {
+                    // Cuando el HUD de PC está abierto, ignorar colisiones de mobiliario/monitores/otros interactables
+                    continue;
+                }
 
                 int hitLayer = candidate.collider.gameObject.layer;
                 if (hitLayer == interactiveLayer)
@@ -292,7 +301,7 @@ namespace AndesSim.VR
 
                 // Escalar ergonómicamente con la distancia (1.5° de ángulo visual VR confortable)
                 float distance = Vector3.Distance(_playerCamera.transform.position, _currentHit.point);
-                float scaleFactor = Mathf.Clamp(distance * 0.0016f, 0.0012f, 0.008f);
+                float scaleFactor = Mathf.Clamp(distance * 0.0016f, 0.00085f, 0.008f);
 
                 // Micro-animación elástica sutil al progresar la mirada
                 if (_currentInteractable != null)
@@ -338,11 +347,18 @@ namespace AndesSim.VR
             }
             else
             {
-                // Posición de reposo en la distancia por defecto
-                reticleRoot.position = centerRay.origin + (centerRay.direction * defaultDistance);
+                // Posición de reposo: proyectar sobre el HUD si está abierto para no desaparecer detrás del panel
+                float idleDistance = defaultDistance;
+                if (VrInspectionOverlayManager.I != null &&
+                    VrInspectionOverlayManager.I.TryRaycastOverlayPlane(centerRay, out float overlayDist))
+                {
+                    idleDistance = Mathf.Max(0.12f, overlayDist - 0.03f);
+                }
+
+                reticleRoot.position = centerRay.origin + (centerRay.direction * idleDistance);
                 reticleRoot.rotation = Quaternion.LookRotation(centerRay.direction);
 
-                float scaleFactor = Mathf.Clamp(defaultDistance * 0.0016f, 0.0012f, 0.008f);
+                float scaleFactor = Mathf.Clamp(idleDistance * 0.0016f, 0.00085f, 0.008f);
                 reticleRoot.localScale = Vector3.one * scaleFactor;
 
                 if (_labelContainerGO != null)

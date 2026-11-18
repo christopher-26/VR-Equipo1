@@ -66683,7 +66683,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a177c355c43d51a439d83bf452c0b5a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.UI.VrInspectionOverlayManager
-  distanceFromCamera: 1.32
+  distanceFromCamera: 0.68
 --- !u!114 &1518881522
 MonoBehaviour:
   m_ObjectHideFlags: 0
