@@ -459,15 +459,15 @@ namespace AndesSim.UI
         /// </summary>
         public void ShowNotification(string title, string message, NotificationType type = NotificationType.GeneralInfo, Color? accentColor = null)
         {
-            Color effectiveColor = accentColor ?? GetColorForType(type);
-            ToastData data = new ToastData(title, message, type, effectiveColor);
-
-            _toastQueue.Enqueue(data);
-
-            if (!_isToastActive)
+            // Desactivados los banners flotantes (NotificationToast) frente a la cámara para no contraponerse con la UI
+            _isToastActive = false;
+            if (notificationToastPanel != null)
             {
-                if (_toastCoroutine != null) StopCoroutine(_toastCoroutine);
-                _toastCoroutine = StartCoroutine(ProcessToastQueueRoutine());
+                notificationToastPanel.SetActive(false);
+            }
+            if (_isToastActive)
+            {
+                _toastQueue.Clear();
             }
         }
 

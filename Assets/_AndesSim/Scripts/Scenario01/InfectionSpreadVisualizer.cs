@@ -97,6 +97,8 @@ namespace AndesSim.Scenario01
         private Material _sharedHoloMat;
         private MaterialPropertyBlock _mpb;
         private HolographicDataBeacon[] _sceneBeacons;
+        private bool _restoreLine12AfterInspection;
+        private bool _restoreLine13AfterInspection;
 
         public bool IsPlaying => _isPlaying;
         public bool HasPlayed => _hasPlayed;
@@ -143,6 +145,7 @@ namespace AndesSim.Scenario01
             if (GameManager.I != null)
             {
                 GameManager.I.OnModeChanged += HandleModeChanged;
+                GameManager.I.OnSimulationReset += HandleSimulationReset;
                 if (GameManager.I.mode == SimMode.Defensa)
                 {
                     ShowDefenseContainmentSign();
@@ -162,7 +165,13 @@ namespace AndesSim.Scenario01
             if (GameManager.I != null)
             {
                 GameManager.I.OnModeChanged -= HandleModeChanged;
+                GameManager.I.OnSimulationReset -= HandleSimulationReset;
             }
+        }
+
+        private void HandleSimulationReset()
+        {
+            ResetToCleanState();
         }
 
         private void HandleModeChanged(SimMode newMode)
@@ -179,14 +188,7 @@ namespace AndesSim.Scenario01
 
         private void HandleStepChanged(ScenarioStep newStep, StepGuideInfo info)
         {
-            if (newStep == ScenarioStep.Step6_Resultado)
-            {
-                SimMode mode = GameManager.I != null ? GameManager.I.mode : SimMode.Ataque;
-                if (mode == SimMode.Ataque)
-                {
-                    PlayInfectionSequence();
-                }
-            }
+            // La propagación visual se inicia explícitamente desde la interacción del usuario en PC 1 o PC 2
         }
 
         #region Resolución e Inicialización de Activos 3D
@@ -630,183 +632,76 @@ namespace AndesSim.Scenario01
                 monitor01Controller.SetState(InteractiveMonitorController.MonitorState.InfeccionActiva);
             }
 
-            SetStationClusterMode(0, isAttack: true);
-            StartCoroutine(AnimateShockwaveCoroutine(0));
-            SyncSceneBeacons(HoloBeaconState.AlertRed);
-
-            if (AmbientCyberGridEffect.I != null)
-            {
-                AmbientCyberGridEffect.I.TriggerEmergencyAttackPulse();
-            }
-
-            // Encender de inmediato el letrero superior mostrando la barra de carga del virus
+            // Mantener desactivados los banners y objetos flotantes aéreos para no contaminar la vista VR
             if (holographicSignPanel != null)
             {
-                holographicSignPanel.transform.position = ComputeOptimalBannerPosition();
-                holographicSignPanel.SetActive(true);
+                holographicSignPanel.SetActive(false);
             }
-            if (holographicSignCanvasGroup != null) holographicSignCanvasGroup.alpha = 1.0f;
-            if (holographicSignBorder != null) holographicSignBorder.color = new Color(0.12f, 0.02f, 0.03f, 0.98f);
+            if (_c2NodeRoot != null) _c2NodeRoot.gameObject.SetActive(false);
+            if (_defenseCanopyRing != null) _defenseCanopyRing.SetActive(false);
 
             float timer = 0f;
-            const float durationPhase1 = 2.5f;
+            const float durationPhase1 = 1.6f;
             while (timer < durationPhase1)
             {
                 timer += Time.deltaTime;
-                float pct = Mathf.Clamp01(timer / durationPhase1) * 100f;
-
-                if (holographicSignTitle != null)
-                {
-                    holographicSignTitle.text = "⚠️ INFECCIÓN: CARGANDO VIRUS...";
-                    AndesTypographyTheme.StyleDisplayTitle(holographicSignTitle, AndesTypographyTheme.AccentRed, 18f);
-                }
-
-                if (holographicSignBody != null)
-                {
-                    int barCount = Mathf.RoundToInt(pct / 10f);
-                    string bar = new string('█', barCount) + new string('░', 10 - barCount);
-                    holographicSignBody.text = $"<b>CARGANDO PAYLOAD LAZARUS: <color=#FFA940>{pct:F0}%</color> [{bar}]</b>\n<size=14>Inyectando svchost_upd.exe (PID 4820) · C2 185.130.44.82</size>";
-                }
-
                 yield return null;
             }
 
             // =========================================================================
-            // FASE 2 (2 - 5s): Haces curvos, paquetes 3D en vuelo e infección lateral + C2
+            // FASE 2: Conexión visual limpia por red entre PC 1 -> PC 2 y PC 1 -> PC 3 (sin esferas ni carteles volando)
             // =========================================================================
-            Debug.Log($"{LogPrefix} <color=#FF5A4E>[Seg 2–5]</color> Red plana comprometida: propagación lateral hacia Monitor_02 (SWIFT) y Monitor_03 (SIEM).");
+            Debug.Log($"{LogPrefix} <color=#FF5A4E>[Red Plana]</color> Propagación lateral desde PC 1 hacia PC 2 (SWIFT) y PC 3 (SIEM).");
             PlaySound(networkLaserPulseClip, GenerateLaserPulseTone());
 
+            ConfigureLineRenderer(lineDesk1ToDesk2, BeamPulseGlow, InfectionRedColor);
+            ConfigureLineRenderer(lineDesk1ToDesk3, BeamPulseGlow, InfectionRedColor);
             lineDesk1ToDesk2.enabled = true;
             lineDesk1ToDesk3.enabled = true;
-            SetPacketPoolActive(_packetsRoute12, true);
-            SetPacketPoolActive(_packetsRoute13, true);
+            SetPacketPoolActive(_packetsRoute12, false);
+            SetPacketPoolActive(_packetsRoute13, false);
+            SetPacketPoolActive(_packetsRoute2C2, false);
 
             bool monitor02Infected = false;
             bool monitor03Infected = false;
-            bool c2UplinkStarted = false;
 
             timer = 0f;
-            const float durationPhase2 = 3.0f;
+            const float durationPhase2 = 2.2f;
 
             while (timer < durationPhase2)
             {
                 timer += Time.deltaTime;
                 float progress = Mathf.Clamp01(timer / durationPhase2);
 
-                // Haz 1 -> 2
-                float t1 = Mathf.Clamp01(progress / 0.48f);
+                // Línea de red limpia a nivel de estaciones (arco bajo de 0.08m sin objetos voladores)
+                float t1 = Mathf.Clamp01(progress / 0.50f);
                 Vector3 end12 = Vector3.Lerp(pos1, pos2, t1);
-                float arc12 = 0.42f;
-                UpdateCurvedBeam(lineDesk1ToDesk2, pos1, end12, arc12 * t1);
-                AnimatePacketsAlongArc(_packetsRoute12, pos1, pos2, arc12, t1, 1.35f);
+                UpdateCurvedBeam(lineDesk1ToDesk2, pos1, end12, 0.08f * t1);
 
                 if (t1 >= 1.0f && !monitor02Infected)
                 {
                     monitor02Infected = true;
-                    Debug.Log($"{LogPrefix} <color=#FF5A4E>[09:21:10]</color> PC-PAGOS-02 comprometido (Salto lateral hacia módulo SWIFT).");
                     PlaySound(networkLaserPulseClip, GenerateLaserPulseTone());
                     if (monitor02Controller != null) monitor02Controller.SetState(InteractiveMonitorController.MonitorState.InfeccionActiva);
-                    SetStationClusterMode(1, isAttack: true);
-                    StartCoroutine(AnimateShockwaveCoroutine(1));
-
-                    // Encender nodo C2 flotante y enlace de exfiltración
-                    c2UplinkStarted = true;
-                    if (_c2NodeRoot != null) _c2NodeRoot.gameObject.SetActive(true);
-                    if (_lineDesk2ToC2 != null) _lineDesk2ToC2.enabled = true;
-                    SetPacketPoolActive(_packetsRoute2C2, true);
                 }
 
-                // Haz 1 -> 3
-                float t2 = Mathf.Clamp01(progress / 0.88f);
+                float t2 = Mathf.Clamp01(progress / 0.95f);
                 Vector3 end13 = Vector3.Lerp(pos1, pos3, t2);
-                float arc13 = 0.65f;
-                UpdateCurvedBeam(lineDesk1ToDesk3, pos1, end13, arc13 * t2);
-                AnimatePacketsAlongArc(_packetsRoute13, pos1, pos3, arc13, t2, 1.10f);
+                UpdateCurvedBeam(lineDesk1ToDesk3, pos1, end13, 0.08f * t2);
 
                 if (t2 >= 1.0f && !monitor03Infected)
                 {
                     monitor03Infected = true;
-                    Debug.Log($"{LogPrefix} <color=#FF5A4E>[09:25:03]</color> PC-PAGOS-09 (SIEM) alcanzado · Puerta trasera hacia C2 185.130.44.82.");
                     PlaySound(networkLaserPulseClip, GenerateLaserPulseTone());
                     if (monitor03Controller != null) monitor03Controller.SetState(InteractiveMonitorController.MonitorState.InfeccionActiva);
-                    SetStationClusterMode(2, isAttack: true);
-                    StartCoroutine(AnimateShockwaveCoroutine(2));
                 }
 
-                if (c2UplinkStarted && _lineDesk2ToC2 != null)
-                {
-                    float tC2 = Mathf.Clamp01((progress - 0.48f) / 0.42f);
-                    UpdateCurvedBeam(_lineDesk2ToC2, pos2, Vector3.Lerp(pos2, posC2, tC2), 0.35f * tC2);
-                    AnimatePacketsAlongArc(_packetsRoute2C2, pos2, posC2, 0.35f, tC2, 1.65f);
-                }
-
-                PulseBeams(15f, 0.35f);
-
-                // Ticker visual de robo de fondos SWIFT en vivo
-                float stolenNow = Mathf.Lerp(0f, 81000000f, progress);
-                if (holographicSignTitle != null)
-                {
-                    holographicSignTitle.text = "🚨 ALERTA: EXFILTRACIÓN Y ROBO SWIFT";
-                    AndesTypographyTheme.StyleDisplayTitle(holographicSignTitle, AndesTypographyTheme.AccentRed, 18f);
-                }
-                if (holographicSignBody != null)
-                {
-                    holographicSignBody.text = $"<b>ROBANDO FONDOS SWIFT: <color=#FF3834>US$ {stolenNow:N0}</color></b>\n<size=14>Salto lateral a PC 2 · Tráfico C2 hacia Filipinas</size>";
-                }
-
-                yield return null;
-            }
-
-            // =========================================================================
-            // FASE 3 (5 - 8s): Letrero holográfico flotante + flujo continuo hacia C2
-            // =========================================================================
-            Debug.Log($"{LogPrefix} <color=#FF5A4E>[Seg 5–8]</color> Desplegando letrero holográfico de intrusión: '{HologramMessage}'");
-            PlaySound(backdoorBreachStingClip, GenerateDramaticBreachSting());
-
-            ConfigureBannerForAttack();
-
-            if (holographicSignPanel != null)
-            {
-                holographicSignPanel.transform.position = ComputeOptimalBannerPosition();
-                holographicSignPanel.SetActive(true);
-            }
-
-            timer = 0f;
-            const float durationPhase3 = 3.0f;
-
-            while (timer < durationPhase3)
-            {
-                timer += Time.deltaTime;
-                float alphaProgress = Mathf.Clamp01(timer / 0.55f);
-
-                if (holographicSignCanvasGroup != null)
-                {
-                    holographicSignCanvasGroup.alpha = alphaProgress;
-                }
-
-                if (holographicSignBorder != null)
-                {
-                    float glow = 0.85f + 0.15f * Mathf.Sin(Time.time * 8f);
-                    holographicSignBorder.color = new Color(0.11f * glow, 0.02f, 0.03f, 0.95f);
-                }
-
-                AnimatePacketsAlongArc(_packetsRoute12, pos1, pos2, 0.42f, 1f, 1.35f);
-                AnimatePacketsAlongArc(_packetsRoute13, pos1, pos3, 0.65f, 1f, 1.10f);
-                AnimatePacketsAlongArc(_packetsRoute2C2, pos2, posC2, 0.35f, 1f, 1.65f);
-                PulseBeams(12f, 0.25f);
-
+                PulseBeams(8f, 0.15f);
                 yield return null;
             }
 
             _isPlaying = false;
-
-            if (endScenarioOnComplete)
-            {
-                Debug.Log($"{LogPrefix} <color=#38F28A><b>Cinemática de 8s concluida. Invocando GameManager.I.EndScenario().</b></color>");
-                if (GameManager.I != null) GameManager.I.EndScenario();
-                if (ScenarioFlowController.I != null) ScenarioFlowController.I.SetStep(ScenarioStep.Step6_Resultado);
-            }
+            // El jugador avanza a su propio ritmo por PC 2, PC 3 y el Tablero mediante clics (no se cierra ni finaliza automáticamente).
         }
 
         private void PulseBeams(float freq, float amp)
@@ -952,8 +847,6 @@ namespace AndesSim.Scenario01
 
             _isPlaying = false;
 
-            if (lineDesk1ToDesk2 != null) lineDesk1ToDesk2.enabled = false;
-            if (lineDesk1ToDesk3 != null) lineDesk1ToDesk3.enabled = false;
             if (_lineDesk2ToC2 != null) _lineDesk2ToC2.enabled = false;
 
             SetPacketPoolActive(_packetsRoute12, false);
@@ -961,52 +854,38 @@ namespace AndesSim.Scenario01
             SetPacketPoolActive(_packetsRoute2C2, false);
 
             if (_c2NodeRoot != null) _c2NodeRoot.gameObject.SetActive(false);
-
-            bool isOverlayActive = (VrInspectionOverlayManager.I != null && VrInspectionOverlayManager.I.IsOpen);
-            if (_defenseCanopyRing != null) _defenseCanopyRing.SetActive(!isOverlayActive);
+            if (_defenseCanopyRing != null) _defenseCanopyRing.SetActive(false);
+            if (holographicSignPanel != null) holographicSignPanel.SetActive(false);
 
             for (int i = 0; i < 3; i++)
             {
-                SetStationClusterMode(i, isAttack: false);
+                if (_stationNodes[i] != null) _stationNodes[i].SetActive(false);
                 if (_shockwaveRings[i] != null) _shockwaveRings[i].SetActive(false);
             }
 
-            SyncSceneBeacons(HoloBeaconState.DefenseEmerald);
+            // Mostrar líneas de red en verde esmeralda conectando las 3 estaciones protegidas (sin objetos ni carteles flotando)
+            Vector3 pos1 = (monitor01Point != null ? monitor01Point.position : new Vector3(1.37f, 1.15f, -2.07f)) + Vector3.up * 0.22f;
+            Vector3 pos2 = (monitor02Point != null ? monitor02Point.position : new Vector3(5.34f, 1.15f, -1.93f)) + Vector3.up * 0.22f;
+            Vector3 pos3 = (monitor03Point != null ? monitor03Point.position : new Vector3(-6.37f, 1.15f, -4.69f)) + Vector3.up * 0.22f;
 
-            if (holographicSignPanel != null)
+            if (lineDesk1ToDesk2 != null)
             {
-                holographicSignPanel.transform.position = ComputeOptimalBannerPosition();
-                holographicSignPanel.SetActive(!isOverlayActive);
+                ConfigureLineRenderer(lineDesk1ToDesk2, DefenseEmerald, DefenseCyan);
+                UpdateCurvedBeam(lineDesk1ToDesk2, pos1, pos2, 0.08f);
+                lineDesk1ToDesk2.enabled = true;
             }
-
-            if (holographicSignCanvasGroup != null)
+            if (lineDesk1ToDesk3 != null)
             {
-                holographicSignCanvasGroup.alpha = 1.0f;
-            }
-
-            if (holographicSignBorder != null)
-            {
-                holographicSignBorder.color = new Color(0.02f, 0.09f, 0.05f, 0.95f);
-            }
-
-            if (holographicSignTitle != null)
-            {
-                holographicSignTitle.text = "AMENAZA CONTENIDA · RED SEGURA";
-                AndesTypographyTheme.StyleDisplayTitle(holographicSignTitle, DefenseEmerald, 19f);
-            }
-
-            if (holographicSignBody != null)
-            {
-                holographicSignBody.text =
-                    "<b><color=#38F28A>FONDOS PROTEGIDOS: US$ 81M (US$ 0 ROBADOS)</color></b>\n<size=14>Sandbox aisló el archivo .scr · Salida C2 185.130.44.82 bloqueada</size>";
-                AndesTypographyTheme.StyleBodyCentered(holographicSignBody, Color.white, 16.5f, 8f);
+                ConfigureLineRenderer(lineDesk1ToDesk3, DefenseEmerald, DefenseCyan);
+                UpdateCurvedBeam(lineDesk1ToDesk3, pos1, pos3, 0.08f);
+                lineDesk1ToDesk3.enabled = true;
             }
 
             if (monitor01Controller != null) monitor01Controller.SetState(InteractiveMonitorController.MonitorState.ProtegidoCuarentena);
             if (monitor02Controller != null) monitor02Controller.SetState(InteractiveMonitorController.MonitorState.ProtegidoCuarentena);
             if (monitor03Controller != null) monitor03Controller.SetState(InteractiveMonitorController.MonitorState.ProtegidoCuarentena);
 
-            Debug.Log($"{LogPrefix} <color=#38F28A><b>Letrero superior actualizado a MODO DEFENSA / CONTENCIÓN EXITOSA.</b></color>");
+            Debug.Log($"{LogPrefix} <color=#38F28A><b>Red actualizada a MODO DEFENSA / CONTENCIÓN EXITOSA (PC 1, PC 2 y PC 3 protegidas).</b></color>");
         }
 
         /// <summary>
@@ -1016,11 +895,38 @@ namespace AndesSim.Scenario01
         {
             if (_fxRigRoot != null)
             {
-                _fxRigRoot.gameObject.SetActive(!suppress);
+                _fxRigRoot.gameObject.SetActive(false);
             }
             if (holographicSignPanel != null)
             {
-                holographicSignPanel.SetActive(!suppress);
+                holographicSignPanel.SetActive(false);
+            }
+
+            if (suppress)
+            {
+                if (lineDesk1ToDesk2 != null && lineDesk1ToDesk2.enabled)
+                {
+                    _restoreLine12AfterInspection = true;
+                    lineDesk1ToDesk2.enabled = false;
+                }
+                if (lineDesk1ToDesk3 != null && lineDesk1ToDesk3.enabled)
+                {
+                    _restoreLine13AfterInspection = true;
+                    lineDesk1ToDesk3.enabled = false;
+                }
+            }
+            else
+            {
+                if (_restoreLine12AfterInspection && lineDesk1ToDesk2 != null)
+                {
+                    lineDesk1ToDesk2.enabled = true;
+                }
+                if (_restoreLine13AfterInspection && lineDesk1ToDesk3 != null)
+                {
+                    lineDesk1ToDesk3.enabled = true;
+                }
+                _restoreLine12AfterInspection = false;
+                _restoreLine13AfterInspection = false;
             }
         }
 

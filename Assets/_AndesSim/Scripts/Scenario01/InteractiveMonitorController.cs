@@ -539,12 +539,26 @@ namespace AndesSim.Scenario01
                 }
                 else if (id.Contains("02") || id.Contains("analista") || id.Contains("comercio"))
                 {
-                    VrInspectionOverlayManager.I.OpenSwiftInspection();
+                    if (GameManager.I != null && GameManager.I.mode == SimMode.Defensa)
+                    {
+                        VrInspectionOverlayManager.I.OpenQuarantineInspection(1);
+                    }
+                    else
+                    {
+                        VrInspectionOverlayManager.I.OpenSwiftInspection();
+                    }
                     return;
                 }
                 else if (id.Contains("03") || id.Contains("siem") || id.Contains("log"))
                 {
-                    VrInspectionOverlayManager.I.OpenSiemLogInspection();
+                    if (GameManager.I != null && GameManager.I.mode == SimMode.Defensa)
+                    {
+                        VrInspectionOverlayManager.I.OpenQuarantineInspection(2);
+                    }
+                    else
+                    {
+                        VrInspectionOverlayManager.I.OpenSiemLogInspection();
+                    }
                     return;
                 }
             }

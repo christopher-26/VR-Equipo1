@@ -478,6 +478,7 @@ namespace AndesSim.Scenario01
 
         private void HandleModeChanged(SimMode newMode)
         {
+            _decisionExecuted = false;
             UpdateButtonVisibility();
         }
 

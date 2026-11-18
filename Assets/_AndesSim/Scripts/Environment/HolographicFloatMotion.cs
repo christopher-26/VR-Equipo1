@@ -31,6 +31,9 @@ namespace AndesSim.Environment
         private float _effectivePhase;
         private HolographicPanelEntrance _coLocatedEntrance;
 
+        public float SwayFrequency => swayFrequency;
+        public float ScalePulseSpeed => scalePulseSpeed;
+
         public void Configure(
             float floatAmplitude,
             float floatFrequency,
@@ -80,22 +83,10 @@ namespace AndesSim.Environment
             if (!_poseCaptured) CaptureCurrentRestPose();
             if (_coLocatedEntrance != null && _coLocatedEntrance.IsAnimating) return;
 
-            float t = (useUnscaledTime ? Time.unscaledTime : Time.time) + _effectivePhase;
-
-            float yOffset = Mathf.Sin(t * frequency * Mathf.PI * 2f) * amplitude;
-            transform.localPosition = new Vector3(_baseLocalPos.x, _baseLocalPos.y + yOffset, _baseLocalPos.z);
-
-            float swayOmega = t * swayFrequency * Mathf.PI * 2f;
-            float rx = Mathf.Sin(swayOmega) * swayAngles.x;
-            float ry = Mathf.Cos(swayOmega * 0.78f) * swayAngles.y + (spinYDegreesPerSec * t);
-            float rz = Mathf.Sin(swayOmega * 0.62f + 1.1f) * swayAngles.z;
-            transform.localRotation = _baseLocalRot * Quaternion.Euler(rx, ry, rz);
-
-            if (scalePulseAmount > 0.0001f)
-            {
-                float s = 1f + Mathf.Sin(t * scalePulseSpeed * Mathf.PI * 2f) * scalePulseAmount;
-                transform.localScale = _baseLocalScale * s;
-            }
+            // Mantener los paneles y elementos fijos y estables sin oscilación flotante que distraiga la lectura
+            transform.localPosition = _baseLocalPos;
+            transform.localRotation = _baseLocalRot;
+            transform.localScale = _baseLocalScale;
         }
     }
 }

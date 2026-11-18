@@ -32,6 +32,37 @@ namespace AndesSim.Environment
             {
                 labelTransform = transform.Find("Canvas_Tag");
             }
+
+            // Ocultar las balizas/banners flotantes sobre los escritorios para mantener una vista limpia
+            HideFloatingBeaconVisuals();
+        }
+
+        private void OnEnable()
+        {
+            HideFloatingBeaconVisuals();
+        }
+
+        private void HideFloatingBeaconVisuals()
+        {
+            Renderer[] allRenderers = GetComponentsInChildren<Renderer>(true);
+            for (int i = 0; i < allRenderers.Length; i++)
+            {
+                if (allRenderers[i] != null) allRenderers[i].enabled = false;
+            }
+
+            Canvas[] allCanvases = GetComponentsInChildren<Canvas>(true);
+            for (int i = 0; i < allCanvases.Length; i++)
+            {
+                if (allCanvases[i] != null) allCanvases[i].enabled = false;
+            }
+
+            if (rings != null)
+            {
+                for (int i = 0; i < rings.Length; i++)
+                {
+                    if (rings[i] != null) rings[i].enabled = false;
+                }
+            }
         }
 
         private void LateUpdate()

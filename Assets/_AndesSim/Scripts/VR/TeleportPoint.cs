@@ -61,6 +61,7 @@ namespace AndesSim.VR
 
         public string PointName => pointName;
         public Transform StandPosition => standPosition != null ? standPosition : transform;
+        public float PulseSpeed => pulseSpeed;
 
         private void Awake()
         {
@@ -75,6 +76,13 @@ namespace AndesSim.VR
 
             // Configurar etiqueta para la retícula
             ConfigureGazeProperties();
+
+            // Quitar marcadores flotantes/giratorios aéreos para dejar solo el aro limpio en el suelo
+            Transform floatingMarker = transform.Find("Holo_TeleportMarker");
+            if (floatingMarker != null)
+            {
+                floatingMarker.gameObject.SetActive(false);
+            }
 
             // Configurar y preparar material del aro luminoso
             SetupRingVisuals();
@@ -133,16 +141,13 @@ namespace AndesSim.VR
         /// </summary>
         private void AnimateRingPulse()
         {
-            float wave = Mathf.Sin(Time.time * pulseSpeed) * 0.5f + 0.5f;
-
-            // Modulación de escala sutil
-            float scaleMultiplier = _isHovered ? 1.08f : (1.0f + wave * 0.05f);
+            // Aro plano y estable en el suelo: solo se resalta al enfocar la mirada/clic
+            float scaleMultiplier = _isHovered ? 1.05f : 1.0f;
             transform.localScale = _originalScale * scaleMultiplier;
 
-            // Modulación de emisión en el material
             if (_ringMaterialInstance != null)
             {
-                float emissionIntensity = _isHovered ? 1.8f : (0.7f + wave * 0.6f);
+                float emissionIntensity = _isHovered ? 1.6f : 0.75f;
                 _ringMaterialInstance.SetColor("_EmissionColor", ringColor * emissionIntensity);
             }
         }

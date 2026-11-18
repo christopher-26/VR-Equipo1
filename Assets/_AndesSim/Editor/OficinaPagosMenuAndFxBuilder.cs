@@ -23,11 +23,9 @@ namespace AndesSim.Editor
             menuRoot.layer = LayerMask.NameToLayer("Interactive");
 
             // =========================================================================
-            // 1. Emisor Holográfico Sutil en el Piso + Doble Aro Orbital (Sin columna gris)
+            // 1. Emisor Sutil en el Piso (Sin aros giratorios ni elementos voladores)
             // =========================================================================
             Material matHoloMatBase = CreateUnlitGlowMaterial("Mat_MenuHolo_Emitter", new Color(0.05f, 0.14f, 0.22f), new Color(0f, 0.45f, 0.65f));
-            Material matHoloCyan = CreateUnlitGlowMaterial("Mat_MenuHolo_CyanRing", AndesTypographyTheme.AccentCyan, AndesTypographyTheme.AccentCyan * 2.2f);
-            Material matHoloEmerald = CreateUnlitGlowMaterial("Mat_MenuHolo_EmeraldRing", AndesTypographyTheme.AccentEmerald, AndesTypographyTheme.AccentEmerald * 1.9f);
 
             GameObject emitterPad = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             emitterPad.name = "Holo_Emisor_Piso";
@@ -37,38 +35,12 @@ namespace AndesSim.Editor
             RemoveCollider(emitterPad);
             emitterPad.GetComponent<Renderer>().sharedMaterial = matHoloMatBase;
 
-            GameObject ringOuter = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            ringOuter.name = "Holo_Anillo_Orbital_Exterior";
-            ringOuter.transform.SetParent(menuRoot.transform, false);
-            ringOuter.transform.localPosition = new Vector3(0f, -1.36f, 0f);
-            ringOuter.transform.localRotation = Quaternion.Euler(4f, 0f, 3f);
-            ringOuter.transform.localScale = new Vector3(0.92f, 0.008f, 0.92f);
-            RemoveCollider(ringOuter);
-            Renderer rOuter = ringOuter.GetComponent<Renderer>();
-            rOuter.sharedMaterial = matHoloCyan;
-            ringOuter.AddComponent<HolographicOrbitRing>().Configure(
-                new Vector3(0f, 34f, 0f), rOuter, AndesTypographyTheme.AccentCyan, 1.1f, 2.4f, 1.8f);
-
-            GameObject ringInner = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            ringInner.name = "Holo_Anillo_Orbital_Interior";
-            ringInner.transform.SetParent(menuRoot.transform, false);
-            ringInner.transform.localPosition = new Vector3(0f, -1.25f, 0f);
-            ringInner.transform.localRotation = Quaternion.Euler(-5f, 25f, -4f);
-            ringInner.transform.localScale = new Vector3(0.64f, 0.007f, 0.64f);
-            RemoveCollider(ringInner);
-            Renderer rInner = ringInner.GetComponent<Renderer>();
-            rInner.sharedMaterial = matHoloEmerald;
-            ringInner.AddComponent<HolographicOrbitRing>().Configure(
-                new Vector3(0f, -46f, 0f), rInner, AndesTypographyTheme.AccentEmerald, 0.9f, 2.1f, 2.1f);
-
             // =========================================================================
-            // 2. Contenedor Flotante con Levitación Suave (HolographicFloatMotion)
+            // 2. Contenedor Estable del Menú (Sin levitación)
             // =========================================================================
             GameObject floatWrapper = new GameObject("Holo_MenuFloatFrame");
             floatWrapper.transform.SetParent(menuRoot.transform, false);
             floatWrapper.transform.localPosition = Vector3.zero;
-            HolographicFloatMotion menuFloat = floatWrapper.AddComponent<HolographicFloatMotion>();
-            menuFloat.Configure(0.022f, 0.72f, new Vector3(0.55f, 0.85f, 0.35f), 0f, 0f, true);
 
             GameObject canvasObj = new GameObject("Canvas_MenuInicio_Simple");
             canvasObj.transform.SetParent(floatWrapper.transform, false);
@@ -82,7 +54,7 @@ namespace AndesSim.Editor
 
             CanvasGroup canvasGroup = canvasObj.AddComponent<CanvasGroup>();
             HolographicPanelEntrance rootEntrance = canvasObj.AddComponent<HolographicPanelEntrance>();
-            rootEntrance.Configure(0.32f, 0.88f, 22f, canvasGroup);
+            rootEntrance.Configure(0.14f, 1f, 0f, canvasGroup);
 
             // Fondo Glass Profundo
             GameObject bgObj = new GameObject("Panel_Background");
@@ -345,7 +317,7 @@ namespace AndesSim.Editor
             GameObject ctrlBar = CreateGlassCard("Card_ControlesVR", tab3.transform, new Vector2(0f, -176f), new Vector2(896f, 66f),
                 AndesTypographyTheme.BgCardElevated, AndesTypographyTheme.AccentCyan);
             CreateCenteredText("Txt_ControlesVR", ctrlBar.transform, Vector2.zero, new Vector2(860f, 54f),
-                "<b>MIRADA (1.6s):</b> Selecciona  ·  <b>AROS VERDES:</b> Teletransporte",
+                "<b>CLIC MANUAL:</b> Selecciona todo a tu ritmo  ·  <b>AROS VERDES:</b> Teletransporte",
                 16f, Color.white);
 
             // =========================================================================
@@ -354,9 +326,9 @@ namespace AndesSim.Editor
             GameObject tab4 = CreateTabContainer("Tab_4_AjustesYFx", canvasObj.transform);
             tabPanels[4] = tab4;
 
-            // Fila 1: Dwell Time
+            // Fila 1: Control manual por clic
             CreateCenteredText("Lbl_DwellHeader", tab4.transform, new Vector2(0f, 146f), new Vector2(880f, 26f),
-                "VELOCIDAD DE MIRADA", 14.5f, AndesTypographyTheme.TextMuted);
+                "CONTROL DE INTERACCION", 14.5f, AndesTypographyTheme.TextMuted);
 
             GameObject btnDwell1 = CreateMenuButton("Btn_Dwell_Rapido", tab4.transform, new Vector2(-235f, 106f), new Vector2(220f, 44f),
                 "1.0s · RAPIDO", AndesTypographyTheme.BgCardGlass, Color.white, 15f);
@@ -366,7 +338,7 @@ namespace AndesSim.Editor
                 "2.4s · COMODO", AndesTypographyTheme.BgCardGlass, Color.white, 15f);
 
             TextMeshProUGUI txtDwellBadge = CreateCenteredText("Txt_DwellActual", tab4.transform, new Vector2(0f, 66f), new Vector2(880f, 24f),
-                "MIRADA: <b>1.6s</b>", 14.5f, AndesTypographyTheme.AccentCyan);
+                "<b>SOLO CLIC MANUAL</b>", 14.5f, AndesTypographyTheme.AccentCyan);
 
             // Fila 2: Iluminación Dinámica de Oficina
             CreateCenteredText("Lbl_LightHeader", tab4.transform, new Vector2(0f, 28f), new Vector2(880f, 26f),
@@ -471,110 +443,15 @@ namespace AndesSim.Editor
         /// </summary>
         public static GameObject AttachWorkstationHoloBeacon(Transform parent, string name, Vector3 worldPos, Color initialColor, string tagLine)
         {
-            GameObject root = new GameObject(name);
-            root.transform.SetParent(parent, false);
-            root.transform.position = worldPos;
-
-            HolographicFloatMotion fl = root.AddComponent<HolographicFloatMotion>();
-            fl.Configure(0.018f, 0.85f, new Vector3(0.8f, 1.2f, 0.6f), 0f, 0.015f, true);
-
-            Material mat = CreateUnlitGlowMaterial("Mat_" + name, initialColor, initialColor * 2.2f);
-
-            // Micro-gema central compacta y discreta
-            GameObject core = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            core.name = "Holo_Core";
-            core.transform.SetParent(root.transform, false);
-            core.transform.localPosition = new Vector3(0f, 0.075f, 0f);
-            core.transform.localRotation = Quaternion.Euler(45f, 45f, 45f);
-            core.transform.localScale = Vector3.one * 0.032f;
-            RemoveCollider(core);
-            Renderer coreR = core.GetComponent<Renderer>();
-            coreR.sharedMaterial = mat;
-            core.AddComponent<HolographicOrbitRing>().Configure(new Vector3(12f, 36f, 8f), coreR, initialColor, 0.9f, 2.0f, 1.5f);
-
-            // Anillo orbital delgado y compacto (14cm de diámetro, no obstruye la pantalla)
-            GameObject ringA = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            ringA.name = "Holo_RingA";
-            ringA.transform.SetParent(root.transform, false);
-            ringA.transform.localPosition = new Vector3(0f, 0.075f, 0f);
-            ringA.transform.localRotation = Quaternion.Euler(15f, 0f, 10f);
-            ringA.transform.localScale = new Vector3(0.09f, 0.0018f, 0.09f);
-            RemoveCollider(ringA);
-            Renderer rA = ringA.GetComponent<Renderer>();
-            rA.sharedMaterial = mat;
-            HolographicOrbitRing spinA = ringA.AddComponent<HolographicOrbitRing>();
-            spinA.Configure(new Vector3(10f, 32f, 6f), rA, initialColor, 0.8f, 1.8f, 1.4f);
-
-            // Segundo micro-anillo sutil en contra-rotación
-            GameObject ringB = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            ringB.name = "Holo_RingB";
-            ringB.transform.SetParent(root.transform, false);
-            ringB.transform.localPosition = new Vector3(0f, 0.075f, 0f);
-            ringB.transform.localRotation = Quaternion.Euler(-20f, 25f, -12f);
-            ringB.transform.localScale = new Vector3(0.068f, 0.0014f, 0.068f);
-            RemoveCollider(ringB);
-            Renderer rB = ringB.GetComponent<Renderer>();
-            rB.sharedMaterial = mat;
-            HolographicOrbitRing spinB = ringB.AddComponent<HolographicOrbitRing>();
-            spinB.Configure(new Vector3(-12f, -38f, -8f), rB, initialColor, 0.8f, 1.8f, 1.6f);
-
-            // Rótulo identificador flotante estilizado con fondo opaco y borde neón
-            GameObject lblCanvas = new GameObject("Canvas_Tag");
-            lblCanvas.transform.SetParent(root.transform, false);
-            lblCanvas.transform.localPosition = Vector3.zero;
-            lblCanvas.transform.localRotation = Quaternion.identity;
-            Canvas c = lblCanvas.AddComponent<Canvas>();
-            c.renderMode = RenderMode.WorldSpace;
-            RectTransform cr = lblCanvas.GetComponent<RectTransform>();
-            cr.sizeDelta = new Vector2(230f, 42f);
-            cr.localScale = Vector3.one * 0.0020f;
-            Image bg = lblCanvas.AddComponent<Image>();
-            bg.color = new Color(0.012f, 0.030f, 0.055f, 0.98f);
-
-            Outline ol = lblCanvas.AddComponent<Outline>();
-            ol.effectColor = new Color(initialColor.r, initialColor.g, initialColor.b, 0.65f);
-            ol.effectDistance = new Vector2(1.5f, -1.5f);
-
-            TextMeshProUGUI txt = CreateCenteredText("Txt_StationTag", lblCanvas.transform, Vector2.zero, new Vector2(216f, 36f),
-                tagLine, 14.5f, initialColor);
-            AndesTypographyTheme.StyleBadge(txt, initialColor, 14.5f);
-
-            HolographicDataBeacon beacon = root.AddComponent<HolographicDataBeacon>();
-            beacon.Bind(new[] { coreR, rA, rB }, new[] { spinA, spinB }, HoloBeaconState.NormalCyan, lblCanvas.transform);
-            return root;
+            // Se omiten las balizas/banners flotantes sobre escritorios para evitar obstrucciones y distracciones visuales
+            return null;
         }
 
         /// <summary>
-        /// Añade un aro orbital flotante y gema aérea sobre el disco del TeleportPoint (sin colisionador intrusivo).
+        /// Mantiene el aro plano limpio en el suelo sin gemas ni aros orbitales volando encima.
         /// </summary>
         public static void EnhanceTeleportPointHalo(GameObject tpObj, Color ringColor)
         {
-            if (tpObj == null) return;
-
-            Material mat = CreateUnlitGlowMaterial("Mat_TpHolo_" + tpObj.name, ringColor, ringColor * 1.9f);
-
-            GameObject floatGroup = new GameObject("Holo_TeleportMarker");
-            floatGroup.transform.SetParent(tpObj.transform, false);
-            floatGroup.transform.localPosition = new Vector3(0f, 0.18f, 0f);
-            floatGroup.AddComponent<HolographicFloatMotion>().Configure(0.026f, 1.15f, Vector3.zero, 45f, 0.04f, true);
-
-            GameObject ring = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            ring.name = "Holo_TeleportRing";
-            ring.transform.SetParent(floatGroup.transform, false);
-            ring.transform.localScale = new Vector3(0.56f, 0.006f, 0.56f);
-            RemoveCollider(ring);
-            Renderer r = ring.GetComponent<Renderer>();
-            r.sharedMaterial = mat;
-            ring.AddComponent<HolographicOrbitRing>().Configure(new Vector3(0f, 48f, 0f), r, ringColor, 0.8f, 2.2f, 2.0f);
-
-            GameObject diamond = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            diamond.name = "Holo_TeleportGem";
-            diamond.transform.SetParent(floatGroup.transform, false);
-            diamond.transform.localPosition = new Vector3(0f, 0.14f, 0f);
-            diamond.transform.localRotation = Quaternion.Euler(45f, 45f, 0f);
-            diamond.transform.localScale = new Vector3(0.055f, 0.055f, 0.055f);
-            RemoveCollider(diamond);
-            diamond.GetComponent<Renderer>().sharedMaterial = mat;
         }
 
         private static GameObject CreateTabContainer(string name, Transform parent)
@@ -588,7 +465,7 @@ namespace AndesSim.Editor
 
             CanvasGroup cg = tab.AddComponent<CanvasGroup>();
             HolographicPanelEntrance ent = tab.AddComponent<HolographicPanelEntrance>();
-            ent.Configure(0.24f, 0.90f, 18f, cg);
+            ent.Configure(0.14f, 1f, 0f, cg);
 
             return tab;
         }

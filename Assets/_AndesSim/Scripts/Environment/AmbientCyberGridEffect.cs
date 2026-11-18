@@ -70,6 +70,9 @@ namespace AndesSim.Environment
         private float _targetBaseIntensity = 0.32f;
 
         public CyberAmbientState CurrentState => _currentState;
+        public float EmergencyPulseFrequency => emergencyPulseFrequency;
+        public float MinPulseIntensity => minPulseIntensity;
+        public float MaxPulseIntensity => maxPulseIntensity;
 
         private void Awake()
         {
@@ -195,26 +198,27 @@ namespace AndesSim.Environment
 
         private void SetupMobileParticleSystems()
         {
-            Material particleMat = CreateParticleMaterial();
-
-            // 1. Partículas del Ventanal: Máximo 24 partículas flotantes lentas
-            if (windowParticleSystem == null && windowAnchor != null)
+            // Desactivar partículas flotantes aéreas (ventanal, portal y motas atmosféricas) para mantener una vista VR limpia
+            if (windowParticleSystem != null)
             {
-                GameObject psObj = new GameObject("Particulas_Ventanal_CyberGrid");
-                psObj.transform.SetParent(windowAnchor, false);
-                psObj.transform.localPosition = new Vector3(0f, 0f, -0.15f);
-
-                windowParticleSystem = ConfigureLightweightParticleSystem(psObj, particleMat, 24, new Vector3(5.0f, 1.4f, 0.4f), normalColor);
+                windowParticleSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                windowParticleSystem.gameObject.SetActive(false);
+            }
+            if (portalParticleSystem != null)
+            {
+                portalParticleSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                portalParticleSystem.gameObject.SetActive(false);
             }
 
-            // 2. Partículas del Portal: Máximo 16 partículas ascendentes en el arco
-            if (portalParticleSystem == null && portalAnchor != null)
+            GameObject motes = GameObject.Find("Atmospheric_CyberMotes");
+            if (motes != null)
             {
-                GameObject psPortalObj = new GameObject("Particulas_Portal_CyberField");
-                psPortalObj.transform.SetParent(portalAnchor, false);
-                psPortalObj.transform.localPosition = new Vector3(0f, 0.2f, 0f);
-
-                portalParticleSystem = ConfigureLightweightParticleSystem(psPortalObj, particleMat, 16, new Vector3(2.4f, 0.2f, 0.3f), normalColor, true);
+                ParticleSystem[] motesPs = motes.GetComponentsInChildren<ParticleSystem>(true);
+                for (int i = 0; i < motesPs.Length; i++)
+                {
+                    if (motesPs[i] != null) motesPs[i].Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                }
+                motes.SetActive(false);
             }
         }
 
@@ -351,26 +355,11 @@ namespace AndesSim.Environment
 
         private void UpdateLightingTransitions()
         {
-            // Interpolar color base suavemente
+            // Transición suave y estable de color e intensidad sin parpadeos distrayentes
             _currentLightColor = Color.Lerp(_currentLightColor, _targetLightColor, Time.deltaTime * transitionSpeed);
             _currentBaseIntensity = Mathf.Lerp(_currentBaseIntensity, _targetBaseIntensity, Time.deltaTime * transitionSpeed);
 
-            float effectiveIntensity = _currentBaseIntensity;
-
-            // Si está en emergencia (Modo Ataque con malware activo), aplicar pulso de sirena
-            if (_currentState == CyberAmbientState.EmergencyAttackInfection)
-            {
-                float pulseSin = (Mathf.Sin(Time.time * emergencyPulseFrequency * Mathf.PI * 2f) + 1f) * 0.5f;
-                effectiveIntensity = Mathf.Lerp(minPulseIntensity, maxPulseIntensity, pulseSin);
-            }
-            // En investigación normal, sutil respiración cyber
-            else if (_currentState == CyberAmbientState.NormalInvestigation)
-            {
-                float breathSin = (Mathf.Sin(Time.time * 0.8f * Mathf.PI) + 1f) * 0.5f;
-                effectiveIntensity = Mathf.Lerp(_currentBaseIntensity * 0.88f, _currentBaseIntensity * 1.05f, breathSin);
-            }
-
-            ApplyLightColorAndIntensity(_currentLightColor, effectiveIntensity);
+            ApplyLightColorAndIntensity(_currentLightColor, _currentBaseIntensity);
         }
 
         private void ApplyLightColorAndIntensity(Color color, float intensity)

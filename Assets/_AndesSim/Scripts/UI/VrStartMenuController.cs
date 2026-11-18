@@ -213,11 +213,14 @@ namespace AndesSim.VR
                 audioSource = GetComponent<AudioSource>();
                 if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
             }
+
+            DisableFloatingDecorativeRings();
         }
 
         private void Start()
         {
             AndesTypographyTheme.ApplyTypographyToTree(transform, true, true);
+            SyncMenuGuidanceLabels();
             SetupButtonListeners();
             UpdateTabVisuals(MenuTab.MisionYModos);
             UpdateModeDisplay();
@@ -439,21 +442,12 @@ namespace AndesSim.VR
                 PlayerTeleportController.I.TeleportTo(new Vector3(0.0f, 0f, 0.90f), Quaternion.Euler(0f, 172f, 0f));
             }
 
-            if (UIManager.I != null)
-            {
-                UIManager.I.ShowNotification(
-                    "DEMO VISUAL 3D",
-                    "Observa cómo viaja el virus entre las 3 PC y luego el escudo protector (8s).",
-                    NotificationType.GeneralInfo,
-                    AndesTypographyTheme.AccentCyan);
-            }
-
             if (InfectionSpreadVisualizer.I != null)
             {
                 InfectionSpreadVisualizer.I.PlayPreviewDemoSequence();
             }
 
-            yield return new WaitForSecondsRealtime(12.8f);
+            yield return new WaitForSecondsRealtime(4.5f);
 
             if (PlayerTeleportController.I != null && playerTf != null)
             {
@@ -501,7 +495,7 @@ namespace AndesSim.VR
                 if (txtModoDescripcion != null)
                 {
                     txtModoDescripcion.text =
-                        "PC 1 (Correo) -> Detonar -> Post-It y SIEM -> Tablero";
+                        "Recorrido guiado: PC 1 (Correo) -> PC 2 (SWIFT) -> PC 3 (SIEM)";
                 }
                 if (imgModoAtaqueBorder != null) imgModoAtaqueBorder.color = AttackRed;
                 if (imgModoDefensaBorder != null) imgModoDefensaBorder.color = new Color(0.16f, 0.28f, 0.42f, 0.75f);
@@ -516,7 +510,7 @@ namespace AndesSim.VR
                 if (txtModoDescripcion != null)
                 {
                     txtModoDescripcion.text =
-                        "PC 1 (3 senales) -> Sandbox -> Pistas -> Contramedidas";
+                        "Recorrido guiado: PC 1 (Sandbox) -> PC 2 (MFA) -> PC 3 (Firewall)";
                 }
                 if (imgModoAtaqueBorder != null) imgModoAtaqueBorder.color = new Color(0.16f, 0.28f, 0.42f, 0.75f);
                 if (imgModoDefensaBorder != null) imgModoDefensaBorder.color = DefenseGreen;
@@ -574,11 +568,66 @@ namespace AndesSim.VR
             Debug.Log($"{LogPrefix} Dwell Time ajustado a {_currentDwellTime:F1}s para {interactables.Length} interactuables.");
         }
 
+        private void DisableFloatingDecorativeRings()
+        {
+            HideNamedChild("Holo_Emisor_Piso");
+            HideNamedChild("Holo_Anillo_Orbital_Exterior");
+            HideNamedChild("Holo_Anillo_Orbital_Interior");
+
+            HolographicOrbitRing[] rings = GetComponentsInChildren<HolographicOrbitRing>(true);
+            for (int i = 0; i < rings.Length; i++)
+            {
+                if (rings[i] != null) rings[i].gameObject.SetActive(false);
+            }
+        }
+
+        private void HideNamedChild(string childName)
+        {
+            Transform tr = transform.Find(childName);
+            if (tr != null) tr.gameObject.SetActive(false);
+        }
+
+        private void SyncMenuGuidanceLabels()
+        {
+            Transform controlsTr = transform.Find("Holo_MenuFloatFrame/Canvas_MenuInicio_Simple/Tab_3_GuiaVR/Card_ControlesVR/Txt_ControlesVR");
+            if (controlsTr != null && controlsTr.TryGetComponent(out TextMeshProUGUI ctrlTmp))
+            {
+                ctrlTmp.text = "<b>CLIC:</b> Selecciona y avanza a tu ritmo  ·  <b>AROS VERDES:</b> Teletransporte";
+            }
+
+            string[] stepTitles = { "1 · PC 1", "2 · PC 2", "3 · PC 3", "4 · TABLERO" };
+            string[] stepBodies =
+            {
+                "Lee correo y activa Ataque o Defensa.",
+                "Ve salto SWIFT ($81M) o Token MFA.",
+                "Revisa logs SIEM y Firewall SOC.",
+                "Elige al responsable final."
+            };
+            for (int i = 0; i < 4; i++)
+            {
+                Transform titleTr = transform.Find($"Holo_MenuFloatFrame/Canvas_MenuInicio_Simple/Tab_3_GuiaVR/Card_GuiaPaso_{i}/Txt_GuiaTitulo_{i}");
+                if (titleTr != null && titleTr.TryGetComponent(out TextMeshProUGUI tt)) tt.text = stepTitles[i];
+
+                Transform bodyTr = transform.Find($"Holo_MenuFloatFrame/Canvas_MenuInicio_Simple/Tab_3_GuiaVR/Card_GuiaPaso_{i}/Txt_GuiaBody_{i}");
+                if (bodyTr != null && bodyTr.TryGetComponent(out TextMeshProUGUI bt)) bt.text = stepBodies[i];
+            }
+
+            Transform dwellHeader = transform.Find("Holo_MenuFloatFrame/Canvas_MenuInicio_Simple/Tab_4_AjustesYFx/Lbl_DwellHeader");
+            if (dwellHeader != null && dwellHeader.TryGetComponent(out TextMeshProUGUI dh))
+            {
+                dh.text = "CONTROL DE INTERACCIÓN";
+            }
+
+            if (btnDwellRapido != null) btnDwellRapido.gameObject.SetActive(false);
+            if (btnDwellEstandar != null) btnDwellEstandar.gameObject.SetActive(false);
+            if (btnDwellAccesible != null) btnDwellAccesible.gameObject.SetActive(false);
+        }
+
         private void UpdateDwellDisplay()
         {
             if (txtDwellActualBadge != null)
             {
-                txtDwellActualBadge.text = "INTERACCIÓN: <b>SOLO CLIC (MANUAL)</b>";
+                txtDwellActualBadge.text = "MODO ACTIVO: <b>SOLO CLIC MANUAL (SIN AUTODISPARO)</b>";
             }
         }
 
@@ -678,6 +727,18 @@ namespace AndesSim.VR
                 {
                     PlayerTeleportController.I.TeleportTo(new Vector3(1.40f, 0f, -2.50f), Quaternion.identity);
                 }
+
+                float timeout = 1.0f;
+                while (PlayerTeleportController.I.IsTeleporting && timeout > 0f)
+                {
+                    timeout -= Time.unscaledDeltaTime;
+                    yield return null;
+                }
+                yield return null;
+            }
+            else
+            {
+                yield return new WaitForSecondsRealtime(0.20f);
             }
 
             if (ScenarioFlowController.I != null)
@@ -689,9 +750,37 @@ namespace AndesSim.VR
                 AudioManager.I.PlayNarration("Voice_05_InicioOficina", true, 2.0f);
             }
 
-            yield return new WaitForSeconds(0.25f);
             HideMenu();
             _isStarting = false;
+
+            // Abrir automáticamente la interfaz guiada de la estación inicial para que el usuario sepa qué hacer de inmediato
+            if (VrInspectionOverlayManager.I != null)
+            {
+                string destName = targetPoint != null ? targetPoint.gameObject.name : string.Empty;
+                if (destName.IndexOf("Puesto2", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    if (GameManager.I != null && GameManager.I.mode == SimMode.Defensa)
+                        VrInspectionOverlayManager.I.OpenQuarantineInspection(1);
+                    else
+                        VrInspectionOverlayManager.I.OpenSwiftInspection();
+                }
+                else if (destName.IndexOf("Puesto3", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                         destName.IndexOf("Logs", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    if (GameManager.I != null && GameManager.I.mode == SimMode.Defensa)
+                        VrInspectionOverlayManager.I.OpenQuarantineInspection(2);
+                    else
+                        VrInspectionOverlayManager.I.OpenSiemLogInspection();
+                }
+                else if (destName.IndexOf("Tablero", StringComparison.OrdinalIgnoreCase) < 0 &&
+                         destName.IndexOf("ConsolaDefensa", StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    if (GameManager.I != null && GameManager.I.mode == SimMode.Defensa)
+                        VrInspectionOverlayManager.I.OpenQuarantineInspection(0);
+                    else
+                        VrInspectionOverlayManager.I.OpenEmailInspection(0);
+                }
+            }
         }
 
         public void HideMenu()

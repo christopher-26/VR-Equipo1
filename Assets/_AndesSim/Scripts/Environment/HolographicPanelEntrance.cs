@@ -7,9 +7,9 @@ namespace AndesSim.Environment
     /// </summary>
     public class HolographicPanelEntrance : MonoBehaviour
     {
-        [SerializeField] private float duration = 0.28f;
-        [SerializeField] private float startScaleFactor = 0.86f;
-        [SerializeField] private float riseOffsetY = 0.045f;
+        [SerializeField] private float duration = 0.14f;
+        [SerializeField] private float startScaleFactor = 1f;
+        [SerializeField] private float riseOffsetY = 0f;
         [SerializeField] private CanvasGroup canvasGroup;
 
         private Vector3 _restLocalPos;
@@ -20,11 +20,11 @@ namespace AndesSim.Environment
 
         public bool IsAnimating => _animating;
 
-        public void Configure(float animDuration = 0.28f, float initialScale = 0.86f, float startRiseY = 0.045f, CanvasGroup group = null)
+        public void Configure(float animDuration = 0.14f, float initialScale = 1f, float startRiseY = 0f, CanvasGroup group = null)
         {
-            duration = Mathf.Max(0.08f, animDuration);
-            startScaleFactor = initialScale;
-            riseOffsetY = startRiseY;
+            duration = Mathf.Max(0.06f, animDuration);
+            startScaleFactor = 1f;
+            riseOffsetY = 0f;
             if (group != null) canvasGroup = group;
             CaptureRestPose();
         }
@@ -78,17 +78,12 @@ namespace AndesSim.Environment
 
         private void ApplyFrame(float u)
         {
-            // EaseOutBack suave para sensación holográfica reactiva
-            const float c1 = 1.40f;
-            const float c3 = c1 + 1f;
-            float um1 = u - 1f;
-            float easeBack = 1f + c3 * um1 * um1 * um1 + c1 * um1 * um1;
+            // Transición limpia de opacidad sin rebotes ni desplazamientos verticales
             float easeCubic = 1f - Mathf.Pow(1f - u, 3f);
-
-            float s = Mathf.LerpUnclamped(startScaleFactor, 1f, easeBack);
-            transform.localScale = _restLocalScale * s;
+            float scale = Mathf.Lerp(startScaleFactor, 1f, easeCubic);
+            transform.localScale = _restLocalScale * scale;
             transform.localPosition = _restLocalPos + new Vector3(0f, -riseOffsetY * (1f - easeCubic), 0f);
-            if (canvasGroup != null) canvasGroup.alpha = Mathf.Clamp01(easeCubic * 1.15f);
+            if (canvasGroup != null) canvasGroup.alpha = Mathf.Clamp01(easeCubic);
         }
     }
 }

@@ -140,6 +140,7 @@ namespace AndesSim.Scenario01
             {
                 GameManager.I.OnModeChanged += HandleModeChanged;
                 GameManager.I.OnDefenseApplied += HandleDefenseApplied;
+                GameManager.I.OnSimulationReset += HandleSimulationReset;
             }
         }
 
@@ -149,7 +150,27 @@ namespace AndesSim.Scenario01
             {
                 GameManager.I.OnModeChanged -= HandleModeChanged;
                 GameManager.I.OnDefenseApplied -= HandleDefenseApplied;
+                GameManager.I.OnSimulationReset -= HandleSimulationReset;
             }
+        }
+
+        private void HandleSimulationReset()
+        {
+            if (_sandboxCoroutine != null)
+            {
+                StopCoroutine(_sandboxCoroutine);
+                _sandboxCoroutine = null;
+            }
+            _isAnalysisRunning = false;
+            _isQuarantined = false;
+            _containmentConfirmed = false;
+
+            bool isDefense = GameManager.I != null && GameManager.I.mode == SimMode.Defensa;
+            if (normalEmailPanel != null) normalEmailPanel.SetActive(!isDefense);
+            if (quarantineConsolePanel != null) quarantineConsolePanel.SetActive(isDefense);
+            if (quarantineSuccessStamp != null) quarantineSuccessStamp.SetActive(false);
+            if (threatBadgeAlert != null) threatBadgeAlert.SetActive(false);
+            if (confirmContainmentButton != null) confirmContainmentButton.interactable = false;
         }
 
         private void Start()
@@ -490,12 +511,13 @@ namespace AndesSim.Scenario01
         {
             if (_containmentConfirmed) return;
 
-            if (!_isQuarantined)
+            if (_sandboxCoroutine != null)
             {
-                Debug.LogWarning($"{LogPrefix} Intento de confirmar contención antes de que concluya el análisis en Sandbox.");
-                return;
+                StopCoroutine(_sandboxCoroutine);
+                _sandboxCoroutine = null;
             }
-
+            _isAnalysisRunning = false;
+            _isQuarantined = true;
             _containmentConfirmed = true;
             PlaySound(confirmButtonClickClip, GenerateSuccessFanfareTone());
 

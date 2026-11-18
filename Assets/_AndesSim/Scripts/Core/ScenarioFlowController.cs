@@ -193,6 +193,7 @@ namespace AndesSim.Core
         /// </summary>
         public void NotifyWorkstationInteracted(string workstationId)
         {
+            if (string.IsNullOrEmpty(workstationId)) return;
             _visitedStations.Add(workstationId);
 
             if (currentStep == ScenarioStep.Step2_Oficina3D &&
@@ -255,14 +256,13 @@ namespace AndesSim.Core
         }
 
         /// <summary>
-        /// Paso 5 -> Paso 6: Ejecuta la resolución según la acción del usuario.
+        /// Registra la decisión tomada en PC 1 sin cerrar anticipadamente el simulador,
+        /// permitiendo completar el recorrido por PC 2 (SWIFT) y PC 3 (SIEM) al ritmo del jugador.
         /// </summary>
         /// <param name="actionType">"AbrirEnlace" en Modo Ataque o "ReportarPhishing" en Modo Defensa.</param>
         public void NotifyPlayerDecisionExecuted(string actionType)
         {
-            if (currentStep != ScenarioStep.Step5_ElegirAccion) return;
-
-            Debug.Log($"{LogPrefix} Decisión ejecutada en Paso 5: <color=#FCE762>{actionType}</color> (Modo: {GameManager.I?.mode})");
+            Debug.Log($"{LogPrefix} Decisión registrada en PC 1: <color=#FCE762>{actionType}</color> (Modo: {GameManager.I?.mode}). Recorrido guiado hacia PC 2 y PC 3 activo.");
 
             if (GameManager.I != null)
             {
@@ -274,11 +274,20 @@ namespace AndesSim.Core
                 {
                     GameManager.I.ApplyDefense("Defensa_BotonReportar");
                     GameManager.I.ApplyDefense("Defensa_Sandbox");
-                    GameManager.I.ApplyDefense("Defensa_MFA");
                 }
             }
 
-            // Avanzar al paso final de evaluación
+            if (currentStep < ScenarioStep.Step5_ElegirAccion)
+            {
+                SetStep(ScenarioStep.Step5_ElegirAccion);
+            }
+        }
+
+        /// <summary>
+        /// Completa el flujo del escenario al concluir el recorrido por las 3 PCs.
+        /// </summary>
+        public void CompleteScenarioFlow()
+        {
             SetStep(ScenarioStep.Step6_Resultado);
         }
 

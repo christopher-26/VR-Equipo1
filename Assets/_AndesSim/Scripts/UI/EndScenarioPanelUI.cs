@@ -420,7 +420,7 @@ namespace AndesSim.UI
                 ScenarioFlowController.I.SetStep(ScenarioStep.Step3_RevisarBandeja);
             }
 
-            // Teletransportar frente a Puesto 1
+            // Teletransportar frente a Puesto 1 e iniciar recorrido guiado de Modo Defensa en PC 1
             if (PlayerTeleportController.I != null)
             {
                 TeleportPoint tp1 = null;
@@ -436,9 +436,25 @@ namespace AndesSim.UI
 
                 if (tp1 != null)
                 {
-                    PlayerTeleportController.I.TeleportToPoint(tp1);
+                    StartCoroutine(TeleportAndStartDefenseTourRoutine(tp1));
+                    return;
                 }
             }
+
+            VrInspectionOverlayManager.I?.OpenQuarantineInspection(0);
+        }
+
+        private IEnumerator TeleportAndStartDefenseTourRoutine(TeleportPoint tp1)
+        {
+            PlayerTeleportController.I.TeleportToPoint(tp1);
+            float timeout = 1.0f;
+            while (PlayerTeleportController.I != null && PlayerTeleportController.I.IsTeleporting && timeout > 0f)
+            {
+                timeout -= Time.unscaledDeltaTime;
+                yield return null;
+            }
+            yield return null;
+            VrInspectionOverlayManager.I?.OpenQuarantineInspection(0);
         }
 
         /// <summary>
@@ -614,9 +630,7 @@ namespace AndesSim.UI
             AddEndOutline(panelRoot, ColorCodeGreen, 2.5f);
             CanvasGroup innerCg = panelRoot.GetComponent<CanvasGroup>() ?? panelRoot.AddComponent<CanvasGroup>();
             HolographicPanelEntrance ent = panelRoot.GetComponent<HolographicPanelEntrance>() ?? panelRoot.AddComponent<HolographicPanelEntrance>();
-            ent.Configure(0.32f, 0.86f, 24f, innerCg);
-            HolographicFloatMotion fl = panelRoot.GetComponent<HolographicFloatMotion>() ?? panelRoot.AddComponent<HolographicFloatMotion>();
-            fl.Configure(10f, 0.78f, new Vector3(0.55f, 0.85f, 0.35f), 0f, 0f, true);
+            ent.Configure(0.14f, 1f, 0f, innerCg);
 
             // Cabecera
             GameObject headerBox = CreateEndUiBox("Header_Outcome", panelRoot.transform, new Vector2(0f, 255f), new Vector2(910f, 100f), new Color(0.03f, 0.09f, 0.07f, 0.96f));
