@@ -133,17 +133,20 @@ namespace AndesSim.Scenario01
 
 
         private Camera _mainCamCached;
+        private int _lastInteractFrame = -1;
+        private float _lastInteractUnscaledTime = -10f;
 
         private void Update()
         {
-            // Atajo de interacción frontal: si el jugador está frente al monitor y presiona 'E', 'Espacio' o 'Enter'
+            // En Editor, EditorVrCameraSimulator y VrInspectionOverlayManager ya gestionan [E]/[Espacio] de forma centralizada
+#if !UNITY_EDITOR
+            if (AndesSim.UI.VrInspectionOverlayManager.I != null && AndesSim.UI.VrInspectionOverlayManager.I.IsOpen) return;
             if (_mainCamCached == null) _mainCamCached = Camera.main;
             if (_mainCamCached == null) return;
 
             float dist = Vector3.Distance(_mainCamCached.transform.position, transform.position);
             if (dist > distanceTeleportThreshold + 0.6f) return;
 
-            // Verificar si la cámara mira hacia este monitor
             Vector3 toMonitor = (transform.position - _mainCamCached.transform.position).normalized;
             float lookDot = Vector3.Dot(_mainCamCached.transform.forward, toMonitor);
 
@@ -177,6 +180,7 @@ namespace AndesSim.Scenario01
                     ToggleInspectionModal();
                 }
             }
+#endif
         }
 
         private void Start()
@@ -434,6 +438,10 @@ namespace AndesSim.Scenario01
         /// </summary>
         public void OnMonitorClicked()
         {
+            if (_lastInteractFrame == Time.frameCount || (Time.unscaledTime - _lastInteractUnscaledTime) < 0.25f) return;
+            _lastInteractFrame = Time.frameCount;
+            _lastInteractUnscaledTime = Time.unscaledTime;
+
             Transform camTransform = Camera.main != null ? Camera.main.transform : null;
             float distance = (camTransform != null) ? Vector3.Distance(camTransform.position, transform.position) : 0f;
 

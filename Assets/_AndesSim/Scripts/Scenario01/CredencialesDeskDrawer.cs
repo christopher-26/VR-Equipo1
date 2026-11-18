@@ -126,6 +126,8 @@ namespace AndesSim.Scenario01
                 _gazeInteractable = gameObject.AddComponent<GazeInteractable>();
                 _gazeInteractable.interactableLabel = "Abrir Cajon";
             }
+            _gazeInteractable.onClick.RemoveListener(ToggleDrawer);
+            _gazeInteractable.onClick.AddListener(ToggleDrawer);
 
             if (notebookCredentials3DText != null)
             {

@@ -617,8 +617,6 @@ namespace AndesSim.Environment
             {
                 Button b = btnOpenSwift.GetComponent<Button>();
                 if (b != null) b.onClick.AddListener(mon2Ctrl.OnMonitorClicked);
-                GazeInteractable g = btnOpenSwift.GetComponent<GazeInteractable>();
-                if (g != null) g.onClick.AddListener(mon2Ctrl.OnMonitorClicked);
             }
         }
 
@@ -669,8 +667,6 @@ namespace AndesSim.Environment
             {
                 Button b3 = logBtnObj.GetComponent<Button>();
                 if (b3 != null) b3.onClick.AddListener(mon3Ctrl.OnMonitorClicked);
-                GazeInteractable g3 = logBtnObj.GetComponent<GazeInteractable>();
-                if (g3 != null) g3.onClick.AddListener(mon3Ctrl.OnMonitorClicked);
             }
 
             if (siemTerminal != null)

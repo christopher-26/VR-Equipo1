@@ -19,6 +19,8 @@ namespace AndesSim.Environment
         private SuspectBoardVR _cachedBoard;
         private Material _instancedMat;
         private Color _originalColor;
+        private int _lastSelectFrame = -1;
+        private float _lastSelectUnscaledTime = -10f;
 
         private void Start()
         {
@@ -46,6 +48,10 @@ namespace AndesSim.Environment
 
         public void SelectSuspect()
         {
+            if (_lastSelectFrame == Time.frameCount || (Time.unscaledTime - _lastSelectUnscaledTime) < 0.25f) return;
+            _lastSelectFrame = Time.frameCount;
+            _lastSelectUnscaledTime = Time.unscaledTime;
+
             if (AudioManager.I != null)
             {
                 AudioManager.I.PlayGazeClick();

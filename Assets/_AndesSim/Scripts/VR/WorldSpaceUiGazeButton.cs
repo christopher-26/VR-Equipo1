@@ -49,6 +49,8 @@ namespace AndesSim.VR
         private GazeInteractable _gazeInteractable;
         private Vector3 _originalScale;
         private Coroutine _punchCoroutine;
+        private int _lastClickFrame = -1;
+        private float _lastClickUnscaledTime = -10f;
 
         private void Awake()
         {
@@ -182,6 +184,9 @@ namespace AndesSim.VR
         private void HandleGazePointerClick()
         {
             if (_button == null || !_button.interactable || !_button.isActiveAndEnabled) return;
+            if (_lastClickFrame == Time.frameCount || (Time.unscaledTime - _lastClickUnscaledTime) < 0.22f) return;
+            _lastClickFrame = Time.frameCount;
+            _lastClickUnscaledTime = Time.unscaledTime;
 
             Debug.Log($"{LogPrefix} Clic por retícula VR procesado en botón: <color=#4EC9B0>'{gameObject.name}'</color>");
 

@@ -60,18 +60,33 @@ namespace AndesSim.VR
         [SerializeField] private Image reticleTrackRing;
 
         // Componentes y estado interno
+        private static CardboardReticleAdapter _activeInstance;
         private Camera _playerCamera;
         private GazeInteractable _currentInteractable;
         private RaycastHit _currentHit;
         private bool _isHittingInteractable;
         private GameObject _labelContainerGO;
         private readonly RaycastHit[] _raycastHitBuffer = new RaycastHit[24];
+        private float _clickPulseTimer = 0f;
+        private const float ClickPulseDuration = 0.24f;
 
         public GazeInteractable CurrentTarget => _currentInteractable;
         public bool IsHittingInteractable => _isHittingInteractable;
 
+        /// <summary>
+        /// Dispara la animación visual de confirmación en la retícula únicamente al ejecutar un clic explícito.
+        /// </summary>
+        public static void NotifyClickExecuted()
+        {
+            if (_activeInstance != null)
+            {
+                _activeInstance._clickPulseTimer = ClickPulseDuration;
+            }
+        }
+
         private void Awake()
         {
+            _activeInstance = this;
             _playerCamera = GetComponent<Camera>();
 
             // Configurar máscara de capa "Interactive"
@@ -241,6 +256,11 @@ namespace AndesSim.VR
                 screenPos = Pointer.current.position.ReadValue();
                 hasPointerPos = true;
             }
+            if (Keyboard.current != null &&
+                (Keyboard.current.enterKey.wasPressedThisFrame || Keyboard.current.numpadEnterKey.wasPressedThisFrame))
+            {
+                isTriggered = true;
+            }
 #endif
 #if ENABLE_LEGACY_INPUT_MANAGER
             try
@@ -256,6 +276,10 @@ namespace AndesSim.VR
                     isTriggered = true;
                     screenPos = Input.GetTouch(0).position;
                     hasPointerPos = true;
+                }
+                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+                {
+                    isTriggered = true;
                 }
             }
             catch { }
@@ -291,6 +315,13 @@ namespace AndesSim.VR
         {
             if (reticleRoot == null) return;
 
+            float clickAnimProgress = 0f;
+            if (_clickPulseTimer > 0f)
+            {
+                _clickPulseTimer = Mathf.Max(0f, _clickPulseTimer - Time.unscaledDeltaTime);
+                clickAnimProgress = _clickPulseTimer / ClickPulseDuration;
+            }
+
             Ray centerRay = _playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
 
             if (_isHittingInteractable)
@@ -303,10 +334,10 @@ namespace AndesSim.VR
                 float distance = Vector3.Distance(_playerCamera.transform.position, _currentHit.point);
                 float scaleFactor = Mathf.Clamp(distance * 0.0016f, 0.00085f, 0.008f);
 
-                // Micro-animación elástica sutil al progresar la mirada
-                if (_currentInteractable != null)
+                // Animación elástica únicamente al presionar clic (sin carga automática por mirada)
+                if (clickAnimProgress > 0f)
                 {
-                    scaleFactor *= (1f + 0.10f * _currentInteractable.DwellProgress);
+                    scaleFactor *= (1f + 0.16f * clickAnimProgress);
                 }
                 reticleRoot.localScale = Vector3.one * scaleFactor;
 
@@ -335,7 +366,8 @@ namespace AndesSim.VR
 
                     if (reticleProgressRing != null)
                     {
-                        reticleProgressRing.fillAmount = _currentInteractable.DwellProgress;
+                        // Solo se ilumina el anillo al hacer clic explícito (0f mientras solo se mira)
+                        reticleProgressRing.fillAmount = clickAnimProgress;
                         reticleProgressRing.color = progressFillColor;
                     }
 

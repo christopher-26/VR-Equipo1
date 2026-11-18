@@ -79,6 +79,7 @@ namespace AndesSim.Scenario01
         private Collider _collider;
         private Coroutine _hideTooltipCoroutine;
         private int _lastClickFrame = -1;
+        private float _lastClickUnscaledTime = -10f;
 
         #region Propiedades Públicas
 
@@ -171,8 +172,9 @@ namespace AndesSim.Scenario01
         /// </summary>
         public void InspectSignal()
         {
-            if (_lastClickFrame == Time.frameCount) return;
+            if (_lastClickFrame == Time.frameCount || (Time.unscaledTime - _lastClickUnscaledTime) < 0.25f) return;
             _lastClickFrame = Time.frameCount;
+            _lastClickUnscaledTime = Time.unscaledTime;
 
             if (isDetected)
             {

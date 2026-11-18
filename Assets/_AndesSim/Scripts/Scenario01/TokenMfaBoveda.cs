@@ -104,12 +104,17 @@ namespace AndesSim.Scenario01
             }
         }
 
+        private int _lastInspectFrame = -1;
+        private float _lastInspectUnscaledTime = -10f;
+
         private void Start()
         {
             if (_gazeInteractable == null)
             {
                 _gazeInteractable = gameObject.AddComponent<GazeInteractable>();
             }
+            _gazeInteractable.onClick.RemoveListener(InspectTokenDevice);
+            _gazeInteractable.onClick.AddListener(InspectTokenDevice);
 
             if (serviceLabelText != null)
             {
@@ -256,6 +261,10 @@ namespace AndesSim.Scenario01
         /// </summary>
         public void InspectTokenDevice()
         {
+            if (_lastInspectFrame == Time.frameCount || (Time.unscaledTime - _lastInspectUnscaledTime) < 0.25f) return;
+            _lastInspectFrame = Time.frameCount;
+            _lastInspectUnscaledTime = Time.unscaledTime;
+
             PlaySound(buttonClickClip, GenerateClickTone());
 
             // 1. Aplicar la contramedida oficial en GameManager

@@ -225,8 +225,15 @@ namespace AndesSim.Scenario01
         /// 2. Llama a GameManager.I.ApplyDefense(defenseId).
         /// 3. Cambia el indicador luminoso a verde brillante #38f28a.
         /// </summary>
+        private int _lastTriggerFrame = -1;
+        private float _lastTriggerUnscaledTime = -10f;
+
         public void TriggerDefense()
         {
+            if (_lastTriggerFrame == Time.frameCount || (Time.unscaledTime - _lastTriggerUnscaledTime) < 0.25f) return;
+            _lastTriggerFrame = Time.frameCount;
+            _lastTriggerUnscaledTime = Time.unscaledTime;
+
             if (isApplied)
             {
                 ShowMitigationPopup();

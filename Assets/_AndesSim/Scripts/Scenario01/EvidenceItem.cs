@@ -142,8 +142,15 @@ namespace AndesSim.Scenario01
         /// 2. Despliega el panel flotante 3D de confirmación.
         /// 3. Cambia el indicador visual al color verde #38f28a.
         /// </summary>
+        private int _lastCollectFrame = -1;
+        private float _lastCollectUnscaledTime = -10f;
+
         public virtual void CollectEvidence()
         {
+            if (_lastCollectFrame == Time.frameCount || (Time.unscaledTime - _lastCollectUnscaledTime) < 0.25f) return;
+            _lastCollectFrame = Time.frameCount;
+            _lastCollectUnscaledTime = Time.unscaledTime;
+
             if (isCollected)
             {
                 // Si ya fue recolectada, alternar la vista del panel informativo

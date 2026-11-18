@@ -37,10 +37,10 @@ namespace AndesSim.VR
         public string interactableLabel = "Interactuar";
 
         [Header("--- Selección por Permanencia (Dwell Click) ---")]
-        [Tooltip("Activa la selección automática al mantener la mirada fija durante el tiempo de dwell.")]
-        [SerializeField] private bool enableDwellClick = true;
+        [Tooltip("Desactivado globalmente: todas las interacciones requieren clic explícito del jugador.")]
+        [SerializeField] private bool enableDwellClick = false;
 
-        [Tooltip("Tiempo en segundos que el jugador debe mantener la mirada para detonar el clic (1.8 segundos por defecto).")]
+        [Tooltip("Tiempo de referencia (desactivado en modo solo-clic).")]
         [Range(0.5f, 5.0f)]
         [SerializeField] public float dwellTime = 1.2f;
 
@@ -71,10 +71,14 @@ namespace AndesSim.VR
 
         // Estado interno
         private bool _isHovered = false;
-        private bool _hasClickedThisHover = false;
         private float _dwellTimer = 0f;
         private float _exitGraceTimer = 0f;
         private const float ExitGracePeriod = 0.15f;
+
+        // Control global anti-doble clic y anti-salto de etapas (1 clic físico = 1 acción)
+        private static int _lastGlobalClickFrame = -1;
+        private static float _lastGlobalClickUnscaledTime = -10f;
+        private const float GlobalClickCooldown = 0.22f;
 
         // Caché de materiales y colores originales
         private Color _originalGraphicColor;
@@ -85,42 +89,28 @@ namespace AndesSim.VR
 
         public string InteractableLabel { get => interactableLabel; set => interactableLabel = value; }
         public bool IsHovered => _isHovered;
-        public float DwellProgress => enableDwellClick ? Mathf.Clamp01(_dwellTimer / dwellTime) : 0f;
+        public bool EnableDwellClick => enableDwellClick;
+        public float DwellProgress => enableDwellClick ? Mathf.Clamp01(_dwellTimer / Mathf.Max(0.1f, dwellTime)) : 0f;
 
         private void Awake()
         {
+            // Forzar interacción exclusivamente por clic manual en todo el videojuego
+            enableDwellClick = false;
             EnsureInteractiveLayer();
             EnsureCollider();
+            DisableDuplicateUiRaycastTargets();
             CacheOriginalAppearance();
+        }
+
+        private void OnEnable()
+        {
+            enableDwellClick = false;
+            _dwellTimer = 0f;
         }
 
         private void Update()
         {
             if (!_isHovered) return;
-
-            // 1. Detección de toque directo en pantalla o gatillo magnético/capacitivo de Cardboard
-            bool screenTapped = false;
-#if ENABLE_INPUT_SYSTEM
-            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame) screenTapped = true;
-            if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame) screenTapped = true;
-#endif
-#if ENABLE_LEGACY_INPUT_MANAGER
-            if (!screenTapped)
-            {
-                try
-                {
-                    if (Input.GetMouseButtonDown(0)) screenTapped = true;
-                    if (Input.touchCount > 0 && Input.GetTouch(0).phase == UnityEngine.TouchPhase.Began) screenTapped = true;
-                }
-                catch { }
-            }
-#endif
-
-            if (screenTapped)
-            {
-                TriggerClick();
-                return;
-            }
 
             if (_exitGraceTimer > 0f)
             {
@@ -129,20 +119,6 @@ namespace AndesSim.VR
                 {
                     _dwellTimer = 0f;
                     onDwellProgress?.Invoke(0f);
-                }
-            }
-
-            // 2. Conteo por permanencia de mirada (Dwell Time)
-            if (_isHovered && enableDwellClick && !_hasClickedThisHover)
-            {
-                _dwellTimer += Time.deltaTime;
-                float progress = Mathf.Clamp01(_dwellTimer / dwellTime);
-                onDwellProgress?.Invoke(progress);
-
-                if (_dwellTimer >= dwellTime)
-                {
-                    _hasClickedThisHover = true;
-                    TriggerClick();
                 }
             }
         }
@@ -165,7 +141,6 @@ namespace AndesSim.VR
             if (_isHovered) return;
 
             _isHovered = true;
-            _hasClickedThisHover = false;
             if (_exitGraceTimer <= 0f)
             {
                 _dwellTimer = 0f;
@@ -235,11 +210,22 @@ namespace AndesSim.VR
         #endregion
 
         /// <summary>
-        /// Ejecuta el evento de clic con feedback en consola y reinicio controlado de estado.
+        /// Ejecuta el evento de clic con feedback en consola y protección global contra doble disparo o salto de etapa.
         /// </summary>
         private void TriggerClick()
         {
-            Debug.Log($"{LogPrefix} <color=#4EC9B0><b>CLIC POR MIRADA EJECUTADO:</b></color> '{gameObject.name}' ({interactableLabel})");
+            if (_lastGlobalClickFrame == Time.frameCount ||
+                (Time.unscaledTime - _lastGlobalClickUnscaledTime) < GlobalClickCooldown)
+            {
+                return;
+            }
+
+            _lastGlobalClickFrame = Time.frameCount;
+            _lastGlobalClickUnscaledTime = Time.unscaledTime;
+
+            CardboardReticleAdapter.NotifyClickExecuted();
+
+            Debug.Log($"{LogPrefix} <color=#4EC9B0><b>CLIC EJECUTADO:</b></color> '{gameObject.name}' ({interactableLabel})");
 
             if (AudioManager.I != null)
             {
@@ -247,6 +233,22 @@ namespace AndesSim.VR
             }
 
             onClick?.Invoke();
+        }
+
+        private void DisableDuplicateUiRaycastTargets()
+        {
+            // Si este objeto tiene un Button y un Collider 3D para GazeInteractable, desactivar raycastTarget
+            // en sus gráficos hijos evita que GraphicRaycaster dispare un segundo clic paralelo al de CardboardReticleAdapter.
+            if (GetComponent<Button>() == null || GetComponent<Collider>() == null) return;
+
+            Graphic[] graphics = GetComponentsInChildren<Graphic>(true);
+            for (int i = 0; i < graphics.Length; i++)
+            {
+                if (graphics[i] != null)
+                {
+                    graphics[i].raycastTarget = false;
+                }
+            }
         }
 
         #region Configuración de Capa, Colisionador y Materiales

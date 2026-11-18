@@ -106,6 +106,8 @@ namespace AndesSim.Scenario01
                 _gazeInteractable = gameObject.AddComponent<GazeInteractable>();
             }
             _gazeInteractable.interactableLabel = "Telefono SOC (4040)";
+            _gazeInteractable.onClick.RemoveListener(StartSocReportCall);
+            _gazeInteractable.onClick.AddListener(StartSocReportCall);
 
             if (dialogCanvasPanel != null)
             {
@@ -124,10 +126,7 @@ namespace AndesSim.Scenario01
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (!_isCallInProgress)
-            {
-                PlaySound(null, GenerateDtmfTone(1));
-            }
+            // Sin marcado automático por mirada: solo inicia al presionar clic
         }
 
         public void OnPointerExit(PointerEventData eventData)

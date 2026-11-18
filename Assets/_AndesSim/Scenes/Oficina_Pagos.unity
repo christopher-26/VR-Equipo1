@@ -3865,7 +3865,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: 'Teletransportarse a: PC 2 (SWIFT)'
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -4495,7 +4495,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: "PC 3 \xB7 SIEM"
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -5312,7 +5312,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: PROBAR VOZ
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -5485,7 +5485,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: 'Activar: 2. BOTON REPORTAR PHISHING'
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -6422,7 +6422,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: ABRIR ENLACE
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -7761,7 +7761,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: 2. MAPA
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -8369,7 +8369,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: CYBER NOCTURNO
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -10426,7 +10426,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: 4. GUIA
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -10746,7 +10746,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: TABLERO
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -11720,7 +11720,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: C. MENDOZA
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -12045,7 +12045,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: 'Teletransportarse a: PC 3 y Defensas'
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -14649,7 +14649,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: CREDITOS Y ETICA
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -15090,7 +15090,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: INICIAR SIMULACION
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -21079,7 +21079,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: 3. SOSPECHOSOS
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -21531,7 +21531,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: Urgencia artificial
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -23019,7 +23019,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: REGISTRAR LOG SIEM
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -25025,7 +25025,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: MODO ATAQUE
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -25616,7 +25616,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: 5. AJUSTES
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -26378,7 +26378,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: 'Teletransportarse a: Pasillo Sur-Oeste'
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -27018,7 +27018,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: 'Teletransportarse a: Pasillo Norte'
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -28935,7 +28935,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: "PC 2 \xB7 Pagos SWIFT"
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -32006,7 +32006,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: 'Teletransportarse a: Pasillo SIEM'
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -34190,7 +34190,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: REPORTAR PHISHING
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -37033,7 +37033,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: 'Teletransportarse a: Vista PC 2'
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -37651,7 +37651,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: "1.6s \xB7 NORMAL"
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -39959,7 +39959,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: Telefono SOC (404)
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -40887,7 +40887,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: '? GUIA RAPIDA'
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -42584,7 +42584,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: 'Teletransportarse a: Entre PC 1 y Tablero'
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -45074,7 +45074,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: Ejecutable .scr oculto
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -45516,7 +45516,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: Dominio externo
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -46360,7 +46360,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: SOC CYAN NEON
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -48627,7 +48627,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: Cajon de Claves
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -49678,7 +49678,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: 'Teletransportarse a: Entrada'
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -50122,7 +50122,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: R. ALIAGA
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -51477,7 +51477,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: DEMO VIRUS 3D
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -52552,7 +52552,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: "2.4s \xB7 COMODO"
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -52767,7 +52767,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: 'Teletransportarse a: Vista Tablero'
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -53927,7 +53927,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: 'AUDIO: ON'
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -54875,7 +54875,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: H. BENAVIDES
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -56249,7 +56249,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: 'Teletransportarse a: Acceso Sala SIEM'
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -59594,7 +59594,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: 'Post-It: Claves'
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -60356,7 +60356,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: S. TORRES
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -61480,7 +61480,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: "1.0s \xB7 RAPIDO"
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -62259,7 +62259,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: "PC 1 \xB7 CARLA"
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -64582,7 +64582,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: 'Activar: 1. SANDBOX DE CORREO'
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -64727,7 +64727,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: 'Teletransportarse a: Pasillo Central'
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -69339,7 +69339,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: Token MFA
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -70419,7 +70419,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: "PC 2 \xB7 SWIFT"
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -70932,7 +70932,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: CREDITOS Y ETICA
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -71648,7 +71648,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: OFICINA CLARA
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -71851,7 +71851,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: "Teletransportarse a: Examinar Tablero T\xE1ctico de Sospechosos"
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -73743,7 +73743,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: 1. INICIO
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -77192,7 +77192,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: 'Activar: 3. AUTENTICACION MFA'
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -77714,7 +77714,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: 'Teletransportarse a: PC 1 (Carla)'
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -80207,7 +80207,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: CONFIRMAR CONTENCION
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.1
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -81091,7 +81091,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: 'Teletransportarse a: Vista SIEM y Defensas'
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -85106,7 +85106,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: MODO DEFENSA
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}
@@ -89300,7 +89300,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AndesSim.VR.GazeInteractable
   interactableLabel: IR AL TABLERO
-  enableDwellClick: 1
+  enableDwellClick: 0
   dwellTime: 1.2
   targetRenderer: {fileID: 0}
   targetGraphic: {fileID: 0}

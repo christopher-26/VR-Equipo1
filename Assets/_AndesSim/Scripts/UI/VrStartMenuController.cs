@@ -578,7 +578,7 @@ namespace AndesSim.VR
         {
             if (txtDwellActualBadge != null)
             {
-                txtDwellActualBadge.text = $"MIRADA: <b>{_currentDwellTime:F1}s</b>";
+                txtDwellActualBadge.text = "INTERACCIÓN: <b>SOLO CLIC (MANUAL)</b>";
             }
         }
 

@@ -1619,10 +1619,12 @@ namespace AndesSim.UI
             cb.pressedColor = bgColor * 0.8f;
             btn.colors = cb;
             int lastInvokedFrame = -1;
+            float lastInvokedTime = -10f;
             Action invokeOncePerFrame = () =>
             {
-                if (onClick == null || lastInvokedFrame == Time.frameCount) return;
+                if (onClick == null || lastInvokedFrame == Time.frameCount || (Time.unscaledTime - lastInvokedTime) < 0.22f) return;
                 lastInvokedFrame = Time.frameCount;
+                lastInvokedTime = Time.unscaledTime;
                 onClick.Invoke();
             };
             if (onClick != null) btn.onClick.AddListener(() => invokeOncePerFrame());
@@ -1634,7 +1636,6 @@ namespace AndesSim.UI
 
             GazeInteractable gaze = btnGO.AddComponent<GazeInteractable>();
             gaze.interactableLabel = text.Replace("<b>", "").Replace("</b>", "").Split('\n')[0];
-            gaze.dwellTime = 1.1f;
             if (onClick != null) gaze.onClick.AddListener(() => invokeOncePerFrame());
 
             HolographicCardHover hover = btnGO.AddComponent<HolographicCardHover>();
@@ -1696,8 +1697,14 @@ namespace AndesSim.UI
             AndesTypographyTheme.StyleButtonLabel(tmp, Color.white, 16.5f);
 
             bool isChecked = false;
+            int lastToggledFrame = -1;
+            float lastToggledTime = -10f;
             Action toggleAction = () =>
             {
+                if (lastToggledFrame == Time.frameCount || (Time.unscaledTime - lastToggledTime) < 0.22f) return;
+                lastToggledFrame = Time.frameCount;
+                lastToggledTime = Time.unscaledTime;
+
                 isChecked = !isChecked;
                 if (isChecked)
                 {
@@ -1758,10 +1765,12 @@ namespace AndesSim.UI
             AndesTypographyTheme.StyleButtonLabel(tmp, WarningAmberColor, 17.5f);
 
             int lastMarkedFrame = -1;
+            float lastMarkedTime = -10f;
             Action markAction = () =>
             {
-                if (lastMarkedFrame == Time.frameCount) return;
+                if (lastMarkedFrame == Time.frameCount || (Time.unscaledTime - lastMarkedTime) < 0.22f) return;
                 lastMarkedFrame = Time.frameCount;
+                lastMarkedTime = Time.unscaledTime;
 
                 if (ScenarioFlowController.I != null)
                 {
