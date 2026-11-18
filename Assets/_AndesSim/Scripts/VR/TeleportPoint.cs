@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using AndesSim.Core;
+using AndesSim.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -163,11 +164,26 @@ namespace AndesSim.VR
         }
 
         /// <summary>
-        /// Inicia el teletransporte con confort vestibular mediante parpadeo (Blink).
+        /// Inicia el teletransporte con confort vestibular mediante parpadeo (Blink), bloqueado durante animaciones activas.
         /// </summary>
         public void ExecuteTeleport()
         {
             if (_isTeleporting) return;
+            if (PlayerTeleportController.I != null && PlayerTeleportController.I.IsTeleporting) return;
+            if (VrInspectionOverlayManager.I != null && (VrInspectionOverlayManager.I.IsOpen || VrInspectionOverlayManager.I.IsTransitionBusy)) return;
+            if (EndScenarioPanelUI.I != null && EndScenarioPanelUI.I.IsTransitionBusy) return;
+            if (CreditsAndEthicsModalUI.I != null && CreditsAndEthicsModalUI.I.IsTransitionBusy) return;
+            if (VrStartMenuController.I != null && VrStartMenuController.I.IsTransitionBusy) return;
+
+            if (PlayerTeleportController.I != null)
+            {
+                if (ScenarioFlowController.I != null && !string.IsNullOrEmpty(associatedWorkstationId))
+                {
+                    ScenarioFlowController.I.NotifyWorkstationInteracted(associatedWorkstationId);
+                }
+                PlayerTeleportController.I.TeleportToPoint(this);
+                return;
+            }
 
             StartCoroutine(ComfortBlinkTeleportRoutine());
         }

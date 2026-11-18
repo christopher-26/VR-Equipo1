@@ -53,8 +53,8 @@ namespace AndesSim.UI
 
         [Header("--- Posicionamiento Dinámico VR ---")]
         [SerializeField] private Transform targetCamera;
-        [SerializeField] private float spawnDistanceInFront = 2.1f;
-        [SerializeField] private float fadeDuration = 0.25f;
+        [SerializeField] private float spawnDistanceInFront = 0.78f;
+        [SerializeField] private float fadeDuration = 0.20f;
 
         [Header("--- Efectos Sonoros ---")]
         [SerializeField] private AudioSource audioSource;
@@ -63,9 +63,11 @@ namespace AndesSim.UI
 
         // Estado interno
         private bool _isOpen = false;
+        private bool _isTransitioning = false;
         private Coroutine _fadeCoroutine;
 
         public bool IsOpen => _isOpen;
+        public bool IsTransitionBusy => _isTransitioning;
         public string ProjectName => projectName;
 
         private void Awake()
@@ -162,10 +164,11 @@ namespace AndesSim.UI
             Canvas canvas = GetComponent<Canvas>();
             if (canvas == null) canvas = gameObject.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.WorldSpace;
+            canvas.sortingOrder = 5200;
 
             RectTransform rootRect = GetComponent<RectTransform>();
             rootRect.sizeDelta = new Vector2(960f, 650f);
-            rootRect.localScale = new Vector3(0.0019f, 0.0019f, 0.0019f);
+            rootRect.localScale = new Vector3(0.00068f, 0.00068f, 0.00068f);
 
             CanvasScaler scaler = GetComponent<CanvasScaler>();
             if (scaler == null) scaler = gameObject.AddComponent<CanvasScaler>();
@@ -180,11 +183,9 @@ namespace AndesSim.UI
                 Destroy(transform.GetChild(i).gameObject);
             }
 
-            // Fondo general del modal
+            // Fondo general del modal (sin levitación ni rebotes)
             GameObject bgObj = CreateUiPanel("Modal_Fondo", transform, Vector2.zero, new Vector2(960f, 650f), AndesTypographyTheme.BgVoidNavy);
             AddUiBorder(bgObj, HexToColor(ColorGreenCode, 0.85f), 2.5f);
-            bgObj.AddComponent<HolographicPanelEntrance>().Configure(0.28f, 0.88f, 22f, null);
-            bgObj.AddComponent<HolographicFloatMotion>().Configure(9f, 0.78f, new Vector3(0.45f, 0.70f, 0.30f), 0f, 0f, true);
             modalRootPanel = bgObj;
 
             // Barra de Cabecera
@@ -252,6 +253,8 @@ namespace AndesSim.UI
         /// </summary>
         public void OpenModal()
         {
+            if (_isTransitioning || _isOpen) return;
+
             if (modalRootPanel == null || titleText == null || closeButton == null)
             {
                 BuildModalHierarchy();
@@ -264,47 +267,74 @@ namespace AndesSim.UI
             PopulateTexts();
 
             _isOpen = true;
+            _isTransitioning = true;
             gameObject.SetActive(true);
-
             PositionModalInFrontOfPlayer();
-
             AndesTypographyTheme.ApplyTypographyToTree(transform, true, true);
 
             if (modalRootPanel != null)
             {
-                modalRootPanel.SetActive(true);
                 HolographicPanelEntrance ent = modalRootPanel.GetComponent<HolographicPanelEntrance>();
-                if (ent != null) ent.PlayEntrance();
+                if (ent != null) ent.SetPlayOnEnable(false);
+                modalRootPanel.SetActive(true);
             }
 
+            SetModalControlsInteractable(false);
             PlaySound(openModalSound, GenerateOpenTone());
 
             if (_fadeCoroutine != null) StopCoroutine(_fadeCoroutine);
-            _fadeCoroutine = StartCoroutine(FadeRoutine(0f, 1f, fadeDuration));
+            _fadeCoroutine = StartCoroutine(FadeRoutine(0f, 1f, fadeDuration, () =>
+            {
+                _isTransitioning = false;
+                SetModalControlsInteractable(true);
+            }));
 
             Debug.Log($"{LogPrefix} <color=#38F28A>Modal de Créditos y Marco Ético abierto en World Space.</color>");
         }
 
         /// <summary>
-        /// Cierra el modal de créditos y desactiva la visualización.
+        /// Cierra el modal de créditos y desactiva la visualización tras completar el fundido.
         /// </summary>
         public void CloseModal()
         {
-            if (!_isOpen) return;
+            if (!_isOpen || _isTransitioning) return;
             _isOpen = false;
+            _isTransitioning = true;
+            SetModalControlsInteractable(false);
 
             PlaySound(closeModalSound, GenerateCloseTone());
 
             if (_fadeCoroutine != null) StopCoroutine(_fadeCoroutine);
-            _fadeCoroutine = StartCoroutine(FadeRoutine(canvasGroup != null ? canvasGroup.alpha : 1f, 0f, fadeDuration, () =>
+            _fadeCoroutine = StartCoroutine(FadeRoutine(canvasGroup != null ? canvasGroup.alpha : 1f, 0f, Mathf.Min(fadeDuration, 0.18f), () =>
             {
                 if (modalRootPanel != null)
                 {
                     modalRootPanel.SetActive(false);
                 }
+                _isTransitioning = false;
             }));
 
             Debug.Log($"{LogPrefix} Modal de Créditos y Marco Ético cerrado.");
+        }
+
+        private void SetModalControlsInteractable(bool interactable)
+        {
+            Button[] buttons = GetComponentsInChildren<Button>(true);
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                if (buttons[i] == null) continue;
+                buttons[i].interactable = interactable;
+                CanvasGroup cg = buttons[i].GetComponent<CanvasGroup>();
+                if (cg == null) cg = buttons[i].gameObject.AddComponent<CanvasGroup>();
+                cg.alpha = interactable ? 1f : 0.46f;
+                cg.interactable = interactable;
+            }
+
+            GazeInteractable[] gazes = GetComponentsInChildren<GazeInteractable>(true);
+            for (int i = 0; i < gazes.Length; i++)
+            {
+                if (gazes[i] != null) gazes[i].SetInteractable(interactable);
+            }
         }
 
         public void ToggleModal()
@@ -323,7 +353,20 @@ namespace AndesSim.UI
             if (forward.sqrMagnitude < 0.01f) forward = Vector3.forward;
             forward.Normalize();
 
-            Vector3 targetPos = cam.position + (forward * Mathf.Max(spawnDistanceInFront, 1.45f)) + (Vector3.up * 0.02f);
+            float desiredDist = Mathf.Clamp(spawnDistanceInFront, 0.62f, 0.88f);
+            if (Physics.Raycast(cam.position, forward, out RaycastHit hit, desiredDist + 0.25f, ~0, QueryTriggerInteraction.Ignore))
+            {
+                desiredDist = Mathf.Clamp(hit.distance - 0.18f, 0.56f, desiredDist);
+            }
+
+            RectTransform rootRect = GetComponent<RectTransform>();
+            if (rootRect != null)
+            {
+                float dynamicScale = desiredDist * 0.00086f;
+                rootRect.localScale = new Vector3(dynamicScale, dynamicScale, dynamicScale);
+            }
+
+            Vector3 targetPos = cam.position + (forward * desiredDist) + (Vector3.up * -0.04f);
             transform.position = targetPos;
             transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
         }

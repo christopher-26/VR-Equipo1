@@ -85,6 +85,7 @@ namespace AndesSim.Scenario01
         private Material _screenMaterialInstance;
         private Coroutine _flickerCoroutine;
         private bool _isOverlayActive = false;
+        private bool _isOpeningTransition = false;
 
         #region Propiedades Públicas
 
@@ -438,6 +439,11 @@ namespace AndesSim.Scenario01
         /// </summary>
         public void OnMonitorClicked()
         {
+            if (_isOpeningTransition) return;
+            if (PlayerTeleportController.I != null && PlayerTeleportController.I.IsTeleporting) return;
+            if (VrInspectionOverlayManager.I != null && VrInspectionOverlayManager.I.IsTransitionBusy) return;
+            if (EndScenarioPanelUI.I != null && EndScenarioPanelUI.I.IsTransitionBusy) return;
+            if (CreditsAndEthicsModalUI.I != null && CreditsAndEthicsModalUI.I.IsTransitionBusy) return;
             if (_lastInteractFrame == Time.frameCount || (Time.unscaledTime - _lastInteractUnscaledTime) < 0.25f) return;
             _lastInteractFrame = Time.frameCount;
             _lastInteractUnscaledTime = Time.unscaledTime;
@@ -459,6 +465,7 @@ namespace AndesSim.Scenario01
 
             if (distance > distanceTeleportThreshold)
             {
+                _isOpeningTransition = true;
                 TeleportToOptimalViewpoint();
                 StartCoroutine(OpenInspectionAfterTeleport());
             }
@@ -472,7 +479,7 @@ namespace AndesSim.Scenario01
         {
             if (PlayerTeleportController.I != null)
             {
-                float timeout = 1.0f;
+                float timeout = 1.2f;
                 while (PlayerTeleportController.I.IsTeleporting && timeout > 0f)
                 {
                     timeout -= Time.unscaledDeltaTime;
@@ -485,6 +492,7 @@ namespace AndesSim.Scenario01
                 yield return new WaitForSecondsRealtime(0.2f);
             }
 
+            _isOpeningTransition = false;
             OpenInspectionZoomModal();
         }
 

@@ -56,8 +56,8 @@ namespace AndesSim.UI
         [SerializeField] private CanvasGroup panelCanvasGroup;
 
         [Header("--- Posicionamiento Dinámico VR ---")]
-        [Tooltip("Distancia en metros frente al jugador al abrirse.")]
-        [SerializeField] private float spawnDistanceInFront = 2.2f;
+        [Tooltip("Distancia ergonómica en metros frente al jugador al abrirse sin atravesar escritorios.")]
+        [SerializeField] private float spawnDistanceInFront = 0.78f;
         [SerializeField] private Transform targetCamera;
 
         [Header("--- Elementos de Cabecera y Resumen ---")]
@@ -97,7 +97,10 @@ namespace AndesSim.UI
 
         // Estado interno
         private bool _isShowing = false;
+        private bool _isTransitioning = false;
         private Coroutine _fadeCoroutine;
+
+        public bool IsTransitionBusy => _isTransitioning;
 
         private void Awake()
         {
@@ -206,17 +209,18 @@ namespace AndesSim.UI
         /// </summary>
         public void DisplayEndScenarioOutcome(bool timeCriterionMet)
         {
-            if (_isShowing) return;
+            if (_isShowing || _isTransitioning) return;
             _isShowing = true;
+            _isTransitioning = true;
 
             // 1. Posicionar frente a la vista del jugador en World Space
             PositionPanelInFrontOfPlayer();
 
             if (panelRoot != null)
             {
-                panelRoot.SetActive(true);
                 HolographicPanelEntrance ent = panelRoot.GetComponent<HolographicPanelEntrance>();
-                ent?.PlayEntrance();
+                if (ent != null) ent.SetPlayOnEnable(false);
+                panelRoot.SetActive(true);
             }
 
             SimMode currentMode = GameManager.I != null ? GameManager.I.mode : SimMode.Ataque;
@@ -234,7 +238,8 @@ namespace AndesSim.UI
                 AndesSim.Audio.AudioManager.I?.PlayNarration("Voice_21_FinalDefensa", true, 2.0f);
             }
 
-            // 3. Animación de fade in suave
+            // 3. Desactivar botones durante la animación de entrada y habilitar al finalizar
+            SetPanelControlsInteractable(false);
             if (_fadeCoroutine != null) StopCoroutine(_fadeCoroutine);
             _fadeCoroutine = StartCoroutine(FadeInPanelRoutine());
 
@@ -369,27 +374,97 @@ namespace AndesSim.UI
             if (forward.sqrMagnitude < 0.01f) forward = Vector3.forward;
             forward.Normalize();
 
-            Vector3 targetPos = cam.position + (forward * Mathf.Max(spawnDistanceInFront, 1.45f)) + (Vector3.up * -0.05f);
+            float desiredDist = Mathf.Clamp(spawnDistanceInFront, 0.62f, 0.88f);
+            if (Physics.Raycast(cam.position, forward, out RaycastHit hit, desiredDist + 0.25f, ~0, QueryTriggerInteraction.Ignore))
+            {
+                desiredDist = Mathf.Clamp(hit.distance - 0.18f, 0.56f, desiredDist);
+            }
+
+            RectTransform rootRect = GetComponent<RectTransform>();
+            if (rootRect != null)
+            {
+                float dynamicScale = desiredDist * 0.00086f;
+                rootRect.localScale = new Vector3(dynamicScale, dynamicScale, dynamicScale);
+            }
+
+            Vector3 targetPos = cam.position + (forward * desiredDist) + (Vector3.up * -0.05f);
             transform.position = targetPos;
             transform.rotation = Quaternion.LookRotation(forward, Vector3.up);
         }
 
         private IEnumerator FadeInPanelRoutine()
         {
-            if (panelCanvasGroup == null) yield break;
-
-            panelCanvasGroup.alpha = 0f;
-            float elapsed = 0f;
-            float duration = 0.35f;
-
-            while (elapsed < duration)
+            if (panelCanvasGroup != null)
             {
-                elapsed += Time.deltaTime;
-                panelCanvasGroup.alpha = Mathf.Clamp01(elapsed / duration);
-                yield return null;
+                panelCanvasGroup.alpha = 0f;
+                float elapsed = 0f;
+                const float duration = 0.22f;
+
+                while (elapsed < duration)
+                {
+                    elapsed += Time.unscaledDeltaTime;
+                    panelCanvasGroup.alpha = Mathf.Clamp01(elapsed / duration);
+                    yield return null;
+                }
+
+                panelCanvasGroup.alpha = 1f;
             }
 
-            panelCanvasGroup.alpha = 1f;
+            _isTransitioning = false;
+            _fadeCoroutine = null;
+            SetPanelControlsInteractable(true);
+        }
+
+        private void ClosePanelAndRun(Action onClosed)
+        {
+            if (_isTransitioning) return;
+            _isTransitioning = true;
+            SetPanelControlsInteractable(false);
+            if (_fadeCoroutine != null) StopCoroutine(_fadeCoroutine);
+            _fadeCoroutine = StartCoroutine(FadeOutAndRunRoutine(onClosed));
+        }
+
+        private IEnumerator FadeOutAndRunRoutine(Action onClosed)
+        {
+            if (panelCanvasGroup != null && panelRoot != null && panelRoot.activeInHierarchy)
+            {
+                float startAlpha = panelCanvasGroup.alpha;
+                float elapsed = 0f;
+                const float duration = 0.16f;
+                while (elapsed < duration)
+                {
+                    elapsed += Time.unscaledDeltaTime;
+                    panelCanvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, Mathf.Clamp01(elapsed / duration));
+                    yield return null;
+                }
+                panelCanvasGroup.alpha = 0f;
+            }
+
+            ClosePanel();
+            if (panelCanvasGroup != null) panelCanvasGroup.alpha = 1f;
+            _isTransitioning = false;
+            _fadeCoroutine = null;
+            onClosed?.Invoke();
+        }
+
+        private void SetPanelControlsInteractable(bool interactable)
+        {
+            Button[] buttons = GetComponentsInChildren<Button>(true);
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                if (buttons[i] == null) continue;
+                buttons[i].interactable = interactable;
+                CanvasGroup cg = buttons[i].GetComponent<CanvasGroup>();
+                if (cg == null) cg = buttons[i].gameObject.AddComponent<CanvasGroup>();
+                cg.alpha = interactable ? 1f : 0.46f;
+                cg.interactable = interactable;
+            }
+
+            GazeInteractable[] gazes = GetComponentsInChildren<GazeInteractable>(true);
+            for (int i = 0; i < gazes.Length; i++)
+            {
+                if (gazes[i] != null) gazes[i].SetInteractable(interactable);
+            }
         }
 
         #endregion
@@ -402,52 +477,52 @@ namespace AndesSim.UI
         /// </summary>
         public void OnTryDefenseModeClicked()
         {
+            if (_isTransitioning) return;
             PlaySound(buttonClickClip, GenerateClickTone());
             Debug.Log($"{LogPrefix} Jugador eligió: <b>'PROBAR AHORA EL MODO DEFENSA'</b>");
 
-            ClosePanel();
-
-            if (GameManager.I != null)
+            ClosePanelAndRun(() =>
             {
-                GameManager.I.ResetSimulation();
-                GameManager.I.SetMode(SimMode.Defensa);
-                GameManager.I.StartSimulationTimer();
-            }
-
-            // Avanzar el flujo al paso de inspección
-            if (ScenarioFlowController.I != null)
-            {
-                ScenarioFlowController.I.SetStep(ScenarioStep.Step3_RevisarBandeja);
-            }
-
-            // Teletransportar frente a Puesto 1 e iniciar recorrido guiado de Modo Defensa en PC 1
-            if (PlayerTeleportController.I != null)
-            {
-                TeleportPoint tp1 = null;
-                TeleportPoint[] points = FindObjectsByType<TeleportPoint>(FindObjectsSortMode.None);
-                foreach (var p in points)
+                if (GameManager.I != null)
                 {
-                    if (p.gameObject.name.IndexOf("01", StringComparison.OrdinalIgnoreCase) >= 0)
+                    GameManager.I.ResetSimulation();
+                    GameManager.I.SetMode(SimMode.Defensa);
+                    GameManager.I.StartSimulationTimer();
+                }
+
+                if (ScenarioFlowController.I != null)
+                {
+                    ScenarioFlowController.I.SetStep(ScenarioStep.Step3_RevisarBandeja);
+                }
+
+                if (PlayerTeleportController.I != null)
+                {
+                    TeleportPoint tp1 = null;
+                    TeleportPoint[] points = FindObjectsByType<TeleportPoint>(FindObjectsSortMode.None);
+                    foreach (var p in points)
                     {
-                        tp1 = p;
-                        break;
+                        if (p.gameObject.name.IndexOf("01", StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            tp1 = p;
+                            break;
+                        }
+                    }
+
+                    if (tp1 != null)
+                    {
+                        StartCoroutine(TeleportAndStartDefenseTourRoutine(tp1));
+                        return;
                     }
                 }
 
-                if (tp1 != null)
-                {
-                    StartCoroutine(TeleportAndStartDefenseTourRoutine(tp1));
-                    return;
-                }
-            }
-
-            VrInspectionOverlayManager.I?.OpenQuarantineInspection(0);
+                VrInspectionOverlayManager.I?.OpenQuarantineInspection(0);
+            });
         }
 
         private IEnumerator TeleportAndStartDefenseTourRoutine(TeleportPoint tp1)
         {
             PlayerTeleportController.I.TeleportToPoint(tp1);
-            float timeout = 1.0f;
+            float timeout = 1.2f;
             while (PlayerTeleportController.I != null && PlayerTeleportController.I.IsTeleporting && timeout > 0f)
             {
                 timeout -= Time.unscaledDeltaTime;
@@ -463,33 +538,38 @@ namespace AndesSim.UI
         /// </summary>
         public void OnViewSuspectsClicked()
         {
+            if (_isTransitioning) return;
             PlaySound(buttonClickClip, GenerateClickTone());
             Debug.Log($"{LogPrefix} Jugador eligio: Ver Sospechosos");
 
-            ClosePanel();
-
-            if (PlayerTeleportController.I != null)
+            ClosePanelAndRun(() =>
             {
-                GameObject tpBoardObj = GameObject.Find("Teleport_TableroSospechosos");
-                TeleportPoint tpBoard = tpBoardObj != null ? tpBoardObj.GetComponent<TeleportPoint>() : null;
-                if (tpBoard != null)
+                if (PlayerTeleportController.I != null)
                 {
-                    PlayerTeleportController.I.TeleportToPoint(tpBoard);
-                    return;
-                }
+                    GameObject tpBoardObj = GameObject.Find("Teleport_TableroSospechosos");
+                    TeleportPoint tpBoard = tpBoardObj != null ? tpBoardObj.GetComponent<TeleportPoint>() : null;
+                    if (tpBoard != null)
+                    {
+                        PlayerTeleportController.I.TeleportToPoint(tpBoard);
+                        return;
+                    }
 
-                SuspectBoardVR boardVR = FindAnyObjectByType<SuspectBoardVR>();
-                GameObject suspectMural = GameObject.Find("Tablero_Sospechosos_VR")
-                    ?? (boardVR != null ? boardVR.gameObject : GameObject.Find("Tablero_Sospechosos_Tactico_3D"));
+                    SuspectBoardVR boardVR = FindAnyObjectByType<SuspectBoardVR>();
+                    GameObject suspectMural = GameObject.Find("Tablero_Sospechosos_VR");
+                    if (suspectMural == null)
+                    {
+                        suspectMural = boardVR != null ? boardVR.gameObject : GameObject.Find("Tablero_Sospechosos_Tactico_3D");
+                    }
 
-                if (suspectMural != null)
-                {
-                    Vector3 viewPos = suspectMural.transform.position - (suspectMural.transform.forward * 1.45f);
-                    viewPos.y = 0f;
-                    Vector3 lookDir = (suspectMural.transform.position - new Vector3(viewPos.x, suspectMural.transform.position.y, viewPos.z)).normalized;
-                    PlayerTeleportController.I.TeleportTo(viewPos, Quaternion.LookRotation(lookDir));
+                    if (suspectMural != null)
+                    {
+                        Vector3 viewPos = suspectMural.transform.position - (suspectMural.transform.forward * 1.45f);
+                        viewPos.y = 0f;
+                        Vector3 lookDir = (suspectMural.transform.position - new Vector3(viewPos.x, suspectMural.transform.position.y, viewPos.z)).normalized;
+                        PlayerTeleportController.I.TeleportTo(viewPos, Quaternion.LookRotation(lookDir));
+                    }
                 }
-            }
+            });
         }
 
         /// <summary>
@@ -498,24 +578,27 @@ namespace AndesSim.UI
         /// </summary>
         public void OnViewCreditsClicked()
         {
+            if (_isTransitioning) return;
             PlaySound(buttonClickClip, GenerateClickTone());
-            ClosePanel();
 
-            CreditsAndEthicsModalUI modal = CreditsAndEthicsModalUI.I;
-            if (modal == null)
+            ClosePanelAndRun(() =>
             {
-                modal = FindFirstObjectByType<CreditsAndEthicsModalUI>(FindObjectsInactive.Include);
-            }
-            if (modal != null)
-            {
-                modal.OpenModal();
-                return;
-            }
+                CreditsAndEthicsModalUI modal = CreditsAndEthicsModalUI.I;
+                if (modal == null)
+                {
+                    modal = FindFirstObjectByType<CreditsAndEthicsModalUI>(FindObjectsInactive.Include);
+                }
+                if (modal != null)
+                {
+                    modal.OpenModal();
+                    return;
+                }
 
-            if (creditsModalPanel != null)
-            {
-                creditsModalPanel.SetActive(true);
-            }
+                if (creditsModalPanel != null)
+                {
+                    creditsModalPanel.SetActive(true);
+                }
+            });
         }
 
         public void OnCloseCreditsClicked()
@@ -533,39 +616,76 @@ namespace AndesSim.UI
         /// </summary>
         public void OnRestartSimulationClicked()
         {
+            if (_isTransitioning) return;
             PlaySound(buttonClickClip, GenerateClickTone());
             Debug.Log($"{LogPrefix} Jugador eligio: Volver al Menu Inicial");
 
-            ClosePanel();
-
-            if (GameManager.I != null)
+            ClosePanelAndRun(() =>
             {
-                GameManager.I.ResetSimulation();
-            }
+                if (GameManager.I != null)
+                {
+                    GameManager.I.ResetSimulation();
+                }
 
-            PortalEntrada portal = FindFirstObjectByType<PortalEntrada>();
-            if (portal != null)
-            {
-                portal.ReturnToLobby();
-                return;
-            }
+                PortalEntrada portal = FindFirstObjectByType<PortalEntrada>();
+                if (portal != null)
+                {
+                    portal.ReturnToLobby();
+                    return;
+                }
 
+                if (PlayerTeleportController.I != null)
+                {
+                    GameObject tpEntryObj = GameObject.Find("Teleport_PuertaEntrada");
+                    TeleportPoint tpEntry = tpEntryObj != null ? tpEntryObj.GetComponent<TeleportPoint>() : null;
+                    if (tpEntry != null)
+                    {
+                        StartCoroutine(TeleportAndShowStartMenuRoutine(tpEntry, null, Quaternion.identity));
+                        return;
+                    }
+
+                    StartCoroutine(TeleportAndShowStartMenuRoutine(null, new Vector3(-2.60f, 0.01f, 3.40f), Quaternion.Euler(0f, 180f, 0f)));
+                    return;
+                }
+
+                VrStartMenuController startMenu = VrStartMenuController.I;
+                if (startMenu == null) startMenu = FindFirstObjectByType<VrStartMenuController>(FindObjectsInactive.Include);
+                if (startMenu != null)
+                {
+                    startMenu.ShowMenu();
+                }
+
+                if (ScenarioFlowController.I != null)
+                {
+                    ScenarioFlowController.I.SetStep(ScenarioStep.Step1_PortalEntrada);
+                }
+            });
+        }
+
+        private IEnumerator TeleportAndShowStartMenuRoutine(TeleportPoint tpEntry, Vector3? fallbackPos, Quaternion fallbackRot)
+        {
             if (PlayerTeleportController.I != null)
             {
-                GameObject tpEntryObj = GameObject.Find("Teleport_PuertaEntrada");
-                TeleportPoint tpEntry = tpEntryObj != null ? tpEntryObj.GetComponent<TeleportPoint>() : null;
                 if (tpEntry != null)
                 {
                     PlayerTeleportController.I.TeleportToPoint(tpEntry);
                 }
-                else
+                else if (fallbackPos.HasValue)
                 {
-                    PlayerTeleportController.I.TeleportTo(new Vector3(-2.60f, 0.01f, 3.40f), Quaternion.Euler(0f, 180f, 0f));
+                    PlayerTeleportController.I.TeleportTo(fallbackPos.Value, fallbackRot);
                 }
+
+                float timeout = 1.2f;
+                while (PlayerTeleportController.I.IsTeleporting && timeout > 0f)
+                {
+                    timeout -= Time.unscaledDeltaTime;
+                    yield return null;
+                }
+                yield return null;
             }
 
-            VrStartMenuController startMenu = VrStartMenuController.I
-                ?? FindFirstObjectByType<VrStartMenuController>(FindObjectsInactive.Include);
+            VrStartMenuController startMenu = VrStartMenuController.I;
+            if (startMenu == null) startMenu = FindFirstObjectByType<VrStartMenuController>(FindObjectsInactive.Include);
             if (startMenu != null)
             {
                 startMenu.ShowMenu();
@@ -599,10 +719,11 @@ namespace AndesSim.UI
             Canvas canvas = GetComponent<Canvas>();
             if (canvas == null) canvas = gameObject.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.WorldSpace;
+            canvas.sortingOrder = 5100;
 
             RectTransform rootRect = GetComponent<RectTransform>();
             rootRect.sizeDelta = new Vector2(960f, 650f);
-            rootRect.localScale = new Vector3(0.0019f, 0.0019f, 0.0019f);
+            rootRect.localScale = new Vector3(0.00068f, 0.00068f, 0.00068f);
 
             if (GetComponent<CanvasScaler>() == null) gameObject.AddComponent<CanvasScaler>();
             if (GetComponent<GraphicRaycaster>() == null) gameObject.AddComponent<GraphicRaycaster>();
@@ -628,8 +749,11 @@ namespace AndesSim.UI
             // Contenedor visual interno (mantener root activo para escuchar OnScenarioEnded)
             panelRoot = CreateEndUiBox("Panel_EndFondo", transform, Vector2.zero, new Vector2(960f, 650f), AndesTypographyTheme.BgVoidNavy);
             AddEndOutline(panelRoot, ColorCodeGreen, 2.5f);
-            CanvasGroup innerCg = panelRoot.GetComponent<CanvasGroup>() ?? panelRoot.AddComponent<CanvasGroup>();
-            HolographicPanelEntrance ent = panelRoot.GetComponent<HolographicPanelEntrance>() ?? panelRoot.AddComponent<HolographicPanelEntrance>();
+            CanvasGroup innerCg = panelRoot.GetComponent<CanvasGroup>();
+            if (innerCg == null) innerCg = panelRoot.AddComponent<CanvasGroup>();
+            HolographicPanelEntrance ent = panelRoot.GetComponent<HolographicPanelEntrance>();
+            if (ent == null) ent = panelRoot.AddComponent<HolographicPanelEntrance>();
+            ent.SetPlayOnEnable(false);
             ent.Configure(0.14f, 1f, 0f, innerCg);
 
             // Cabecera

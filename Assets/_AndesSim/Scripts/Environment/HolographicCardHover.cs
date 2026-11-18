@@ -1,11 +1,12 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 using AndesSim.VR;
 
 namespace AndesSim.Environment
 {
     /// <summary>
-    /// Reacción táctil de tarjetas UI en Gaze y Pointer: elevación y escala suave al mirar.
+    /// Reacción táctil de tarjetas UI en Gaze y Pointer: escala suave al apuntar cuando el botón está disponible.
     /// </summary>
     public class HolographicCardHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
@@ -16,6 +17,7 @@ namespace AndesSim.Environment
         private bool _poseCaptured;
         private bool _isHovered;
         private GazeInteractable _gazeInteractable;
+        private Button _button;
 
         public void Configure(float targetHoverScale = 1.045f, float lerpSpeed = 12f)
         {
@@ -34,11 +36,13 @@ namespace AndesSim.Environment
         {
             if (!_poseCaptured) CaptureRestScale();
             _gazeInteractable = GetComponent<GazeInteractable>();
+            _button = GetComponent<Button>();
         }
 
         private void OnEnable()
         {
             if (_gazeInteractable == null) _gazeInteractable = GetComponent<GazeInteractable>();
+            if (_button == null) _button = GetComponent<Button>();
             if (_gazeInteractable != null)
             {
                 _gazeInteractable.onEnter.RemoveListener(HandleGazeEnter);
@@ -59,12 +63,19 @@ namespace AndesSim.Environment
             if (_poseCaptured) transform.localScale = _restScale;
         }
 
-        private void HandleGazeEnter() => _isHovered = true;
+        private bool CanHover()
+        {
+            if (_button != null && !_button.interactable) return false;
+            if (_gazeInteractable != null && !_gazeInteractable.IsInteractable) return false;
+            return true;
+        }
+
+        private void HandleGazeEnter() => _isHovered = CanHover();
         private void HandleGazeExit() => _isHovered = false;
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            _isHovered = true;
+            _isHovered = CanHover();
         }
 
         public void OnPointerExit(PointerEventData eventData)
@@ -75,6 +86,8 @@ namespace AndesSim.Environment
         private void Update()
         {
             if (!_poseCaptured) return;
+            if (_isHovered && !CanHover()) _isHovered = false;
+
             Vector3 target = _isHovered ? _restScale * hoverScale : _restScale;
             if ((transform.localScale - target).sqrMagnitude > 0.000004f)
             {

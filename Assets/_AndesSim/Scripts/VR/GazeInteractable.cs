@@ -86,16 +86,30 @@ namespace AndesSim.VR
         private Color _originalEmissionColor;
         private bool _hasEmissionColorKey = false;
         private Material _instancedMaterial;
+        private Collider _collider;
+        private Button _button;
+        private CanvasGroup _canvasGroup;
+        private bool _isExternallyInteractable = true;
 
         public string InteractableLabel { get => interactableLabel; set => interactableLabel = value; }
         public bool IsHovered => _isHovered;
         public bool EnableDwellClick => enableDwellClick;
         public float DwellProgress => enableDwellClick ? Mathf.Clamp01(_dwellTimer / Mathf.Max(0.1f, dwellTime)) : 0f;
+        public bool IsInteractable =>
+            _isExternallyInteractable &&
+            enabled &&
+            gameObject.activeInHierarchy &&
+            (_collider == null || _collider.enabled) &&
+            (_button == null || _button.interactable) &&
+            (_canvasGroup == null || _canvasGroup.interactable);
 
         private void Awake()
         {
             // Forzar interacción exclusivamente por clic manual en todo el videojuego
             enableDwellClick = false;
+            _collider = GetComponent<Collider>();
+            _button = GetComponent<Button>();
+            _canvasGroup = GetComponent<CanvasGroup>();
             EnsureInteractiveLayer();
             EnsureCollider();
             DisableDuplicateUiRaycastTargets();
@@ -106,6 +120,41 @@ namespace AndesSim.VR
         {
             enableDwellClick = false;
             _dwellTimer = 0f;
+            if (_collider == null) _collider = GetComponent<Collider>();
+            if (_collider != null) _collider.enabled = _isExternallyInteractable;
+        }
+
+        public void SetInteractable(bool interactable)
+        {
+            _isExternallyInteractable = interactable;
+            if (_collider == null) _collider = GetComponent<Collider>();
+            if (_collider != null) _collider.enabled = interactable;
+
+            if (!interactable && _isHovered)
+            {
+                OnPointerExit();
+            }
+        }
+
+        public void RefreshOriginalAppearance()
+        {
+            if (targetGraphic == null) targetGraphic = GetComponent<Graphic>();
+            if (targetGraphic != null && !_isHovered)
+            {
+                _originalGraphicColor = targetGraphic.color;
+            }
+        }
+
+        public void SetBaseGraphicColor(Color newBaseColor)
+        {
+            if (targetGraphic == null) targetGraphic = GetComponent<Graphic>();
+            _originalGraphicColor = newBaseColor;
+            if (targetGraphic != null)
+            {
+                targetGraphic.color = (_isHovered && IsInteractable)
+                    ? Color.Lerp(_originalGraphicColor, highlightColor, 0.5f)
+                    : _originalGraphicColor;
+            }
         }
 
         private void Update()
@@ -138,8 +187,9 @@ namespace AndesSim.VR
         /// </summary>
         public void OnPointerEnter()
         {
-            if (_isHovered) return;
+            if (!IsInteractable || _isHovered) return;
 
+            RefreshOriginalAppearance();
             _isHovered = true;
             if (_exitGraceTimer <= 0f)
             {
@@ -214,6 +264,8 @@ namespace AndesSim.VR
         /// </summary>
         private void TriggerClick()
         {
+            if (!IsInteractable) return;
+
             if (_lastGlobalClickFrame == Time.frameCount ||
                 (Time.unscaledTime - _lastGlobalClickUnscaledTime) < GlobalClickCooldown)
             {

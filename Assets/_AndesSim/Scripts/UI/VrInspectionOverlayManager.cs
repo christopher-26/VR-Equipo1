@@ -57,15 +57,21 @@ namespace AndesSim.UI
         public const float NormalDistance = 0.68f;
         public const float EnlargedDistance = 0.58f;
 
+        private struct OverlayButtonControl
+        {
+            public Button Button;
+            public GazeInteractable Gaze;
+            public CanvasGroup CanvasGroup;
+        }
+
         private int _emailSubPart = 0;
         private bool _isEnlarged = false;
-        private Coroutine _zoomRoutine;
-        private Coroutine _defenseStepRoutine;
-        private Coroutine _infectionAnimRoutine;
-        private Coroutine _swiftTransferRoutine;
-        private Coroutine _teleportStationRoutine;
+        private bool _isSequenceBusy = false;
+        private Coroutine _activeSequenceRoutine;
 
         private readonly HashSet<string> _markedPhishingSignals = new HashSet<string>();
+        private readonly List<OverlayButtonControl> _frameButtons = new List<OverlayButtonControl>();
+        private readonly List<OverlayButtonControl> _contentButtons = new List<OverlayButtonControl>();
         private TextMeshProUGUI _activeEmailHintText;
         private GameObject _navPc1Btn;
         private GameObject _navPc2Btn;
@@ -76,6 +82,7 @@ namespace AndesSim.UI
         private GameObject _overlayRoot;
         private Canvas _overlayCanvas;
         private CanvasGroup _overlayCanvasGroup;
+        private CanvasGroup _contentCanvasGroup;
         private RectTransform _mainPanelRect;
         private HolographicPanelEntrance _panelEntrance;
         private BoxCollider _overlayBackplateCollider;
@@ -96,6 +103,7 @@ namespace AndesSim.UI
 
         public bool IsOpen => _isOpen;
         public bool IsEnlarged => _isEnlarged;
+        public bool IsTransitionBusy => _isSequenceBusy;
 
         // Contenedores dinámicos
         private TextMeshProUGUI _headerTitleText;
@@ -136,10 +144,7 @@ namespace AndesSim.UI
 
         private void OnDisable()
         {
-            StopManagedCoroutine(ref _zoomRoutine);
-            StopStepAnimationRoutines();
-            StopManagedCoroutine(ref _teleportStationRoutine);
-            RestoreSceneObstructionsAfterOverlay();
+            ForceCloseOverlayImmediate();
         }
 
         private void OnDestroy()
@@ -149,12 +154,13 @@ namespace AndesSim.UI
                 GameManager.I.OnSimulationReset -= HandleSimulationReset;
                 GameManager.I.OnModeChanged -= HandleModeChanged;
             }
-            RestoreSceneObstructionsAfterOverlay();
+            ForceCloseOverlayImmediate();
         }
 
         private void HandleSimulationReset()
         {
             _markedPhishingSignals.Clear();
+            ForceCloseOverlayImmediate();
             RefreshBottomNavState(0);
         }
 
@@ -163,24 +169,86 @@ namespace AndesSim.UI
             RefreshBottomNavState(_activeNavStationIndex);
         }
 
-        private void StopManagedCoroutine(ref Coroutine handle)
+        private void RunSequentialOverlayAction(IEnumerator sequenceRoutine)
         {
-            if (handle != null)
+            if (sequenceRoutine == null || _isSequenceBusy) return;
+            EnsureOverlayCanvas();
+            _activeSequenceRoutine = StartCoroutine(ExecuteSequentialOverlayRoutine(sequenceRoutine));
+        }
+
+        private IEnumerator ExecuteSequentialOverlayRoutine(IEnumerator sequenceRoutine)
+        {
+            _isSequenceBusy = true;
+            SetOverlayControlsInteractable(false);
+
+            yield return StartCoroutine(sequenceRoutine);
+
+            _isSequenceBusy = false;
+            _activeSequenceRoutine = null;
+            if (_isOpen)
             {
-                StopCoroutine(handle);
-                handle = null;
+                SetOverlayControlsInteractable(true);
             }
         }
 
-        private void StopStepAnimationRoutines()
+        private static IEnumerator FadeCanvasGroupRoutine(CanvasGroup group, float fromAlpha, float toAlpha, float duration)
         {
-            StopManagedCoroutine(ref _defenseStepRoutine);
-            StopManagedCoroutine(ref _infectionAnimRoutine);
-            StopManagedCoroutine(ref _swiftTransferRoutine);
+            if (group == null) yield break;
+
+            group.alpha = fromAlpha;
+            float safeDuration = Mathf.Max(0.05f, duration);
+            float elapsed = 0f;
+            while (elapsed < safeDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float u = Mathf.Clamp01(elapsed / safeDuration);
+                float smooth = toAlpha >= fromAlpha
+                    ? (1f - Mathf.Pow(1f - u, 3f))
+                    : (u * u * (3f - 2f * u));
+                group.alpha = Mathf.Lerp(fromAlpha, toAlpha, smooth);
+                yield return null;
+            }
+
+            group.alpha = toAlpha;
+        }
+
+        private void SetOverlayControlsInteractable(bool interactable)
+        {
+            ApplyInteractableStateToList(_frameButtons, interactable);
+            ApplyInteractableStateToList(_contentButtons, interactable);
+        }
+
+        private static void ApplyInteractableStateToList(List<OverlayButtonControl> list, bool interactable)
+        {
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
+                OverlayButtonControl ctrl = list[i];
+                if (ctrl.Button == null && ctrl.Gaze == null)
+                {
+                    list.RemoveAt(i);
+                    continue;
+                }
+
+                if (ctrl.CanvasGroup != null)
+                {
+                    ctrl.CanvasGroup.alpha = interactable ? 1f : 0.46f;
+                    ctrl.CanvasGroup.interactable = interactable;
+                }
+                if (ctrl.Button != null)
+                {
+                    ctrl.Button.interactable = interactable;
+                }
+                if (ctrl.Gaze != null)
+                {
+                    ctrl.Gaze.SetInteractable(interactable);
+                }
+            }
         }
 
         private void Update()
         {
+            if (_isSequenceBusy) return;
+
             // Atajos de teclado: 'Q' para Zoom; 'E' o 'Escape' para Cerrar / Minimizar
             bool qPressed = false;
             bool closePressed = false;
@@ -207,6 +275,7 @@ namespace AndesSim.UI
             if (qPressed && _isOpen)
             {
                 ToggleEnlargeZoom();
+                return;
             }
 
             if (!_isOpen || _overlayRoot == null) return;
@@ -217,7 +286,7 @@ namespace AndesSim.UI
                 if (_targetCamera == null) return;
             }
 
-            // Si el usuario gira la cabeza completamente fuera del panel, cerrarlo automáticamente.
+            // Si el usuario gira la cabeza completamente fuera del panel, cerrarlo suavemente en secuencia.
             Vector3 dirToPanel = (_overlayRoot.transform.position - _targetCamera.transform.position).normalized;
             float angle = Vector3.Angle(_targetCamera.transform.forward, dirToPanel);
             if (angle > 85f)
@@ -264,7 +333,8 @@ namespace AndesSim.UI
 
             _overlayCanvasGroup = panelGO.AddComponent<CanvasGroup>();
             _panelEntrance = panelGO.AddComponent<HolographicPanelEntrance>();
-            _panelEntrance.Configure(0.24f, 0.90f, 16f, _overlayCanvasGroup);
+            _panelEntrance.SetPlayOnEnable(false);
+            _panelEntrance.Configure(0.18f, 1f, 0f, _overlayCanvasGroup);
 
             // Colisionador trasero no interactivo: estabiliza la retícula frente al HUD sin bloquear botones hijos
             _overlayBackplateCollider = panelGO.AddComponent<BoxCollider>();
@@ -318,12 +388,13 @@ namespace AndesSim.UI
             _subTitleText = subGO.AddComponent<TextMeshProUGUI>();
             AndesTypographyTheme.StyleBodyCentered(_subTitleText, AndesTypographyTheme.TextMuted, 17.5f, 6f);
 
-            // Contenedor Dinámico Central
+            // Contenedor Dinámico Central con CanvasGroup propio para transiciones ordenadas entre pestañas
             GameObject contentGO = new GameObject("DynamicContentContainer");
             contentGO.transform.SetParent(panelGO.transform, false);
             RectTransform contentRect = contentGO.AddComponent<RectTransform>();
             contentRect.anchoredPosition = new Vector2(0f, -8f);
             contentRect.sizeDelta = new Vector2(930f, 520f);
+            _contentCanvasGroup = contentGO.AddComponent<CanvasGroup>();
             _contentContainer = contentGO.transform;
 
             // Botón de Zoom / Agrandar con atajo [Q]
@@ -354,12 +425,9 @@ namespace AndesSim.UI
                 new Color(0.08f, 0.22f, 0.36f, 0.96f),
                 Color.white,
                 () => TeleportAndOpenStation("Teleport_Puesto1_Carla", () =>
-                {
-                    if (GameManager.I != null && GameManager.I.mode == SimMode.Defensa)
-                        OpenQuarantineInspection(0);
-                    else
-                        OpenEmailInspection(0);
-                })
+                    (GameManager.I != null && GameManager.I.mode == SimMode.Defensa)
+                        ? CreateQuarantineViewRoutine(0)
+                        : CreateEmailViewRoutine(0))
             );
             _navPc2Btn = CreateInspectionButton(
                 "Btn_NavPostIt", panelGO.transform,
@@ -368,12 +436,9 @@ namespace AndesSim.UI
                 new Color(0.08f, 0.22f, 0.36f, 0.96f),
                 Color.white,
                 () => TeleportAndOpenStation("Teleport_Puesto2_Analista", () =>
-                {
-                    if (GameManager.I != null && GameManager.I.mode == SimMode.Defensa)
-                        OpenQuarantineInspection(1);
-                    else
-                        OpenSwiftInspection();
-                })
+                    (GameManager.I != null && GameManager.I.mode == SimMode.Defensa)
+                        ? CreateQuarantineViewRoutine(1)
+                        : CreateSwiftViewRoutine())
             );
             _navPc3Btn = CreateInspectionButton(
                 "Btn_NavSiem", panelGO.transform,
@@ -382,12 +447,9 @@ namespace AndesSim.UI
                 new Color(0.08f, 0.22f, 0.36f, 0.96f),
                 Color.white,
                 () => TeleportAndOpenStation("Teleport_Puesto3_LogsYDefensa", () =>
-                {
-                    if (GameManager.I != null && GameManager.I.mode == SimMode.Defensa)
-                        OpenQuarantineInspection(2);
-                    else
-                        OpenSiemLogInspection();
-                })
+                    (GameManager.I != null && GameManager.I.mode == SimMode.Defensa)
+                        ? CreateQuarantineViewRoutine(2)
+                        : CreateSiemViewRoutine())
             );
             CreateInspectionButton(
                 "Btn_NavTablero", panelGO.transform,
@@ -453,7 +515,11 @@ namespace AndesSim.UI
             }
 
             GazeInteractable gaze = btnGO.GetComponent<GazeInteractable>();
-            if (gaze != null) gaze.interactableLabel = label;
+            if (gaze != null)
+            {
+                gaze.interactableLabel = label;
+                gaze.SetBaseGraphicColor(bgColor);
+            }
         }
 
         private void SetHeaderTheme(Color accentColor, string title, string subtitle)
@@ -473,6 +539,85 @@ namespace AndesSim.UI
 
         #region Vistas de Inspección Oficiales
 
+        private IEnumerator TransitionToViewRoutine(
+            int navStationIndex,
+            Action buildContentAction,
+            Func<IEnumerator> postEntranceStepAnimation,
+            string narrationClip,
+            float narrationDelay = 2.0f)
+        {
+            EnsureOverlayCanvas();
+            RefreshBottomNavState(navStationIndex);
+
+            bool wasAlreadyOpen = _isOpen && _overlayRoot != null && _overlayRoot.activeInHierarchy;
+
+            if (wasAlreadyOpen)
+            {
+                yield return FadeCanvasGroupRoutine(_contentCanvasGroup, _contentCanvasGroup != null ? _contentCanvasGroup.alpha : 1f, 0f, 0.12f);
+                ClearActiveContent();
+                buildContentAction?.Invoke();
+                SetOverlayControlsInteractable(false);
+                SuppressNearbyObstructionsInViewCorridor();
+                yield return FadeCanvasGroupRoutine(_contentCanvasGroup, 0f, 1f, 0.15f);
+            }
+            else
+            {
+                if (_contentCanvasGroup != null) _contentCanvasGroup.alpha = 1f;
+                ClearActiveContent();
+                buildContentAction?.Invoke();
+                SetOverlayControlsInteractable(false);
+                PresentOverlayRootForEntrance();
+                yield return FadeCanvasGroupRoutine(_overlayCanvasGroup, 0f, 1f, 0.18f);
+            }
+
+            if (!string.IsNullOrEmpty(narrationClip))
+            {
+                AndesSim.Audio.AudioManager.I?.PlayNarration(narrationClip, true, narrationDelay);
+            }
+
+            if (postEntranceStepAnimation != null)
+            {
+                yield return StartCoroutine(postEntranceStepAnimation());
+            }
+        }
+
+        private void PresentOverlayRootForEntrance()
+        {
+            _isOpen = true;
+            if (_overlayRoot == null)
+            {
+                SuppressSceneObstructionsForOverlay();
+                return;
+            }
+
+            EnsureEventSystemExists();
+            if (_targetCamera == null) _targetCamera = Camera.main != null ? Camera.main : FindFirstObjectByType<Camera>();
+            if (_targetCamera != null && _overlayCanvas != null)
+            {
+                _overlayCanvas.worldCamera = _targetCamera;
+            }
+
+            distanceFromCamera = _isEnlarged ? EnlargedDistance : NormalDistance;
+            RectTransform canvasRect = _overlayRoot.GetComponent<RectTransform>();
+            if (canvasRect != null)
+            {
+                canvasRect.localScale = Vector3.one * (_isEnlarged ? EnlargedScale : NormalScale);
+            }
+
+            CaptureErgonomicAnchorFromCamera();
+            RepositionOverlay();
+            SuppressSceneObstructionsForOverlay();
+            UpdateZoomButtonLabel();
+
+            if (_overlayCanvasGroup != null) _overlayCanvasGroup.alpha = 0f;
+            _overlayRoot.SetActive(true);
+
+            if (AndesSim.Audio.AudioManager.I != null)
+            {
+                AndesSim.Audio.AudioManager.I.PlayLaserScan(transform.position);
+            }
+        }
+
         public void OpenEmailInspection()
         {
             OpenEmailInspection(0);
@@ -480,11 +625,19 @@ namespace AndesSim.UI
 
         public void OpenEmailInspection(int subPart)
         {
+            RunSequentialOverlayAction(CreateEmailViewRoutine(subPart));
+        }
+
+        private IEnumerator CreateEmailViewRoutine(int subPart)
+        {
+            int part = Mathf.Clamp(subPart, 0, 1);
+            string narration = part == 0 ? "Voice_06_CorreoParte1" : "Voice_07_CorreoParte2";
+            return TransitionToViewRoutine(1, () => BuildEmailView(part), null, narration);
+        }
+
+        private void BuildEmailView(int subPart)
+        {
             _emailSubPart = Mathf.Clamp(subPart, 0, 1);
-            StopStepAnimationRoutines();
-            EnsureOverlayCanvas();
-            ClearActiveContent();
-            RefreshBottomNavState(1);
 
             if (ScenarioFlowController.I != null)
             {
@@ -594,19 +747,7 @@ namespace AndesSim.UI
                     "<color=#38F28A><b>MODO DEFENSA (PROTEGER RED) ></b></color>",
                     new Color(0.08f, 0.34f, 0.20f, 0.98f),
                     Color.white,
-                    () =>
-                    {
-                        if (GameManager.I != null) GameManager.I.SetMode(SimMode.Defensa);
-                        if (MailQuarantine.I != null)
-                        {
-                            MailQuarantine.I.TriggerQuarantineDefense();
-                        }
-                        else if (PhishingInspector.I != null)
-                        {
-                            PhishingInspector.I.ExecuteReportPhishingDefenseSequence();
-                        }
-                        OpenQuarantineInspection(0);
-                    }
+                    () => RunSequentialOverlayAction(SwitchModeAndOpenQuarantineRoutine(0))
                 );
 
                 CreateInspectionButton(
@@ -620,8 +761,14 @@ namespace AndesSim.UI
             }
 
             _activeContentPanel = emailPanel;
-            ShowOverlay();
-            AndesSim.Audio.AudioManager.I?.PlayNarration(_emailSubPart == 0 ? "Voice_06_CorreoParte1" : "Voice_07_CorreoParte2", true, 2.0f);
+        }
+
+        private IEnumerator SwitchModeAndOpenQuarantineRoutine(int step)
+        {
+            if (GameManager.I != null) GameManager.I.SetMode(SimMode.Defensa);
+            if (MailQuarantine.I != null) MailQuarantine.I.TriggerQuarantineDefense();
+            else if (PhishingInspector.I != null) PhishingInspector.I.ExecuteReportPhishingDefenseSequence();
+            yield return StartCoroutine(CreateQuarantineViewRoutine(step));
         }
 
         public void OpenQuarantineInspection()
@@ -631,17 +778,34 @@ namespace AndesSim.UI
 
         public void OpenQuarantineInspection(int defenseStep)
         {
-            int step = Mathf.Clamp(defenseStep, 0, 2);
-            StopStepAnimationRoutines();
-            _defenseStepRoutine = StartCoroutine(DefenseStepAnimationRoutine(step));
+            RunSequentialOverlayAction(CreateQuarantineViewRoutine(defenseStep));
         }
 
-        private IEnumerator DefenseStepAnimationRoutine(int step)
+        private IEnumerator CreateQuarantineViewRoutine(int defenseStep)
         {
-            EnsureOverlayCanvas();
-            ClearActiveContent();
-            RefreshBottomNavState(step + 1);
+            int step = Mathf.Clamp(defenseStep, 0, 2);
+            TextMeshProUGUI statusTmp = null;
+            TextMeshProUGUI defHintTmp = null;
+            RectTransform fillRect = null;
+            string progressDoneText = string.Empty;
+            string completedHintText = string.Empty;
 
+            yield return StartCoroutine(TransitionToViewRoutine(
+                step + 1,
+                () => BuildDefenseView(step, out statusTmp, out defHintTmp, out fillRect, out progressDoneText, out completedHintText),
+                () => PlayDefenseStepVerifyRoutine(step, statusTmp, defHintTmp, fillRect, progressDoneText, completedHintText),
+                "Voice_12_CuarentenaSandbox"
+            ));
+        }
+
+        private void BuildDefenseView(
+            int step,
+            out TextMeshProUGUI statusTmp,
+            out TextMeshProUGUI defHintTmp,
+            out RectTransform fillRect,
+            out string progressDoneText,
+            out string completedHintText)
+        {
             if (GameManager.I != null && GameManager.I.mode != SimMode.Defensa)
             {
                 GameManager.I.SetMode(SimMode.Defensa);
@@ -655,7 +819,6 @@ namespace AndesSim.UI
             string headerTitle;
             string headerSub;
             string boxTitle;
-            string progressDoneText;
             string opt1Title, opt1Desc, opt2Title, opt2Desc, opt3Title, opt3Desc;
 
             if (step == 0)
@@ -765,7 +928,7 @@ namespace AndesSim.UI
             GameObject boxGO = CreateStyledCard("SandboxLogBox", qPanel.transform, new Vector2(0f, 108f), new Vector2(880f, 138f),
                 new Color(0.015f, 0.055f, 0.055f, 0.995f), GreenSuccessColor);
 
-            TextMeshProUGUI statusTmp = CreateLabel("Txt_QuarantineLog", boxGO.transform, new Vector2(0f, 12f), new Vector2(840f, 94f),
+            statusTmp = CreateLabel("Txt_QuarantineLog", boxGO.transform, new Vector2(0f, 12f), new Vector2(840f, 94f),
                 boxTitle + "\n<size=17.5>Verificando controles de seguridad en esta estación...</size>",
                 18f, TextAlignmentOptions.Center, Color.white);
 
@@ -780,7 +943,7 @@ namespace AndesSim.UI
 
             GameObject barFillObj = new GameObject("DefenseProgressFill");
             barFillObj.transform.SetParent(barBgObj.transform, false);
-            RectTransform fillRect = barFillObj.AddComponent<RectTransform>();
+            fillRect = barFillObj.AddComponent<RectTransform>();
             fillRect.anchorMin = new Vector2(0f, 0f);
             fillRect.anchorMax = new Vector2(0f, 1f);
             fillRect.pivot = new Vector2(0f, 0.5f);
@@ -790,12 +953,14 @@ namespace AndesSim.UI
             fillImg.color = GreenSuccessColor;
 
             // 3 tarjetas interactivas para verificar cada capa de protección
-            TextMeshProUGUI defHintTmp = CreateLabel("Lbl_DefCheckHint", qPanel.transform, new Vector2(0f, 18f), new Vector2(880f, 26f),
+            defHintTmp = CreateLabel("Lbl_DefCheckHint", qPanel.transform, new Vector2(0f, 18f), new Vector2(880f, 26f),
                 string.Empty, 17f, TextAlignmentOptions.Center, AndesTypographyTheme.TextPrimary);
 
             string defCompletedMsg = step < 2
                 ? "<color=#38F28A><b>✓ 3/3 CONTROLES VERIFICADOS · Haz clic abajo para continuar ></b></color>"
                 : "<color=#38F28A><b>✓ 3/3 CONTROLES VERIFICADOS · Haz clic en COMPLETAR DEFENSA EXITOSA ></b></color>";
+
+            completedHintText = "Haz clic en los 3 controles para verificar cómo protegen esta PC (0/3 verificadas):";
 
             BindOptionChecklistCounter(
                 defHintTmp,
@@ -805,6 +970,7 @@ namespace AndesSim.UI
                 (qPanel.transform, "Btn_DefCheck2", new Vector2(0f, -40f), new Vector2(280f, 80f), opt2Title, opt2Desc),
                 (qPanel.transform, "Btn_DefCheck3", new Vector2(295f, -40f), new Vector2(280f, 80f), opt3Title, opt3Desc)
             );
+            defHintTmp.text = "<color=#94A3B8>Verificando controles automáticos...</color>";
 
             // Botones de recorrido paso a paso en Modo Defensa
             if (step == 0)
@@ -815,7 +981,7 @@ namespace AndesSim.UI
                     "<color=#38F28A><b>CONTINUAR A PC 2: VER PROTECCIÓN SWIFT Y MFA ></b></color>",
                     new Color(0.08f, 0.36f, 0.22f, 0.98f),
                     Color.white,
-                    () => TeleportAndOpenStation("Teleport_Puesto2_Analista", () => OpenQuarantineInspection(1))
+                    () => TeleportAndOpenStation("Teleport_Puesto2_Analista", () => CreateQuarantineViewRoutine(1))
                 );
             }
             else if (step == 1)
@@ -826,7 +992,7 @@ namespace AndesSim.UI
                     "< VOLVER A PC 1 (SANDBOX)",
                     new Color(0.12f, 0.24f, 0.34f, 0.98f),
                     Color.white,
-                    () => TeleportAndOpenStation("Teleport_Puesto1_Carla", () => OpenQuarantineInspection(0))
+                    () => TeleportAndOpenStation("Teleport_Puesto1_Carla", () => CreateQuarantineViewRoutine(0))
                 );
 
                 CreateInspectionButton(
@@ -835,7 +1001,7 @@ namespace AndesSim.UI
                     "<color=#38F28A><b>CONTINUAR A PC 3: VER SIEM Y FIREWALL ></b></color>",
                     new Color(0.08f, 0.36f, 0.22f, 0.98f),
                     Color.white,
-                    () => TeleportAndOpenStation("Teleport_Puesto3_LogsYDefensa", () => OpenQuarantineInspection(2))
+                    () => TeleportAndOpenStation("Teleport_Puesto3_LogsYDefensa", () => CreateQuarantineViewRoutine(2))
                 );
             }
             else
@@ -855,9 +1021,8 @@ namespace AndesSim.UI
                     "<color=#38F28A><b>COMPLETAR DEFENSA EXITOSA ></b></color>",
                     new Color(0.08f, 0.36f, 0.20f, 0.98f),
                     Color.white,
-                    () =>
+                    () => CloseOverlayWithCallback(() =>
                     {
-                        CloseOverlay();
                         ScenarioFlowController.I?.CompleteScenarioFlow();
                         if (MailQuarantine.I != null)
                         {
@@ -867,15 +1032,22 @@ namespace AndesSim.UI
                         {
                             GameManager.I.EndScenario();
                         }
-                    }
+                    })
                 );
             }
 
             _activeContentPanel = qPanel;
-            ShowOverlay();
-            AndesSim.Audio.AudioManager.I?.PlayNarration("Voice_12_CuarentenaSandbox", true, 2.0f);
+        }
 
-            const float verifyDuration = 1.1f;
+        private IEnumerator PlayDefenseStepVerifyRoutine(
+            int step,
+            TextMeshProUGUI statusTmp,
+            TextMeshProUGUI defHintTmp,
+            RectTransform fillRect,
+            string progressDoneText,
+            string unlockedHintText)
+        {
+            const float verifyDuration = 0.95f;
             float elapsed = 0f;
             while (elapsed < verifyDuration)
             {
@@ -885,14 +1057,17 @@ namespace AndesSim.UI
                 yield return null;
             }
 
-            if (statusTmp != null)
-            {
-                statusTmp.text = progressDoneText;
-            }
-            _defenseStepRoutine = null;
+            if (fillRect != null) fillRect.sizeDelta = new Vector2(780f, 0f);
+            if (statusTmp != null) statusTmp.text = progressDoneText;
+            if (defHintTmp != null) defHintTmp.text = unlockedHintText;
         }
 
         public void TriggerAttackInfectionSequence()
+        {
+            RunSequentialOverlayAction(CreateAttackInfectionViewRoutine());
+        }
+
+        private IEnumerator CreateAttackInfectionViewRoutine()
         {
             if (GameManager.I != null && GameManager.I.mode != SimMode.Ataque)
             {
@@ -920,17 +1095,27 @@ namespace AndesSim.UI
                 GameManager.I.RegisterEvidence("Evidencia_PostIt");
             }
 
-            AndesSim.Audio.AudioManager.I?.PlayNarration("Voice_10_AtaqueDetonado", true, 2.0f);
-            StopStepAnimationRoutines();
-            _infectionAnimRoutine = StartCoroutine(InfectionScreenAnimationRoutine());
+            TextMeshProUGUI traceTmp = null;
+            RectTransform fillRect = null;
+            Image fillImg = null;
+            TextMeshProUGUI p1Tmp = null;
+            TextMeshProUGUI p2Tmp = null;
+
+            yield return StartCoroutine(TransitionToViewRoutine(
+                1,
+                () => BuildInfectionView(out traceTmp, out fillRect, out fillImg, out p1Tmp, out p2Tmp),
+                () => PlayInfectionStepAnimationRoutine(traceTmp, fillRect, fillImg, p1Tmp, p2Tmp),
+                "Voice_10_AtaqueDetonado"
+            ));
         }
 
-        private IEnumerator InfectionScreenAnimationRoutine()
+        private void BuildInfectionView(
+            out TextMeshProUGUI traceTmp,
+            out RectTransform fillRect,
+            out Image fillImg,
+            out TextMeshProUGUI p1Tmp,
+            out TextMeshProUGUI p2Tmp)
         {
-            EnsureOverlayCanvas();
-            ClearActiveContent();
-            RefreshBottomNavState(1);
-
             SetHeaderTheme(
                 DangerRedColor,
                 "ATAQUE EN PC 1 · TROYANO ACTIVO Y CLAVE ROBADA",
@@ -947,11 +1132,10 @@ namespace AndesSim.UI
             GameObject terminalBox = CreateStyledCard("InfectionTerminalBox", infectPanel.transform, new Vector2(0f, 68f), new Vector2(880f, 235f),
                 new Color(0.14f, 0.03f, 0.04f, 0.99f), DangerRedColor);
 
-            CreateLabel("Txt_InfectionTrace", terminalBox.transform, new Vector2(0f, 22f), new Vector2(820f, 155f),
+            traceTmp = CreateLabel("Txt_InfectionTrace", terminalBox.transform, new Vector2(0f, 22f), new Vector2(820f, 155f),
                 "<color=#FF5A4E><b>FASE 1 EN PC 1 · EJECUTANDO CV_2015.scr.zip</b></color>\n\n" +
                 "<size=18>Instalando backdoor oculto <i>svchost_upd.exe</i> en el equipo de Carla...</size>",
                 20f, TextAlignmentOptions.Center, Color.white);
-            TextMeshProUGUI traceTmp = terminalBox.transform.Find("Txt_InfectionTrace")?.GetComponent<TextMeshProUGUI>();
 
             // Barra animada de infección en PC 1
             GameObject barBgObj = new GameObject("InfectionProgressBg");
@@ -964,29 +1148,26 @@ namespace AndesSim.UI
 
             GameObject barFillObj = new GameObject("InfectionProgressFill");
             barFillObj.transform.SetParent(barBgObj.transform, false);
-            RectTransform fillRect = barFillObj.AddComponent<RectTransform>();
+            fillRect = barFillObj.AddComponent<RectTransform>();
             fillRect.anchorMin = new Vector2(0f, 0f);
             fillRect.anchorMax = new Vector2(0f, 1f);
             fillRect.pivot = new Vector2(0f, 0.5f);
             fillRect.anchoredPosition = Vector2.zero;
             fillRect.sizeDelta = new Vector2(0f, 0f);
-            Image fillImg = barFillObj.AddComponent<Image>();
+            fillImg = barFillObj.AddComponent<Image>();
             fillImg.color = DangerRedColor;
 
             // 3 Pills de ruta del ataque (PC 1 -> PC 2 -> PC 3)
             GameObject pill1 = CreateStyledCard("Pill_PC1", infectPanel.transform, new Vector2(-290f, -82f), new Vector2(270f, 58f), AndesTypographyTheme.BgCardGlass, DangerRedColor);
-            CreateLabel("Txt_Pill1", pill1.transform, Vector2.zero, new Vector2(250f, 48f), "<b>1. PC 1 CARLA</b>\n<color=#FF5A4E>Infectando...</color>", 15f, TextAlignmentOptions.Center, Color.white);
+            p1Tmp = CreateLabel("Txt_Pill1", pill1.transform, Vector2.zero, new Vector2(250f, 48f), "<b>1. PC 1 CARLA</b>\n<color=#FF5A4E>Infectando...</color>", 15f, TextAlignmentOptions.Center, Color.white);
 
             GameObject pill2 = CreateStyledCard("Pill_PC2", infectPanel.transform, new Vector2(0f, -82f), new Vector2(270f, 58f), AndesTypographyTheme.BgCardGlass, WarningAmberColor);
-            CreateLabel("Txt_Pill2", pill2.transform, Vector2.zero, new Vector2(250f, 48f), "<b>2. PC 2 SWIFT</b>\nSiguiente estación", 15f, TextAlignmentOptions.Center, AndesTypographyTheme.TextMuted);
+            p2Tmp = CreateLabel("Txt_Pill2", pill2.transform, Vector2.zero, new Vector2(250f, 48f), "<b>2. PC 2 SWIFT</b>\nSiguiente estación", 15f, TextAlignmentOptions.Center, AndesTypographyTheme.TextMuted);
 
             GameObject pill3 = CreateStyledCard("Pill_PC3", infectPanel.transform, new Vector2(290f, -82f), new Vector2(270f, 58f), AndesTypographyTheme.BgCardGlass, AndesTypographyTheme.TextMuted);
             CreateLabel("Txt_Pill3", pill3.transform, Vector2.zero, new Vector2(250f, 48f), "<b>3. PC 3 SIEM</b>\nPaso final", 15f, TextAlignmentOptions.Center, AndesTypographyTheme.TextMuted);
 
-            TextMeshProUGUI p1Tmp = pill1.transform.Find("Txt_Pill1")?.GetComponent<TextMeshProUGUI>();
-            TextMeshProUGUI p2Tmp = pill2.transform.Find("Txt_Pill2")?.GetComponent<TextMeshProUGUI>();
-
-            // Botones inferiores para que el usuario avance con clic a PC 2 cuando quiera
+            // Botones inferiores para que el usuario avance con clic a PC 2 cuando concluya la animación
             CreateInspectionButton(
                 "Btn_ReviewPostItFromAttack", infectPanel.transform,
                 new Vector2(-260f, -168f), new Vector2(320f, 64f),
@@ -1002,13 +1183,20 @@ namespace AndesSim.UI
                 "<color=#00E5FF><b>CONTINUAR A PC 2: TERMINAL SWIFT ></b></color>",
                 new Color(0.08f, 0.34f, 0.44f, 0.98f),
                 Color.white,
-                () => TeleportAndOpenStation("Teleport_Puesto2_Analista", OpenSwiftInspection)
+                () => TeleportAndOpenStation("Teleport_Puesto2_Analista", CreateSwiftViewRoutine)
             );
 
             _activeContentPanel = infectPanel;
-            ShowOverlay();
+        }
 
-            const float animDuration = 2.0f;
+        private IEnumerator PlayInfectionStepAnimationRoutine(
+            TextMeshProUGUI traceTmp,
+            RectTransform fillRect,
+            Image fillImg,
+            TextMeshProUGUI p1Tmp,
+            TextMeshProUGUI p2Tmp)
+        {
+            const float animDuration = 1.75f;
             float elapsed = 0f;
             int stage = 0;
 
@@ -1034,6 +1222,7 @@ namespace AndesSim.UI
                 yield return null;
             }
 
+            if (fillRect != null) fillRect.sizeDelta = new Vector2(760f, 0f);
             if (traceTmp != null)
             {
                 traceTmp.text =
@@ -1046,16 +1235,20 @@ namespace AndesSim.UI
                 p2Tmp.color = Color.white;
                 p2Tmp.text = "<b>2. PC 2 SWIFT</b>\n<color=#00E5FF><b>HAZ CLIC PARA IR ></b></color>";
             }
-            _infectionAnimRoutine = null;
         }
 
         public void OpenAttackResultSummary()
         {
-            StopStepAnimationRoutines();
-            EnsureOverlayCanvas();
-            ClearActiveContent();
-            RefreshBottomNavState(0);
+            RunSequentialOverlayAction(CreateAttackResultViewRoutine());
+        }
 
+        private IEnumerator CreateAttackResultViewRoutine()
+        {
+            return TransitionToViewRoutine(0, BuildAttackResultView, null, "Voice_11_RoboConsumado");
+        }
+
+        private void BuildAttackResultView()
+        {
             SetHeaderTheme(
                 DangerRedColor,
                 "RESUMEN DEL ATAQUE · ROBO SWIFT US$ 81M",
@@ -1088,11 +1281,7 @@ namespace AndesSim.UI
                 "<color=#38F28A><b>VER MODO DEFENSA (PC 1) ></b></color>",
                 new Color(0.08f, 0.35f, 0.20f, 0.98f),
                 Color.white,
-                () =>
-                {
-                    if (GameManager.I != null) GameManager.I.SetMode(SimMode.Defensa);
-                    TeleportAndOpenStation("Teleport_Puesto1_Carla", () => OpenQuarantineInspection(0));
-                }
+                () => RunSequentialOverlayAction(SwitchModeAndTeleportRoutine(SimMode.Defensa, "Teleport_Puesto1_Carla", () => CreateQuarantineViewRoutine(0)))
             );
 
             CreateInspectionButton(
@@ -1110,29 +1299,31 @@ namespace AndesSim.UI
                 "FINALIZAR",
                 new Color(0.48f, 0.12f, 0.14f, 0.98f),
                 Color.white,
-                () =>
+                () => CloseOverlayWithCallback(() =>
                 {
-                    CloseOverlay();
                     ScenarioFlowController.I?.CompleteScenarioFlow();
                     if (GameManager.I != null)
                     {
                         GameManager.I.EndScenario();
                     }
-                }
+                })
             );
 
             _activeContentPanel = robPanel;
-            ShowOverlay();
-            AndesSim.Audio.AudioManager.I?.PlayNarration("Voice_11_RoboConsumado", true, 2.0f);
         }
 
         public void OpenCredentialsInspection()
         {
-            StopStepAnimationRoutines();
-            EnsureOverlayCanvas();
-            ClearActiveContent();
-            RefreshBottomNavState(1);
+            RunSequentialOverlayAction(CreateCredentialsViewRoutine());
+        }
 
+        private IEnumerator CreateCredentialsViewRoutine()
+        {
+            return TransitionToViewRoutine(1, BuildCredentialsView, null, "Voice_13_PostItEvidencia");
+        }
+
+        private void BuildCredentialsView()
+        {
             if (GameManager.I != null)
             {
                 GameManager.I.RegisterEvidence("Evidencia_PostIt");
@@ -1189,21 +1380,24 @@ namespace AndesSim.UI
                 "CONTINUAR A PC 2 (TERMINAL SWIFT) >",
                 new Color(0.10f, 0.38f, 0.22f, 0.98f),
                 GreenSuccessColor,
-                () => TeleportAndOpenStation("Teleport_Puesto2_Analista", OpenSwiftInspection)
+                () => TeleportAndOpenStation("Teleport_Puesto2_Analista", CreateSwiftViewRoutine)
             );
 
             _activeContentPanel = credPanel;
-            ShowOverlay();
-            AndesSim.Audio.AudioManager.I?.PlayNarration("Voice_13_PostItEvidencia", true, 2.0f);
         }
 
         public void OpenSwiftInspection()
         {
-            StopStepAnimationRoutines();
-            EnsureOverlayCanvas();
-            ClearActiveContent();
-            RefreshBottomNavState(2);
+            RunSequentialOverlayAction(CreateSwiftViewRoutine());
+        }
 
+        private IEnumerator CreateSwiftViewRoutine()
+        {
+            return TransitionToViewRoutine(2, BuildSwiftView, null, "Voice_14_TerminalSwift");
+        }
+
+        private void BuildSwiftView()
+        {
             SetHeaderTheme(
                 CyanNeonAccent,
                 "PASO 2 DE 3 · PC 2 (TERMINAL DE PAGOS SWIFT)",
@@ -1249,11 +1443,7 @@ namespace AndesSim.UI
                 "<color=#FF5A4E><b>EJECUTAR GIRO Y PASAR A PC 3 (SIEM) ></b></color>",
                 new Color(0.48f, 0.12f, 0.14f, 0.98f),
                 Color.white,
-                () =>
-                {
-                    StopStepAnimationRoutines();
-                    _swiftTransferRoutine = StartCoroutine(SwiftTransferToPc3Routine(swiftTableTmp));
-                }
+                () => RunSequentialOverlayAction(SwiftTransferAndAdvanceToPc3Routine(swiftTableTmp))
             );
 
             CreateInspectionButton(
@@ -1262,27 +1452,20 @@ namespace AndesSim.UI
                 "<color=#38F28A><b>VER DEFENSA EN PC 2 (TOKEN MFA) ></b></color>",
                 new Color(0.08f, 0.34f, 0.20f, 0.98f),
                 GreenSuccessColor,
-                () =>
-                {
-                    if (GameManager.I != null) GameManager.I.SetMode(SimMode.Defensa);
-                    if (MailQuarantine.I != null) MailQuarantine.I.TriggerQuarantineDefense();
-                    OpenQuarantineInspection(1);
-                }
+                () => RunSequentialOverlayAction(SwitchModeAndOpenQuarantineRoutine(1))
             );
 
             _activeContentPanel = swiftPanel;
-            ShowOverlay();
-            AndesSim.Audio.AudioManager.I?.PlayNarration("Voice_14_TerminalSwift", true, 2.0f);
         }
 
-        private IEnumerator SwiftTransferToPc3Routine(TextMeshProUGUI swiftTableTmp)
+        private IEnumerator SwiftTransferAndAdvanceToPc3Routine(TextMeshProUGUI swiftTableTmp)
         {
             if (InfectionSpreadVisualizer.I != null && !InfectionSpreadVisualizer.I.HasPlayed)
             {
                 InfectionSpreadVisualizer.I.PlayInfectionSequence();
             }
 
-            const float duration = 1.4f;
+            const float duration = 1.35f;
             float elapsed = 0f;
             while (elapsed < duration)
             {
@@ -1294,22 +1477,26 @@ namespace AndesSim.UI
                     swiftTableTmp.text =
                         "<b><color=#FF5A4E>EJECUTANDO TRANSFERENCIA FRAUDULENTA MT103 #9483...</color></b>\n\n" +
                         $"<size=22><color=#FFA940><b>DESVIANDO FONDOS A RCBC FILIPINAS: US$ {amount:N0}</b></color></size>\n" +
-                        "<size=16>Autorizado con credencial robada 'c.mendoza' · Redirigiendo a PC 3 (Consola SIEM)...</size>";
+                        "<size=16>Autorizado con credencial robada 'c.mendoza' · Pasando a PC 3 (Consola SIEM)...</size>";
                 }
                 yield return null;
             }
 
-            _swiftTransferRoutine = null;
-            TeleportAndOpenStation("Teleport_Puesto3_LogsYDefensa", OpenSiemLogInspection);
+            yield return StartCoroutine(TeleportAndOpenStationSequenceRoutine("Teleport_Puesto3_LogsYDefensa", CreateSiemViewRoutine));
         }
 
         public void OpenSiemLogInspection()
         {
-            StopStepAnimationRoutines();
-            EnsureOverlayCanvas();
-            ClearActiveContent();
-            RefreshBottomNavState(3);
+            RunSequentialOverlayAction(CreateSiemViewRoutine());
+        }
 
+        private IEnumerator CreateSiemViewRoutine()
+        {
+            return TransitionToViewRoutine(3, BuildSiemView, null, "Voice_15_ConsolaSiem");
+        }
+
+        private void BuildSiemView()
+        {
             if (GameManager.I != null)
             {
                 GameManager.I.RegisterEvidence("Evidencia_LogAccesos");
@@ -1369,16 +1556,16 @@ namespace AndesSim.UI
                 "<color=#38F28A><b>INICIAR RECORRIDO MODO DEFENSA ></b></color>",
                 new Color(0.08f, 0.35f, 0.20f, 0.98f),
                 GreenSuccessColor,
-                () =>
-                {
-                    if (GameManager.I != null) GameManager.I.SetMode(SimMode.Defensa);
-                    TeleportAndOpenStation("Teleport_Puesto1_Carla", () => OpenQuarantineInspection(0));
-                }
+                () => RunSequentialOverlayAction(SwitchModeAndTeleportRoutine(SimMode.Defensa, "Teleport_Puesto1_Carla", () => CreateQuarantineViewRoutine(0)))
             );
 
             _activeContentPanel = siemPanel;
-            ShowOverlay();
-            AndesSim.Audio.AudioManager.I?.PlayNarration("Voice_15_ConsolaSiem", true, 2.0f);
+        }
+
+        private IEnumerator SwitchModeAndTeleportRoutine(SimMode newMode, string teleportName, Func<IEnumerator> viewRoutineFactory)
+        {
+            if (GameManager.I != null) GameManager.I.SetMode(newMode);
+            yield return StartCoroutine(TeleportAndOpenStationSequenceRoutine(teleportName, viewRoutineFactory));
         }
 
         public void OpenSuspectDossierInspection(int suspectIndex)
@@ -1390,10 +1577,15 @@ namespace AndesSim.UI
                 int clampedIndex = ((suspectIndex % boardTotal) + boardTotal) % boardTotal;
 
                 // Mantener la interacción dentro de la misma pizarra (Tablero_Sospechosos_VR),
-                // sin abrir un panel flotante externo sobre ella.
+                // cerrando suavemente el HUD antes de actualizar el tablero.
                 if (_isOpen)
                 {
-                    CloseOverlay();
+                    CloseOverlayWithCallback(() =>
+                    {
+                        board.DisplaySuspect(clampedIndex);
+                        AndesSim.Audio.AudioManager.I?.PlayGazeClick();
+                    });
+                    return;
                 }
 
                 board.DisplaySuspect(clampedIndex);
@@ -1401,9 +1593,11 @@ namespace AndesSim.UI
                 return;
             }
 
-            EnsureOverlayCanvas();
-            ClearActiveContent();
+            RunSequentialOverlayAction(TransitionToViewRoutine(0, () => BuildSuspectDossierFallbackView(suspectIndex), null, "Voice_19_TableroSospechosos", 12.0f));
+        }
 
+        private void BuildSuspectDossierFallbackView(int suspectIndex)
+        {
             GameObject dossierPanel = new GameObject("SuspectDossierModalPanel");
             dossierPanel.transform.SetParent(_contentContainer, false);
             RectTransform dr = dossierPanel.AddComponent<RectTransform>();
@@ -1463,11 +1657,6 @@ namespace AndesSim.UI
                 GreenSuccessColor,
                 () =>
                 {
-                    if (board != null)
-                    {
-                        board.DisplaySuspect(safeIndex);
-                        board.OnSelectHypothesisClicked();
-                    }
                     if (AndesSim.Audio.AudioManager.I != null)
                     {
                         AndesSim.Audio.AudioManager.I.PlayEvidenceFound();
@@ -1486,21 +1675,19 @@ namespace AndesSim.UI
             );
 
             _activeContentPanel = dossierPanel;
-            ShowOverlay();
-            AndesSim.Audio.AudioManager.I?.PlayNarration("Voice_19_TableroSospechosos", false, 12.0f);
         }
 
-        private void TeleportAndOpenStation(string teleportObjectName, Action openAction)
+        private void TeleportAndOpenStation(string teleportObjectName, Func<IEnumerator> viewRoutineFactory)
         {
-            StopManagedCoroutine(ref _teleportStationRoutine);
-            _teleportStationRoutine = StartCoroutine(TeleportAndOpenStationRoutine(teleportObjectName, openAction));
+            RunSequentialOverlayAction(TeleportAndOpenStationSequenceRoutine(teleportObjectName, viewRoutineFactory));
         }
 
-        private IEnumerator TeleportAndOpenStationRoutine(string teleportObjectName, Action openAction)
+        private IEnumerator TeleportAndOpenStationSequenceRoutine(string teleportObjectName, Func<IEnumerator> viewRoutineFactory)
         {
             GameObject tpObj = !string.IsNullOrEmpty(teleportObjectName) ? GameObject.Find(teleportObjectName) : null;
             TeleportPoint tp = tpObj != null ? tpObj.GetComponent<TeleportPoint>() : null;
 
+            bool needsTeleport = false;
             if (PlayerTeleportController.I != null && tp != null)
             {
                 if (_targetCamera == null) _targetCamera = Camera.main != null ? Camera.main : FindFirstObjectByType<Camera>();
@@ -1509,30 +1696,42 @@ namespace AndesSim.UI
                         new Vector2(_targetCamera.transform.position.x, _targetCamera.transform.position.z),
                         new Vector2(tp.StandPosition.position.x, tp.StandPosition.position.z))
                     : 99f;
-
-                if (distToTarget > 0.65f)
-                {
-                    // Restaurar objetos de la estación anterior y ocultar el panel durante el parpadeo de traslado
-                    RestoreSceneObstructionsAfterOverlay();
-                    if (_overlayRoot != null) _overlayRoot.SetActive(false);
-                    _isOpen = false;
-                    _hasAnchorPose = false;
-
-                    PlayerTeleportController.I.TeleportToPoint(tp);
-
-                    float timeout = 1.0f;
-                    while (PlayerTeleportController.I.IsTeleporting && timeout > 0f)
-                    {
-                        timeout -= Time.unscaledDeltaTime;
-                        yield return null;
-                    }
-                    yield return null;
-                }
+                needsTeleport = distToTarget > 0.65f;
             }
 
-            _teleportStationRoutine = null;
+            if (needsTeleport)
+            {
+                // 1. Cerrar suavemente el HUD actual antes de teletransportar y restaurar geometría previa
+                if (_isOpen && _overlayRoot != null && _overlayRoot.activeInHierarchy)
+                {
+                    yield return FadeCanvasGroupRoutine(_overlayCanvasGroup, _overlayCanvasGroup != null ? _overlayCanvasGroup.alpha : 1f, 0f, 0.14f);
+                    _overlayRoot.SetActive(false);
+                }
+
+                ClearActiveContent();
+                RestoreSceneObstructionsAfterOverlay();
+                _isOpen = false;
+                _hasAnchorPose = false;
+
+                // 2. Teletransportar y esperar a que concluya el parpadeo por completo
+                PlayerTeleportController.I.TeleportToPoint(tp);
+
+                float timeout = 1.2f;
+                while (PlayerTeleportController.I.IsTeleporting && timeout > 0f)
+                {
+                    timeout -= Time.unscaledDeltaTime;
+                    yield return null;
+                }
+                yield return null;
+            }
+
             _hasAnchorPose = false;
-            openAction?.Invoke();
+
+            // 3. Desplegar el HUD del nuevo puesto en secuencia limpia
+            if (viewRoutineFactory != null)
+            {
+                yield return StartCoroutine(viewRoutineFactory());
+            }
         }
 
         private void NavigateToSuspectBoardOrDefense()
@@ -1541,144 +1740,146 @@ namespace AndesSim.UI
             TeleportPoint tp = tpObj != null ? tpObj.GetComponent<TeleportPoint>() : null;
             if (PlayerTeleportController.I != null && tp != null)
             {
-                CloseOverlay();
-                PlayerTeleportController.I.TeleportToPoint(tp);
+                CloseOverlayWithCallback(() => PlayerTeleportController.I.TeleportToPoint(tp));
                 return;
             }
             OpenSuspectDossierInspection(0);
         }
 
-        private void NavigateToDefenseConsole()
-        {
-            GameObject tpObj = GameObject.Find("Teleport_ConsolaDefensa");
-            TeleportPoint tp = tpObj != null ? tpObj.GetComponent<TeleportPoint>() : null;
-            if (PlayerTeleportController.I != null && tp != null)
-            {
-                CloseOverlay();
-                PlayerTeleportController.I.TeleportToPoint(tp);
-                return;
-            }
-            NavigateToSuspectBoardOrDefense();
-        }
-
         private void NavigateToMainMenu()
         {
-            CloseOverlay();
-            if (VrStartMenuController.I != null)
+            CloseOverlayWithCallback(() =>
             {
-                VrStartMenuController.I.ShowMenu();
-                GameObject lobbyTpObj = GameObject.Find("Teleport_PuertaEntrada");
-                TeleportPoint lobbyTp = lobbyTpObj != null ? lobbyTpObj.GetComponent<TeleportPoint>() : null;
-                if (PlayerTeleportController.I != null && lobbyTp != null)
+                if (VrStartMenuController.I != null)
                 {
-                    PlayerTeleportController.I.TeleportToPoint(lobbyTp);
+                    GameObject lobbyTpObj = GameObject.Find("Teleport_PuertaEntrada");
+                    TeleportPoint lobbyTp = lobbyTpObj != null ? lobbyTpObj.GetComponent<TeleportPoint>() : null;
+                    if (PlayerTeleportController.I != null && lobbyTp != null)
+                    {
+                        StartCoroutine(TeleportAndShowMainMenuRoutine(lobbyTp));
+                    }
+                    else
+                    {
+                        VrStartMenuController.I.ShowMenu();
+                    }
                 }
+            });
+        }
+
+        private IEnumerator TeleportAndShowMainMenuRoutine(TeleportPoint lobbyTp)
+        {
+            if (PlayerTeleportController.I != null && lobbyTp != null)
+            {
+                PlayerTeleportController.I.TeleportToPoint(lobbyTp);
+                float timeout = 1.2f;
+                while (PlayerTeleportController.I.IsTeleporting && timeout > 0f)
+                {
+                    timeout -= Time.unscaledDeltaTime;
+                    yield return null;
+                }
+                yield return null;
             }
+            VrStartMenuController.I?.ShowMenu();
         }
 
         #endregion
 
         #region Control de Ventana y Ayudantes de UI
 
-        public void ShowOverlay()
-        {
-            bool wasAlreadyOpen = _isOpen;
-            _isOpen = true;
-
-            if (_overlayRoot != null)
-            {
-                EnsureEventSystemExists();
-                if (_targetCamera == null) _targetCamera = Camera.main != null ? Camera.main : FindFirstObjectByType<Camera>();
-                if (_targetCamera != null && _overlayCanvas != null)
-                {
-                    _overlayCanvas.worldCamera = _targetCamera;
-                }
-
-                distanceFromCamera = _isEnlarged ? EnlargedDistance : NormalDistance;
-                RectTransform canvasRect = _overlayRoot.GetComponent<RectTransform>();
-                if (canvasRect != null)
-                {
-                    canvasRect.localScale = Vector3.one * (_isEnlarged ? EnlargedScale : NormalScale);
-                }
-
-                // Capturar anclaje ergonómico cómodo al abrir; mantener estable al cambiar de pestaña interna
-                if (!wasAlreadyOpen || !_hasAnchorPose)
-                {
-                    CaptureErgonomicAnchorFromCamera();
-                }
-
-                RepositionOverlay();
-                SuppressSceneObstructionsForOverlay();
-                UpdateZoomButtonLabel();
-
-                _overlayRoot.SetActive(true);
-                if (!wasAlreadyOpen)
-                {
-                    _panelEntrance?.PlayEntrance();
-                }
-            }
-            else
-            {
-                SuppressSceneObstructionsForOverlay();
-            }
-
-            if (!wasAlreadyOpen && AndesSim.Audio.AudioManager.I != null)
-            {
-                AndesSim.Audio.AudioManager.I.PlayLaserScan(transform.position);
-            }
-        }
-
         public void CloseOverlay()
         {
-            StopManagedCoroutine(ref _zoomRoutine);
-            StopStepAnimationRoutines();
-            StopManagedCoroutine(ref _teleportStationRoutine);
+            CloseOverlayWithCallback(null);
+        }
+
+        private void CloseOverlayWithCallback(Action onClosed)
+        {
+            if (!_isOpen || _isSequenceBusy) return;
+            RunSequentialOverlayAction(CloseOverlaySequenceRoutine(onClosed));
+        }
+
+        private IEnumerator CloseOverlaySequenceRoutine(Action onClosed)
+        {
+            if (AndesSim.Audio.AudioManager.I != null)
+            {
+                AndesSim.Audio.AudioManager.I.PlayGazeClick();
+            }
+
+            if (_overlayRoot != null && _overlayRoot.activeInHierarchy && _overlayCanvasGroup != null)
+            {
+                yield return FadeCanvasGroupRoutine(_overlayCanvasGroup, _overlayCanvasGroup.alpha, 0f, 0.15f);
+            }
+
             _activeEmailHintText = null;
             _isOpen = false;
             _isEnlarged = false;
             _hasAnchorPose = false;
             distanceFromCamera = NormalDistance;
 
-            // Restaurar 100% de monitores físicos, balizas, mobiliario, colisionadores y visuales 3D
+            if (_overlayRoot != null)
+            {
+                RectTransform canvasRect = _overlayRoot.GetComponent<RectTransform>();
+                if (canvasRect != null) canvasRect.localScale = Vector3.one * NormalScale;
+                if (_overlayCanvasGroup != null) _overlayCanvasGroup.alpha = 1f;
+                _overlayRoot.SetActive(false);
+            }
+
+            ClearActiveContent();
+            // Restaurar los objetos 3D solo después de que el HUD haya desaparecido por completo
+            RestoreSceneObstructionsAfterOverlay();
+
+            onClosed?.Invoke();
+        }
+
+        public void ForceCloseOverlayImmediate()
+        {
+            if (_activeSequenceRoutine != null)
+            {
+                StopCoroutine(_activeSequenceRoutine);
+                _activeSequenceRoutine = null;
+            }
+            _isSequenceBusy = false;
+            _activeEmailHintText = null;
+            _isOpen = false;
+            _isEnlarged = false;
+            _hasAnchorPose = false;
+            distanceFromCamera = NormalDistance;
+
             RestoreSceneObstructionsAfterOverlay();
 
             if (_overlayRoot != null)
             {
                 RectTransform canvasRect = _overlayRoot.GetComponent<RectTransform>();
                 if (canvasRect != null) canvasRect.localScale = Vector3.one * NormalScale;
+                if (_overlayCanvasGroup != null) _overlayCanvasGroup.alpha = 1f;
                 _overlayRoot.SetActive(false);
             }
             ClearActiveContent();
-
-            if (AndesSim.Audio.AudioManager.I != null)
-            {
-                AndesSim.Audio.AudioManager.I.PlayGazeClick();
-            }
         }
 
         public void ToggleEnlargeZoom()
         {
+            if (_isSequenceBusy || !_isOpen) return;
             SetEnlargeZoom(!_isEnlarged);
         }
 
         public void SetEnlargeZoom(bool enlarged)
         {
+            if (_isSequenceBusy) return;
             _isEnlarged = enlarged;
-            if (_zoomRoutine != null) StopCoroutine(_zoomRoutine);
-            if (gameObject.activeInHierarchy)
-            {
-                _zoomRoutine = StartCoroutine(AnimateZoomRoutine(_isEnlarged));
-            }
-            else
-            {
-                ApplyZoomImmediate(_isEnlarged);
-            }
-
             UpdateZoomButtonLabel();
 
             if (AndesSim.Audio.AudioManager.I != null)
             {
                 AndesSim.Audio.AudioManager.I.PlayGazeClick();
+            }
+
+            if (gameObject.activeInHierarchy && _isOpen)
+            {
+                RunSequentialOverlayAction(AnimateZoomRoutine(_isEnlarged));
+            }
+            else
+            {
+                ApplyZoomImmediate(_isEnlarged);
             }
         }
 
@@ -1706,6 +1907,7 @@ namespace AndesSim.UI
             }
             distanceFromCamera = enlarged ? EnlargedDistance : NormalDistance;
             RepositionOverlay();
+            if (_isOpen) SuppressNearbyObstructionsInViewCorridor();
         }
 
         private System.Collections.IEnumerator AnimateZoomRoutine(bool enlarged)
@@ -1724,8 +1926,8 @@ namespace AndesSim.UI
 
             while (elapsed < duration)
             {
-                elapsed += Time.deltaTime;
-                float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
+                elapsed += Time.unscaledDeltaTime;
+                float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / duration));
 
                 if (canvasRect != null)
                 {
@@ -1740,7 +1942,7 @@ namespace AndesSim.UI
             if (canvasRect != null) canvasRect.localScale = Vector3.one * targetScale;
             distanceFromCamera = targetDist;
             RepositionOverlay();
-            _zoomRoutine = null;
+            SuppressNearbyObstructionsInViewCorridor();
         }
 
         public bool IsOverlayTransform(Transform t)
@@ -1816,8 +2018,13 @@ namespace AndesSim.UI
             {
                 _sceneObstructionsSuppressed = true;
 
-                // Ocultar todos los monitores físicos, pantallas World Space, balizas y accesorios de escritorio
+                // Ocultar todos los monitores físicos, pantallas World Space, palancas, balizas y paneles externos
                 SuppressAllRootsOfType<InteractiveMonitorController>();
+                SuppressAllRootsOfType<PhysicalDefenseSwitchLever>();
+                SuppressAllRootsOfType<AccessLogTerminal>();
+                SuppressAllRootsOfType<DefenseControl>();
+                SuppressAllRootsOfType<EvidenceItem>();
+                SuppressAllRootsOfType<PhishingSignalHotspot>();
                 SuppressAllRootsOfType<HolographicDataBeacon>();
                 SuppressAllRootsOfType<PostItCredenciales>();
                 SuppressAllRootsOfType<TokenMfaBoveda>();
@@ -1825,9 +2032,12 @@ namespace AndesSim.UI
                 SuppressAllRootsOfType<CredencialesDeskDrawer>();
                 SuppressAllRootsOfType<DefenseTerminalController>();
                 SuppressAllRootsOfType<TeleportPoint>();
+                SuppressAllRootsOfType<SuspectBoardVR>();
+                SuppressAllRootsOfType<EndScenarioPanelUI>();
+                SuppressAllRootsOfType<CreditsAndEthicsModalUI>();
             }
 
-            // Barrido espacial en el corredor cámara -> HUD para ocultar mobiliario/mamparas que invadan la vista
+            // Barrido espacial ampliado en el corredor cámara -> HUD para ocultar mobiliario/mamparas que invadan la vista
             SuppressNearbyObstructionsInViewCorridor();
         }
 
@@ -1850,14 +2060,14 @@ namespace AndesSim.UI
             Vector3 camPos = _targetCamera.transform.position;
             Vector3 panelCenter = _overlayRoot.transform.position;
             Vector3 forward = _anchorForward.sqrMagnitude > 0.001f ? _anchorForward.normalized : _targetCamera.transform.forward;
-            Vector3 corridorEnd = panelCenter + (forward * 0.45f);
+            Vector3 corridorEnd = panelCenter + (forward * 1.25f);
 
             Renderer[] renderers = FindObjectsByType<Renderer>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
             for (int i = 0; i < renderers.Length; i++)
             {
                 Renderer r = renderers[i];
                 if (r == null || !r.enabled || ShouldSkipSuppressionTransform(r.transform)) continue;
-                if (IsBoundsObstructingOverlay(r.bounds, camPos, panelCenter, corridorEnd))
+                if (IsBoundsObstructingOverlay(r.bounds, r.transform, camPos, panelCenter, forward, corridorEnd))
                 {
                     SuppressComponent(r, _suppressedRenderers, c => c.enabled, (c, v) => c.enabled = v);
                 }
@@ -1868,7 +2078,7 @@ namespace AndesSim.UI
             {
                 Collider col = colliders[i];
                 if (col == null || !col.enabled || ShouldSkipSuppressionTransform(col.transform)) continue;
-                if (IsBoundsObstructingOverlay(col.bounds, camPos, panelCenter, corridorEnd))
+                if (IsBoundsObstructingOverlay(col.bounds, col.transform, camPos, panelCenter, forward, corridorEnd))
                 {
                     SuppressComponent(col, _suppressedColliders, c => c.enabled, (c, v) => c.enabled = v);
                 }
@@ -1952,19 +2162,34 @@ namespace AndesSim.UI
                    n.IndexOf("PlayerBlinkFader", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
-        private static bool IsBoundsObstructingOverlay(Bounds bounds, Vector3 camPos, Vector3 panelCenter, Vector3 corridorEnd)
+        private static bool IsBoundsObstructingOverlay(Bounds bounds, Transform objTransform, Vector3 camPos, Vector3 panelCenter, Vector3 forward, Vector3 corridorEnd)
         {
             bool isFloorOrCeilingLike = (bounds.max.y < 0.25f || bounds.min.y > 2.35f) && bounds.size.x > 2.5f && bounds.size.z > 2.5f;
             if (isFloorOrCeilingLike) return false;
 
             Vector3 closestToPanel = bounds.ClosestPoint(panelCenter);
-            if (bounds.Contains(panelCenter) || Vector3.Distance(closestToPanel, panelCenter) <= 0.42f)
+            if (bounds.Contains(panelCenter) || Vector3.Distance(closestToPanel, panelCenter) <= 0.50f)
             {
                 return true;
             }
 
-            if (bounds.size.magnitude > 7.5f) return false;
-            if (Vector3.Distance(closestToPanel, panelCenter) <= 0.72f) return true;
+            bool isNamedProp = IsWorkstationOrFurniturePropName(objTransform);
+            if (bounds.size.magnitude > 7.5f || (bounds.size.magnitude > 4.2f && !isNamedProp))
+            {
+                return false;
+            }
+
+            if (Vector3.Distance(closestToPanel, panelCenter) <= 0.85f) return true;
+
+            if (isNamedProp)
+            {
+                Vector3 toProp = (bounds.center - camPos);
+                float distToCam = toProp.magnitude;
+                if (distToCam <= 2.20f && distToCam > 0.01f && Vector3.Dot(forward, toProp / distToCam) > 0.15f)
+                {
+                    return true;
+                }
+            }
 
             Vector3 seg = corridorEnd - camPos;
             float segLenSq = seg.sqrMagnitude;
@@ -1972,14 +2197,41 @@ namespace AndesSim.UI
 
             Vector3 closestToCam = bounds.ClosestPoint(camPos);
             float tCam = Mathf.Clamp01(Vector3.Dot(closestToCam - camPos, seg) / segLenSq);
-            if (Vector3.Distance(closestToCam, camPos + seg * tCam) <= 0.65f) return true;
+            if (Vector3.Distance(closestToCam, camPos + seg * tCam) <= 0.82f) return true;
 
             float tPanel = Mathf.Clamp01(Vector3.Dot(closestToPanel - camPos, seg) / segLenSq);
-            return Vector3.Distance(closestToPanel, camPos + seg * tPanel) <= 0.65f;
+            return Vector3.Distance(closestToPanel, camPos + seg * tPanel) <= 0.82f;
+        }
+
+        private static readonly string[] DeskPropKeywords =
+        {
+            "monitor", "screen", "pantalla", "desk", "escritorio", "chair", "silla",
+            "keyboard", "teclado", "mouse", "phone", "telefono", "postit", "token",
+            "lever", "palanca", "cajon", "drawer", "consola", "partition", "mampara",
+            "cubicle", "lamp", "mug", "cup", "pc_", "cpu"
+        };
+
+        private static bool IsWorkstationOrFurniturePropName(Transform t)
+        {
+            Transform cur = t;
+            for (int depth = 0; depth < 3 && cur != null; depth++)
+            {
+                string n = cur.name;
+                for (int k = 0; k < DeskPropKeywords.Length; k++)
+                {
+                    if (n.IndexOf(DeskPropKeywords[k], StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        return true;
+                    }
+                }
+                cur = cur.parent;
+            }
+            return false;
         }
 
         private void ClearActiveContent()
         {
+            _contentButtons.Clear();
             if (_contentContainer != null)
             {
                 for (int i = _contentContainer.childCount - 1; i >= 0; i--)
@@ -2028,6 +2280,42 @@ namespace AndesSim.UI
             return cardGO;
         }
 
+        private void RegisterOverlayButton(GameObject btnGO, Button btn, GazeInteractable gaze, Transform parent)
+        {
+            if (btnGO == null) return;
+            CanvasGroup cg = btnGO.GetComponent<CanvasGroup>();
+            if (cg == null) cg = btnGO.AddComponent<CanvasGroup>();
+            OverlayButtonControl entry = new OverlayButtonControl
+            {
+                Button = btn,
+                Gaze = gaze,
+                CanvasGroup = cg
+            };
+
+            bool isFrameButton = _mainPanelRect != null && parent == _mainPanelRect.transform;
+            if (isFrameButton) _frameButtons.Add(entry);
+            else _contentButtons.Add(entry);
+        }
+
+        private static string StripRichTextTags(string raw)
+        {
+            if (string.IsNullOrEmpty(raw)) return string.Empty;
+            int lineBreak = raw.IndexOf('\n');
+            string singleLine = lineBreak >= 0 ? raw.Substring(0, lineBreak) : raw;
+            if (singleLine.IndexOf('<') < 0) return singleLine.Trim();
+
+            StringBuilder sb = new StringBuilder(singleLine.Length);
+            bool insideTag = false;
+            for (int i = 0; i < singleLine.Length; i++)
+            {
+                char ch = singleLine[i];
+                if (ch == '<') { insideTag = true; continue; }
+                if (ch == '>') { insideTag = false; continue; }
+                if (!insideTag) sb.Append(ch);
+            }
+            return sb.ToString().Trim();
+        }
+
         private GameObject CreateInspectionButton(string name, Transform parent, Vector2 pos, Vector2 size, string text, Color bgColor, Color textColor, Action onClick)
         {
             GameObject btnGO = new GameObject(name);
@@ -2051,7 +2339,7 @@ namespace AndesSim.UI
             float lastInvokedTime = -10f;
             Action invokeOncePerFrame = () =>
             {
-                if (onClick == null || lastInvokedFrame == Time.frameCount || (Time.unscaledTime - lastInvokedTime) < 0.22f) return;
+                if (_isSequenceBusy || onClick == null || lastInvokedFrame == Time.frameCount || (Time.unscaledTime - lastInvokedTime) < 0.22f) return;
                 lastInvokedFrame = Time.frameCount;
                 lastInvokedTime = Time.unscaledTime;
                 onClick.Invoke();
@@ -2064,7 +2352,7 @@ namespace AndesSim.UI
             boxCol.isTrigger = true;
 
             GazeInteractable gaze = btnGO.AddComponent<GazeInteractable>();
-            gaze.interactableLabel = text.Replace("<b>", "").Replace("</b>", "").Split('\n')[0];
+            gaze.interactableLabel = StripRichTextTags(text);
             if (onClick != null) gaze.onClick.AddListener(() => invokeOncePerFrame());
 
             HolographicCardHover hover = btnGO.AddComponent<HolographicCardHover>();
@@ -2081,6 +2369,7 @@ namespace AndesSim.UI
             tmp.text = text;
             AndesTypographyTheme.StyleButtonLabel(tmp, textColor, 16.5f);
 
+            RegisterOverlayButton(btnGO, btn, gaze, parent);
             return btnGO;
         }
 
@@ -2160,7 +2449,7 @@ namespace AndesSim.UI
             float lastToggledTime = -10f;
             Action toggleAction = () =>
             {
-                if (lastToggledFrame == Time.frameCount || (Time.unscaledTime - lastToggledTime) < 0.22f) return;
+                if (_isSequenceBusy || lastToggledFrame == Time.frameCount || (Time.unscaledTime - lastToggledTime) < 0.22f) return;
                 lastToggledFrame = Time.frameCount;
                 lastToggledTime = Time.unscaledTime;
 
@@ -2180,11 +2469,13 @@ namespace AndesSim.UI
                     if (AndesSim.Audio.AudioManager.I != null) AndesSim.Audio.AudioManager.I.PlayGazeClick();
                 }
 
+                gaze.SetBaseGraphicColor(bg.color);
                 onCheckedChanged?.Invoke(isChecked);
             };
 
             btn.onClick.AddListener(() => toggleAction.Invoke());
             gaze.onClick.AddListener(() => toggleAction.Invoke());
+            RegisterOverlayButton(btnGO, btn, gaze, parent);
         }
 
         private void UpdateEmailSignalsHint()
@@ -2257,7 +2548,7 @@ namespace AndesSim.UI
             float lastMarkedTime = -10f;
             Action markAction = () =>
             {
-                if (lastMarkedFrame == Time.frameCount || (Time.unscaledTime - lastMarkedTime) < 0.22f) return;
+                if (_isSequenceBusy || lastMarkedFrame == Time.frameCount || (Time.unscaledTime - lastMarkedTime) < 0.22f) return;
                 lastMarkedFrame = Time.frameCount;
                 lastMarkedTime = Time.unscaledTime;
 
@@ -2282,11 +2573,13 @@ namespace AndesSim.UI
                 bg.color = new Color(0.08f, 0.35f, 0.19f, 0.96f);
                 tmp.text = "<b>[OK] PISTA LISTA</b>";
                 AndesTypographyTheme.StyleBadge(tmp, GreenSuccessColor, 18f);
+                gaze.SetBaseGraphicColor(bg.color);
                 UpdateEmailSignalsHint();
             };
 
             btn.onClick.AddListener(() => markAction.Invoke());
             gaze.onClick.AddListener(() => markAction.Invoke());
+            RegisterOverlayButton(btnGO, btn, gaze, parent);
         }
 
         private TextMeshProUGUI CreateLabel(string name, Transform parent, Vector2 pos, Vector2 size, string text, float fontSize, TextAlignmentOptions alignment, Color color)

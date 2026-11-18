@@ -363,12 +363,12 @@ namespace AndesSim.Scenario01
 
             if (holographicSignPanel != null)
             {
-                HolographicPanelEntrance entrance = holographicSignPanel.GetComponent<HolographicPanelEntrance>()
-                    ?? holographicSignPanel.AddComponent<HolographicPanelEntrance>();
+                HolographicPanelEntrance entrance = holographicSignPanel.GetComponent<HolographicPanelEntrance>();
+                if (entrance == null) entrance = holographicSignPanel.AddComponent<HolographicPanelEntrance>();
                 entrance.Configure(0.32f, 0.84f, 0.06f, holographicSignCanvasGroup);
 
-                HolographicFloatMotion floatMotion = holographicSignPanel.GetComponent<HolographicFloatMotion>()
-                    ?? holographicSignPanel.AddComponent<HolographicFloatMotion>();
+                HolographicFloatMotion floatMotion = holographicSignPanel.GetComponent<HolographicFloatMotion>();
+                if (floatMotion == null) floatMotion = holographicSignPanel.AddComponent<HolographicFloatMotion>();
                 floatMotion.Configure(0.040f, 0.85f, new Vector3(0.9f, 1.5f, 0.5f), 0f, 0f, true);
 
                 holographicSignPanel.SetActive(false);

@@ -241,7 +241,8 @@ namespace AndesSim.VR
                 // 2. Si no hay overlay, aplicar zoom óptico de cámara para leer monitores físicos en el escritorio
                 if (_cachedCam == null)
                 {
-                    _cachedCam = GetComponent<Camera>() ?? GetComponentInChildren<Camera>();
+                    _cachedCam = GetComponent<Camera>();
+                    if (_cachedCam == null) _cachedCam = GetComponentInChildren<Camera>();
                     if (_cachedCam != null) _normalFov = _cachedCam.fieldOfView;
                 }
 
@@ -285,7 +286,11 @@ namespace AndesSim.VR
                 }
 
                 // Si está cerrado, buscar el monitor al que el jugador está mirando y abrirlo
-                if (_cachedCam == null) _cachedCam = GetComponent<Camera>() ?? GetComponentInChildren<Camera>();
+                if (_cachedCam == null)
+                {
+                    _cachedCam = GetComponent<Camera>();
+                    if (_cachedCam == null) _cachedCam = GetComponentInChildren<Camera>();
+                }
                 if (_cachedCam != null)
                 {
                     var monitors = FindObjectsByType<AndesSim.Scenario01.InteractiveMonitorController>(FindObjectsSortMode.None);

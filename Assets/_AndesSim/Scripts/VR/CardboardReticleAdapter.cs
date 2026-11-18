@@ -51,10 +51,10 @@ namespace AndesSim.VR
         [SerializeField] private TMP_Text reticleLabelText;
 
         [Header("--- Estilo y Colores ---")]
-        [SerializeField] private Color defaultReticleColor = new Color(1f, 1f, 1f, 0.70f);
-        [SerializeField] private Color activeHoverColor = new Color(0f, 0.95f, 1.0f, 1.0f);
-        [SerializeField] private Color progressFillColor = new Color(0f, 0.95f, 1.0f, 0.95f);
-        [SerializeField] private Color trackRingColor = new Color(1f, 1f, 1f, 0.15f);
+        [SerializeField] private Color defaultReticleColor = new Color(1f, 1f, 1f, 0.72f);
+        [SerializeField] private Color activeHoverColor = new Color(0f, 0.96f, 1.0f, 1.0f);
+        [SerializeField] private Color progressFillColor = new Color(0.22f, 0.96f, 0.56f, 1.0f);
+        [SerializeField] private Color trackRingColor = new Color(0f, 0.90f, 1.0f, 0.58f);
 
         [Tooltip("Anillo de pista tenue que sirve de guía al progreso radial.")]
         [SerializeField] private Image reticleTrackRing;
@@ -172,13 +172,13 @@ namespace AndesSim.VR
                 if (hitLayer == interactiveLayer)
                 {
                     GazeInteractable interactable = candidate.collider.GetComponentInParent<GazeInteractable>();
-                    if (interactable != null && interactable.isActiveAndEnabled)
+                    if (interactable != null && interactable.isActiveAndEnabled && interactable.IsInteractable)
                     {
                         bestHit = candidate;
                         bestInteractable = interactable;
                         return true;
                     }
-                    // Colisionador contenedor sin GazeInteractable (p.ej. chasis Monitor_01): no bloquear botones hijos
+                    // Colisionador contenedor sin GazeInteractable o botón temporalmente bloqueado
                     continue;
                 }
 
@@ -194,6 +194,13 @@ namespace AndesSim.VR
         /// </summary>
         private void PerformCentralGazeRaycast()
         {
+            if (_currentInteractable != null && !_currentInteractable.IsInteractable)
+            {
+                _currentInteractable.OnPointerExit();
+                _currentInteractable = null;
+                _isHittingInteractable = false;
+            }
+
             Ray centerRay = _playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
 
             if (TryRaycastInteractive(centerRay, out RaycastHit hit, out GazeInteractable interactable))
@@ -324,57 +331,66 @@ namespace AndesSim.VR
 
             Ray centerRay = _playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
 
-            if (_isHittingInteractable)
+            if (_isHittingInteractable && _currentInteractable != null && _currentInteractable.IsInteractable)
             {
                 // Posicionar ligeramente separada de la superficie impactada
                 reticleRoot.position = _currentHit.point - (centerRay.direction * 0.04f);
                 reticleRoot.rotation = Quaternion.LookRotation(centerRay.direction);
 
-                // Escalar ergonómicamente con la distancia (1.5° de ángulo visual VR confortable)
+                // Escalar ergonómicamente con la distancia + respuesta inmediata al apuntar un elemento clicable
                 float distance = Vector3.Distance(_playerCamera.transform.position, _currentHit.point);
-                float scaleFactor = Mathf.Clamp(distance * 0.0016f, 0.00085f, 0.008f);
+                float scaleFactor = Mathf.Clamp(distance * 0.00175f, 0.0009f, 0.0085f);
 
-                // Animación elástica únicamente al presionar clic (sin carga automática por mirada)
                 if (clickAnimProgress > 0f)
                 {
-                    scaleFactor *= (1f + 0.16f * clickAnimProgress);
+                    scaleFactor *= (1f + 0.18f * clickAnimProgress);
                 }
                 reticleRoot.localScale = Vector3.one * scaleFactor;
 
-                // Actualizar textos y colores
-                if (_currentInteractable != null)
+                // Actualizar textos y colores con etiqueta limpia y píldora adaptativa
+                string cleanLabel = StripRichTextTags(_currentInteractable.InteractableLabel);
+                bool hasLabel = !string.IsNullOrEmpty(cleanLabel);
+                if (reticleLabelText != null)
                 {
-                    bool hasLabel = !string.IsNullOrEmpty(_currentInteractable.InteractableLabel);
-                    if (reticleLabelText != null)
-                    {
-                        reticleLabelText.text = _currentInteractable.InteractableLabel;
-                    }
+                    reticleLabelText.text = cleanLabel;
+                }
 
-                    if (_labelContainerGO != null)
+                if (_labelContainerGO != null)
+                {
+                    _labelContainerGO.SetActive(hasLabel);
+                    if (hasLabel && reticleLabelText != null)
                     {
-                        _labelContainerGO.SetActive(hasLabel);
+                        RectTransform pillRect = _labelContainerGO.GetComponent<RectTransform>();
+                        if (pillRect != null)
+                        {
+                            float w = Mathf.Clamp(reticleLabelText.preferredWidth + 24f, 115f, 320f);
+                            pillRect.sizeDelta = new Vector2(w, 24f);
+                        }
                     }
-                    else if (reticleLabelText != null)
-                    {
-                        reticleLabelText.gameObject.SetActive(hasLabel);
-                    }
+                }
+                else if (reticleLabelText != null)
+                {
+                    reticleLabelText.gameObject.SetActive(hasLabel);
+                }
 
-                    if (reticleTrackRing != null)
-                    {
-                        reticleTrackRing.gameObject.SetActive(true);
-                    }
+                if (reticleTrackRing != null)
+                {
+                    reticleTrackRing.gameObject.SetActive(true);
+                    reticleTrackRing.color = trackRingColor;
+                    reticleTrackRing.rectTransform.localScale = Vector3.one * (clickAnimProgress > 0f ? 1.15f : 1.0f);
+                }
 
-                    if (reticleProgressRing != null)
-                    {
-                        // Solo se ilumina el anillo al hacer clic explícito (0f mientras solo se mira)
-                        reticleProgressRing.fillAmount = clickAnimProgress;
-                        reticleProgressRing.color = progressFillColor;
-                    }
+                if (reticleProgressRing != null)
+                {
+                    // Solo se ilumina al hacer clic explícito (0f mientras solo se mira)
+                    reticleProgressRing.fillAmount = clickAnimProgress;
+                    reticleProgressRing.color = progressFillColor;
+                }
 
-                    if (reticleCenterDot != null)
-                    {
-                        reticleCenterDot.color = activeHoverColor;
-                    }
+                if (reticleCenterDot != null)
+                {
+                    reticleCenterDot.color = activeHoverColor;
+                    reticleCenterDot.rectTransform.localScale = Vector3.one * 1.25f;
                 }
             }
             else
@@ -416,8 +432,28 @@ namespace AndesSim.VR
                 if (reticleCenterDot != null)
                 {
                     reticleCenterDot.color = defaultReticleColor;
+                    reticleCenterDot.rectTransform.localScale = Vector3.one;
                 }
             }
+        }
+
+        private static string StripRichTextTags(string raw)
+        {
+            if (string.IsNullOrEmpty(raw)) return string.Empty;
+            int lineBreak = raw.IndexOf('\n');
+            string singleLine = lineBreak >= 0 ? raw.Substring(0, lineBreak) : raw;
+            if (singleLine.IndexOf('<') < 0) return singleLine.Trim();
+
+            System.Text.StringBuilder sb = new System.Text.StringBuilder(singleLine.Length);
+            bool insideTag = false;
+            for (int i = 0; i < singleLine.Length; i++)
+            {
+                char ch = singleLine[i];
+                if (ch == '<') { insideTag = true; continue; }
+                if (ch == '>') { insideTag = false; continue; }
+                if (!insideTag) sb.Append(ch);
+            }
+            return sb.ToString().Trim();
         }
 
         #region Generación Procedural y Resiliente de la Retícula
@@ -435,7 +471,7 @@ namespace AndesSim.VR
 
             Canvas canvas = canvasGO.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.WorldSpace;
-            canvas.sortingOrder = 999;
+            canvas.sortingOrder = 10000;
 
             RectTransform canvasRect = canvasGO.GetComponent<RectTransform>();
             canvasRect.sizeDelta = new Vector2(200, 200);
@@ -486,7 +522,10 @@ namespace AndesSim.VR
             pillRect.anchoredPosition = new Vector2(0, -18);
 
             Image pillBg = _labelContainerGO.AddComponent<Image>();
-            pillBg.color = new Color(0.04f, 0.08f, 0.14f, 0.88f);
+            pillBg.color = new Color(0.03f, 0.07f, 0.13f, 0.94f);
+            Outline pillOutline = _labelContainerGO.AddComponent<Outline>();
+            pillOutline.effectColor = new Color(0f, 0.90f, 1.0f, 0.55f);
+            pillOutline.effectDistance = new Vector2(1.2f, -1.2f);
 
             GameObject textGO = new GameObject("LabelText");
             textGO.transform.SetParent(_labelContainerGO.transform, false);

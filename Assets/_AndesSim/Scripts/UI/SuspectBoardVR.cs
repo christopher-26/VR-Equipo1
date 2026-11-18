@@ -125,6 +125,7 @@ namespace AndesSim.UI
         private List<Image> _tabButtonImages = new List<Image>();
         private List<TextMeshProUGUI> _tabButtonTexts = new List<TextMeshProUGUI>();
         private bool _isInitialized = false;
+        private float _lastBoardInteractTime = -10f;
 
         public static SuspectBoardVR I { get; private set; }
 
@@ -595,6 +596,9 @@ namespace AndesSim.UI
                     _tabButtonImages[i].color = HexToColor(ColorDarkBg, 0.75f);
                     if (_tabButtonTexts[i] != null) _tabButtonTexts[i].color = HexToColor(isHypothesis ? ColorGreenCode : ColorTextLight);
                 }
+
+                GazeInteractable tabGaze = _tabButtonImages[i].GetComponent<GazeInteractable>();
+                if (tabGaze != null) tabGaze.SetBaseGraphicColor(_tabButtonImages[i].color);
             }
         }
 
@@ -615,6 +619,8 @@ namespace AndesSim.UI
                 {
                     btnImg.color = isCurrentSelected ? HexToColor(ColorGreenCode, 0.95f) : HexToColor(ColorAmberWarning, 0.90f);
                 }
+                GazeInteractable selectGaze = selectHypothesisButton.GetComponent<GazeInteractable>();
+                if (selectGaze != null && btnImg != null) selectGaze.SetBaseGraphicColor(btnImg.color);
             }
 
             if (selectHypothesisBtnText != null)
@@ -639,8 +645,20 @@ namespace AndesSim.UI
 
         #region Manejo de Interacción del Jugador
 
+        private bool CanProcessBoardInteraction()
+        {
+            if (Time.unscaledTime - _lastBoardInteractTime < 0.22f) return false;
+            if (PlayerTeleportController.I != null && PlayerTeleportController.I.IsTeleporting) return false;
+            if (VrInspectionOverlayManager.I != null && (VrInspectionOverlayManager.I.IsOpen || VrInspectionOverlayManager.I.IsTransitionBusy)) return false;
+            if (EndScenarioPanelUI.I != null && EndScenarioPanelUI.I.IsTransitionBusy) return false;
+            if (CreditsAndEthicsModalUI.I != null && CreditsAndEthicsModalUI.I.IsTransitionBusy) return false;
+            _lastBoardInteractTime = Time.unscaledTime;
+            return true;
+        }
+
         public void OnTabClicked(int index)
         {
+            if (!CanProcessBoardInteraction()) return;
             PlaySound(switchSuspectSound, GenerateTabSwitchTone());
             DisplaySuspect(index);
         }
@@ -650,6 +668,7 @@ namespace AndesSim.UI
         /// </summary>
         public void OnSelectHypothesisClicked()
         {
+            if (!CanProcessBoardInteraction()) return;
             if (suspects == null || _selectedSuspectIndex < 0 || _selectedSuspectIndex >= suspects.Count) return;
 
             SuspectDossierScenario01 suspect = suspects[_selectedSuspectIndex];

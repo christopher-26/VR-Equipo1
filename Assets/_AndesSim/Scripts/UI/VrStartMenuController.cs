@@ -154,9 +154,13 @@ namespace AndesSim.VR
         private float _currentDwellTime = 1.6f;
         private bool _audioMuted = false;
         private bool _isStarting = false;
+        private bool _isMenuTransitioning = false;
         private int _selectedSuspectIdx = 0;
         private bool _showingPasosView;
         private Coroutine _previewFxCoroutine;
+        private Coroutine _menuTransitionCoroutine;
+
+        public bool IsTransitionBusy => _isMenuTransitioning || _isStarting;
 
         private struct SuspectQuickProfile
         {
@@ -215,6 +219,7 @@ namespace AndesSim.VR
             }
 
             DisableFloatingDecorativeRings();
+            DisableAutoPlayOnEntrances();
         }
 
         private void Start()
@@ -312,9 +317,66 @@ namespace AndesSim.VR
 
         public void SwitchTab(MenuTab tab)
         {
+            if (_isMenuTransitioning || _isStarting || tab == _currentTab) return;
             _currentTab = tab;
             PlayUiSound(tabSwitchSound, 880f);
-            UpdateTabVisuals(tab);
+
+            if (!gameObject.activeInHierarchy || tabPanels == null || tabPanels.Length == 0)
+            {
+                UpdateTabVisuals(tab);
+                return;
+            }
+
+            if (_menuTransitionCoroutine != null) StopCoroutine(_menuTransitionCoroutine);
+            _menuTransitionCoroutine = StartCoroutine(SwitchTabSequentialRoutine(tab));
+        }
+
+        private IEnumerator SwitchTabSequentialRoutine(MenuTab targetTab)
+        {
+            _isMenuTransitioning = true;
+            SetMenuControlsInteractable(false);
+
+            CanvasGroup activeOutGroup = FindFirstActiveTabCanvasGroup();
+            if (activeOutGroup != null)
+            {
+                yield return FadeCanvasGroupRoutine(activeOutGroup, activeOutGroup.alpha, 0f, 0.09f);
+            }
+
+            UpdateTabVisuals(targetTab);
+
+            int targetIdx = (int)targetTab;
+            CanvasGroup targetInGroup = (tabPanels != null && targetIdx >= 0 && targetIdx < tabPanels.Length && tabPanels[targetIdx] != null)
+                ? GetOrAddTabCanvasGroup(tabPanels[targetIdx])
+                : null;
+            if (targetInGroup != null)
+            {
+                yield return FadeCanvasGroupRoutine(targetInGroup, 0f, 1f, 0.13f);
+            }
+
+            SetMenuControlsInteractable(true);
+            _isMenuTransitioning = false;
+            _menuTransitionCoroutine = null;
+        }
+
+        private CanvasGroup FindFirstActiveTabCanvasGroup()
+        {
+            if (tabPanels == null) return null;
+            for (int i = 0; i < tabPanels.Length; i++)
+            {
+                if (tabPanels[i] != null && tabPanels[i].activeSelf)
+                {
+                    return GetOrAddTabCanvasGroup(tabPanels[i]);
+                }
+            }
+            return null;
+        }
+
+        private static CanvasGroup GetOrAddTabCanvasGroup(GameObject tabPanel)
+        {
+            if (tabPanel == null) return null;
+            CanvasGroup cg = tabPanel.GetComponent<CanvasGroup>();
+            if (cg == null) cg = tabPanel.AddComponent<CanvasGroup>();
+            return cg;
         }
 
         private void UpdateTabVisuals(MenuTab activeTab)
@@ -327,11 +389,8 @@ namespace AndesSim.VR
                 if (tabPanels[i] != null)
                 {
                     tabPanels[i].SetActive(isActive);
-                    if (isActive)
-                    {
-                        HolographicPanelEntrance ent = tabPanels[i].GetComponent<HolographicPanelEntrance>();
-                        ent?.PlayEntrance();
-                    }
+                    CanvasGroup tabCg = tabPanels[i].GetComponent<CanvasGroup>();
+                    if (tabCg != null) tabCg.alpha = isActive ? 1f : 0f;
                 }
 
                 if (tabButtonBgs != null && i < tabButtonBgs.Length && tabButtonBgs[i] != null)
@@ -344,11 +403,21 @@ namespace AndesSim.VR
                     tabButtonLabels[i].color = isActive ? TabActiveText : TabInactiveText;
                     tabButtonLabels[i].fontStyle = FontStyles.Bold;
                 }
+
+                if (tabButtons != null && i < tabButtons.Length && tabButtons[i] != null)
+                {
+                    GazeInteractable tabGaze = tabButtons[i].GetComponent<GazeInteractable>();
+                    if (tabGaze != null && tabButtonBgs != null && i < tabButtonBgs.Length && tabButtonBgs[i] != null)
+                    {
+                        tabGaze.SetBaseGraphicColor(tabButtonBgs[i].color);
+                    }
+                }
             }
         }
 
         public void SelectSuspectPreview(int index, bool silent)
         {
+            if (!silent && IsTransitionBusy) return;
             _selectedSuspectIdx = Mathf.Clamp(index, 0, DefaultSuspectProfiles.Length - 1);
             if (!silent) PlayUiSound(tabSwitchSound, 760f);
 
@@ -371,6 +440,8 @@ namespace AndesSim.VR
                         suspectCardBgs[i].color = (i == _selectedSuspectIdx)
                             ? new Color(0.11f, 0.34f, 0.45f, 0.98f)
                             : new Color(0.08f, 0.14f, 0.24f, 0.94f);
+                        GazeInteractable cardGaze = suspectCardBgs[i].GetComponent<GazeInteractable>();
+                        if (cardGaze != null) cardGaze.SetBaseGraphicColor(suspectCardBgs[i].color);
                     }
                 }
             }
@@ -378,6 +449,7 @@ namespace AndesSim.VR
 
         public void ApplyLightingPreset(SocLightingPreset preset)
         {
+            if (IsTransitionBusy) return;
             PlayUiSound(tabSwitchSound, 940f);
             if (SocLightingController.I != null)
             {
@@ -417,12 +489,15 @@ namespace AndesSim.VR
 
         public void StartVirusPreviewFromMenu()
         {
+            if (IsTransitionBusy) return;
             if (_previewFxCoroutine != null) StopCoroutine(_previewFxCoroutine);
             _previewFxCoroutine = StartCoroutine(PreviewVirusPanoramicRoutine());
         }
 
         private IEnumerator PreviewVirusPanoramicRoutine()
         {
+            _isMenuTransitioning = true;
+            SetMenuControlsInteractable(false);
             PlayUiSound(modeSwitchSound, 520f);
 
             // Mover momentáneamente al centro de observación dentro de la oficina para apreciar toda la animación 3D
@@ -435,11 +510,21 @@ namespace AndesSim.VR
                 savedRot = playerTf.rotation;
             }
 
-            HideMenu();
+            if (menuCanvasGroup != null)
+            {
+                yield return FadeCanvasGroupRoutine(menuCanvasGroup, menuCanvasGroup.alpha, 0f, 0.16f);
+            }
+            SetMenuVisualHierarchyActive(false);
 
             if (PlayerTeleportController.I != null)
             {
                 PlayerTeleportController.I.TeleportTo(new Vector3(0.0f, 0f, 0.90f), Quaternion.Euler(0f, 172f, 0f));
+                float timeout = 1.2f;
+                while (PlayerTeleportController.I.IsTeleporting && timeout > 0f)
+                {
+                    timeout -= Time.unscaledDeltaTime;
+                    yield return null;
+                }
             }
 
             if (InfectionSpreadVisualizer.I != null)
@@ -452,15 +537,25 @@ namespace AndesSim.VR
             if (PlayerTeleportController.I != null && playerTf != null)
             {
                 PlayerTeleportController.I.TeleportTo(savedPos, savedRot);
+                float timeout = 1.2f;
+                while (PlayerTeleportController.I.IsTeleporting && timeout > 0f)
+                {
+                    timeout -= Time.unscaledDeltaTime;
+                    yield return null;
+                }
             }
 
-            ShowMenu();
-            SwitchTab(MenuTab.AjustesYFx);
             _previewFxCoroutine = null;
+            _isMenuTransitioning = false;
+            SetMenuVisualHierarchyActive(true);
+            ShowMenu();
+            UpdateTabVisuals(MenuTab.AjustesYFx);
+            _currentTab = MenuTab.AjustesYFx;
         }
 
         public void SelectMode(SimMode mode)
         {
+            if (IsTransitionBusy) return;
             PlayUiSound(modeSwitchSound, (mode == SimMode.Ataque) ? 440f : 660f);
 
             if (GameManager.I != null)
@@ -519,6 +614,7 @@ namespace AndesSim.VR
 
         public void TogglePasosView()
         {
+            if (IsTransitionBusy) return;
             SetPasosViewVisible(!_showingPasosView);
         }
 
@@ -539,6 +635,7 @@ namespace AndesSim.VR
 
         public void OpenCreditsModal()
         {
+            if (IsTransitionBusy) return;
             var modal = CreditsAndEthicsModalUI.I;
             if (modal == null)
             {
@@ -644,9 +741,67 @@ namespace AndesSim.VR
             PlayUiSound(tabSwitchSound, _audioMuted ? 300f : 800f);
         }
 
+        private void DisableAutoPlayOnEntrances()
+        {
+            HolographicPanelEntrance[] entrances = GetComponentsInChildren<HolographicPanelEntrance>(true);
+            for (int i = 0; i < entrances.Length; i++)
+            {
+                if (entrances[i] != null) entrances[i].SetPlayOnEnable(false);
+            }
+        }
+
+        private void SetMenuControlsInteractable(bool interactable)
+        {
+            Button[] buttons = GetComponentsInChildren<Button>(true);
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                if (buttons[i] == null) continue;
+                buttons[i].interactable = interactable;
+                CanvasGroup cg = buttons[i].GetComponent<CanvasGroup>();
+                if (cg == null) cg = buttons[i].gameObject.AddComponent<CanvasGroup>();
+                cg.alpha = interactable ? 1f : 0.46f;
+                cg.interactable = interactable;
+            }
+
+            GazeInteractable[] gazes = GetComponentsInChildren<GazeInteractable>(true);
+            for (int i = 0; i < gazes.Length; i++)
+            {
+                if (gazes[i] != null) gazes[i].SetInteractable(interactable);
+            }
+        }
+
+        private static IEnumerator FadeCanvasGroupRoutine(CanvasGroup group, float fromAlpha, float toAlpha, float duration)
+        {
+            if (group == null) yield break;
+            group.alpha = fromAlpha;
+            float safeDuration = Mathf.Max(0.05f, duration);
+            float elapsed = 0f;
+            while (elapsed < safeDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                group.alpha = Mathf.Lerp(fromAlpha, toAlpha, Mathf.Clamp01(elapsed / safeDuration));
+                yield return null;
+            }
+            group.alpha = toAlpha;
+        }
+
+        private void SetMenuVisualHierarchyActive(bool active)
+        {
+            if (holoFloatingRoot != null)
+            {
+                holoFloatingRoot.gameObject.SetActive(active);
+                return;
+            }
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                Transform child = transform.GetChild(i);
+                if (child != null) child.gameObject.SetActive(active);
+            }
+        }
+
         public void IniciarSimulacion()
         {
-            if (_isStarting) return;
+            if (IsTransitionBusy) return;
             if (_previewFxCoroutine != null)
             {
                 StopCoroutine(_previewFxCoroutine);
@@ -657,7 +812,7 @@ namespace AndesSim.VR
 
         public void IniciarSimulacionToPoint(string teleportObjectName)
         {
-            if (_isStarting) return;
+            if (IsTransitionBusy) return;
             if (_previewFxCoroutine != null)
             {
                 StopCoroutine(_previewFxCoroutine);
@@ -669,6 +824,8 @@ namespace AndesSim.VR
         private IEnumerator IniciarSimulacionRoutine(string overrideTeleportName)
         {
             _isStarting = true;
+            _isMenuTransitioning = true;
+            SetMenuControlsInteractable(false);
             Debug.Log($"{LogPrefix} <color=#00F2FE><b>Iniciando simulacion forense...</b></color>");
 
             if (startSimWarpSound != null && audioSource != null)
@@ -691,14 +848,9 @@ namespace AndesSim.VR
 
             if (menuCanvasGroup != null)
             {
-                float t = 0f;
-                while (t < 0.30f)
-                {
-                    t += Time.deltaTime;
-                    menuCanvasGroup.alpha = Mathf.Lerp(1f, 0.10f, t / 0.30f);
-                    yield return null;
-                }
+                yield return FadeCanvasGroupRoutine(menuCanvasGroup, menuCanvasGroup.alpha, 0f, 0.20f);
             }
+            SetMenuVisualHierarchyActive(false);
 
             if (GameManager.I != null)
             {
@@ -728,7 +880,7 @@ namespace AndesSim.VR
                     PlayerTeleportController.I.TeleportTo(new Vector3(1.40f, 0f, -2.50f), Quaternion.identity);
                 }
 
-                float timeout = 1.0f;
+                float timeout = 1.2f;
                 while (PlayerTeleportController.I.IsTeleporting && timeout > 0f)
                 {
                     timeout -= Time.unscaledDeltaTime;
@@ -750,10 +902,10 @@ namespace AndesSim.VR
                 AudioManager.I.PlayNarration("Voice_05_InicioOficina", true, 2.0f);
             }
 
-            HideMenu();
             _isStarting = false;
+            _isMenuTransitioning = false;
 
-            // Abrir automáticamente la interfaz guiada de la estación inicial para que el usuario sepa qué hacer de inmediato
+            // Abrir automáticamente la interfaz guiada de la estación inicial después de terminar el teletransporte
             if (VrInspectionOverlayManager.I != null)
             {
                 string destName = targetPoint != null ? targetPoint.gameObject.name : string.Empty;
@@ -781,6 +933,8 @@ namespace AndesSim.VR
                         VrInspectionOverlayManager.I.OpenEmailInspection(0);
                 }
             }
+
+            HideMenu();
         }
 
         public void HideMenu()
@@ -797,22 +951,38 @@ namespace AndesSim.VR
         public void ShowMenu()
         {
             _isStarting = false;
+            _isMenuTransitioning = false;
             gameObject.SetActive(true);
-            if (menuCanvasGroup != null)
-            {
-                menuCanvasGroup.alpha = 1f;
-                menuCanvasGroup.interactable = true;
-                menuCanvasGroup.blocksRaycasts = true;
-            }
+            SetMenuVisualHierarchyActive(true);
+            DisableFloatingDecorativeRings();
+            DisableAutoPlayOnEntrances();
 
-            HolographicPanelEntrance entrance = GetComponentInChildren<HolographicPanelEntrance>(true);
-            entrance?.PlayEntrance();
+            if (_menuTransitionCoroutine != null) StopCoroutine(_menuTransitionCoroutine);
+            _menuTransitionCoroutine = StartCoroutine(ShowMenuFadeInRoutine());
+        }
+
+        private IEnumerator ShowMenuFadeInRoutine()
+        {
+            _isMenuTransitioning = true;
+            SetMenuControlsInteractable(false);
 
             SetPasosViewVisible(false);
+            _currentTab = MenuTab.MisionYModos;
             UpdateTabVisuals(MenuTab.MisionYModos);
             UpdateModeDisplay();
             UpdateDwellDisplay();
             UpdateLightingDisplay(SocLightingController.I != null ? SocLightingController.I.ActivePreset : SocLightingPreset.OficinaClara);
+
+            if (menuCanvasGroup != null)
+            {
+                menuCanvasGroup.interactable = true;
+                menuCanvasGroup.blocksRaycasts = true;
+                yield return FadeCanvasGroupRoutine(menuCanvasGroup, 0f, 1f, 0.20f);
+            }
+
+            SetMenuControlsInteractable(true);
+            _isMenuTransitioning = false;
+            _menuTransitionCoroutine = null;
 
             if (AudioManager.I != null)
             {

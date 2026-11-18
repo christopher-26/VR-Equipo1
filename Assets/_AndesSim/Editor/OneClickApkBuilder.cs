@@ -548,6 +548,7 @@ namespace AndesSim.Editor
     public class AndesSimGradlePostProcessor : IPostGenerateGradleAndroidProject
     {
         public int callbackOrder => 1000;
+        private static readonly Encoding Utf8NoBom = new UTF8Encoding(false);
 
         public void OnPostGenerateGradleAndroidProject(string basePath)
         {
@@ -558,8 +559,9 @@ namespace AndesSim.Editor
                 foreach (var gf in gradleFiles)
                 {
                     string fileText = File.ReadAllText(gf, Encoding.UTF8);
+                    string normalizedText = fileText.TrimStart('\uFEFF');
                     string updated = System.Text.RegularExpressions.Regex.Replace(
-                        fileText,
+                        normalizedText,
                         @"(compileSdk(?:Version)?\s*(?:=|\s)\s*)(?:[12]?\d|3[0-4])\b",
                         "${1}35");
                     updated = System.Text.RegularExpressions.Regex.Replace(
@@ -567,10 +569,11 @@ namespace AndesSim.Editor
                         @"(targetSdk(?:Version)?\s*(?:=|\s)\s*)(?:[12]?\d|3[0-4])\b",
                         "${1}35");
 
-                    if (!string.Equals(updated, fileText, StringComparison.Ordinal))
+                    bool hadBom = fileText.Length > 0 && fileText[0] == '\uFEFF';
+                    if (hadBom || !string.Equals(updated, fileText, StringComparison.Ordinal))
                     {
-                        File.WriteAllText(gf, updated, Encoding.UTF8);
-                        Debug.Log($"[ANDES-SIM - GradlePostProcessor] Ajustado compileSdk/targetSdk a 35 en: {gf}");
+                        File.WriteAllText(gf, updated, Utf8NoBom);
+                        Debug.Log($"[ANDES-SIM - GradlePostProcessor] Ajustado compileSdk/targetSdk a 35 (sin BOM) en: {gf}");
                     }
                 }
 
@@ -578,39 +581,43 @@ namespace AndesSim.Editor
                 string unityLibGradlePath = Path.Combine(basePath, "build.gradle");
                 if (File.Exists(unityLibGradlePath))
                 {
-                    string ulText = File.ReadAllText(unityLibGradlePath, Encoding.UTF8);
+                    string ulRaw = File.ReadAllText(unityLibGradlePath, Encoding.UTF8);
+                    string ulText = ulRaw.TrimStart('\uFEFF');
+                    bool hadBom = ulRaw.Length > 0 && ulRaw[0] == '\uFEFF';
+                    string updatedUl = ulText;
                     if (!ulText.Contains("androidx.appcompat:appcompat"))
                     {
                         string cardboardDeps = "\n    implementation 'androidx.appcompat:appcompat:1.6.1'\n" +
                                                "    implementation 'com.google.android.gms:play-services-vision:20.1.3'\n" +
                                                "    implementation 'com.google.android.material:material:1.12.0'\n" +
                                                "    implementation 'com.google.protobuf:protobuf-javalite:3.19.4'";
-                        string updatedUl = System.Text.RegularExpressions.Regex.Replace(
+                        updatedUl = System.Text.RegularExpressions.Regex.Replace(
                             ulText,
                             @"dependencies\s*\{",
                             "dependencies {" + cardboardDeps,
                             System.Text.RegularExpressions.RegexOptions.None);
-                        if (!string.Equals(updatedUl, ulText, StringComparison.Ordinal))
-                        {
-                            File.WriteAllText(unityLibGradlePath, updatedUl, Encoding.UTF8);
-                            Debug.Log($"[ANDES-SIM - GradlePostProcessor] Dependencias Cardboard/AppCompat/Protobuf inyectadas en: {unityLibGradlePath}");
-                        }
+                    }
+                    if (hadBom || !string.Equals(updatedUl, ulRaw, StringComparison.Ordinal))
+                    {
+                        File.WriteAllText(unityLibGradlePath, updatedUl, Utf8NoBom);
+                        Debug.Log($"[ANDES-SIM - GradlePostProcessor] Dependencias Cardboard/AppCompat/Protobuf inyectadas en: {unityLibGradlePath}");
                     }
                 }
 
                 string gradlePropsPath = Path.Combine(rootGradle, "gradle.properties");
                 if (File.Exists(gradlePropsPath))
                 {
-                    string propsText = File.ReadAllText(gradlePropsPath, Encoding.UTF8);
+                    string propsRaw = File.ReadAllText(gradlePropsPath, Encoding.UTF8);
+                    string propsText = propsRaw.TrimStart('\uFEFF');
                     string updatedProps = System.Text.RegularExpressions.Regex.Replace(
                         propsText,
                         @"(unity\.(?:compileSdkVersion|targetSdkVersion)\s*=\s*)(?:[12]?\d|3[0-4])\b",
                         "${1}35");
                     if (!updatedProps.Contains("android.useAndroidX")) updatedProps += "\nandroid.useAndroidX=true";
                     if (!updatedProps.Contains("android.enableJetifier")) updatedProps += "\nandroid.enableJetifier=true";
-                    if (!string.Equals(updatedProps, propsText, StringComparison.Ordinal))
+                    if (!string.Equals(updatedProps, propsRaw, StringComparison.Ordinal))
                     {
-                        File.WriteAllText(gradlePropsPath, updatedProps, Encoding.UTF8);
+                        File.WriteAllText(gradlePropsPath, updatedProps, Utf8NoBom);
                         Debug.Log($"[ANDES-SIM - GradlePostProcessor] Ajustado gradle.properties SDK 35 y AndroidX en: {gradlePropsPath}");
                     }
                 }
@@ -632,10 +639,10 @@ namespace AndesSim.Editor
                             string cleaned = System.Text.RegularExpressions.Regex.Replace(
                                 c,
                                 @"\s*<style\s+name=""Theme\.AppCompat\.NoActionBar""[^>]*>[\s\S]*?</style>",
-                                string.Empty);
+                                string.Empty).TrimStart('\uFEFF');
                             if (cleaned.Contains("<style"))
                             {
-                                File.WriteAllText(sp, cleaned, Encoding.UTF8);
+                                File.WriteAllText(sp, cleaned, Utf8NoBom);
                                 Debug.Log($"[ANDES-SIM - GradlePostProcessor] Limpiado estilo Theme.AppCompat falso en: {sp}");
                             }
                             else

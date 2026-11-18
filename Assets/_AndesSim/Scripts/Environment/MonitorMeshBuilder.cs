@@ -391,12 +391,14 @@ namespace AndesSim.Environment
 
             if (phishingInspector == null)
             {
-                phishingInspector = monitor01.GetComponent<PhishingInspector>() ?? monitor01.AddComponent<PhishingInspector>();
+                phishingInspector = monitor01.GetComponent<PhishingInspector>();
+                if (phishingInspector == null) phishingInspector = monitor01.AddComponent<PhishingInspector>();
             }
 
             if (mailQuarantine == null)
             {
-                mailQuarantine = monitor01.GetComponent<MailQuarantine>() ?? monitor01.AddComponent<MailQuarantine>();
+                mailQuarantine = monitor01.GetComponent<MailQuarantine>();
+                if (mailQuarantine == null) mailQuarantine = monitor01.AddComponent<MailQuarantine>();
             }
 
             // 3.1 Contenedor Principal: Panel_Correo
